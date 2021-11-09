@@ -9,7 +9,7 @@ from pyvis.options import Layout
 from merger import Merger
 from node import Node
 from optimiser import Optimiser
-from matcher import Matcher
+from matcher import Matcher, GraphMatcher
 
 ''' timeline
     - backend with algorithm
@@ -77,5 +77,6 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    Matcher()
+    # Matcher()
     # Merger()
+    GraphMatcher()
