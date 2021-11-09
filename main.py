@@ -1,9 +1,15 @@
+from pprint import pprint
+
+import cv2
 import networkx as nx
+import numpy as np
 from pyvis.network import Network
 from pyvis.options import Layout
 
+from merger import Merger
 from node import Node
 from optimiser import Optimiser
+from matcher import Matcher
 
 ''' timeline
     - backend with algorithm
@@ -70,4 +76,6 @@ def main():
         i += 1
 
 if __name__ == '__main__':
-    main()
+    # main()
+    Matcher()
+    # Merger()
