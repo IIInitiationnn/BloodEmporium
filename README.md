@@ -20,3 +20,5 @@ A program to automatically level the Bloodweb in the game Dead by Daylight.
 ### Issues
 - Icon packs with similar-looking icons are more likely to cause incorrect object recognition, which may result in
   incorrect or suboptimal selection
+- Shaders should be disabled while using this program, as colour changes are more likely to cause incorrect object
+  recognition

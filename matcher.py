@@ -41,9 +41,10 @@ class Matcher:
         # path_example = Matcher.perks_path + "/Qatar/iconPerks_camaraderie.png"
         # path_example = Matcher.perks_path + "/Qatar/iconPerks_babySitter.png"
         # path_example = Matcher.items_path + "/iconItems_toolbox.png"
-        path_base = "base.png"
-        # path_base = "base_larger.png"
-        # path_base = "base_claud.png"
+        path_base = "training_data/bases/"
+        path_base += "base.png"
+        # path_base += "base_larger.png"
+        # path_base += "base_claud.png"
 
         dim = 50
 
@@ -92,15 +93,16 @@ class Matcher:
 
 class GraphMatcher:
     def __init__(self):
-        path_base = "base.png"
-        # path_base = "base_claud.png"
-        # path_base = "base_larger.png"
+        path_base = "training_data/bases/"
+        path_base += "base.png"
+        # path_base += "base_claud.png"
+        # path_base += "base_larger.png"
         base = cv2.imread(path_base, cv2.IMREAD_GRAYSCALE)
 
         base_c = cv2.GaussianBlur(base, (11, 11), sigmaX=0, sigmaY=0) # circles
         base_l = cv2.GaussianBlur(base, (5, 5), sigmaX=0, sigmaY=0) # lines
         # base_l = cv2.GaussianBlur(cv2.split(cv2.imread(path_base, cv2.IMREAD_COLOR))[0], (5, 5), sigmaX=0, sigmaY=0) # lines
-        output = base_c.copy()
+        output = base.copy()
 
         np.set_printoptions(threshold=np.inf)
 
@@ -115,6 +117,7 @@ class GraphMatcher:
         if circles is not None:
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.round(circles[0, :]).astype("int")
+
             # loop over the (x, y) coordinates and radius of the circles
             for (x, y, r) in circles:
                 # draw the circle in the output image, then draw a rectangle
@@ -124,9 +127,12 @@ class GraphMatcher:
 
                 # remove the node from the edges graph
                 cv2.circle(edges, (x, y), 1, 0, math.floor(r / 1.9) + 55) # tweak size of circle removal
-                centres.append((x, y))
+                centres.append((x, y, r))
 
-        cv2.imshow('edges', edges)
+        # origin: manual for now for base.png
+        cv2.circle(output, (650, 773), 23, 255, 4)
+        cv2.circle(edges, (650, 773), 1, 0, math.floor(23 / 1.9) + 55) # tweak size of circle removal
+        centres.append((650, 773, 23))
 
         lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 180, threshold=30, minLineLength=25, maxLineGap=25)
         # lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 180, threshold=55, minLineLength=25, maxLineGap=30) # tinkering to get base working
@@ -137,6 +143,7 @@ class GraphMatcher:
             canny params (first is minimum, second is maximum)
             gaussian blur'''
 
+        self.lines = []
         for line in lines:
             x1, y1, x2, y2 = line[0]
             if any([close_proximity_line_to_circle(centre, (x1, y1)) for centre in centres]) and\
@@ -144,10 +151,33 @@ class GraphMatcher:
                 # TODO evaluate which nodes it is joining
 
                 cv2.line(output, (x1, y1), (x2, y2), 255, 5)
+                self.lines.append(((x1, y1), (x2, y2)))
 
-        # cv2.imshow("edges", edges)
-
+        cv2.imshow("edges", edges)
         cv2.imshow("output", output)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+        self.circles = centres # list of (x, y, r)
+
+class CircleMatcher:
+    def __init__(self, path_base, circle_blur, hough_1, hough_2):
+        path_base = "training_data/bases/" + path_base
+        base = cv2.imread(path_base, cv2.IMREAD_GRAYSCALE)
+        base_c = cv2.GaussianBlur(base, (circle_blur, circle_blur), sigmaX=0, sigmaY=0) # circles
+        output = base_c.copy()
+
+        np.set_printoptions(threshold=np.inf)
+
+        # detect circles in the image
+        circles = cv2.HoughCircles(base_c, cv2.HOUGH_GRADIENT, dp=1, minDist=80, param1=hough_1, param2=hough_2,
+                                   minRadius=7, maxRadius=50)
+
+        self.circles = []
+        if circles is not None:
+            circles = np.round(circles[0, :]).astype("int")
+            for (x, y, r) in circles:
+                cv2.circle(output, (x, y), r, 255, 4)
+                self.circles.append((x, y, r))
+
+        self.output = output

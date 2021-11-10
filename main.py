@@ -10,6 +10,7 @@ from merger import Merger
 from node import Node
 from optimiser import Optimiser
 from matcher import Matcher, GraphMatcher
+from utils.training_util import CircleTrainer
 
 ''' timeline
     - backend with algorithm
@@ -17,6 +18,7 @@ from matcher import Matcher, GraphMatcher
     - values from config file
         - can have multiple sets of values and can switch
     - frontend with GUI
+        - debug mode using pyvis showing matched unlockables, paths and selected nodes
 '''
 
 def main():
@@ -80,3 +82,4 @@ if __name__ == '__main__':
     # Matcher()
     # Merger()
     GraphMatcher()
+    # CircleTrainer()
