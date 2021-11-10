@@ -4,7 +4,7 @@ import random
 import cv2
 
 from matcher import CircleMatcher
-from utils.distance_util import close_proximity_circle_to_circle
+from utils.distance_util import circles_are_overlapping
 
 class CircleTrainer:
     '''to find best parameters for matching circles'''
@@ -40,7 +40,7 @@ class CircleTrainer:
                 for target_circle in targets[base].copy():
                     success = False
                     for circle in circles:
-                        if close_proximity_circle_to_circle(target_circle, circle):
+                        if circles_are_overlapping(target_circle, circle):
                             success = True
                             circles.remove(circle)
                             break
