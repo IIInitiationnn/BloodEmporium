@@ -2,6 +2,7 @@ from pprint import pprint
 
 class Node:
     # TODO pass in colour, calculate is_accessible, is_user_claimed, is_entity claimed from it
+    #  - also dont need is_entity_claimed since they arent really circles
     def __init__(self, node_id, name, value, position, is_accessible, is_user_claimed, is_entity_claimed):
         self.node_id = node_id
         self.name = name

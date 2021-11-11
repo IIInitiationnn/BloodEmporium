@@ -4,6 +4,7 @@ import random
 import cv2
 import networkx as nx
 import numpy as np
+import os
 from pyvis.network import Network
 from pyvis.options import Layout
 
@@ -22,7 +23,7 @@ from utils.training_util import CircleTrainer
         - debug mode using pyvis showing matched unlockables, paths and selected nodes
     - for higher matching accuracy, either auto detect with text recognition or just manual option in frontend
         to only select nurse unlockables, or survivor unlockables for instance
-    - icon with entity hand (like EGC) grasping shards or bloodpoints or just a bloody entity hand
+    - icon with entity hand (like EGC) grasping a glowing shard
     
     - if p1, p2 or p3, stop processing
         - options for each prestige to continue unlocking in the bloodweb
@@ -109,30 +110,17 @@ if __name__ == '__main__':
     merged_base = MergedBase()
 
     # hough transform: detect circles and lines
-    image = cv2.imread("training_data/bases/base.png", cv2.IMREAD_GRAYSCALE)
-    nodes_connections = HoughTransform(image, 11, 10, 45, 5, 85, 40, 30, 25)
+    path_to_image = "training_data/bases/shaderless/base_claud.png"
+    nodes_connections = HoughTransform(path_to_image, 11, 10, 45, 5, 85, 40, 30, 25)
 
-    matcher = Matcher(image, nodes_connections, merged_base)
+    matcher = Matcher(cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE), nodes_connections, merged_base)
     base_bloodweb = matcher.graph # all 9999
 
     # run through optimiser
 
-    # CircleTrainer()
+    '''for base in [os.path.join(subdir, file) for (subdir, dirs, files) in os.walk("training_data/bases") for file in files]:
+        if "target" in base or "shaders" in base:
+            continue
+        nodes_connections = HoughTransform(base, 11, 10, 45, 5, 85, 40, 30, 25)'''
 
-    ''' use this for identifying origin
-    image = cv2.split(cv2.imread("training_data/bases/base_larger.png", cv2.IMREAD_UNCHANGED))[2]
-    template = cv2.resize(cv2.split(cv2.imread("assets/origin_basic.png", cv2.IMREAD_UNCHANGED))[2], (38, 38), interpolation=cv2.INTER_AREA)
-
-    template_alpha = cv2.resize(cv2.split(cv2.imread("assets/origin_basic.png", cv2.IMREAD_UNCHANGED))[3], (38, 38), interpolation=cv2.INTER_AREA) # for masking
-    result = cv2.matchTemplate(image, template, cv2.TM_CCORR_NORMED, mask=template_alpha)
-
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-
-    top_left = max_loc
-    bottom_right = (top_left[0] + 38, top_left[1] + 38)
-    cv2.rectangle(image, top_left, bottom_right, 255, 2) # 255 = white; 2 = thickness
-
-    cv2.imshow("template", template)
-    cv2.imshow("result", image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()'''
+    cv2.destroyAllWindows()
