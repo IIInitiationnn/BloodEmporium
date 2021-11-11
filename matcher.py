@@ -10,6 +10,7 @@ from pyvis.network import Network
 from mergedbase import MergedBase
 from node import Node
 from utils.distance_util import circles_are_overlapping, line_close_to_circle, get_endpoints
+from utils.network_util import NetworkUtil
 
 '''
 Offerings | Killer + Survivor | Hexagon | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/Favors
@@ -43,10 +44,12 @@ class HoughTransform:
         self.__run_hough_line(l_blur, canny_min, canny_max, threshold, max_line_length)
         self.__validate_all()
 
-        cv2.imshow("output", self.__output)
-        cv2.imshow("output_validated", self.__output_validated)
+        # cv2.imshow("image_r", self.image_r)
+        # cv2.imshow("origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
+        # cv2.imshow("output", self.__output)
+        # cv2.imshow("output_validated", self.__output_validated)
         # cv2.imshow("edges", self.edges)
-        cv2.waitKey(0)
+        # cv2.waitKey(0)
 
     def get_valid_circles(self):
         '''
@@ -86,29 +89,40 @@ class HoughTransform:
 
             # loop over the (x, y) coordinates and radius of the circles
             for (x, y, r) in circles:
+
+                # standardise radius
+                if r > 30: # unconsumed: yellow / neutral
+                    r = 32 # 38
+                elif r < 24: # error?
+                    r = 32 # 38
+                else: # consumed: red
+                    r = 24 # 32
+
+                # TODO need to read colour from image
+                # https://stackoverflow.com/questions/43111029/how-to-find-the-average-colour-of-an-image-in-python-with-opencv/43111221#43111221
+
                 cv2.circle(self.__output, (x, y), r, 255, 1)
                 cv2.rectangle(self.__output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
 
                 # remove the node from the edges graph
-                self.circles.append(((x, y), r, "yellow")) # TODO need to read colour from image
+                self.circles.append(((x, y), r, "yellow"))
 
     def __match_origin(self):
         matches = []
 
         height, width = self.image_r.shape
         crop_ratio = 3
-        cropped = self.image_r[math.floor(height / crop_ratio):math.floor((crop_ratio - 1) * height / crop_ratio),
-                               math.floor(width / crop_ratio):math.floor((crop_ratio - 1) * width / crop_ratio)]
+        cropped = self.image_r[round(height / crop_ratio):round((crop_ratio - 1) * height / crop_ratio),
+                               round(width / crop_ratio):round((crop_ratio - 1) * width / crop_ratio)]
 
-        dim = 40 # TODO adjust based on resolution and UI
-        radius = math.floor(dim / 2)
+        dim = round(64 * 0.7) # TODO adjust based on resolution and UI
+        radius = round(dim / 2)
         for subdir, dirs, files in os.walk("assets"):
             for file in files:
                 if "origin" in file:
-
-                    image = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))
-                    template = cv2.resize(image[2], (dim, dim), interpolation=cv2.INTER_AREA)
-                    template_alpha = cv2.resize(image[3], (dim, dim), interpolation=cv2.INTER_AREA) # for masking
+                    origin = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))
+                    template = cv2.resize(origin[2], (dim, dim), interpolation=cv2.INTER_AREA)
+                    template_alpha = cv2.resize(origin[3], (dim, dim), interpolation=cv2.INTER_AREA) # for masking
                     result = cv2.matchTemplate(cropped, template, cv2.TM_CCORR_NORMED, mask=template_alpha)
 
                     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
@@ -116,9 +130,10 @@ class HoughTransform:
 
         origin_type, _, _, _, top_left = max(matches, key=lambda match: match[2])
 
-        centre = (math.floor(top_left[0] + radius + width / crop_ratio), math.floor(top_left[1] + radius + height / crop_ratio))
+        centre = (round(top_left[0] + radius + width / crop_ratio), round(top_left[1] + radius + height / crop_ratio))
         cv2.circle(self.__output_validated, centre, radius, 255, 4)
         self.circles.append((centre, radius, "yellow"))
+        self.origin_type = origin_type
         self.origin_position = centre
 
     def __run_hough_line(self, l_blur, canny_min, canny_max, threshold, max_line_length):
@@ -170,7 +185,7 @@ class HoughTransform:
 class Matcher:
     def __init__(self, image, nodes_connections, merged_base):
         # match each node of graph to an unlockable
-        # TODO: if red we need to brighten it and enlarge by ~1.3333
+        # TODO: if red (small), don't need to match it since it's claimed
 
         valid_circles = nodes_connections.get_valid_circles()
         connections = nodes_connections.get_connections()
@@ -193,9 +208,6 @@ class Matcher:
 
             unlockable = image[y-r:y+r, x-r:x+r]
 
-            # assuming our hough circle matching is accurate, we can use the radius to determine the resize factor
-            # to be used on the unlockable
-
             height, width = unlockable.shape
 
             # apply template matching
@@ -209,9 +221,12 @@ class Matcher:
 
             output = output[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
 
-            match_name = names[math.floor((bottom_right[1] - 50) / 100)]
+            match_name = names[round((bottom_right[1] - 50) / 100)]
             node_id = f"{i}_{match_name}"
-            nodes.append(Node(node_id, match_name, 9999, (x, y), True, False, False).get_tuple())
+
+            # TODO temp
+            is_accessible = i in [1, 4, 6, 10, 14, 18]
+            nodes.append(Node(node_id, match_name, 9999, (x, y), is_accessible, False).get_tuple())
             valid_circles[circle] = node_id
 
             i += 1
@@ -222,7 +237,7 @@ class Matcher:
 
         # cv2.destroyAllWindows()
 
-        nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, False, False).get_tuple())
+        nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, False).get_tuple())
 
         # actual edges joining circles
         edges = []
@@ -234,12 +249,7 @@ class Matcher:
         self.graph.add_nodes_from(nodes)
         self.graph.add_edges_from(edges)
 
-        net = Network(notebook=True, height=1080, width=1920)
-        net.from_nx(self.graph)
-
-        net.show("matcher.html")
-
-
+        NetworkUtil.write_to_html(self.graph, "matcher")
 
         '''dim = 50
 

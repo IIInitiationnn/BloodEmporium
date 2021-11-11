@@ -1,21 +1,30 @@
 from pprint import pprint
 
 class Node:
-    # TODO pass in colour, calculate is_accessible, is_user_claimed, is_entity claimed from it
-    #  - also dont need is_entity_claimed since they arent really circles
-    def __init__(self, node_id, name, value, position, is_accessible, is_user_claimed, is_entity_claimed):
+    # TODO pass in colour, calculate is_accessible, is_user_claimed
+    def __init__(self, node_id, name, value, position, is_accessible, is_user_claimed):
         self.node_id = node_id
         self.name = name
         self.value = value
         self.x, self.y = position
         self.is_accessible = is_accessible
         self.is_user_claimed = is_user_claimed
-        self.is_entity_claimed = is_entity_claimed
+
+    def state_from_colour(self, colour):
+        if colour == "yellow":
+            self.is_accessible = True
+            self.is_user_claimed = False
+        elif colour == "red":
+            self.is_accessible = True
+            self.is_user_claimed = True
+        elif colour == "neutral":
+            self.is_accessible = False
+            self.is_user_claimed = False
 
     @classmethod
     def from_dict(cls, data, **kwargs):
         position = (int(data["x"]), int(data["y"]))
-        node = cls(data['node_id'], data['name'], data['value'], position, data['is_accessible'], data['is_user_claimed'], data['is_entity_claimed'])
+        node = cls(data['node_id'], data['name'], data['value'], position, data['is_accessible'], data['is_user_claimed'])
         for attribute, val in kwargs.items():
             node.__setattr__(attribute, val)
         return node
@@ -42,12 +51,11 @@ class Node:
             "y": str(self.y),
             "is_accessible": self.is_accessible,
             "is_user_claimed": self.is_user_claimed,
-            "is_entity_claimed": self.is_entity_claimed,
 
             # pyvis attributes
-            "title": f"{self.value}, " + ("user claimed" if self.is_user_claimed else "entity claimed" if self.is_entity_claimed else "not claimed"),
-            "color": "red" if self.is_user_claimed else "yellow" if self.is_accessible else "gray" if not self.is_entity_claimed else "black",
-            "physics": False
+            "title": f"{self.value}, " + ("user claimed" if self.is_user_claimed else "not claimed"),
+            "color": "red" if self.is_user_claimed else "yellow" if self.is_accessible else "gray",
+            # "physics": False
         }
         return self.node_id, data
 

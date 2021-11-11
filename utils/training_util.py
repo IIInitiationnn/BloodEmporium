@@ -35,48 +35,6 @@ class CircleTrainer:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-        '''for i in range(10000):
-            circle_blur = 11
-            hough_1 = 8 + random.uniform(0, 4)
-            hough_2 = 43 + random.uniform(0, 4)
-
-            print(circle_blur, hough_1, hough_2)
-
-            success = True
-            matches = {}
-            for base in [file for (subdir, dirs, files) in os.walk("training_data/bases") for file in files]:
-                match = CircleMatcher(base, circle_blur, hough_1, hough_2)
-                matches[base] = match.output
-                circles = match.circles.copy()
-
-                missed = []
-
-                for target_circle in targets[base].copy():
-                    success = False
-                    for circle in circles:
-                        if circles_are_overlapping(target_circle, circle):
-                            success = True
-                            circles.remove(circle)
-                            break
-
-                    if not success:
-                        missed.append(target_circle)
-
-                if not success or len(circles) > 10 or len(missed) > 10:
-                    success = False
-                    break
-
-            if success:
-                path = f"circle_trainer/successes/blur={circle_blur}_hough1={hough_1}_hough2={hough_2}/"
-                os.mkdir(path)
-                for base, match in matches.items():
-                    cv2.imwrite(f"{path}/{base}", match)
-            else:
-                path = f"circle_trainer/failures/blur={circle_blur}_hough1={hough_1}_hough2={hough_2}/"
-                os.mkdir(path)
-                for base, match in matches.items():
-                    cv2.imwrite(f"{path}/{base}", match)'''
-
     def ssim(self, params):
         self.i += 1
         param1, param2 = params

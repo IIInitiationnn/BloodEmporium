@@ -59,10 +59,10 @@ class MergedBase:
                    "iconFavors_LoversPostcard.png",
                    "iconFavors_MilkTea.png"]
 
-        dim = 50
+        dim = 54
 
         if required_prefix == "Favor":
-            dim = 70
+            dim = 68
         elif required_prefix == "Perks":
             dim = 67
 
