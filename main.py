@@ -1,33 +1,33 @@
+import time
 from pprint import pprint
-import random
+
+import networkx as nx
+from pynput.mouse import Button, Controller
 
 import cv2
-import networkx as nx
 import numpy as np
-import os
-from pyvis.network import Network
-from pyvis.options import Layout
+import pyautogui
 
+from matcher import Matcher, HoughTransform
 from mergedbase import MergedBase
 from node import Node
 from optimiser import Optimiser
-from matcher import Matcher, HoughTransform
-from optimiser2 import Optimiser2
-from utils.network_util import NetworkUtil
-from utils.training_util import CircleTrainer
 
 # TODO immediate priorities
 #  - calibrate brightness of neutral using shaders
 #  - calibrate brightness of background of default pack
+#  - working with different UI scales -> adjust constants
+#  - improve colour detection (occasional misidentified neutral and red nodes causes attempt to select invalid node)
+from utils.network_util import NetworkUtil
 
 ''' timeline
-    - backend with algorithm
-    - openCV icon recognition
+    - [DONE] backend with algorithm
+    - [DONE] openCV icon recognition
     - desire values from config file
-        - can have multiple sets of desire values and can switch
+        - can have multiple profiles of desire values and can switch
     - frontend with GUI
         - debug mode using pyvis showing matched unlockables, paths and selected nodes
-    - for higher matching accuracy, either auto detect with text recognition or just manual option in frontend
+    - for higher matching accuracy, enable manual category selection in frontend
         to only select nurse unlockables, or survivor unlockables for instance
     - icon with entity hand (like EGC) grasping a glowing shard
     
@@ -137,29 +137,69 @@ def main():
         i += 1"""'''
 
 if __name__ == '__main__':
+    production_mode = True
+
     # initialisation: merged base for template matching
     print("initialisation, merging")
     merged_base = MergedBase()
+    mouse = Controller()
+    if production_mode:
+        mouse.position = (0, 0)
 
-    # hough transform: detect circles and lines
-    print("hough transform")
-    path_to_image = "training_data/bases/shaderless/base_spirit.png"
-    nodes_connections = HoughTransform(path_to_image, 11, 10, 45, 5, 85, 40, 30, 25)
+    i = 0
+    while i < 10:
+        # screen capture
+        x, y, width, height = 250, 380, 800, 800
+        if production_mode:
+            print("capturing screen")
+            path_to_image = f"pic{i}.png"
+            image = pyautogui.screenshot(path_to_image, region=(x, y, width, height))
+            image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        else:
+            path_to_image = "training_data/bases/shaderless/base_nurse_2.png"
 
-    # match circles to unlockables: create networkx graph of nodes
-    print("match to unlockables")
-    matcher = Matcher(cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE), nodes_connections, merged_base)
-    base_bloodweb = matcher.graph # all 9999
+        # hough transform: detect circles and lines
+        print("hough transform")
+        nodes_connections = HoughTransform(path_to_image, 11, 10, 45, 5, 85, 40, 30, 25)
 
-    # run through optimiser
-    print("optimiser")
-    optimiser = Optimiser(base_bloodweb)
-    optimiser.run()
-    pprint(optimiser.select_best().get_tuple())
+        # match circles to unlockables: create networkx graph of nodes
+        print("match to unlockables")
+        matcher = Matcher(cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE), nodes_connections, merged_base)
+        base_bloodweb = matcher.graph # all 9999
 
+        # correct reachable nodes
+        for node_id, data in base_bloodweb.nodes.items():
+            if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in base_bloodweb.neighbors(node_id)]) \
+                    and not data["is_accessible"]:
+                nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+
+        # run through optimiser
+        print("optimiser")
+        optimiser = Optimiser(base_bloodweb)
+        optimiser.run()
+        optimal_unlockable = optimiser.select_best()
+        pprint(optimal_unlockable.get_tuple())
+        NetworkUtil.write_to_html(optimiser.dijkstra_graph, f"dijkstra{i}", notebook=False)
+
+        # select perk
+        if production_mode:
+            # hold on the perk for 0.5s
+            mouse.position = (x + optimal_unlockable.x, y + optimal_unlockable.y)
+            mouse.press(Button.left)
+            time.sleep(0.1)
+            mouse.position = (0, 0)
+            time.sleep(0.4)
+            mouse.release(Button.left)
+
+            # TODO temp click
+            time.sleep(1)
+            mouse.click(Button.left)
+            time.sleep(1)
+
+        i += 1
+
+    time.sleep(30)
     '''for base in [os.path.join(subdir, file) for (subdir, dirs, files) in os.walk("training_data/bases") for file in files]:
         if "target" in base or "shaders" in base:
             continue
         nodes_connections = HoughTransform(base, 11, 10, 45, 5, 85, 40, 30, 25)'''
-
-    cv2.destroyAllWindows()

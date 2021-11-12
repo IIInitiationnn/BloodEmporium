@@ -1,5 +1,6 @@
 import math
 import os.path
+from datetime import datetime
 
 import cv2
 import cv2.cv2
@@ -29,6 +30,7 @@ cv2.IMREAD_UNCHANGED
 # TODO mystery boxes in assets folder
 
 class HoughTransform:
+    i = 0
     def __init__(self, path_to_image, c_blur=11, param1=10, param2=45, l_blur=5,
                  canny_min=85, canny_max=40, threshold=30, max_line_length=25):
         '''
@@ -46,11 +48,13 @@ class HoughTransform:
         self.__run_hough_line(l_blur, canny_min, canny_max, threshold, max_line_length)
         self.__validate_all()
 
-        cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
-        cv2.imshow("edges for matching lines", self.edges)
-        cv2.imshow("unfiltered raw output (r-adjusted)", self.__output)
-        cv2.imshow("validated & processed output (r-adjusted)", self.__output_validated)
-        cv2.waitKey(0)
+        # cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
+        # cv2.imshow("edges for matching lines", self.edges)
+        # cv2.imshow("unfiltered raw output (r-adjusted)", self.__output)
+        # cv2.imshow("validated & processed output (r-adjusted)", self.__output_validated)
+        cv2.imwrite(f"edges_{HoughTransform.i}.png", self.edges)
+        # cv2.waitKey(0)
+        HoughTransform.i += 1
 
     def get_valid_circles(self):
         '''

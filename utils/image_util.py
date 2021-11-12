@@ -21,7 +21,7 @@ class ImageUtil:
         mask = np.zeros((height, width), np.uint8)
         color = 255
         mask[:] = color
-        inner_circle = cv2.circle(mask, centre, radius + 1, (0, 0, 0), thickness=-1)
+        inner_circle = cv2.circle(mask, centre, radius + 2, (0, 0, 0), thickness=-1)
         masked_data = cv2.bitwise_and(image, image, mask=inner_circle)
 
         # black mask with white center to remove everything outside

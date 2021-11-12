@@ -33,6 +33,9 @@ class Optimiser:
         base_data = self.base_graph.nodes[desired_node_id]
         nx.set_node_attributes(heatmap, Node.from_dict(base_data, value=desired_value).get_dict())
 
+        if heatmap.nodes[desired_node_id]["is_accessible"]:
+            return heatmap
+
         edited = True
         while edited:
             edited = False
@@ -77,14 +80,24 @@ class Optimiser:
     def run(self):
         desired_unlockables = ["iconAddon_heavyPanting.png",
                                "iconAddon_darkCincture.png",
-                               "iconAddon_ataxicRespiration.png"
-                               "iconAddon_badMansLastBreath.png"
+                               "iconAddon_ataxicRespiration.png",
+                               "iconAddon_badMansLastBreath.png",
+                               "iconAddon_fragileWheeze.png",
+                               "iconAddon_kavanaghsLastBreath.png",
+                               "iconFavors_hollowShell.png",
+                               "iconFavors_survivorPudding.png",
+                               "iconFavors_bloodyPartyStreamers.png",
+                               "iconFavors_wardBlack.png",
+                               # "iconFavors_ardentRavenWreath.png",
+                               # "iconFavors_ardentShrikeWreath.png",
+                               # "iconFavors_ardentSpottedOwlWreath.png",
+                               # "iconFavors_ardentTanagerWreath.png",
                                ]
         undesired_unlockables = ["annotated_blueprint", "first_aid_kit"]
 
         graphs = []
         for node_id, data in self.base_graph.nodes.items():
-            if data["is_user_claimed"] or data["is_accessible"]: # claimed or directly available
+            if data["is_user_claimed"]: # claimed
                 pass
             elif data["name"] in desired_unlockables: # desirable and unclaimed TODO in future use value assigned in config
                 graphs.append(self.dijkstra(node_id))
@@ -98,4 +111,3 @@ class Optimiser:
 
         # TODO in the future, add desirability (lower weight (value)) to nodes which are in danger and are desirable
         self.dijkstra_graph = self.add_graphs(graphs)
-        NetworkUtil.write_to_html(self.dijkstra_graph, "dijkstra")
