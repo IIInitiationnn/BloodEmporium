@@ -18,8 +18,7 @@ def line_close_to_circle(a, b):
     y1 = a[1]
     x2 = b[0]
     y2 = b[1]
-    # return True
-    return pow(x1 - x2, 2) + pow(y1 - y2, 2) < 3000
+    return pow(x1 - x2, 2) + pow(y1 - y2, 2) < 4500
 
 def line_is_valid(line, circles):
     circle1, circle2 = get_endpoints(line, circles)

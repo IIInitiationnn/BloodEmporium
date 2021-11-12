@@ -2,6 +2,7 @@ import math
 import os
 
 import cv2
+import numpy as np
 
 import paths
 
@@ -71,7 +72,18 @@ class MergedBase:
         for subdir, dirs, files in os.walk(path):
             for file in files:
                 if required_prefix in file and file not in invalid:
-                    template = cv2.imread(os.path.join(subdir, file), cv2.IMREAD_GRAYSCALE)
+                    template = cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED)
+                    template_alpha = template[:, :, 3] / 255.0
+                    bg_alpha = 1 - template_alpha
+
+                    gray_bg = np.zeros((256, 256, 3), np.uint8)
+                    color = (125, 125, 125)
+                    gray_bg[:] = color
+
+                    for layer in range(3):
+                        gray_bg[:, :, layer] = template_alpha * template[:, :, layer] + bg_alpha * gray_bg[:, :, layer]
+
+                    template = cv2.cvtColor(gray_bg, cv2.COLOR_BGR2GRAY)
                     template = cv2.resize(template, (dim, dim), interpolation=cv2.INTER_AREA) # configure in config, should be some default according to resolutions; diff for square vs hexagon vs diamond
 
                     full_dim = 100

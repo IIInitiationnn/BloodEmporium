@@ -10,6 +10,7 @@ from pyvis.network import Network
 from mergedbase import MergedBase
 from node import Node
 from utils.distance_util import circles_are_overlapping, line_close_to_circle, get_endpoints
+from utils.image_util import ImageUtil
 from utils.network_util import NetworkUtil
 
 '''
@@ -33,8 +34,9 @@ class HoughTransform:
         '''
         identifies all the nodes and connections in the image, as well as the origin
         '''
+        self.image_bgr = cv2.imread(path_to_image, cv2.IMREAD_UNCHANGED)
         self.image_gray = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
-        self.image_r = cv2.split(cv2.imread(path_to_image, cv2.IMREAD_UNCHANGED))[2]
+        self.image_r = cv2.split(self.image_bgr)[2]
 
         self.__output = self.image_gray.copy()
         self.__output_validated = self.image_gray.copy()
@@ -44,16 +46,15 @@ class HoughTransform:
         self.__run_hough_line(l_blur, canny_min, canny_max, threshold, max_line_length)
         self.__validate_all()
 
-        # cv2.imshow("image_r", self.image_r)
-        # cv2.imshow("origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
-        # cv2.imshow("output", self.__output)
-        # cv2.imshow("output_validated", self.__output_validated)
-        # cv2.imshow("edges", self.edges)
-        # cv2.waitKey(0)
+        cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
+        cv2.imshow("edges for matching lines", self.edges)
+        cv2.imshow("unfiltered raw output (r-adjusted)", self.__output)
+        cv2.imshow("validated & processed output (r-adjusted)", self.__output_validated)
+        cv2.waitKey(0)
 
     def get_valid_circles(self):
         '''
-        :return: {((x, y), r, colour): id}
+        :return: {((x, y), r, color): id}
         '''
         return self.valid_circles
 
@@ -82,30 +83,30 @@ class HoughTransform:
         circles = cv2.HoughCircles(blurred_image, cv2.HOUGH_GRADIENT, dp=1, minDist=80,
                                    param1=param1, param2=param2, minRadius=7, maxRadius=50)
 
-        self.circles = [] # ((x, y), r, colour)
+        self.circles = [] # ((x, y), r, color)
         if circles is not None:
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.round(circles[0, :]).astype("int")
 
             # loop over the (x, y) coordinates and radius of the circles
             for (x, y, r) in circles:
-
                 # standardise radius
-                if r > 30: # unconsumed: yellow / neutral
-                    r = 32 # 38
-                elif r < 24: # error?
+                if r >= 32: # unconsumed: taupe / neutral
                     r = 32 # 38
                 else: # consumed: red
                     r = 24 # 32
 
-                # TODO need to read colour from image
-                # https://stackoverflow.com/questions/43111029/how-to-find-the-average-colour-of-an-image-in-python-with-opencv/43111221#43111221
+                unlockable = ImageUtil.cut_circle(self.image_bgr, (x, y), r)
+                color = ImageUtil.dominant_color(unlockable)
+                if r == 24 and color != "red":
+                    # likely the circle was misidentified as small; if it were small, it should be red: evaluate it again
+                    color = ImageUtil.dominant_color(ImageUtil.cut_circle(self.image_bgr, (x, y), 32))
 
                 cv2.circle(self.__output, (x, y), r, 255, 1)
                 cv2.rectangle(self.__output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
 
                 # remove the node from the edges graph
-                self.circles.append(((x, y), r, "yellow"))
+                self.circles.append(((x, y), r, color))
 
     def __match_origin(self):
         matches = []
@@ -132,7 +133,7 @@ class HoughTransform:
 
         centre = (round(top_left[0] + radius + width / crop_ratio), round(top_left[1] + radius + height / crop_ratio))
         cv2.circle(self.__output_validated, centre, radius, 255, 4)
-        self.circles.append((centre, radius, "yellow"))
+        self.circles.append((centre, radius, "taupe"))
         self.origin_type = origin_type
         self.origin_position = centre
 
@@ -142,11 +143,12 @@ class HoughTransform:
         '''
 
         base_l = cv2.GaussianBlur(self.image_gray, (l_blur, l_blur), sigmaX=0, sigmaY=0) # lines
+        base_l = cv2.convertScaleAbs(base_l, alpha=1.3, beta=0)
         self.edges = cv2.Canny(base_l, canny_min, canny_max)
 
-        for (x, y), r, colour in self.circles:
+        for (x, y), r, color in self.circles:
             # remove the node from the edges graph
-            cv2.circle(self.edges, (x, y), 1, 0, math.floor(r / 1.9) + 55) # tweak size of circle removal
+            cv2.circle(self.edges, (x, y), r + 5, 0, thickness=-1) # tweak size of circle removal
 
         # TODO minLineLength will need to scale from UI size
 
@@ -183,10 +185,15 @@ class HoughTransform:
             cv2.rectangle(self.__output_validated, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
 
 class Matcher:
+    '''
+    TODO: ways to improve accuracy
+        - use categories for matching to reduce search space
+            - would be faster
+        - use color matching: for people who do not use packs, assets folder would contain correct background
+            - would be slower - if using the above strategy, we may not need this
+    '''
     def __init__(self, image, nodes_connections, merged_base):
         # match each node of graph to an unlockable
-        # TODO: if red (small), don't need to match it since it's claimed
-
         valid_circles = nodes_connections.get_valid_circles()
         connections = nodes_connections.get_connections()
         origin = nodes_connections.get_origin()
@@ -201,12 +208,26 @@ class Matcher:
         i = 0
         nodes = []
         for circle in valid_circles.keys():
-            (x, y), r, colour = circle
+            (x, y), r, color = circle
             if (x, y) == origin:
                 valid_circles[circle] = "ORIGIN"
                 continue
 
-            unlockable = image[y-r:y+r, x-r:x+r]
+            r_small = r * 7 // 9
+            unlockable = image[y-r_small:y+r_small, x-r_small:x+r_small]
+
+            if color == "neutral":
+                # brighten the image slightly since it's darker: alpha=contrast=[1,3] beta=brightness=[0,100]
+                unlockable = cv2.convertScaleAbs(unlockable, alpha=1, beta=20)
+            elif color == "red":
+                # brighten and resize the claimed perk (matching correctly is not as important here)
+                unlockable = cv2.convertScaleAbs(unlockable, alpha=1, beta=40)
+                height, width = unlockable.shape
+                unlockable = cv2.resize(unlockable, (height * 4 // 3, width * 4 // 3))
+
+            # do NOT resize unlockable for the base, only resize the base for the unlockable
+            # using radius to resize instead of the color would cause a potential mismatch in template matching
+            # at least the template match can be correct using a cropped template, but a resized may not be
 
             height, width = unlockable.shape
 
@@ -224,9 +245,8 @@ class Matcher:
             match_name = names[round((bottom_right[1] - 50) / 100)]
             node_id = f"{i}_{match_name}"
 
-            # TODO temp
-            is_accessible = i in [1, 4, 6, 10, 14, 18]
-            nodes.append(Node(node_id, match_name, 9999, (x, y), is_accessible, False).get_tuple())
+            is_accessible, is_user_claimed = Node.state_from_color(color)
+            nodes.append(Node(node_id, match_name, 9999, (x, y), is_accessible, is_user_claimed).get_tuple())
             valid_circles[circle] = node_id
 
             i += 1
@@ -237,7 +257,7 @@ class Matcher:
 
         # cv2.destroyAllWindows()
 
-        nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, False).get_tuple())
+        nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, True).get_tuple())
 
         # actual edges joining circles
         edges = []

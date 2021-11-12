@@ -17,9 +17,8 @@ from utils.network_util import NetworkUtil
 from utils.training_util import CircleTrainer
 
 # TODO immediate priorities
-#  - more accurate template matching
-#  - colour detection so optimiser can work
-#  - multifactor
+#  - calibrate brightness of neutral using shaders
+#  - calibrate brightness of background of default pack
 
 ''' timeline
     - backend with algorithm
@@ -47,7 +46,7 @@ from utils.training_util import CircleTrainer
     3. screen capture
     -> reads "click to continue" ? click anywhere
     -> identify lines and circles
-        - circle: id, centre, colour
+        - circle: id, centre, color
         - line: circles it joins
         - origin
             - if prestige, pause
@@ -144,7 +143,7 @@ if __name__ == '__main__':
 
     # hough transform: detect circles and lines
     print("hough transform")
-    path_to_image = "training_data/bases/shaderless/base_nurse.png"
+    path_to_image = "training_data/bases/shaderless/base_spirit.png"
     nodes_connections = HoughTransform(path_to_image, 11, 10, 45, 5, 85, 40, 30, 25)
 
     # match circles to unlockables: create networkx graph of nodes

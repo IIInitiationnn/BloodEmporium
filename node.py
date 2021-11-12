@@ -1,5 +1,7 @@
 from pprint import pprint
 
+from utils.color_util import ColorUtil
+
 class Node:
     # TODO pass in colour, calculate is_accessible, is_user_claimed
     def __init__(self, node_id, name, value, position, is_accessible, is_user_claimed):
@@ -10,17 +12,6 @@ class Node:
         self.is_accessible = is_accessible
         self.is_user_claimed = is_user_claimed
 
-    def state_from_colour(self, colour):
-        if colour == "yellow":
-            self.is_accessible = True
-            self.is_user_claimed = False
-        elif colour == "red":
-            self.is_accessible = True
-            self.is_user_claimed = True
-        elif colour == "neutral":
-            self.is_accessible = False
-            self.is_user_claimed = False
-
     @classmethod
     def from_dict(cls, data, **kwargs):
         position = (int(data["x"]), int(data["y"]))
@@ -28,6 +19,18 @@ class Node:
         for attribute, val in kwargs.items():
             node.__setattr__(attribute, val)
         return node
+
+    @staticmethod
+    def state_from_color(color):
+        '''
+        :return: (is_accessible, is_user_claimed)
+        '''
+        if color == "taupe":
+            return True, False
+        elif color == "red":
+            return True, True
+        else: # neutral
+            return False, False
 
     def print(self):
         pprint(self.__dict__)
@@ -54,7 +57,7 @@ class Node:
 
             # pyvis attributes
             "title": f"{self.value}, " + ("user claimed" if self.is_user_claimed else "not claimed"),
-            "color": "red" if self.is_user_claimed else "yellow" if self.is_accessible else "gray",
+            "color": ColorUtil.red_hex if self.is_user_claimed else ColorUtil.taupe_hex if self.is_accessible else ColorUtil.neutral_hex
             # "physics": False
         }
         return self.node_id, data
