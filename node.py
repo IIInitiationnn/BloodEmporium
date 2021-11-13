@@ -58,7 +58,7 @@ class Node:
             # pyvis attributes
             "title": f"{self.value}, " + ("user claimed" if self.is_user_claimed else "not claimed"),
             "color": ColorUtil.red_hex if self.is_user_claimed else ColorUtil.taupe_hex if self.is_accessible else ColorUtil.neutral_hex,
-            "physics": False
+            "physics": True
         }
         return self.node_id, data
 

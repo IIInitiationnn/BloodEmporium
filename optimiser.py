@@ -1,13 +1,10 @@
 import copy
 import math
-from pprint import pprint
 import random
 
 import networkx as nx
-from pyvis.network import Network
 
 from node import Node
-from utils.network_util import NetworkUtil
 
 
 class Optimiser:

@@ -1,3 +1,4 @@
+import os
 import time
 from pprint import pprint
 
@@ -14,10 +15,16 @@ from node import Node
 from optimiser import Optimiser
 
 # TODO immediate priorities
-#  - calibrate brightness of neutral using shaders
-#  - calibrate brightness of background of default pack
-#  - working with different UI scales -> adjust constants
-#  - improve colour detection (occasional misidentified neutral and red nodes causes attempt to select invalid node)
+#   -!!!!!!! more debugging tools! for each iteration, write to a folder containing all colors, masks etc.
+#   - simulation class: model what happens without needing to spend bloodpoints (just modify the graph)
+#       - useful for tweaking optimiser if needed
+#   - try thresholding+contour detection; contour fitting for higher accuracy
+#   - if inconsistent, consider hardcoding relative positions of nodes
+#   - calibrate brightness of neutral using shaders
+#   - calibrate brightness of background of default pack
+#   - working with different UI scales -> adjust constants
+#   - improve colour detection (occasional misidentified neutral and red nodes causes attempt to select invalid node)
+from simulation import Simulation
 from utils.network_util import NetworkUtil
 
 ''' timeline
@@ -59,130 +66,49 @@ from utils.network_util import NetworkUtil
     
 '''
 
-'''
-def main():
-    all_unlockables = [("battery", False),
-                       ("annotated_blueprint", False),
-                       ("deja_vu", False),
-                       ("sacrificial_cake", False),
-                       ("butterfly_tape", True),
-                       ("rubber_grip", True),
-                       ("odd_stamp", False),
-                       ("cutting_wire", True),
-                       ("first_aid_kit", True),
-                       ("vigos_jar_of_salty_lips", False),
-                       ("bog_laurel_sachet", False)]
-    edges = [("annotated_blueprint", "battery"),
-             ("annotated_blueprint", "deja_vu"),
-             ("annotated_blueprint", "sacrificial_cake"),
-             ("annotated_blueprint", "butterfly_tape"),
-             ("deja_vu", "sacrificial_cake"),
-             ("butterfly_tape", "sacrificial_cake"),
-             ("ORIGIN", "butterfly_tape"),
-             ("ORIGIN", "first_aid_kit"),
-             ("ORIGIN", "cutting_wire"),
-             ("ORIGIN", "rubber_grip"),
-             ("odd_stamp", "cutting_wire"),
-             ("first_aid_kit", "vigos_jar_of_salty_lips"),
-             ("vigos_jar_of_salty_lips", "bog_laurel_sachet")]
-
-    i = 1
-    graph = nx.Graph()
-
-    desirable = ["first_aid_kit", "sacrificial_cake", "battery"]
-
-    graph.add_nodes_from([Node("ORIGIN000", "ORIGIN", (0, 0), (250, 250), True, True).get_tuple()])
-    graph.add_nodes_from([Node(f"{name}000", name, (1, 0) if name in desirable else (1, 5), (random.randrange(500), random.randrange(500)), is_accessible, False).get_tuple() for name, is_accessible in all_unlockables])
-    graph.add_edges_from([(edge[0] + "000", edge[1] + "000") for edge in edges])
-
-    layout = Layout() # improvedLayout=true by default
-    net = Network(notebook=True, layout=layout, height=1080, width=1920)
-    net.from_nx(graph)
-    net.show("graph.html")
-
-
-    while i < 12:
-        op2 = Optimiser2(graph)
-        pg = op2.pareto_graph
-        selected = op2.select_best()
-
-        selected.set_user_claimed(True)
-        # print(selected.name, selected.value, selected.is_user_claimed)
-
-        nx.set_node_attributes(graph, selected.get_dict())
-        for neighbor in graph.neighbors(selected.get_id()):
-            data = graph.nodes[neighbor]
-            if not data['is_accessible']:
-                nx.set_node_attributes(graph, Node.from_dict(data, is_accessible=True).get_dict())
-
-        NetworkUtil.write_to_html(pg, f"optimiser2_run{i}")
-        i += 1
-
-    """while i < 12:
-        optimiser = Optimiser(graph)
-        sum_graphs, selected = optimiser.run()
-        selected.set_user_claimed(True)
-        print(selected.name, selected.value, selected.is_user_claimed, selected.is_entity_claimed)
-
-        # temporary until openCV
-        nx.set_node_attributes(graph, selected.set_value(9999).get_dict())
-        for neighbor in graph.neighbors(selected.get_id()):
-            data = graph.nodes[neighbor]
-            if not data['is_accessible']:
-                nx.set_node_attributes(graph, Node.from_dict(data, is_accessible=True).get_dict())
-
-        network = Network(notebook=True, layout=layout, height=1080, width=1920)
-        network.from_nx(sum_graphs)
-        network.show(f"run{i}.html")
-        i += 1"""'''
-
 if __name__ == '__main__':
-    production_mode = True
-
-    # initialisation: merged base for template matching
-    print("initialisation, merging")
-    merged_base = MergedBase()
-    mouse = Controller()
+    production_mode = False
     if production_mode:
+        # initialisation: merged base for template matching
+        print("initialisation, merging")
+        merged_base = MergedBase()
+        mouse = Controller()
         mouse.position = (0, 0)
 
-    i = 0
-    while i < 10:
-        # screen capture
-        x, y, width, height = 250, 380, 800, 800
-        if production_mode:
+        i = 0
+        while i < 10:
+            # screen capture
+            x, y, width, height = 250, 380, 800, 800
             print("capturing screen")
-            path_to_image = f"pic{i}.png"
+            path_to_image = f"output/pic{i}.png"
             image = pyautogui.screenshot(path_to_image, region=(x, y, width, height))
             image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-        else:
-            path_to_image = "training_data/bases/shaderless/base_nurse_2.png"
 
-        # hough transform: detect circles and lines
-        print("hough transform")
-        nodes_connections = HoughTransform(path_to_image, 11, 10, 45, 5, 85, 40, 30, 25)
+            # hough transform: detect circles and lines
+            print("hough transform")
+            nodes_connections = HoughTransform(path_to_image, 5, 7, 10, 45, 5, 85, 40, 30, 25)
 
-        # match circles to unlockables: create networkx graph of nodes
-        print("match to unlockables")
-        matcher = Matcher(cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE), nodes_connections, merged_base)
-        base_bloodweb = matcher.graph # all 9999
+            # match circles to unlockables: create networkx graph of nodes
+            print("match to unlockables")
+            matcher = Matcher(cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE), nodes_connections, merged_base)
+            base_bloodweb = matcher.graph # all 9999
+            NetworkUtil.write_to_html(base_bloodweb, "output/matcher")
 
-        # correct reachable nodes
-        for node_id, data in base_bloodweb.nodes.items():
-            if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in base_bloodweb.neighbors(node_id)]) \
-                    and not data["is_accessible"]:
-                nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+            # correct reachable nodes
+            for node_id, data in base_bloodweb.nodes.items():
+                if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in base_bloodweb.neighbors(node_id)]) \
+                        and not data["is_accessible"]:
+                    nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
 
-        # run through optimiser
-        print("optimiser")
-        optimiser = Optimiser(base_bloodweb)
-        optimiser.run()
-        optimal_unlockable = optimiser.select_best()
-        pprint(optimal_unlockable.get_tuple())
-        NetworkUtil.write_to_html(optimiser.dijkstra_graph, f"dijkstra{i}", notebook=False)
+            # run through optimiser
+            print("optimiser")
+            optimiser = Optimiser(base_bloodweb)
+            optimiser.run()
+            optimal_unlockable = optimiser.select_best()
+            pprint(optimal_unlockable.get_tuple())
+            NetworkUtil.write_to_html(optimiser.dijkstra_graph, f"output/dijkstra{i}")
 
-        # select perk
-        if production_mode:
+            # select perk
             # hold on the perk for 0.5s
             mouse.position = (x + optimal_unlockable.x, y + optimal_unlockable.y)
             mouse.press(Button.left)
@@ -196,10 +122,24 @@ if __name__ == '__main__':
             mouse.click(Button.left)
             time.sleep(1)
 
-        i += 1
+            i += 1
 
-    time.sleep(30)
-    '''for base in [os.path.join(subdir, file) for (subdir, dirs, files) in os.walk("training_data/bases") for file in files]:
-        if "target" in base or "shaders" in base:
-            continue
-        nodes_connections = HoughTransform(base, 11, 10, 45, 5, 85, 40, 30, 25)'''
+        time.sleep(30)
+    else:
+        num_errors = 0
+        i = 0
+        target = [27, 26, 27, 10, 20, 27, 27, 20, 11, 20, 12, 27, 27, 27, 16, 27, 5, 27, 8, 7, 27, 18, 5, 20]
+        for subdir, dirs, files in os.walk("training_data/bases/shaderless"):
+            for file in files:
+                if "target" not in file and "old" not in file:
+                # if "target" not in file and ("nurse" in file or "nea" in file):
+                    sim = Simulation(os.path.join(subdir, file), False)
+                    sim.run()
+                    this_errors = abs(sim.num_circles - target[i])
+                    if this_errors != 0:
+                        print(file, this_errors)
+                        cv2.imshow("out", sim.image)
+                        cv2.waitKey(0)
+                    num_errors += this_errors
+                    i += 1
+        print(num_errors)

@@ -1,16 +1,12 @@
-import math
 import os.path
-from datetime import datetime
 
 import cv2
 import cv2.cv2
 import networkx as nx
 import numpy as np
-from pyvis.network import Network
 
-from mergedbase import MergedBase
 from node import Node
-from utils.distance_util import circles_are_overlapping, line_close_to_circle, get_endpoints
+from utils.distance_util import get_endpoints
 from utils.image_util import ImageUtil
 from utils.network_util import NetworkUtil
 
@@ -31,7 +27,7 @@ cv2.IMREAD_UNCHANGED
 
 class HoughTransform:
     i = 0
-    def __init__(self, path_to_image, c_blur=11, param1=10, param2=45, l_blur=5,
+    def __init__(self, path_to_image, c_blur=5, bilateral_blur=7, param1=10, param2=45, l_blur=5,
                  canny_min=85, canny_max=40, threshold=30, max_line_length=25):
         '''
         identifies all the nodes and connections in the image, as well as the origin
@@ -40,19 +36,19 @@ class HoughTransform:
         self.image_gray = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
         self.image_r = cv2.split(self.image_bgr)[2]
 
-        self.__output = self.image_gray.copy()
-        self.__output_validated = self.image_gray.copy()
+        self.output = self.image_gray.copy()
+        self.output_validated = self.image_gray.copy()
 
-        self.__run_hough_circle(c_blur, param1, param2)
-        self.__match_origin()
+        self.__run_hough_circle(c_blur, bilateral_blur, param1, param2)
+        self.__match_origin() # TODO may want to match first then remove any prospective circles overlapping in case origin is detected
         self.__run_hough_line(l_blur, canny_min, canny_max, threshold, max_line_length)
-        self.__validate_all()
+        # self.__validate_all() # hhhhh
 
         # cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
         # cv2.imshow("edges for matching lines", self.edges)
-        # cv2.imshow("unfiltered raw output (r-adjusted)", self.__output)
-        # cv2.imshow("validated & processed output (r-adjusted)", self.__output_validated)
-        cv2.imwrite(f"edges_{HoughTransform.i}.png", self.edges)
+        # cv2.imshow("unfiltered raw output (r-adjusted)", self.output)
+        # cv2.imshow("validated & processed output (r-adjusted)", self.output_validated)
+        cv2.imwrite(f"output/edges_{HoughTransform.i}.png", self.edges)
         # cv2.waitKey(0)
         HoughTransform.i += 1
 
@@ -74,18 +70,21 @@ class HoughTransform:
         '''
         return self.origin_position
 
-    def __run_hough_circle(self, c_blur, param1, param2):
+    def __run_hough_circle(self, c_blur, bilateral_blur, param1, param2):
         '''
         identify all nodes (circles) in image
         '''
 
-        blurred_image = cv2.GaussianBlur(self.image_gray, (c_blur, c_blur), sigmaX=0, sigmaY=0) # circles
-
         # TODO minDist, minRadius and maxRadius will need to scale from UI size
 
         # detect circles in the image
-        circles = cv2.HoughCircles(blurred_image, cv2.HOUGH_GRADIENT, dp=1, minDist=80,
-                                   param1=param1, param2=param2, minRadius=7, maxRadius=50)
+        circles = self.image_gray
+        #circles = cv2.convertScaleAbs(circles, alpha=1.075, beta=-0.055)
+        # circles = cv2.convertScaleAbs(circles, alpha=0.988, beta=0)
+        circles = cv2.GaussianBlur(circles, (c_blur, c_blur), sigmaX=0, sigmaY=0) # circles
+        circles = cv2.bilateralFilter(circles, bilateral_blur, 75, 75)
+        circles = cv2.HoughCircles(circles, cv2.HOUGH_GRADIENT, dp=1, minDist=80,
+                                   param1=param1, param2=param2, minRadius=7, maxRadius=50) # hhhhh
 
         self.circles = [] # ((x, y), r, color)
         if circles is not None:
@@ -94,11 +93,11 @@ class HoughTransform:
 
             # loop over the (x, y) coordinates and radius of the circles
             for (x, y, r) in circles:
-                # standardise radius
+                '''# standardise radius
                 if r >= 32: # unconsumed: taupe / neutral
                     r = 32 # 38
                 else: # consumed: red
-                    r = 24 # 32
+                    r = 24 # 32''' # hhhhh
 
                 unlockable = ImageUtil.cut_circle(self.image_bgr, (x, y), r)
                 color = ImageUtil.dominant_color(unlockable)
@@ -106,11 +105,14 @@ class HoughTransform:
                     # likely the circle was misidentified as small; if it were small, it should be red: evaluate it again
                     color = ImageUtil.dominant_color(ImageUtil.cut_circle(self.image_bgr, (x, y), 32))
 
-                cv2.circle(self.__output, (x, y), r, 255, 1)
-                cv2.rectangle(self.__output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
+                cv2.circle(self.output, (x, y), r, 255, 3)
+                cv2.rectangle(self.output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
 
                 # remove the node from the edges graph
                 self.circles.append(((x, y), r, color))
+
+        # cv2.imshow("RAW OUTPUT", self.output)
+        # cv2.waitKey(0)
 
     def __match_origin(self):
         matches = []
@@ -136,7 +138,7 @@ class HoughTransform:
         origin_type, _, _, _, top_left = max(matches, key=lambda match: match[2])
 
         centre = (round(top_left[0] + radius + width / crop_ratio), round(top_left[1] + radius + height / crop_ratio))
-        cv2.circle(self.__output_validated, centre, radius, 255, 4)
+        cv2.circle(self.output_validated, centre, radius, 255, 4)
         self.circles.append((centre, radius, "taupe"))
         self.origin_type = origin_type
         self.origin_position = centre
@@ -151,8 +153,8 @@ class HoughTransform:
         self.edges = cv2.Canny(base_l, canny_min, canny_max)
 
         for (x, y), r, color in self.circles:
-            # remove the node from the edges graph
-            cv2.circle(self.edges, (x, y), r + 5, 0, thickness=-1) # tweak size of circle removal
+            # remove the node's circle from the edges graph (reduces noise)
+            cv2.circle(self.edges, (x, y), r + 6, 0, thickness=-1) # TODO may need to adjust this
 
         # TODO minLineLength will need to scale from UI size
 
@@ -162,7 +164,7 @@ class HoughTransform:
         if lines is not None:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
-                cv2.line(self.__output, (x1, y1), (x2, y2), 255, 5)
+                # cv2.line(self.output, (x1, y1), (x2, y2), 255, 5) # hhhhh
                 self.lines.append(((x1, y1), (x2, y2)))
 
     def __validate_all(self):
@@ -180,13 +182,13 @@ class HoughTransform:
 
                 # draw the line
                 (x1, y1), (x2, y2) = line
-                cv2.line(self.__output_validated, (x1, y1), (x2, y2), 255, 5)
+                cv2.line(self.output_validated, (x1, y1), (x2, y2), 255, 5)
 
         for (x, y), r, _ in self.valid_circles.keys():
             # draw the circle in the output image, then draw a rectangle
             # corresponding to the center of the circle
-            cv2.circle(self.__output_validated, (x, y), r, 255, 1)
-            cv2.rectangle(self.__output_validated, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
+            cv2.circle(self.output_validated, (x, y), r, 255, 1)
+            cv2.rectangle(self.output_validated, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
 
 class Matcher:
     '''
@@ -272,9 +274,6 @@ class Matcher:
         self.graph = nx.Graph()
         self.graph.add_nodes_from(nodes)
         self.graph.add_edges_from(edges)
-
-        NetworkUtil.write_to_html(self.graph, "matcher")
-
         '''dim = 50
 
         np.set_printoptions(threshold=np.inf)

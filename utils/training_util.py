@@ -29,7 +29,7 @@ class CircleTrainer:
         # solution = (31.9, 46.5) # blur=9
         # solution = (9.5, 30.7) # blur=15
 
-        HoughTransform(self.path_to_base, self.c_blur, solution[0], solution[1], 5, 85, 40, 30, 25)
+        HoughTransform(self.path_to_base, self.c_blur, 7, solution[0], solution[1], 5, 85, 40, 30, 25)
         cv2.imshow("target", self.target)
         cv2.imshow("solution", CircleMatcher.match(self.path_to_base, self.c_blur, solution[0], solution[1]))
         cv2.waitKey(0)
