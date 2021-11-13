@@ -42,7 +42,7 @@ class HoughTransform:
         self.__run_hough_circle(c_blur, bilateral_blur, param1, param2)
         self.__match_origin() # TODO may want to match first then remove any prospective circles overlapping in case origin is detected
         self.__run_hough_line(l_blur, canny_min, canny_max, threshold, max_line_length)
-        # self.__validate_all() # hhhhh
+        self.__validate_all()
 
         # cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
         # cv2.imshow("edges for matching lines", self.edges)
@@ -84,7 +84,7 @@ class HoughTransform:
         circles = cv2.GaussianBlur(circles, (c_blur, c_blur), sigmaX=0, sigmaY=0) # circles
         circles = cv2.bilateralFilter(circles, bilateral_blur, 75, 75)
         circles = cv2.HoughCircles(circles, cv2.HOUGH_GRADIENT, dp=1, minDist=80,
-                                   param1=param1, param2=param2, minRadius=7, maxRadius=50) # hhhhh
+                                   param1=param1, param2=param2, minRadius=7, maxRadius=50)
 
         self.circles = [] # ((x, y), r, color)
         if circles is not None:
@@ -93,11 +93,11 @@ class HoughTransform:
 
             # loop over the (x, y) coordinates and radius of the circles
             for (x, y, r) in circles:
-                '''# standardise radius
+                # standardise radius
                 if r >= 32: # unconsumed: taupe / neutral
                     r = 32 # 38
                 else: # consumed: red
-                    r = 24 # 32''' # hhhhh
+                    r = 24 # 32
 
                 unlockable = ImageUtil.cut_circle(self.image_bgr, (x, y), r)
                 color = ImageUtil.dominant_color(unlockable)
@@ -164,7 +164,7 @@ class HoughTransform:
         if lines is not None:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
-                # cv2.line(self.output, (x1, y1), (x2, y2), 255, 5) # hhhhh
+                cv2.line(self.output, (x1, y1), (x2, y2), 255, 5)
                 self.lines.append(((x1, y1), (x2, y2)))
 
     def __validate_all(self):
