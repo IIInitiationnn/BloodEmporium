@@ -1,0 +1,13 @@
+{
+    "resolution": {
+        "width": 3840,
+        "height": 2160,
+        "ui_scale": 70
+    },
+    "capture": {
+        "top_left_x": 400,
+        "top_left_y": 550,
+        "width": 1200,
+        "height": 1200
+    }
+}

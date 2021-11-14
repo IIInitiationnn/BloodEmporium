@@ -5,7 +5,9 @@ import cv2.cv2
 import networkx as nx
 import numpy as np
 
+from images import Images
 from node import Node
+from resolution import Resolution
 from utils.distance_util import get_endpoints
 from utils.image_util import ImageUtil
 from utils.network_util import NetworkUtil
@@ -27,8 +29,8 @@ cv2.IMREAD_UNCHANGED
 
 class HoughTransform:
     i = 0
-    def __init__(self, path_to_image, c_blur=5, bilateral_blur=7, param1=10, param2=45, l_blur=5,
-                 canny_min=85, canny_max=40, threshold=30, max_line_length=25):
+    def __init__(self, path_to_image, res, c_blur=5, bilateral_blur=7, param1=10, param2=45, l_blur=5,
+                 canny_min=85, canny_max=40, threshold=30, alpha=1, beta=0):
         '''
         identifies all the nodes and connections in the image, as well as the origin
         '''
@@ -36,19 +38,21 @@ class HoughTransform:
         self.image_gray = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
         self.image_r = cv2.split(self.image_bgr)[2]
 
+        self.res = res
+
         self.output = self.image_gray.copy()
         self.output_validated = self.image_gray.copy()
 
-        self.__run_hough_circle(c_blur, bilateral_blur, param1, param2)
+        self.__run_hough_circle(param1, param2, alpha, beta)
         self.__match_origin() # TODO may want to match first then remove any prospective circles overlapping in case origin is detected
-        self.__run_hough_line(l_blur, canny_min, canny_max, threshold, max_line_length)
+        self.__run_hough_line(l_blur, canny_min, canny_max, threshold)
         self.__validate_all()
 
         # cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
         # cv2.imshow("edges for matching lines", self.edges)
         # cv2.imshow("unfiltered raw output (r-adjusted)", self.output)
         # cv2.imshow("validated & processed output (r-adjusted)", self.output_validated)
-        cv2.imwrite(f"output/edges_{HoughTransform.i}.png", self.edges)
+        # # cv2.imwrite(f"output/edges_{HoughTransform.i}.png", self.edges)
         # cv2.waitKey(0)
         HoughTransform.i += 1
 
@@ -70,40 +74,42 @@ class HoughTransform:
         '''
         return self.origin_position
 
-    def __run_hough_circle(self, c_blur, bilateral_blur, param1, param2):
+    def __run_hough_circle(self, param1, param2, alpha, beta):
         '''
         identify all nodes (circles) in image
         '''
 
-        # TODO minDist, minRadius and maxRadius will need to scale from UI size
-
         # detect circles in the image
         circles = self.image_gray
-        #circles = cv2.convertScaleAbs(circles, alpha=1.075, beta=-0.055)
-        # circles = cv2.convertScaleAbs(circles, alpha=0.988, beta=0)
-        circles = cv2.GaussianBlur(circles, (c_blur, c_blur), sigmaX=0, sigmaY=0) # circles
-        circles = cv2.bilateralFilter(circles, bilateral_blur, 75, 75)
-        circles = cv2.HoughCircles(circles, cv2.HOUGH_GRADIENT, dp=1, minDist=80,
-                                   param1=param1, param2=param2, minRadius=7, maxRadius=50)
+        # circles = cv2.convertScaleAbs(circles, alpha=0.58, beta=0)
+        circles = cv2.convertScaleAbs(circles, alpha=alpha, beta=beta)
+        circles = cv2.GaussianBlur(circles, (self.res.gaussian_c(), self.res.gaussian_c()), sigmaX=0, sigmaY=0)
+        circles = cv2.bilateralFilter(circles, self.res.bilateral_c(), 75, 75)
+        circles = cv2.HoughCircles(circles, cv2.HOUGH_GRADIENT, dp=1, minDist=self.res.min_dist(), param1=param1,
+                                   param2=param2, minRadius=self.res.min_radius(), maxRadius=self.res.max_radius())
 
         self.circles = [] # ((x, y), r, color)
         if circles is not None:
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.round(circles[0, :]).astype("int")
 
-            # loop over the (x, y) coordinates and radius of the circles
             for (x, y, r) in circles:
                 # standardise radius
-                if r >= 32: # unconsumed: taupe / neutral
-                    r = 32 # 38
-                else: # consumed: red
-                    r = 24 # 32
+                if r > self.res.threshold_radius():
+                    # unconsumed: taupe / neutral
+                    r = self.res.large_node_inner_radius()
+                else:
+                    # consumed: red
+                    r = self.res.small_node_inner_radius()
 
+                # identify color
                 unlockable = ImageUtil.cut_circle(self.image_bgr, (x, y), r)
                 color = ImageUtil.dominant_color(unlockable)
-                if r == 24 and color != "red":
+                if r == self.res.small_node_inner_radius() and color != "red":
                     # likely the circle was misidentified as small; if it were small, it should be red: evaluate it again
-                    color = ImageUtil.dominant_color(ImageUtil.cut_circle(self.image_bgr, (x, y), 32))
+                    r = self.res.large_node_inner_radius()
+                    unlockable = ImageUtil.cut_circle(self.image_bgr, (x, y), r)
+                    color = ImageUtil.dominant_color(unlockable)
 
                 cv2.circle(self.output, (x, y), r, 255, 3)
                 cv2.rectangle(self.output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
@@ -122,14 +128,14 @@ class HoughTransform:
         cropped = self.image_r[round(height / crop_ratio):round((crop_ratio - 1) * height / crop_ratio),
                                round(width / crop_ratio):round((crop_ratio - 1) * width / crop_ratio)]
 
-        dim = round(64 * 0.7) # TODO adjust based on resolution and UI
+        dim = self.res.origin_dim() # TODO some issues matching origin at different resolutions
         radius = round(dim / 2)
         for subdir, dirs, files in os.walk("assets"):
             for file in files:
                 if "origin" in file:
                     origin = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))
-                    template = cv2.resize(origin[2], (dim, dim), interpolation=cv2.INTER_AREA)
-                    template_alpha = cv2.resize(origin[3], (dim, dim), interpolation=cv2.INTER_AREA) # for masking
+                    template = cv2.resize(origin[2], (dim, dim), interpolation=Images.interpolation)
+                    template_alpha = cv2.resize(origin[3], (dim, dim), interpolation=Images.interpolation) # for masking
                     result = cv2.matchTemplate(cropped, template, cv2.TM_CCORR_NORMED, mask=template_alpha)
 
                     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
@@ -139,11 +145,11 @@ class HoughTransform:
 
         centre = (round(top_left[0] + radius + width / crop_ratio), round(top_left[1] + radius + height / crop_ratio))
         cv2.circle(self.output_validated, centre, radius, 255, 4)
-        self.circles.append((centre, radius, "taupe"))
+        self.circles.append((centre, radius, "red"))
         self.origin_type = origin_type
         self.origin_position = centre
 
-    def __run_hough_line(self, l_blur, canny_min, canny_max, threshold, max_line_length):
+    def __run_hough_line(self, l_blur, canny_min, canny_max, threshold):
         '''
         identify all connections (lines) in image
         '''
@@ -154,11 +160,12 @@ class HoughTransform:
 
         for (x, y), r, color in self.circles:
             # remove the node's circle from the edges graph (reduces noise)
-            cv2.circle(self.edges, (x, y), r + 6, 0, thickness=-1) # TODO may need to adjust this
+            cv2.circle(self.edges, (x, y), r + Resolution.additional_radius(r), 0, thickness=-1)
 
         # TODO minLineLength will need to scale from UI size
 
-        lines = cv2.HoughLinesP(self.edges, rho=1, theta=np.pi / 180, threshold=threshold, minLineLength=25, maxLineGap=max_line_length)
+        lines = cv2.HoughLinesP(self.edges, rho=1, theta=np.pi / 180, threshold=threshold,
+                                minLineLength=self.res.line_length(), maxLineGap=self.res.line_length())
 
         self.lines = []
         if lines is not None:
@@ -173,7 +180,7 @@ class HoughTransform:
         self.valid_circles = {}
         self.connections = []
         for line in self.lines:
-            circle1, circle2 = get_endpoints(line, self.circles)
+            circle1, circle2 = get_endpoints(line, self.circles, self.res)
             if circle1 is not None and circle2 is not None and \
                     (circle1, circle2) not in self.connections and (circle2, circle1) not in self.connections:
                 self.connections.append((circle1, circle2))
@@ -221,6 +228,8 @@ class Matcher:
 
             r_small = r * 7 // 9
             unlockable = image[y-r_small:y+r_small, x-r_small:x+r_small]
+            height, width = unlockable.shape
+            print(color)
 
             if color == "neutral":
                 # brighten the image slightly since it's darker: alpha=contrast=[1,3] beta=brightness=[0,100]
@@ -228,8 +237,7 @@ class Matcher:
             elif color == "red":
                 # brighten and resize the claimed perk (matching correctly is not as important here)
                 unlockable = cv2.convertScaleAbs(unlockable, alpha=1, beta=40)
-                height, width = unlockable.shape
-                unlockable = cv2.resize(unlockable, (height * 4 // 3, width * 4 // 3))
+                unlockable = cv2.resize(unlockable, (height * 4 // 3, width * 4 // 3), interpolation=Images.interpolation)
 
             # do NOT resize unlockable for the base, only resize the base for the unlockable
             # using radius to resize instead of the color would cause a potential mismatch in template matching
@@ -257,11 +265,9 @@ class Matcher:
 
             i += 1
 
-            # cv2.imshow("unlockable from screen", unlockable)
-            # cv2.imshow(f"matched unlockable", output)
-            # cv2.waitKey(0)
-
-        # cv2.destroyAllWindows()
+            cv2.imshow("unlockable from screen", unlockable)
+            cv2.imshow(f"matched unlockable", output)
+            cv2.waitKey(0)
 
         nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, True).get_tuple())
 
@@ -316,8 +322,7 @@ class Matcher:
 
         cv2.imshow('Image', template)
         cv2.imshow('Base', base)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()'''
+        cv2.waitKey(0)'''
 
 class CircleMatcher:
     @staticmethod

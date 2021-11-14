@@ -5,32 +5,36 @@ import cv2
 import numpy as np
 
 import paths
+from images import Images
+from resolution import Resolution
 
 
 class MergedBase:
-    def __init__(self, category=None):
+    def __init__(self, res, category=None):
         '''
         :param category: can be used to reduce the number of valid images needed to be drawn from
         '''
+
+        self.res = res
 
         # TODO implement category
 
         valid_names = []
         valid_images = [] # 256 x 256
 
-        n, i = MergedBase.__get_valid_images(paths.offerings_path, "Favor")
+        n, i = self.__get_valid_images(paths.offerings_path, "Favor")
         valid_names.extend(n)
         valid_images.extend(i)
 
-        n, i = MergedBase.__get_valid_images(paths.addons_path, "Addon")
+        n, i = self.__get_valid_images(paths.addons_path, "Addon")
         valid_names.extend(n)
         valid_images.extend(i)
 
-        n, i = MergedBase.__get_valid_images(paths.items_path, "Items")
+        n, i = self.__get_valid_images(paths.items_path, "Items")
         valid_names.extend(n)
         valid_images.extend(i)
 
-        n, i = MergedBase.__get_valid_images(paths.perks_path, "Perks")
+        n, i = self.__get_valid_images(paths.perks_path, "Perks")
         valid_names.extend(n)
         valid_images.extend(i)
 
@@ -38,8 +42,7 @@ class MergedBase:
         self.images = cv2.vconcat(valid_images)
         cv2.imwrite("output/collage.png", self.images)
 
-    @staticmethod
-    def __get_valid_images(path, required_prefix):
+    def __get_valid_images(self, path, required_prefix):
         invalid = ["iconItems_carriedBody.png",
                    "iconFavors_graduationCap.png",
                    "iconFavors_5thAnniversary.png",
@@ -60,12 +63,13 @@ class MergedBase:
                    "iconFavors_LoversPostcard.png",
                    "iconFavors_MilkTea.png"]
 
-        dim = 54
-
+        full_dim = round(1.2 * self.res.perks())
         if required_prefix == "Favor":
-            dim = 68
+            dim = self.res.offerings()
         elif required_prefix == "Perks":
-            dim = 67
+            dim = self.res.perks()
+        else:
+            dim = self.res.items_addons()
 
         ret_names = []
         ret_images = []
@@ -84,9 +88,8 @@ class MergedBase:
                         gray_bg[:, :, layer] = template_alpha * template[:, :, layer] + bg_alpha * gray_bg[:, :, layer]
 
                     template = cv2.cvtColor(gray_bg, cv2.COLOR_BGR2GRAY)
-                    template = cv2.resize(template, (dim, dim), interpolation=cv2.INTER_AREA) # configure in config, should be some default according to resolutions; diff for square vs hexagon vs diamond
+                    template = cv2.resize(template, (dim, dim), interpolation=Images.interpolation)
 
-                    full_dim = 100
                     border1 = math.floor((full_dim - dim) / 2)
                     border2 = math.ceil((full_dim - dim) / 2)
                     template = cv2.copyMakeBorder(template, border1, border2, border1, border2, cv2.BORDER_CONSTANT, value=0)

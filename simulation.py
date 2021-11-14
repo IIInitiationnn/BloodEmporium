@@ -9,18 +9,22 @@ from node import Node
 from optimiser import Optimiser
 from utils.network_util import NetworkUtil
 
+
 class Simulation:
-    def __init__(self, path_to_image, run_optimiser=True):
+    def __init__(self, path_to_image, res, run_optimiser=True, alpha=1, beta=0):
         self.path_to_image = path_to_image
+        self.res = res
         self.run_optimiser = run_optimiser
+        self.alpha = alpha
+        self.beta = beta
 
     def run(self):
         if self.run_optimiser:
             # initialisation: merged base for template matching
-            merged_base = MergedBase()
+            merged_base = MergedBase(self.res)
 
         # hough transform: detect circles and lines
-        nodes_connections = HoughTransform(self.path_to_image, 5, 7, 10, 45, 5, 85, 40, 30, 25)
+        nodes_connections = HoughTransform(self.path_to_image, self.res, alpha=self.alpha, beta=self.beta)
         self.num_circles = len(nodes_connections.circles)
         self.image = nodes_connections.output
 
@@ -29,7 +33,6 @@ class Simulation:
         # cv2.imshow("unfiltered raw output (r-adjusted)", nodes_connections.output)
         # cv2.imshow("validated & processed output (r-adjusted)", nodes_connections.output_validated)
         # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
 
         if self.run_optimiser:
             # match circles to unlockables: create networkx graph of nodes

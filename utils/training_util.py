@@ -3,6 +3,7 @@ from scipy.optimize import basinhopping
 from skimage.metrics import structural_similarity
 
 from matcher import CircleMatcher, HoughTransform
+from resolution import Resolution
 
 class CircleTrainer:
     '''to find best parameters for matching circles'''
@@ -10,6 +11,7 @@ class CircleTrainer:
         '''targets = {}
         for base in [os.path.join(subdir, file) for (subdir, dirs, files) in os.walk("training_data/bases") for file in files]:
             targets[base] = cv2.imread(base, cv2.IMREAD_GRAYSCALE)'''
+        self.res = Resolution(3840, 2160, 70)
 
         self.path_to_base = "training_data/bases/shaderless/base_nurse.png"
         self.target = cv2.imread("training_data/bases/shaderless/base_nurse_target.png", cv2.IMREAD_GRAYSCALE)
@@ -29,11 +31,10 @@ class CircleTrainer:
         # solution = (31.9, 46.5) # blur=9
         # solution = (9.5, 30.7) # blur=15
 
-        HoughTransform(self.path_to_base, self.c_blur, 7, solution[0], solution[1], 5, 85, 40, 30, 25)
+        HoughTransform(self.path_to_base, self.res, self.c_blur, 7, solution[0], solution[1])
         cv2.imshow("target", self.target)
         cv2.imshow("solution", CircleMatcher.match(self.path_to_base, self.c_blur, solution[0], solution[1]))
         cv2.waitKey(0)
-        cv2.destroyAllWindows()
 
     def ssim(self, params):
         self.i += 1

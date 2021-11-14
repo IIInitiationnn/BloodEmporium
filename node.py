@@ -3,7 +3,6 @@ from pprint import pprint
 from utils.color_util import ColorUtil
 
 class Node:
-    # TODO pass in colour, calculate is_accessible, is_user_claimed
     def __init__(self, node_id, name, value, position, is_accessible, is_user_claimed):
         self.node_id = node_id
         self.name = name

@@ -2,17 +2,20 @@ import os
 import time
 from pprint import pprint
 
-import networkx as nx
-from pynput.mouse import Button, Controller
-
 import cv2
+import networkx as nx
 import numpy as np
 import pyautogui
+from pynput.mouse import Button, Controller
 
+import json
 from matcher import Matcher, HoughTransform
 from mergedbase import MergedBase
 from node import Node
 from optimiser import Optimiser
+from resolution import Resolution
+from simulation import Simulation
+from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
 #   -!!!!!!! more debugging tools! for each iteration, write to a folder containing all colors, masks etc.
@@ -24,8 +27,6 @@ from optimiser import Optimiser
 #   - calibrate brightness of background of default pack
 #   - working with different UI scales -> adjust constants
 #   - improve colour detection (occasional misidentified neutral and red nodes causes attempt to select invalid node)
-from simulation import Simulation
-from utils.network_util import NetworkUtil
 
 ''' timeline
     - [DONE] backend with algorithm
@@ -67,26 +68,38 @@ from utils.network_util import NetworkUtil
 '''
 
 if __name__ == '__main__':
+    # read config settings
+    with open("config.json") as f:
+        config = json.load(f)
+
     production_mode = False
     if production_mode:
+        # resolution
+        resolution = Resolution(config["resolution"]["width"],
+                                config["resolution"]["height"],
+                                config["resolution"]["ui_scale"])
+
         # initialisation: merged base for template matching
         print("initialisation, merging")
-        merged_base = MergedBase()
+        merged_base = MergedBase(resolution)
         mouse = Controller()
         mouse.position = (0, 0)
 
         i = 0
         while i < 10:
             # screen capture
-            x, y, width, height = 250, 380, 800, 800
             print("capturing screen")
+            x = config["capture"]["top_left_x"]
+            y = config["capture"]["top_left_y"]
+            width = config["capture"]["width"]
+            height = config["capture"]["height"]
             path_to_image = f"output/pic{i}.png"
             image = pyautogui.screenshot(path_to_image, region=(x, y, width, height))
             image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
             # hough transform: detect circles and lines
             print("hough transform")
-            nodes_connections = HoughTransform(path_to_image, 5, 7, 10, 45, 5, 85, 40, 30, 25)
+            nodes_connections = HoughTransform(path_to_image, resolution)
 
             # match circles to unlockables: create networkx graph of nodes
             print("match to unlockables")
@@ -126,20 +139,72 @@ if __name__ == '__main__':
 
         time.sleep(30)
     else:
-        num_errors = 0
-        i = 0
-        target = [27, 26, 27, 10, 20, 27, 27, 20, 11, 20, 12, 27, 27, 27, 16, 27, 5, 27, 8, 7, 27, 18, 5, 20]
-        for subdir, dirs, files in os.walk("training_data/bases/shaderless"):
-            for file in files:
-                if "target" not in file and "old" not in file:
-                # if "target" not in file and ("nurse" in file or "nea" in file):
-                    sim = Simulation(os.path.join(subdir, file), False)
-                    sim.run()
-                    this_errors = abs(sim.num_circles - target[i])
-                    if this_errors != 0:
-                        print(file, this_errors)
-                        cv2.imshow("out", sim.image)
-                        cv2.waitKey(0)
-                    num_errors += this_errors
-                    i += 1
-        print(num_errors)
+        alpha = 0.6
+        while alpha <= 1.4:
+            beta = -50
+            while beta <= 50:
+
+
+
+                num_errors = 0
+                i = 0
+                target = {
+                    "base_boon.png": 26,
+                    "base_david_stuart.png": 10,
+                    "base_dwight_stuart.png": 20,
+                    "base_feng_stuart.png": 27,
+                    "base_jill.png": 20,
+                    "base_leon.png": 20,
+                    "base_oni.png": 16,
+                    "base_pinhead.png": 5,
+                    "base_spirit_stuart.png": 8,
+                    "base_sussy.png": 7,
+                    "base_trickster.png": 18,
+                    "base_wraith_stuart.png": 5,
+                    "base_yun.png": 20,
+                    "base_blight.png": 27,
+                    "base_claud.png": 27,
+                    "base_jane.png": 27,
+                    "base_nea.png": 12,
+                    "base_nurse.png": 27,
+                    "base_nurse_2.png": 27,
+                    "base_nurse_default.png": 27,
+                    "base_pig.png": 27,
+                    "base_spirit.png": 27,
+                    "base_trapper_mixed.png": 27,
+                    "base_billy_4k.png": 27,
+                    "base_huntress_4k.png": 27,
+                    "base_myers_4k.png": 27,
+                    "base_nurse_4k.png": 21,
+                    "base_pig_4k.png": 27,
+                    "base_spirit_4k.png": 27,
+                    "base_wraith_4k.png": 27,
+                }
+                for subdir, dirs, files in os.walk("training_data/bases/shaderless"):
+                    for file in files:
+                        if "target" not in file and "old" not in file:
+                            r = subdir.split("\\")[1]
+                            res = Resolution(int(r.split("x")[0]), int(r.split("x")[1].split("_")[0]), int(r.split("_")[1]))
+                            # res.print()
+
+                            sim = Simulation(os.path.join(subdir, file), res, False, alpha, beta)
+                            sim.run()
+                            this_errors = abs(sim.num_circles - target[file])
+                            # if this_errors != 0:
+                                # print(file, this_errors)
+                                # cv2.imshow("out", sim.image)
+                                # cv2.waitKey(0)
+                            num_errors += this_errors
+                            i += 1
+                print(alpha, beta, num_errors)
+
+
+
+                beta += 25
+            alpha += 0.05
+
+
+        """sim = Simulation("output/pic0.png", False)
+        sim.run()"""
+
+    cv2.destroyAllWindows()

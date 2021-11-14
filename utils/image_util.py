@@ -1,8 +1,10 @@
 from pprint import pprint
+# TODO method to use alpha instead of black -> ignore alpha
 
 import cv2
 import numpy as np
 
+from resolution import Resolution
 from utils.color_util import ColorUtil
 
 
@@ -21,21 +23,24 @@ class ImageUtil:
         mask = np.zeros((height, width), np.uint8)
         color = 255
         mask[:] = color
-        inner_circle = cv2.circle(mask, centre, radius + 2, (0, 0, 0), thickness=-1)
+        inner_circle = cv2.circle(mask, centre, radius, (0, 0, 0), thickness=-1)
         masked_data = cv2.bitwise_and(image, image, mask=inner_circle)
 
         # black mask with white center to remove everything outside
-        full_radius = radius + 6
+        full_radius = radius + Resolution.additional_radius(radius)
         mask = np.zeros((height, width), np.uint8)
         outer_circle = cv2.circle(mask, centre, full_radius, (255, 255, 255), thickness=-1)
         masked_data = cv2.bitwise_and(masked_data, masked_data, mask=outer_circle)
 
         x, y = centre
-        unlockable = masked_data[y-full_radius:y+full_radius, x-full_radius:x+full_radius]
+        width, height, _ = masked_data.shape
+        unlockable = masked_data[max(y-full_radius, 0):min(y+full_radius, height),
+                                 max(x-full_radius, 0):min(x+full_radius, width)]
         unlockable = cv2.cvtColor(unlockable, cv2.COLOR_BGRA2BGR)
 
         # cv2.imshow("masked", masked_data)
         # cv2.imshow("color", unlockable)
+        # cv2.waitKey(0)
 
         return unlockable
 
