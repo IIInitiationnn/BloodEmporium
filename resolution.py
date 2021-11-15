@@ -20,9 +20,9 @@ class Resolution:
 
     # hough circles
     __gaussian_c = 10
-    __bilateral_c = 15
-    __min_dist = 170
-    __min_radius = 15
+    __bilateral_c = 14
+    __min_dist = 160
+    __min_radius = 30
     __max_radius = 105
 
     # origin
@@ -43,6 +43,9 @@ class Resolution:
 
     def print(self):
         print(f"{self.width}x{self.height} @ {self.ui_scale}% UI Scale")
+
+    def aspect_ratio(self):
+        return self.width / self.height
 
     def ratio(self):
         return self.width / Resolution.__width * self.ui_scale / Resolution.__ui_scale

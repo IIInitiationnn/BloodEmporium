@@ -33,7 +33,7 @@ class ImageUtil:
         masked_data = cv2.bitwise_and(masked_data, masked_data, mask=outer_circle)
 
         x, y = centre
-        width, height, _ = masked_data.shape
+        height, width, _ = masked_data.shape
         unlockable = masked_data[max(y-full_radius, 0):min(y+full_radius, height),
                                  max(x-full_radius, 0):min(x+full_radius, width)]
         unlockable = cv2.cvtColor(unlockable, cv2.COLOR_BGRA2BGR)

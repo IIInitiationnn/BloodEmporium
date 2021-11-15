@@ -1,4 +1,5 @@
 import os.path
+import math
 
 import cv2
 import cv2.cv2
@@ -29,22 +30,21 @@ cv2.IMREAD_UNCHANGED
 
 class HoughTransform:
     i = 0
-    def __init__(self, path_to_image, res, c_blur=5, bilateral_blur=7, param1=10, param2=45, l_blur=5,
-                 canny_min=85, canny_max=40, threshold=30, alpha=1, beta=0):
+    def __init__(self, images, res, c_blur=5, bilateral_blur=7, param1=10, param2=45, l_blur=5,
+                 canny_min=85, canny_max=40, threshold=30):
         '''
         identifies all the nodes and connections in the image, as well as the origin
         '''
-        self.image_bgr = cv2.imread(path_to_image, cv2.IMREAD_UNCHANGED)
-        self.image_gray = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
-        self.image_r = cv2.split(self.image_bgr)[2]
-
         self.res = res
+        self.image_bgr = images["bgr"]
+        self.image_gray = images["gray"]
+        self.image_r = cv2.split(self.image_bgr)[2]
 
         self.output = self.image_gray.copy()
         self.output_validated = self.image_gray.copy()
 
-        self.__run_hough_circle(param1, param2, alpha, beta)
-        self.__match_origin() # TODO may want to match first then remove any prospective circles overlapping in case origin is detected
+        self.__run_hough_circle(param1, param2)
+        self.__match_origin()
         self.__run_hough_line(l_blur, canny_min, canny_max, threshold)
         self.__validate_all()
 
@@ -74,17 +74,20 @@ class HoughTransform:
         '''
         return self.origin_position
 
-    def __run_hough_circle(self, param1, param2, alpha, beta):
+    def __run_hough_circle(self, param1, param2):
         '''
         identify all nodes (circles) in image
         '''
 
         # detect circles in the image
         circles = self.image_gray
-        # circles = cv2.convertScaleAbs(circles, alpha=0.58, beta=0)
-        circles = cv2.convertScaleAbs(circles, alpha=alpha, beta=beta)
+
+        circles = cv2.convertScaleAbs(circles, alpha=1.4, beta=0)
+        circles = cv2.fastNlMeansDenoising(circles, None, 3, 7, 21)
         circles = cv2.GaussianBlur(circles, (self.res.gaussian_c(), self.res.gaussian_c()), sigmaX=0, sigmaY=0)
-        circles = cv2.bilateralFilter(circles, self.res.bilateral_c(), 75, 75)
+        circles = cv2.bilateralFilter(circles, self.res.bilateral_c(), 200, 200)
+        self.hhhhh = circles
+
         circles = cv2.HoughCircles(circles, cv2.HOUGH_GRADIENT, dp=1, minDist=self.res.min_dist(), param1=param1,
                                    param2=param2, minRadius=self.res.min_radius(), maxRadius=self.res.max_radius())
 
@@ -111,7 +114,7 @@ class HoughTransform:
                     unlockable = ImageUtil.cut_circle(self.image_bgr, (x, y), r)
                     color = ImageUtil.dominant_color(unlockable)
 
-                cv2.circle(self.output, (x, y), r, 255, 3)
+                cv2.circle(self.output, (x, y), r, 255, 2)
                 cv2.rectangle(self.output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
 
                 # remove the node from the edges graph
@@ -229,14 +232,13 @@ class Matcher:
             r_small = r * 7 // 9
             unlockable = image[y-r_small:y+r_small, x-r_small:x+r_small]
             height, width = unlockable.shape
-            print(color)
 
             if color == "neutral":
                 # brighten the image slightly since it's darker: alpha=contrast=[1,3] beta=brightness=[0,100]
                 unlockable = cv2.convertScaleAbs(unlockable, alpha=1, beta=20)
             elif color == "red":
                 # brighten and resize the claimed perk (matching correctly is not as important here)
-                unlockable = cv2.convertScaleAbs(unlockable, alpha=1, beta=40)
+                unlockable = cv2.convertScaleAbs(unlockable, alpha=1, beta=20)
                 unlockable = cv2.resize(unlockable, (height * 4 // 3, width * 4 // 3), interpolation=Images.interpolation)
 
             # do NOT resize unlockable for the base, only resize the base for the unlockable
@@ -256,7 +258,7 @@ class Matcher:
 
             output = output[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
 
-            match_name = names[round((bottom_right[1] - 50) / 100)]
+            match_name = names[round((bottom_right[1] - merged_base.full_dim / 2) / merged_base.full_dim)]
             node_id = f"{i}_{match_name}"
 
             is_accessible, is_user_claimed = Node.state_from_color(color)
@@ -265,9 +267,9 @@ class Matcher:
 
             i += 1
 
-            cv2.imshow("unlockable from screen", unlockable)
-            cv2.imshow(f"matched unlockable", output)
-            cv2.waitKey(0)
+            # cv2.imshow("unlockable from screen", cv2.resize(unlockable, (250, 250)))
+            # cv2.imshow(f"matched unlockable", cv2.resize(output, (250, 250)))
+            # cv2.waitKey(0)
 
         nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, True).get_tuple())
 

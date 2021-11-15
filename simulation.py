@@ -11,12 +11,10 @@ from utils.network_util import NetworkUtil
 
 
 class Simulation:
-    def __init__(self, path_to_image, res, run_optimiser=True, alpha=1, beta=0):
-        self.path_to_image = path_to_image
+    def __init__(self, images, res, run_optimiser=True):
+        self.images = images
         self.res = res
         self.run_optimiser = run_optimiser
-        self.alpha = alpha
-        self.beta = beta
 
     def run(self):
         if self.run_optimiser:
@@ -24,19 +22,20 @@ class Simulation:
             merged_base = MergedBase(self.res)
 
         # hough transform: detect circles and lines
-        nodes_connections = HoughTransform(self.path_to_image, self.res, alpha=self.alpha, beta=self.beta)
+        nodes_connections = HoughTransform(self.images, self.res)
         self.num_circles = len(nodes_connections.circles)
         self.image = nodes_connections.output
+        self.hhhhh = nodes_connections.hhhhh
 
-        # cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{nodes_connections.origin_type}", cv2.IMREAD_UNCHANGED))[2])
-        # cv2.imshow("edges for matching lines", nodes_connections.edges)
-        # cv2.imshow("unfiltered raw output (r-adjusted)", nodes_connections.output)
-        # cv2.imshow("validated & processed output (r-adjusted)", nodes_connections.output_validated)
-        # cv2.waitKey(0)
+        cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{nodes_connections.origin_type}", cv2.IMREAD_UNCHANGED))[2])
+        cv2.imshow("edges for matching lines", nodes_connections.edges)
+        cv2.imshow("unfiltered raw output (r-adjusted)", nodes_connections.output)
+        cv2.imshow("validated & processed output (r-adjusted)", nodes_connections.output_validated)
+        cv2.waitKey(0)
 
         if self.run_optimiser:
             # match circles to unlockables: create networkx graph of nodes
-            matcher = Matcher(cv2.imread(self.path_to_image, cv2.IMREAD_GRAYSCALE), nodes_connections, merged_base)
+            matcher = Matcher(self.images["gray"], nodes_connections, merged_base)
             base_bloodweb = matcher.graph # all 9999
 
         i = 0

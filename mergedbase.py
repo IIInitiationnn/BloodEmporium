@@ -16,6 +16,7 @@ class MergedBase:
         '''
 
         self.res = res
+        self.full_dim = round(1.2 * self.res.perks())
 
         # TODO implement category
 
@@ -63,7 +64,6 @@ class MergedBase:
                    "iconFavors_LoversPostcard.png",
                    "iconFavors_MilkTea.png"]
 
-        full_dim = round(1.2 * self.res.perks())
         if required_prefix == "Favor":
             dim = self.res.offerings()
         elif required_prefix == "Perks":
@@ -90,8 +90,8 @@ class MergedBase:
                     template = cv2.cvtColor(gray_bg, cv2.COLOR_BGR2GRAY)
                     template = cv2.resize(template, (dim, dim), interpolation=Images.interpolation)
 
-                    border1 = math.floor((full_dim - dim) / 2)
-                    border2 = math.ceil((full_dim - dim) / 2)
+                    border1 = math.floor((self.full_dim - dim) / 2)
+                    border2 = math.ceil((self.full_dim - dim) / 2)
                     template = cv2.copyMakeBorder(template, border1, border2, border1, border2, cv2.BORDER_CONSTANT, value=0)
 
                     ret_names.append(file)
