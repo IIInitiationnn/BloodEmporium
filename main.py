@@ -10,6 +10,7 @@ import networkx as nx
 import numpy as np
 import pyautogui
 from pynput.mouse import Button, Controller
+from pynput import keyboard
 
 from matcher import Matcher, HoughTransform
 from mergedbase import MergedBase
@@ -20,14 +21,9 @@ from simulation import Simulation
 from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
-#   -!!!!!!! more debugging tools! for each iteration, write to a folder containing all colors, masks etc.
-#   - simulation class: model what happens without needing to spend bloodpoints (just modify the graph)
-#       - useful for tweaking optimiser if needed
-#   - try thresholding+contour detection; contour fitting for higher accuracy
-#   - if inconsistent, consider hardcoding relative positions of nodes
+#   - improve line accuracy, then do testing, then match for vanilla icons, then optimise, then config
 #   - calibrate brightness of neutral using shaders
 #   - calibrate brightness of background of default pack
-#   - working with different UI scales -> adjust constants
 #   - improve colour detection (occasional misidentified neutral and red nodes causes attempt to select invalid node)
 
 ''' timeline
@@ -69,7 +65,16 @@ from utils.network_util import NetworkUtil
     
 '''
 
+terminate = False
+def on_press(key):
+    if key == keyboard.Key.end:
+        global terminate
+        terminate = True
+
 if __name__ == '__main__':
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()
+
     # read config settings
     with open("config.json") as f:
         config = json.load(f)
@@ -90,12 +95,12 @@ if __name__ == '__main__':
 
         # initialisation: merged base for template matching
         print("initialisation, merging")
-        merged_base = MergedBase(resolution)
+        merged_base = MergedBase(resolution, "nurse") # TODO
         mouse = Controller()
         mouse.position = (0, 0)
 
         i = 0
-        while i < 10:
+        while not terminate:
             # screen capture
             print("capturing screen")
             x = config["capture"]["top_left_x"]
@@ -214,7 +219,7 @@ if __name__ == '__main__':
 
         for subdir, dirs, files in os.walk("training_data/bases/shaderless"):
             for file in files:
-                if "target" not in file and "old" not in file:
+                if "target" not in file and "old" not in file and "3840" in subdir:
                     p = Path(os.path.join(subdir, file)).as_posix()
                     s = p.split("/")[3]
                     res = Resolution(int(s.split("x")[0]), int(s.split("x")[1].split("_")[0]), int(s.split("_")[-1]))
@@ -226,7 +231,6 @@ if __name__ == '__main__':
                     elif res.width > 2560:
                         ratio = res.width / 2560 * res.ui_scale / 100
                         res = Resolution(2560, 1440, 100)
-                    print(ratio)
 
                     path_to_image = os.path.join(subdir, file)
                     image_bgr = cv2.imread(path_to_image, cv2.IMREAD_UNCHANGED)
@@ -241,7 +245,7 @@ if __name__ == '__main__':
                     images = {"bgr": image_bgr, "gray": image_gray}
 
                     # sim = Simulation(os.path.join(subdir, file), res, False)
-                    sim = Simulation(images, res, True)
+                    sim = Simulation(images, res, False)
                     sim.run()
                     this_errors = abs(sim.num_circles - target[file])
                     if this_errors != 0:

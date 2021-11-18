@@ -110,6 +110,7 @@ class HoughTransform:
                 color = ImageUtil.dominant_color(unlockable)
                 if r == self.res.small_node_inner_radius() and color != "red":
                     # likely the circle was misidentified as small; if it were small, it should be red: evaluate it again
+                    # TODO cursed seed on some is having issues
                     r = self.res.large_node_inner_radius()
                     unlockable = ImageUtil.cut_circle(self.image_bgr, (x, y), r)
                     color = ImageUtil.dominant_color(unlockable)
@@ -158,14 +159,12 @@ class HoughTransform:
         '''
 
         base_l = cv2.GaussianBlur(self.image_gray, (l_blur, l_blur), sigmaX=0, sigmaY=0) # lines
-        base_l = cv2.convertScaleAbs(base_l, alpha=1.3, beta=0)
-        self.edges = cv2.Canny(base_l, canny_min, canny_max)
+        base_l = cv2.convertScaleAbs(base_l, alpha=1.3, beta=50)
+        self.edges = cv2.Canny(base_l, canny_min, canny_max) # TODO adjust for resolutions
 
         for (x, y), r, color in self.circles:
             # remove the node's circle from the edges graph (reduces noise)
             cv2.circle(self.edges, (x, y), r + Resolution.additional_radius(r), 0, thickness=-1)
-
-        # TODO minLineLength will need to scale from UI size
 
         lines = cv2.HoughLinesP(self.edges, rho=1, theta=np.pi / 180, threshold=threshold,
                                 minLineLength=self.res.line_length(), maxLineGap=self.res.line_length())
