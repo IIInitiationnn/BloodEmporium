@@ -8,6 +8,7 @@ import numpy as np
 
 from images import Images
 from node import Node
+from paths import Path
 from resolution import Resolution
 from utils.distance_util import get_endpoints
 from utils.image_util import ImageUtil
@@ -134,16 +135,15 @@ class HoughTransform:
 
         dim = self.res.origin_dim() # TODO some issues matching origin at different resolutions
         radius = round(dim / 2)
-        for subdir, dirs, files in os.walk("assets"):
+        for subdir, dirs, files in os.walk(Path.assets_origins):
             for file in files:
-                if "origin" in file:
-                    origin = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))
-                    template = cv2.resize(origin[2], (dim, dim), interpolation=Images.interpolation)
-                    template_alpha = cv2.resize(origin[3], (dim, dim), interpolation=Images.interpolation) # for masking
-                    result = cv2.matchTemplate(cropped, template, cv2.TM_CCORR_NORMED, mask=template_alpha)
+                origin = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))
+                template = cv2.resize(origin[2], (dim, dim), interpolation=Images.interpolation)
+                template_alpha = cv2.resize(origin[3], (dim, dim), interpolation=Images.interpolation) # for masking
+                result = cv2.matchTemplate(cropped, template, cv2.TM_CCORR_NORMED, mask=template_alpha)
 
-                    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-                    matches.append((file, min_val, max_val, min_loc, max_loc))
+                min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+                matches.append((file, min_val, max_val, min_loc, max_loc))
 
         origin_type, _, _, _, top_left = max(matches, key=lambda match: match[2])
 
@@ -200,13 +200,6 @@ class HoughTransform:
             cv2.rectangle(self.output_validated, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
 
 class Matcher:
-    '''
-    TODO: ways to improve accuracy
-        - use categories for matching to reduce search space
-            - would be faster
-        - use color matching: for people who do not use packs, assets folder would contain correct background
-            - would be slower - if using the above strategy, we may not need this
-    '''
     def __init__(self, image, nodes_connections, merged_base):
         # match each node of graph to an unlockable
         valid_circles = nodes_connections.get_valid_circles()
@@ -266,9 +259,9 @@ class Matcher:
 
             i += 1
 
-            # cv2.imshow("unlockable from screen", cv2.resize(unlockable, (250, 250)))
-            # cv2.imshow(f"matched unlockable", cv2.resize(output, (250, 250)))
-            # cv2.waitKey(0)
+            cv2.imshow("unlockable from screen", cv2.resize(unlockable, (250, 250)))
+            cv2.imshow(f"matched unlockable", cv2.resize(output, (250, 250)))
+            cv2.waitKey(0)
 
         nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, True).get_tuple())
 

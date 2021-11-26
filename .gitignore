@@ -1,5 +1,9 @@
-*.png
 *.html
+compile.json
+main.spec
 
 .idea/
 __pycache__/
+training_data/
+output/
+references/

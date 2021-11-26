@@ -12,6 +12,7 @@ import pyautogui
 from pynput.mouse import Button, Controller
 from pynput import keyboard
 
+from config import Config
 from matcher import Matcher, HoughTransform
 from mergedbase import MergedBase
 from node import Node
@@ -76,10 +77,9 @@ if __name__ == '__main__':
     listener.start()
 
     # read config settings
-    with open("config.json") as f:
-        config = json.load(f)
+    config = Config().config
 
-    production_mode = True
+    production_mode = False
     if production_mode:
         # resolution
         resolution = Resolution(config["resolution"]["width"],
@@ -219,42 +219,41 @@ if __name__ == '__main__':
 
         for subdir, dirs, files in os.walk("training_data/bases/shaderless"):
             for file in files:
-                if "target" not in file and "old" not in file and "3840" in subdir:
-                    p = Path(os.path.join(subdir, file)).as_posix()
-                    s = p.split("/")[3]
-                    res = Resolution(int(s.split("x")[0]), int(s.split("x")[1].split("_")[0]), int(s.split("_")[-1]))
-                    # res.print()
+                p = Path(os.path.join(subdir, file)).as_posix()
+                s = p.split("/")[3]
+                res = Resolution(int(s.split("x")[0]), int(s.split("x")[1].split("_")[0]), int(s.split("_")[-1]))
 
-                    ratio = 1
-                    if not math.isclose(res.aspect_ratio(), 16 / 9, abs_tol=0.01):
-                        pass # TODO stretched res support in the future...?
-                    elif res.width > 2560:
-                        ratio = res.width / 2560 * res.ui_scale / 100
-                        res = Resolution(2560, 1440, 100)
+                ratio = 1
+                if not math.isclose(res.aspect_ratio(), 16 / 9, abs_tol=0.01):
+                    pass # TODO stretched res support in the future...?
+                elif res.width > 2560:
+                    ratio = res.width / 1920 * res.ui_scale / 100
+                    res = Resolution(1920, 1080, 100)
 
-                    path_to_image = os.path.join(subdir, file)
-                    image_bgr = cv2.imread(path_to_image, cv2.IMREAD_UNCHANGED)
-                    image_gray = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
+                path_to_image = os.path.join(subdir, file)
+                image_bgr = cv2.imread(path_to_image, cv2.IMREAD_UNCHANGED)
+                image_gray = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
 
-                    if ratio != 1:
-                        height, width = image_gray.shape
-                        new_height, new_width = round(height / ratio), round(width / ratio)
-                        image_bgr = cv2.resize(image_bgr, (new_width, new_height))
-                        image_gray = cv2.resize(image_gray, (new_width, new_height))
+                if ratio != 1:
+                    height, width = image_gray.shape
+                    new_height, new_width = round(height / ratio), round(width / ratio)
+                    image_bgr = cv2.resize(image_bgr, (new_width, new_height))
+                    image_gray = cv2.resize(image_gray, (new_width, new_height))
 
-                    images = {"bgr": image_bgr, "gray": image_gray}
+                images = {"bgr": image_bgr, "gray": image_gray}
 
-                    # sim = Simulation(os.path.join(subdir, file), res, False)
-                    sim = Simulation(images, res, False)
-                    sim.run()
-                    this_errors = abs(sim.num_circles - target[file])
-                    if this_errors != 0:
-                        print(file, this_errors)
-                        # height, width = sim.image.shape
-                        # cv2.imshow("out", cv2.resize(sim.image, (width * 2 // 3, height * 2 // 3)))
-                        # cv2.imshow("hhhhh", cv2.resize(sim.hhhhh, (width * 2 // 3, height * 2 // 3)))
-                        # cv2.waitKey(0)
-                    num_errors += this_errors
+                # sim = Simulation(os.path.join(subdir, file), res, False)
+                sim = Simulation(images, res, False)
+                sim.run()
+                this_errors = abs(sim.num_circles - target[file])
+                res.print()
+                if this_errors != 0:
+                    print(file, this_errors)
+                    # height, width = sim.image.shape
+                    # cv2.imshow("out", cv2.resize(sim.image, (width * 2 // 3, height * 2 // 3)))
+                    # cv2.imshow("hhhhh", cv2.resize(sim.hhhhh, (width * 2 // 3, height * 2 // 3)))
+                    # cv2.waitKey(0)
+                num_errors += this_errors
         print(num_errors)
         """sim = Simulation("output/pic0.png", False)
         sim.run()"""

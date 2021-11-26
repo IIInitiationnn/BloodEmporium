@@ -27,7 +27,7 @@ class Simulation:
         self.image = nodes_connections.output
         self.hhhhh = nodes_connections.hhhhh
 
-        cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{nodes_connections.origin_type}", cv2.IMREAD_UNCHANGED))[2])
+        cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/origins/{nodes_connections.origin_type}", cv2.IMREAD_UNCHANGED))[2])
         cv2.imshow("edges for matching lines", nodes_connections.edges)
         cv2.imshow("unfiltered raw output (r-adjusted)", nodes_connections.output)
         cv2.imshow("validated & processed output (r-adjusted)", nodes_connections.output_validated)

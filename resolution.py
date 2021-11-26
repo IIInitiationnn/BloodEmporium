@@ -2,6 +2,7 @@ import math
 
 
 class Resolution:
+    # TODO make 1440p70 the new standard since we're rescaling everything larger to this: ONLY if it doesnt misidentify though
     '''
     the following constants scale from this resolution
     - 3840x2160 (4k)
