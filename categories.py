@@ -118,6 +118,7 @@ class Categories:
         ],
         "killer": [
             "iconFavors_hollowShell",
+            "iconFavors_survivorPudding",
 
             # addons
             "iconAddon_blightedSerum",
@@ -257,7 +258,6 @@ class Categories:
         "survivor": [
             "iconFavors_escapeCake",
             "iconFavors_sealedEnvelope",
-            "iconFavors_survivorPudding",
             "iconFavors_boundEnvelope",
 
             # firecrackers

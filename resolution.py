@@ -33,6 +33,7 @@ class Resolution:
     __line_length = 54
 
     # template matching
+    __mystery_box = 200
     __items_addons = 115
     __offerings = 144
     __perks = 144
@@ -103,6 +104,9 @@ class Resolution:
         return round(Resolution.__line_length * self.ratio())
 
     # template matching
+    def mystery_box(self):
+        return round(Resolution.__mystery_box * self.ratio())
+
     def items_addons(self):
         return round(Resolution.__items_addons * self.ratio())
 

@@ -74,6 +74,13 @@ class Optimiser:
 
         return Node.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
 
+    def num_left(self):
+        total = 0
+        for node_id, data in self.dijkstra_graph.nodes.items():
+            if not data["is_user_claimed"]:
+                total += 1
+        return total
+
     def run(self):
         desired_unlockables = ["iconAddon_heavyPanting.png",
                                "iconAddon_darkCincture.png",
@@ -85,6 +92,25 @@ class Optimiser:
                                "iconFavors_survivorPudding.png",
                                "iconFavors_bloodyPartyStreamers.png",
                                "iconFavors_wardBlack.png",
+                               "iconAddon_bandages.png",
+                               "iconAddon_battery.png",
+                               "iconAddon_brokenFlashlightBulb.png",
+                               "iconAddon_gelDressings.png",
+                               "iconAddon_heavyDutyBattery.png",
+                               "iconAddon_longLifeBattery.png",
+                               "iconAddon_metalSaw.png",
+                               "iconFavors_escapeCake.png",
+                               "iconItems_firstAidKit.png",
+                               "iconItems_flashlight.png",
+                               "iconItems_flashlightSport.png",
+                               "iconItems_flashlightUtility.png",
+                               "iconItems_toolboxAlexs.png",
+                               "iconItems_toolboxWornOut.png",
+                               "iconItems_toolbox.png",
+                               "iconItems_rangersAidKit.png",
+                               "iconItems_rundownAidKit.png",
+                               "iconFavors_wardWhite.png",
+
                                # "iconFavors_ardentRavenWreath.png",
                                # "iconFavors_ardentShrikeWreath.png",
                                # "iconFavors_ardentSpottedOwlWreath.png",

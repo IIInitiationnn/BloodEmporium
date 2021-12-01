@@ -9,7 +9,6 @@ from node import Node
 from optimiser import Optimiser
 from utils.network_util import NetworkUtil
 
-
 class Simulation:
     def __init__(self, images, res, run_optimiser=True):
         self.images = images

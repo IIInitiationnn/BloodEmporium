@@ -31,7 +31,7 @@ class MergedBase:
             categories.append("retired")
 
         self.res = res
-        self.full_dim = round(1.2 * self.res.perks())
+        self.full_dim = round(1 + self.res.mystery_box())
 
         # TODO read all asset files, use for reward config
         path = Config().config['path'] # user's default folder for icons; could be custom icons
@@ -51,9 +51,9 @@ class MergedBase:
             # search in asset folder
             asset_path = Path.assets_file(category, unlockable)
             if os.path.isfile(asset_path):
-                image_paths.append(os.path.abspath(asset_path)) # TODO make sure this is working hhhhh
-
-            print(f"no source found for desired unlockable: {unlockable} under category: {category}")
+                image_paths.append(os.path.abspath(asset_path))
+            else:
+                print(f"no source found for desired unlockable: {unlockable} under category: {category}")
 
         valid_names, valid_images = self.__get_valid_images(image_paths)
 
@@ -67,7 +67,9 @@ class MergedBase:
         for file in image_paths:
             image_name = file.split("/")[-1]
 
-            if "Favors" in image_name:
+            if "mysteryBox" in image_name:
+                dim = self.res.mystery_box()
+            elif "Favors" in image_name:
                 dim = self.res.offerings()
             elif "Perks" in image_name:
                 dim = self.res.perks()

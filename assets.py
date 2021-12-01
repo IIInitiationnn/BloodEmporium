@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
         found = False
         for subdir, file in all_files:
-            if unlockable in file:
+            if unlockable == file[:-4]:
                 if not os.path.isdir(f"{Path.assets}/{category}"):
                     os.mkdir(f"{Path.assets}/{category}")
                 shutil.copyfile(os.path.join(subdir, file), Path.assets_file(category, unlockable))

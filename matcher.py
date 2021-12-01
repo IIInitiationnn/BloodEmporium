@@ -259,9 +259,9 @@ class Matcher:
 
             i += 1
 
-            cv2.imshow("unlockable from screen", cv2.resize(unlockable, (250, 250)))
-            cv2.imshow(f"matched unlockable", cv2.resize(output, (250, 250)))
-            cv2.waitKey(0)
+            # cv2.imshow("unlockable from screen", cv2.resize(unlockable, (250, 250)))
+            # cv2.imshow(f"matched unlockable", cv2.resize(output, (250, 250)))
+            # cv2.waitKey(0)
 
         nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, True).get_tuple())
 
