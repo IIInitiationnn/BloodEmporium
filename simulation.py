@@ -26,11 +26,18 @@ class Simulation:
         self.image = nodes_connections.output
         self.hhhhh = nodes_connections.hhhhh
 
-        cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/origins/{nodes_connections.origin_type}", cv2.IMREAD_UNCHANGED))[2])
+        cv2.imshow("cropped for origin matching", nodes_connections.cropped)
+        # cv2.imshow("matched origin", cv2.split(cv2.imread(f"{Path.assets_origins}/{nodes_connections.origin_type}", cv2.IMREAD_UNCHANGED))[2])
         cv2.imshow("edges for matching lines", nodes_connections.edges)
         cv2.imshow("unfiltered raw output (r-adjusted)", nodes_connections.output)
         cv2.imshow("validated & processed output (r-adjusted)", nodes_connections.output_validated)
         cv2.waitKey(0)
+
+        # resized to 2/3
+        # cv2.imshow("edges for matching lines", cv2.resize(nodes_connections.edges, (nodes_connections.edges.shape[1] * 2 // 3, nodes_connections.edges.shape[0] * 2 // 3)))
+        # cv2.imshow("unfiltered raw output (r-adjusted)", cv2.resize(nodes_connections.output, (nodes_connections.output.shape[1] * 2 // 3, nodes_connections.output.shape[0] * 2 // 3)))
+        # cv2.imshow("validated & processed output (r-adjusted)", cv2.resize(nodes_connections.output_validated, (nodes_connections.output_validated.shape[1] * 2 // 3, nodes_connections.output_validated.shape[0] * 2 // 3)))
+        # cv2.waitKey(0)
 
         if self.run_optimiser:
             # match circles to unlockables: create networkx graph of nodes

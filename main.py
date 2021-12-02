@@ -14,6 +14,7 @@ from pynput.mouse import Button, Controller
 from pynput import keyboard
 
 from config import Config
+from debug import Debug
 from matcher import Matcher, HoughTransform
 from mergedbase import MergedBase
 from node import Node
@@ -23,15 +24,16 @@ from simulation import Simulation
 from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
+#   - detect when a circle is black
 #   - improve line accuracy, then do testing, then match for vanilla icons, then optimise, then config, then gui
-#   - calibrate brightness of neutral using shaders
 #   - calibrate brightness of background of default pack
 #   - improve colour detection (occasional misidentified neutral and red nodes causes attempt to select invalid node)
 #   - 2 layers of priority:
 #       - tier for multiples e.g. tier 2 equivalent to 2 tier 1, tier -2 equally unlikeable as 2 tier -1
 #       - subtier to order in these tiers, non negative
-#   - slow mode: more accurate, slower (take pic each time)
-#   - fast mode: takes one picture, clears out entire bloodweb, may not prioritise as well
+#   - slow mode = fast mode!
+#       - use knowledge of which node was last selected, check all other unclaimed nodes if they are now black,
+#       update graph using that info. dont need to match, only need to wait 2 secs and check circle colour at position
 
 ''' timeline
     - [DONE] backend with algorithm
@@ -71,7 +73,7 @@ from utils.network_util import NetworkUtil
         - hold on position
     
 '''
-def main_loop():
+def main_loop(debug):
     # read config settings
     config = Config().config
 
@@ -87,9 +89,11 @@ def main_loop():
 
     # initialisation: merged base for template matching
     print("initialisation, merging")
-    merged_base = MergedBase(resolution, "survivor") # TODO
+    merged_base = MergedBase(resolution, "nurse") # TODO
     mouse = Controller()
     mouse.position = (0, 0)
+
+    debugger = Debug(True).set_merger(merged_base) # hhhhh
 
     i = 0
     while True:
@@ -99,12 +103,15 @@ def main_loop():
         y = config["capture"]["top_left_y"]
         width = config["capture"]["width"]
         height = config["capture"]["height"]
-        path_to_image = f"output/pic{i}.png"
-        image = pyautogui.screenshot(path_to_image, region=(x, y, width, height))
+        image = pyautogui.screenshot(region=(x, y, width, height))
+        debugger.set_image(image) # hhhhh
+
+        # TODO take 5 screenshots, all 0.25s apart (will take 1 second) and hough transform on each of them;
+        #   user can specify how many screenshots (default 5). use majority info on circles, lines, radii etc.
 
         # TODO move this to a util class
-        image_bgr = cv2.imread(path_to_image, cv2.IMREAD_UNCHANGED)
-        image_gray = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
+        image_bgr = np.array(image)[:, :, :: -1].copy()
+        image_gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
 
         if ratio != 1:
             height, width = image_gray.shape
@@ -119,12 +126,13 @@ def main_loop():
         # hough transform: detect circles and lines
         print("hough transform")
         nodes_connections = HoughTransform(images, resolution)
+        debugger.set_hough(nodes_connections) # hhhhh
 
         # match circles to unlockables: create networkx graph of nodes
         print("match to unlockables")
         matcher = Matcher(image_gray, nodes_connections, merged_base)
         base_bloodweb = matcher.graph # all 9999
-        NetworkUtil.write_to_html(base_bloodweb, "output/matcher")
+        debugger.set_matcher(matcher) # hhhhh
 
         # correct reachable nodes
         for node_id, data in base_bloodweb.nodes.items():
@@ -132,49 +140,83 @@ def main_loop():
                     and not data["is_accessible"]:
                 nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
 
-        # run through optimiser
-        print("optimiser")
-        optimiser = Optimiser(base_bloodweb)
-        optimiser.run()
-        optimal_unlockable = optimiser.select_best()
-        pprint(optimal_unlockable.get_tuple())
-        NetworkUtil.write_to_html(optimiser.dijkstra_graph, f"output/dijkstra{i}")
+        if debug:
+            debugger.show_images() # hhhhh
 
-        # select perk
-        # hold on the perk for 0.5s
-        mouse.position = (x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
-        mouse.press(Button.left)
-        time.sleep(0.2)
-        mouse.position = (0, 0)
-        time.sleep(0.3)
-        mouse.release(Button.left)
+        j = 1
+        run = True
+        while run:
+            # correct reachable nodes
+            for node_id, data in base_bloodweb.nodes.items():
+                if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in base_bloodweb.neighbors(node_id)]) \
+                        and not data["is_accessible"]:
+                    nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
 
-        # mystery box: click
-        if optimal_unlockable.name == "iconHelp_mysteryBox.png":
-            print("mystery box selected")
-            time.sleep(0.9)
-            mouse.click(Button.left)
+            # run through optimiser
+            print("optimiser")
+            optimiser = Optimiser(base_bloodweb)
+            optimiser.run()
+            optimal_unlockable = optimiser.select_best()
+            pprint(optimal_unlockable.get_tuple())
+            debugger.set_optimiser(optimiser, j) # hhhhh
 
-        # new level
-        if optimiser.num_left() <= 2:
-            print("level cleared")
-            time.sleep(1.5) # 1 sec to clear out until new level screen # TODO test when have more bps
-            mouse.click(Button.left)
+            # select the node
+            optimal_unlockable.set_user_claimed(True)
+            optimal_unlockable.set_value(9999)
+            nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
+            j += 1
 
+            # select perk
+            # hold on the perk for 0.5s
+            mouse.position = (x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
+            mouse.press(Button.left)
+            time.sleep(0.1)
+            mouse.position = (0, 0)
+            time.sleep(0.4)
+            mouse.release(Button.left)
+
+            # mystery box: click
+            if optimal_unlockable.name == "iconHelp_mysteryBox.png":
+                print("mystery box selected")
+                time.sleep(0.9)
+                mouse.click(Button.left)
+
+            # new level
+            # if optimiser.num_left() <= 2: # TODO change to if no more nodes left
+            #     print("level cleared")
+            #     time.sleep(2) # 2 sec to clear out until new level screen
+            #     mouse.click(Button.left)
+
+            time.sleep(0.5) # "fast" mode - no captures in between generates
+            # time.sleep(2) # 2 secs to generate
+
+            if all([data["is_user_claimed"] for data in base_bloodweb.nodes.values()]):
+                run = False
+
+        print("level cleared")
+        time.sleep(2) # 2 secs to clear out until new level screen
+        mouse.click(Button.left)
         time.sleep(2) # 2 secs to generate
+
         i += 1
 
 thread = None
 
 def on_press(key):
     global thread
-    if key == keyboard.Key.end:
+    if str(format(key)) == "'8'":
+        # dont write to output
+        thread = Process(target=main_loop, args=(True,))
+        thread.start()
+        print("thread started with debugging")
+    elif str(format(key)) == "'9'":
+        # write to output
+        thread = Process(target=main_loop, args=(False,))
+        thread.start()
+        print("thread started without debugging")
+    elif str(format(key)) == "'0'":
         thread.terminate()
         print("thread terminated")
-    elif key == keyboard.Key.delete:
-        thread = Process(target=main_loop)
-        thread.start()
-        print("thread started")
 
 if __name__ == '__main__':
     listener = keyboard.Listener(on_press=on_press)

@@ -1,7 +1,7 @@
 import cv2
 
 class Images:
-    interpolation = cv2.INTER_AREA
+    interpolation = cv2.INTER_CUBIC
 
     def __init__(self):
         origin_basic = cv2.split(cv2.imread("training_data/bases/base_larger.png", cv2.IMREAD_UNCHANGED))

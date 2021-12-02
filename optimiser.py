@@ -99,6 +99,7 @@ class Optimiser:
                                "iconAddon_heavyDutyBattery.png",
                                "iconAddon_longLifeBattery.png",
                                "iconAddon_metalSaw.png",
+                               "iconAddon_scraps",
                                "iconFavors_escapeCake.png",
                                "iconItems_firstAidKit.png",
                                "iconItems_flashlight.png",

@@ -30,7 +30,6 @@ cv2.IMREAD_UNCHANGED
 # TODO mystery boxes in assets folder
 
 class HoughTransform:
-    i = 0
     def __init__(self, images, res, c_blur=5, bilateral_blur=7, param1=10, param2=45, l_blur=5,
                  canny_min=85, canny_max=40, threshold=30):
         '''
@@ -48,14 +47,6 @@ class HoughTransform:
         self.__match_origin()
         self.__run_hough_line(l_blur, canny_min, canny_max, threshold)
         self.__validate_all()
-
-        # cv2.imshow("matched origin", cv2.split(cv2.imread(f"assets/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
-        # cv2.imshow("edges for matching lines", self.edges)
-        # cv2.imshow("unfiltered raw output (r-adjusted)", self.output)
-        # cv2.imshow("validated & processed output (r-adjusted)", self.output_validated)
-        # # cv2.imwrite(f"output/edges_{HoughTransform.i}.png", self.edges)
-        # cv2.waitKey(0)
-        HoughTransform.i += 1
 
     def get_valid_circles(self):
         '''
@@ -111,7 +102,6 @@ class HoughTransform:
                 color = ImageUtil.dominant_color(unlockable)
                 if r == self.res.small_node_inner_radius() and color != "red":
                     # likely the circle was misidentified as small; if it were small, it should be red: evaluate it again
-                    # TODO cursed seed on some is having issues
                     r = self.res.large_node_inner_radius()
                     unlockable = ImageUtil.cut_circle(self.image_bgr, (x, y), r)
                     color = ImageUtil.dominant_color(unlockable)
@@ -122,15 +112,12 @@ class HoughTransform:
                 # remove the node from the edges graph
                 self.circles.append(((x, y), r, color))
 
-        # cv2.imshow("RAW OUTPUT", self.output)
-        # cv2.waitKey(0)
-
     def __match_origin(self):
         matches = []
 
         height, width = self.image_r.shape
         crop_ratio = 3
-        cropped = self.image_r[round(height / crop_ratio):round((crop_ratio - 1) * height / crop_ratio),
+        self.cropped = self.image_r[round(height / crop_ratio):round((crop_ratio - 1) * height / crop_ratio),
                                round(width / crop_ratio):round((crop_ratio - 1) * width / crop_ratio)]
 
         dim = self.res.origin_dim() # TODO some issues matching origin at different resolutions
@@ -140,7 +127,7 @@ class HoughTransform:
                 origin = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))
                 template = cv2.resize(origin[2], (dim, dim), interpolation=Images.interpolation)
                 template_alpha = cv2.resize(origin[3], (dim, dim), interpolation=Images.interpolation) # for masking
-                result = cv2.matchTemplate(cropped, template, cv2.TM_CCORR_NORMED, mask=template_alpha)
+                result = cv2.matchTemplate(self.cropped, template, cv2.TM_CCOEFF_NORMED, mask=template_alpha)
 
                 min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
                 matches.append((file, min_val, max_val, min_loc, max_loc))
@@ -158,9 +145,12 @@ class HoughTransform:
         identify all connections (lines) in image
         '''
 
-        base_l = cv2.GaussianBlur(self.image_gray, (l_blur, l_blur), sigmaX=0, sigmaY=0) # lines
+        base_l = self.image_gray
+        # base_l = cv2.GaussianBlur(base_l, (self.res.gaussian_l(), self.res.gaussian_l()), sigmaX=0, sigmaY=0) # lines
+        # base_l = cv2.GaussianBlur(base_l, (l_blur, l_blur), sigmaX=0, sigmaY=0) # lines
+        base_l = cv2.bilateralFilter(base_l, 5, 200, 200)
         base_l = cv2.convertScaleAbs(base_l, alpha=1.3, beta=50)
-        self.edges = cv2.Canny(base_l, canny_min, canny_max) # TODO adjust for resolutions
+        self.edges = cv2.Canny(base_l, self.res.canny_min(), self.res.canny_max())
 
         for (x, y), r, color in self.circles:
             # remove the node's circle from the edges graph (reduces noise)
@@ -185,6 +175,7 @@ class HoughTransform:
             circle1, circle2 = get_endpoints(line, self.circles, self.res)
             if circle1 is not None and circle2 is not None and \
                     (circle1, circle2) not in self.connections and (circle2, circle1) not in self.connections:
+                # TODO each pair of circles needs 2 joining lines to be valid
                 self.connections.append((circle1, circle2))
                 self.valid_circles[circle1] = "unassigned"
                 self.valid_circles[circle2] = "unassigned"
@@ -201,6 +192,8 @@ class HoughTransform:
 
 class Matcher:
     def __init__(self, image, nodes_connections, merged_base):
+        self.output = []
+
         # match each node of graph to an unlockable
         valid_circles = nodes_connections.get_valid_circles()
         connections = nodes_connections.get_connections()
@@ -259,9 +252,7 @@ class Matcher:
 
             i += 1
 
-            # cv2.imshow("unlockable from screen", cv2.resize(unlockable, (250, 250)))
-            # cv2.imshow(f"matched unlockable", cv2.resize(output, (250, 250)))
-            # cv2.waitKey(0)
+            self.output.append((cv2.resize(unlockable, (250, 250)), cv2.resize(output, (250, 250))))
 
         nodes.append(Node("ORIGIN", "ORIGIN", 9999, origin, True, True).get_tuple())
 

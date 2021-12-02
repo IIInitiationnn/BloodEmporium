@@ -59,7 +59,6 @@ class MergedBase:
 
         self.names = valid_names
         self.images = cv2.vconcat(valid_images)
-        cv2.imwrite("output/collage.png", self.images)
 
     def __get_valid_images(self, image_paths):
         ret_names = []

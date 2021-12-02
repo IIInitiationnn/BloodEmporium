@@ -30,6 +30,9 @@ class Resolution:
     __origin_dim = 96
 
     # hough lines
+    __gaussian_l = 10
+    __canny_min = 42
+    __canny_max = 20
     __line_length = 54
 
     # template matching
@@ -55,19 +58,13 @@ class Resolution:
     # node sizes
     @staticmethod
     def additional_radius(radius):
-        return round(Resolution.__large_node_outer_radius / Resolution.__large_node_inner_radius * radius - radius)
+        return round(1.1 * (Resolution.__large_node_outer_radius / Resolution.__large_node_inner_radius * radius - radius))
 
     def threshold_radius(self):
         return round(Resolution.__threshold_radius * self.ratio())
 
-    def large_node_outer_radius(self):
-        return round(Resolution.__large_node_outer_radius * self.ratio())
-
     def large_node_inner_radius(self):
         return round(Resolution.__large_node_inner_radius * self.ratio())
-
-    def small_node_outer_radius(self):
-        return round(Resolution.__small_node_outer_radius * self.ratio())
 
     def small_node_inner_radius(self):
         return round(Resolution.__small_node_inner_radius * self.ratio())
@@ -100,6 +97,22 @@ class Resolution:
         return round(Resolution.__origin_dim * self.ratio())
 
     # hough lines
+    def gaussian_l(self):
+        c = (Resolution.__gaussian_l * self.ratio())
+        ceil = math.ceil(c)
+        floor = math.floor(c)
+        if ceil % 2 == 1:
+            return ceil
+        if floor % 2 == 1:
+            return floor
+        return floor + 1
+
+    def canny_min(self):
+        return round(Resolution.__canny_min / self.ratio())
+
+    def canny_max(self):
+        return round(Resolution.__canny_max / self.ratio())
+
     def line_length(self):
         return round(Resolution.__line_length * self.ratio())
 
