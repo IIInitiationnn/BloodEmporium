@@ -111,6 +111,7 @@ class Optimiser:
                                "iconItems_rangersAidKit.png",
                                "iconItems_rundownAidKit.png",
                                "iconFavors_wardWhite.png",
+                               "iconFavors_petrifiedOak.png",
 
                                # "iconFavors_ardentRavenWreath.png",
                                # "iconFavors_ardentShrikeWreath.png",

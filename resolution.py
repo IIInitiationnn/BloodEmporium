@@ -23,7 +23,7 @@ class Resolution:
     __gaussian_c = 10
     __bilateral_c = 14
     __min_dist = 160
-    __min_radius = 30
+    __min_radius = 40
     __max_radius = 105
 
     # origin

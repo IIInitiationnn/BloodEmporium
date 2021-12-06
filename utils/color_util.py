@@ -10,6 +10,9 @@ class ColorUtil:
     neutral_hex = "#37323C"
     neutral_rgb = (55, 50, 60)
 
+    black_hex = "#000000"
+    black_rgb = (0, 0, 0)
+
     @staticmethod
     def diff(color1, color2):
         r1, g1, b1 = color1

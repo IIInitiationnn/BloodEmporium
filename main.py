@@ -13,8 +13,9 @@ import pyautogui
 from pynput.mouse import Button, Controller
 from pynput import keyboard
 
+from capturer import Capturer
 from config import Config
-from debug import Debug
+from debugger import Debugger
 from matcher import Matcher, HoughTransform
 from mergedbase import MergedBase
 from node import Node
@@ -24,7 +25,8 @@ from simulation import Simulation
 from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
-#   - detect when a circle is black
+#   - change from pynput to pyautogui for mouse clicks?? keep pynput for listener?? the lag kills but idk if computer issue
+#   - detect when a circle is black - get that alpha stuff going for image!
 #   - improve line accuracy, then do testing, then match for vanilla icons, then optimise, then config, then gui
 #   - calibrate brightness of background of default pack
 #   - improve colour detection (occasional misidentified neutral and red nodes causes attempt to select invalid node)
@@ -34,6 +36,7 @@ from utils.network_util import NetworkUtil
 #   - slow mode = fast mode!
 #       - use knowledge of which node was last selected, check all other unclaimed nodes if they are now black,
 #       update graph using that info. dont need to match, only need to wait 2 secs and check circle colour at position
+#       dont need to run hough circle or line!
 
 ''' timeline
     - [DONE] backend with algorithm
@@ -75,10 +78,10 @@ from utils.network_util import NetworkUtil
 '''
 def main_loop(debug):
     # read config settings
-    config = Config().config
+    config = Config()
 
     # resolution
-    resolution = Resolution(config["resolution"]["width"], config["resolution"]["height"], config["resolution"]["ui_scale"])
+    resolution = config.resolution()
 
     ratio = 1
     if not math.isclose(resolution.aspect_ratio(), 16 / 9, abs_tol=0.01):
@@ -89,39 +92,30 @@ def main_loop(debug):
 
     # initialisation: merged base for template matching
     print("initialisation, merging")
-    merged_base = MergedBase(resolution, "nurse") # TODO
+    merged_base = MergedBase(resolution, "survivor") # TODO
     mouse = Controller()
     mouse.position = (0, 0)
 
-    debugger = Debug(True).set_merger(merged_base) # hhhhh
 
     i = 0
     while True:
         # screen capture
         print("capturing screen")
-        x = config["capture"]["top_left_x"]
-        y = config["capture"]["top_left_y"]
-        width = config["capture"]["width"]
-        height = config["capture"]["height"]
-        image = pyautogui.screenshot(region=(x, y, width, height))
-        debugger.set_image(image) # hhhhh
+        cv_images = Capturer(ratio, 3).output
+        debugger = Debugger(cv_images, True).set_merger(merged_base) # hhhhh
 
-        # TODO take 5 screenshots, all 0.25s apart (will take 1 second) and hough transform on each of them;
-        #   user can specify how many screenshots (default 5). use majority info on circles, lines, radii etc.
+        matcher = Matcher(debugger, cv_images, resolution)
+        origin = matcher.match_origin()
 
-        # TODO move this to a util class
-        image_bgr = np.array(image)[:, :, :: -1].copy()
-        image_gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
+        # hough transform: detect circles
+        circles = matcher.match_circles()
+        circles.append(origin)
 
-        if ratio != 1:
-            height, width = image_gray.shape
-            new_height, new_width = round(height / ratio), round(width / ratio)
-            image_bgr = cv2.resize(image_bgr, (new_width, new_height))
-            image_gray = cv2.resize(image_gray, (new_width, new_height))
+        # TODO hough transform: detect lines
+        lines = matcher.match_lines(circles)
 
-        images = {"bgr": image_bgr, "gray": image_gray}
-
-        # click and continue if text TODO
+        debugger.show_images() # hhhhh
+        return
 
         # hough transform: detect circles and lines
         print("hough transform")
@@ -130,7 +124,7 @@ def main_loop(debug):
 
         # match circles to unlockables: create networkx graph of nodes
         print("match to unlockables")
-        matcher = Matcher(image_gray, nodes_connections, merged_base)
+        matcher = MatcherOld(image_gray, nodes_connections, merged_base)
         base_bloodweb = matcher.graph # all 9999
         debugger.set_matcher(matcher) # hhhhh
 

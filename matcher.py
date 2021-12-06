@@ -1,16 +1,23 @@
 import os.path
 import math
+import time
+from datetime import datetime
+from statistics import mean, mode
 
 import cv2
 import cv2.cv2
 import networkx as nx
 import numpy as np
+import pyautogui
 
+from config import Config
+from cv_images import CVImages
+from debugger import Debugger
 from images import Images
 from node import Node
 from paths import Path
 from resolution import Resolution
-from utils.distance_util import get_endpoints
+from utils.distance_util import get_endpoints, points_are_close
 from utils.image_util import ImageUtil
 from utils.network_util import NetworkUtil
 
@@ -27,7 +34,160 @@ cv2.IMREAD_GRAYSCALE
 cv2.IMREAD_UNCHANGED
 '''
 
-# TODO mystery boxes in assets folder
+class Matcher:
+    def __init__(self, debugger, cv_images, res):
+        self.debugger = debugger
+        self.cv_images = cv_images
+        self.res = res
+
+    def match_origin(self):
+        matches = []
+        image = self.cv_images[0].get_red()
+
+        height, width = image.shape
+        crop_ratio = 3
+        cropped = image[round(height / crop_ratio):round((crop_ratio - 1) * height / crop_ratio),
+                        round(width / crop_ratio):round((crop_ratio - 1) * width / crop_ratio)]
+        self.debugger.set_cropped(cropped)
+
+        dim = self.res.origin_dim() # TODO some issues matching origin at different resolutions
+        radius = round(dim / 2)
+        for subdir, dirs, files in os.walk(Path.assets_origins):
+            for file in files:
+                origin = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))
+                template = cv2.resize(origin[2], (dim, dim), interpolation=Images.interpolation)
+                template_alpha = cv2.resize(origin[3], (dim, dim), interpolation=Images.interpolation) # for masking
+                result = cv2.matchTemplate(cropped, template, cv2.TM_CCOEFF_NORMED, mask=template_alpha)
+
+                min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+                matches.append((file, min_val, max_val, min_loc, max_loc))
+
+        origin_type, _, _, _, top_left = max(matches, key=lambda match: match[2])
+        self.debugger.set_origin_type(origin_type)
+
+        centre = (round(top_left[0] + radius + width / crop_ratio),
+                  round(top_left[1] + radius + height / crop_ratio))
+
+        self.debugger.set_origin((centre, radius, "red"))
+        return centre, radius, "red"
+
+    def match_circles(self, param1=10, param2=45):
+        output = [] # ((x, y), r)
+        for i in range(len(self.cv_images)):
+            # detect circles in the image
+            image_filtered = self.cv_images[i].get_gray()
+
+            image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.4, beta=0)
+            image_filtered = cv2.fastNlMeansDenoising(image_filtered, None, 3, 7, 21)
+            image_filtered = cv2.GaussianBlur(image_filtered, (self.res.gaussian_c(), self.res.gaussian_c()), sigmaX=0, sigmaY=0)
+            image_filtered = cv2.bilateralFilter(image_filtered, self.res.bilateral_c(), 200, 200)
+
+            circles = cv2.HoughCircles(image_filtered, cv2.HOUGH_GRADIENT, dp=1, minDist=self.res.min_dist(), param1=param1,
+                                       param2=param2, minRadius=self.res.min_radius(), maxRadius=self.res.max_radius())
+
+            if circles is not None:
+                # convert the (x, y) coordinates and radius of the circles to integers
+                circles = np.round(circles[0, :]).astype("int")
+
+                for (x, y, r) in circles:
+                    # standardise radius
+                    if r > self.res.threshold_radius():
+                        # unconsumed: taupe / neutral
+                        r = self.res.large_node_inner_radius()
+                    else:
+                        # consumed: red
+                        r = self.res.small_node_inner_radius()
+
+                    # remove the node from the edges graph
+                    output.append(((x, y), r))
+
+        self.debugger.set_all_circles(output.copy())
+
+        validated_output = [] # ((x, y), r, color)
+        while len(output) > 0:
+            check = output.pop(0)
+            circles = [check]
+            for circle in output.copy():
+                if points_are_close(check[0], circle[0], self.res):
+                    output.remove(circle)
+                    circles.append(circle)
+
+            if len(circles) > math.floor(len(self.cv_images) / 2):
+                mean_x = mean([x for (x, y), r in circles])
+                mean_y = mean([y for (x, y), r in circles])
+                mode_r = mode([r for (x, y), r in circles])
+
+                # identify color
+                test_r = [r for (x, y), r in circles if r != mode_r]
+                if len(test_r) > 0 and test_r[0] > mode_r:
+                    # check the larger circle
+                    unlockable = ImageUtil.cut_circle(self.cv_images[0].get_bgr(), (mean_x, mean_y), test_r[0])
+                    color = ImageUtil.dominant_color(unlockable)
+                    if color is None:
+                        unlockable = ImageUtil.cut_circle(self.cv_images[0].get_bgr(), (mean_x, mean_y), mode_r)
+                        color = ImageUtil.dominant_color(unlockable)
+                    else:
+                        mode_r = test_r[0]
+                else:
+                    unlockable = ImageUtil.cut_circle(self.cv_images[0].get_bgr(), (mean_x, mean_y), mode_r)
+                    color = ImageUtil.dominant_color(unlockable)
+
+                # black means node is taken; don't add to nodes
+                if color != "black":
+                    validated_output.append(((mean_x, mean_y), mode_r, color))
+                # else:
+                #     print((mean_x, mean_y), mode_r, color)
+
+        self.debugger.set_valid_circles(validated_output.copy())
+        return validated_output
+
+    def match_lines(self, circles, threshold=30):
+        validated1_output = [] # circle, circle
+        for i in range(len(self.cv_images)):
+            image_filtered = self.cv_images[i].get_gray()
+            image_filtered = cv2.bilateralFilter(image_filtered, 5, 200, 200)
+            image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.3, beta=50)
+            edges = cv2.Canny(image_filtered, self.res.canny_min(), self.res.canny_max())
+            self.debugger.set_edges(edges)
+
+            for (x, y), r, _ in circles:
+                # remove the node's circle from the edges graph (reduces noise)
+                cv2.circle(edges, (x, y), r + Resolution.additional_radius(r), 0, thickness=-1)
+
+            lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 180, threshold=threshold,
+                                    minLineLength=self.res.line_length(), maxLineGap=self.res.line_length())
+
+            output = []
+            if lines is not None:
+                for line in lines:
+                    x1, y1, x2, y2 = line[0]
+                    self.debugger.add_line(((x1, y1), (x2, y2)))
+                    output.append(((x1, y1), (x2, y2)))
+
+            # validate lines by removing those that do not join two circles; add the connected nodes to edge list
+            connections = []
+            for line in output:
+                circle1, circle2 = get_endpoints(line, circles, self.res)
+                if circle1 is not None and circle2 is not None and \
+                    (circle1, circle2) not in connections and (circle2, circle1) not in connections:
+                    connections.append((circle1, circle2))
+            validated1_output.extend(connections)
+
+        validated2_output = [] # circle
+        while len(validated1_output) > 0:
+            check = validated1_output.pop(0)
+            lines = [check]
+            for line in validated1_output.copy():
+                if check[0] == line[0] and check[1] == line[1]:
+                    validated1_output.remove(line)
+                    lines.append(line)
+                elif check[0] == line[1] and check[1] == line[0]:
+                    validated1_output.remove(line)
+                    lines.append((line[1], line[0]))
+
+            if len(lines) > math.floor(len(self.cv_images) / 2):
+                validated2_output.append(check)
+        self.debugger.set_valid_lines(validated2_output.copy())
 
 class HoughTransform:
     def __init__(self, images, res, c_blur=5, bilateral_blur=7, param1=10, param2=45, l_blur=5,
@@ -190,7 +350,7 @@ class HoughTransform:
             cv2.circle(self.output_validated, (x, y), r, 255, 1)
             cv2.rectangle(self.output_validated, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
 
-class Matcher:
+class MatcherOld:
     def __init__(self, image, nodes_connections, merged_base):
         self.output = []
 

@@ -2,6 +2,16 @@ import math
 
 import numpy as np
 
+def points_are_close(a, b, res):
+    '''
+    used for proximity between two points
+    '''
+    x1 = a[0]
+    y1 = a[1]
+    x2 = b[0]
+    y2 = b[1]
+    max_dist = res.ratio() * 30
+    return abs(x1 - x2) < max_dist and abs(y1 - y2) < max_dist
 
 def line_close_to_circle(a, b, res):
     '''
@@ -11,7 +21,7 @@ def line_close_to_circle(a, b, res):
     y1 = a[1]
     x2 = b[0]
     y2 = b[1]
-    return pow(x1 - x2, 2) + pow(y1 - y2, 2) < 13000 * math.pow(res.ratio(), 2)
+    return pow(x1 - x2, 2) + pow(y1 - y2, 2) < 15000 * math.pow(res.ratio(), 2)
 
 def get_endpoints(line, circles, res):
     (x1, y1), (x2, y2) = line
@@ -40,8 +50,8 @@ def get_endpoints(line, circles, res):
         dist_c1 = np.abs(np.cross(line_p2 - line_p1, line_p1 - circle_p1)) / np.linalg.norm(line_p2 - line_p1)
         dist_c2 = np.abs(np.cross(line_p2 - line_p1, line_p1 - circle_p2)) / np.linalg.norm(line_p2 - line_p1)
 
-        min_dist = 30 * res.ratio()
-        if dist_c1 > min_dist or dist_c2 > min_dist:
+        max_dist = 30 * res.ratio()
+        if dist_c1 > max_dist or dist_c2 > max_dist:
             circle1 = None
             circle2 = None
 

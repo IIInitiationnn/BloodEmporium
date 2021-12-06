@@ -18,29 +18,28 @@ class ImageUtil:
         :return: BGR image
         '''
         height, width, _ = image.shape
+        masked_data = image.copy()
 
         # white mask with black center to remove perk information in the centre
         mask = np.zeros((height, width), np.uint8)
         color = 255
         mask[:] = color
-        inner_circle = cv2.circle(mask, centre, radius, (0, 0, 0), thickness=-1)
-        masked_data = cv2.bitwise_and(image, image, mask=inner_circle)
+        cv2.circle(mask, centre, radius, (0, 0, 0), thickness=-1)
+        masked_data[mask == 0] = (255, 255, 255)
 
         # black mask with white center to remove everything outside
         full_radius = radius + Resolution.additional_radius(radius)
         mask = np.zeros((height, width), np.uint8)
-        outer_circle = cv2.circle(mask, centre, full_radius, (255, 255, 255), thickness=-1)
-        masked_data = cv2.bitwise_and(masked_data, masked_data, mask=outer_circle)
+        cv2.circle(mask, centre, full_radius, (255, 255, 255), thickness=-1)
+        masked_data[mask == 0] = (255, 255, 255)
 
         x, y = centre
-        height, width, _ = masked_data.shape
         unlockable = masked_data[max(y-full_radius, 0):min(y+full_radius, height),
                                  max(x-full_radius, 0):min(x+full_radius, width)]
         unlockable = cv2.cvtColor(unlockable, cv2.COLOR_BGRA2BGR)
 
         # cv2.imshow("masked", masked_data)
         # cv2.imshow("color", unlockable)
-        # cv2.waitKey(0)
 
         return unlockable
 
@@ -62,7 +61,7 @@ class ImageUtil:
         freqs.sort(key=lambda pair: pair[1], reverse=True)
 
         for color, _ in freqs:
-            if sum(color) < 100: # black / dark
+            if sum(color) == 765: # white
                 continue
 
             # display = np.zeros((100, 100, 3), np.uint8)
@@ -72,19 +71,21 @@ class ImageUtil:
             closest = ImageUtil.closest_color(tuple(color)[::-1]) # bgr -> rgb
             if closest is not None:
                 return closest
-        return "neutral"
+
+        return None
 
     @staticmethod
     def closest_color(color):
         taupe_delta = ColorUtil.diff(ColorUtil.taupe_rgb, color)
         red_delta = ColorUtil.diff(ColorUtil.red_rgb, color)
         neutral_delta = ColorUtil.diff(ColorUtil.neutral_rgb, color)
+        black_delta = ColorUtil.diff(ColorUtil.black_rgb, color)
 
         # didnt match any
-        if min(taupe_delta, red_delta, neutral_delta) > 50000:
+        if min(taupe_delta, red_delta, neutral_delta, black_delta) > 50000:
             return None
 
         # cv2.waitKey(0)
 
-        results = {"taupe": taupe_delta, "red": red_delta, "neutral": neutral_delta}
+        results = {"taupe": taupe_delta, "red": red_delta, "neutral": neutral_delta, "black": black_delta}
         return min(results, key=results.get)
