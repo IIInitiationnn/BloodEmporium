@@ -57,10 +57,10 @@ class Categories:
 
             # perks
             "iconPerks_betterTogether",
-            "iconPerks_fixated",
+            # fixated icon did not change when it became self-aware
             "iconPerks_innerStrength",
             "iconPerks_babySitter",
-            "iconPerks_camaraderie",
+            # camaraderie icon did not change when it became kinship
             "iconPerks_secondWind",
         ],
         "unused": [
@@ -415,12 +415,12 @@ class Categories:
             "iconPerks_thisIsNotHappening",
             "iconPerks_wellMakeIt",
 
-            "iconPerks_guardian",
-            "iconPerks_survivalInstincts", # inner healing
-            # TODO kinship
-            "iconPerks_pushThroughIt", # renewal
-            # TODO self aware
-            "iconPerks_situationalAwareness",
+            "iconPerks_situationalAwareness",   # better together ->    situational awareness   icon changed
+            "iconPerks_fixated",                # fixated ->            self-aware              icon didnt change
+            "iconPerks_survivalInstincts",      # inner strength ->     inner healing           icon changed
+            "iconPerks_guardian",               # babysitter ->         guardian                icon changed
+            "iconPerks_camaraderie",            # camaraderie ->        kinship                 icon didnt change
+            "iconPerks_pushThroughIt",          # second wind ->        renewal                 icon changed
 
             "iconPerks_bond",
             "iconPerks_proveThyself",

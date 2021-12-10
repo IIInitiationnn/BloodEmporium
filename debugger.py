@@ -87,7 +87,6 @@ class Debugger:
         cv2.imshow("cropped for origin matching", self.cropped)
         cv2.imshow("matched origin", cv2.split(cv2.imread(f"{Path.assets_origins}/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
 
-        # TODO one for each image: show each one individually & same with writing images
         for i in range(len(self.cv_images)):
             raw_output = self.cv_images[i].get_gray().copy()
             cv2.circle(raw_output, (self.origin.x(), self.origin.y()), self.origin.radius, 255, 4)

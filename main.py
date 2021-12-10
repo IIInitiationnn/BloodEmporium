@@ -25,6 +25,7 @@ from resolution import Resolution
 from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
+#   - create a default config file if deleted, then when adding gui also make a function to create one from user input
 #   - improve line accuracy, then do testing, then match for vanilla icons, then optimise, then config, then gui
 #   - calibrate brightness of background of default pack
 #   - 2 layers of priority:

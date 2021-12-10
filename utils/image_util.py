@@ -1,6 +1,3 @@
-from pprint import pprint
-# TODO method to use alpha instead of black -> ignore alpha
-
 import cv2
 import numpy as np
 
