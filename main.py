@@ -17,12 +17,11 @@ from capturer import Capturer
 from config import Config
 from debugger import Debugger
 from grapher import Grapher
-from matcher import Matcher, HoughTransform, IconMatcher
+from matcher import Matcher
 from mergedbase import MergedBase
 from node import Node
 from optimiser import Optimiser
 from resolution import Resolution
-from simulation import Simulation
 from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
