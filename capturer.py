@@ -19,7 +19,7 @@ class Capturer:
         self.output = []
 
         previous = datetime.now()
-        for _ in range(iterations):
+        for i in range(iterations):
             screenshot = pyautogui.screenshot(region=(x, y, width, height))
             screenshot = np.array(screenshot)[:, :, :: -1].copy()
 
@@ -30,5 +30,6 @@ class Capturer:
 
             self.output.append(CVImages(screenshot))
 
-            time.sleep(max(0.5 - (datetime.now() - previous).total_seconds(), 0))
-            previous = datetime.now()
+            if i != iterations - 1:
+                time.sleep(max(0.5 - (datetime.now() - previous).total_seconds(), 0))
+                previous = datetime.now()

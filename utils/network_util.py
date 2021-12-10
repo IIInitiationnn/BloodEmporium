@@ -1,5 +1,9 @@
+import networkx as nx
 from pyvis.network import Network
 from pyvis.options import Layout
+
+from node import Node
+
 
 class NetworkUtil:
     @staticmethod
@@ -8,5 +12,9 @@ class NetworkUtil:
             net = Network(notebook=notebook, bgcolor="#5B9885", height=1440, width=2560, font_color="#ffffff", layout=Layout())
         else:
             net = Network(notebook=notebook, bgcolor="#5B9885", height=1440, width=2560, font_color="#ffffff")
-        net.from_nx(graph)
+
+        graph_copy = graph.copy()
+        for node_id, data in graph_copy.nodes.items():
+            nx.set_node_attributes(graph_copy, Node.from_dict(data, x=int(data["x"]) - 1000, y=int(data["y"]) - 1000).get_dict())
+        net.from_nx(graph_copy)
         net.show(f"{file_name}.html")

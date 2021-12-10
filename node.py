@@ -11,10 +11,10 @@ class Node:
         self.is_accessible = is_accessible
         self.is_user_claimed = is_user_claimed
 
-    @classmethod
-    def from_dict(cls, data, **kwargs):
+    @staticmethod
+    def from_dict(data, **kwargs):
         position = (int(data["x"]), int(data["y"]))
-        node = cls(data['node_id'], data['name'], data['value'], position, data['is_accessible'], data['is_user_claimed'])
+        node = Node(data['node_id'], data['name'], data['value'], position, data['is_accessible'], data['is_user_claimed'])
         for attribute, val in kwargs.items():
             node.__setattr__(attribute, val)
         return node
@@ -57,7 +57,7 @@ class Node:
             # pyvis attributes
             "title": f"{self.value}, " + ("user claimed" if self.is_user_claimed else "not claimed"),
             "color": ColorUtil.red_hex if self.is_user_claimed else ColorUtil.taupe_hex if self.is_accessible else ColorUtil.neutral_hex,
-            "physics": True
+            "physics": False
         }
         return self.node_id, data
 

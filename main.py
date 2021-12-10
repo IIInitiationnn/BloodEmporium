@@ -2,6 +2,7 @@ import json
 import math
 import os
 import time
+from datetime import datetime
 from multiprocessing import Process
 from pathlib import Path, PurePosixPath
 from pprint import pprint
@@ -10,7 +11,6 @@ import cv2
 import networkx as nx
 import numpy as np
 import pyautogui
-from pynput.mouse import Button, Controller
 from pynput import keyboard
 
 from capturer import Capturer
@@ -25,11 +25,8 @@ from resolution import Resolution
 from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
-#   - change from pynput to pyautogui for mouse clicks?? keep pynput for listener?? the lag kills but idk if computer issue
-#   - detect when a circle is black - get that alpha stuff going for image!
 #   - improve line accuracy, then do testing, then match for vanilla icons, then optimise, then config, then gui
 #   - calibrate brightness of background of default pack
-#   - improve colour detection (occasional misidentified neutral and red nodes causes attempt to select invalid node)
 #   - 2 layers of priority:
 #       - tier for multiples e.g. tier 2 equivalent to 2 tier 1, tier -2 equally unlikeable as 2 tier -1
 #       - subtier to order in these tiers, non negative
@@ -78,6 +75,8 @@ from utils.network_util import NetworkUtil
     
 '''
 def main_loop(debug):
+    pyautogui.FAILSAFE = False
+
     # read config settings
     config = Config()
 
@@ -93,17 +92,16 @@ def main_loop(debug):
 
     # initialisation: merged base for template matching
     print("initialisation, merging")
-    merged_base = MergedBase(resolution, "nurse") # TODO config
-    mouse = Controller()
-    mouse.position = (0, 0)
-
+    merged_base = MergedBase(resolution, "survivor") # TODO config
+    pyautogui.moveTo(0, 0)
 
     i = 0
+    timestamp = datetime.now()
     while True:
         # screen capture
         print("capturing screen")
         cv_images = Capturer(ratio, 3).output
-        debugger = Debugger(cv_images, True).set_merger(merged_base) # hhhhh
+        debugger = Debugger(cv_images, True, timestamp, i).set_merger(merged_base)
 
         matcher = Matcher(debugger, cv_images, resolution)
         origin = matcher.match_origin()
@@ -116,11 +114,6 @@ def main_loop(debug):
         print("hough transform: lines")
         connections = matcher.match_lines(circles)
 
-        # hough transform: detect circles and lines
-        # print("hough transform")
-        # nodes_connections = HoughTransform(images, resolution)
-        # debugger.set_hough(nodes_connections) # hhhhh
-
         # create networkx graph of nodes
         print("creating networkx graph")
         grapher = Grapher(debugger, circles, connections) # all 9999
@@ -128,7 +121,7 @@ def main_loop(debug):
         debugger.set_base_bloodweb(base_bloodweb)
 
         if debug:
-            debugger.show_images() # hhhhh
+            debugger.show_images()
 
         j = 1
         run = True
@@ -138,42 +131,50 @@ def main_loop(debug):
             optimiser = Optimiser(base_bloodweb)
             optimiser.run()
             optimal_unlockable = optimiser.select_best()
-            pprint(optimal_unlockable.get_tuple())
-            debugger.set_optimiser(optimiser, j) # hhhhh
+            print(optimal_unlockable.node_id)
+            debugger.set_dijkstra(optimiser.dijkstra_graph, j)
 
-            # select the node
             optimal_unlockable.set_user_claimed(True)
             optimal_unlockable.set_value(9999)
             nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
-            j += 1
 
             # select perk
             # hold on the perk for 0.5s
-            mouse.position = (x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
-            mouse.press(Button.left)
-            time.sleep(0.1)
-            mouse.position = (0, 0)
-            time.sleep(0.4)
-            mouse.release(Button.left)
+            pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
+            pyautogui.mouseDown()
+            time.sleep(0.05)
+            pyautogui.moveTo(0, 0)
+            time.sleep(0.45)
+            pyautogui.mouseUp()
 
             # mystery box: click
             if optimal_unlockable.name == "iconHelp_mysteryBox.png":
                 print("mystery box selected")
                 time.sleep(0.9)
-                mouse.click(Button.left)
+                pyautogui.click()
+                time.sleep(0.2)
 
-            # TODO take new picture and update colours, put in method in grapher
+            time.sleep(0.3) # time for bloodweb to update
+
+            # take new picture and update colours
+            print("updating bloodweb")
+            updated_images = Capturer(ratio, 1).output[0]
+            Grapher.update(base_bloodweb, updated_images, resolution)
+            debugger.add_updated_image(updated_images.get_bgr(), j)
 
             # new level
-            if optimiser.num_left() == 0:
+            optimiser_test = Optimiser(base_bloodweb)
+            optimiser_test.run()
+            optimal_test = optimiser_test.select_best()
+            num_left = sum([1 for data in base_bloodweb.nodes.values() if not data["is_user_claimed"]])
+            if optimal_test.node_id == "ORIGIN" or num_left == 0:
+                # TODO verify that .node_id == "ORIGIN" will still happen if >1 item gets chomped by entity on last click
                 print("level cleared")
                 run = False
                 time.sleep(2) # 2 sec to clear out until new level screen
-                mouse.click(Button.left)
-
-            time.sleep(0.5) # "fast" mode - no captures in between generates
-            # time.sleep(2) # 2 secs to generate
-
+                pyautogui.click()
+                time.sleep(2) # 2 secs to generate
+            j += 1
         i += 1
 
 thread = None
@@ -181,24 +182,25 @@ thread = None
 def on_press(key):
     global thread
     if str(format(key)) == "'8'":
-        # dont write to output
-        thread = Process(target=main_loop, args=(True,))
-        thread.start()
-        print("thread started with debugging")
+        # debug mode
+        if thread is None:
+            thread = Process(target=main_loop, args=(True,))
+            thread.start()
+            print("thread started with debugging")
     elif str(format(key)) == "'9'":
-        # write to output
-        thread = Process(target=main_loop, args=(False,))
-        thread.start()
-        print("thread started without debugging")
+        # no debug mode
+        if thread is None:
+            thread = Process(target=main_loop, args=(False,))
+            thread.start()
+            print("thread started without debugging")
     elif str(format(key)) == "'0'":
-        thread.terminate()
-        thread = None
-        print("thread terminated")
+        if thread is not None:
+            thread.terminate()
+            thread = None
+            print("thread terminated")
 
 if __name__ == '__main__':
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
 
     time.sleep(300)
-
-    cv2.destroyAllWindows()

@@ -77,69 +77,26 @@ class Matcher:
         identifies circles using vectors and matches their icons
         includes the origin
         """
-        names = merged_base.names
-        images = merged_base.images
-
-        output = [origin]
-        image = self.cv_images[0].get_gray()
-
+        image_gray = self.cv_images[0].get_gray()
         image_filtered = self.cv_images[0].get_gray()
         image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.4, beta=0)
         image_filtered = cv2.fastNlMeansDenoising(image_filtered, None, 3, 7, 21)
         #image_filtered = cv2.GaussianBlur(image_filtered, (self.res.gaussian_c(), self.res.gaussian_c()), sigmaX=0, sigmaY=0)
         #image_filtered = cv2.bilateralFilter(image_filtered, self.res.bilateral_c(), 200, 200)
 
+        output = [origin]
+
         ur = self.res.unlockable_radius()
         for circle_num, rel_position in self.res.circles().items():
             abs_position = origin.position.sum(rel_position)
-            square = image_filtered.copy()[abs_position.y-ur:abs_position.y+ur, abs_position.x-ur:abs_position.x+ur]
+            r, color, match_name = Matcher.get_circle_properties(self.debugger, image_gray, self.cv_images[0].get_bgr(),
+                                                                 image_filtered, merged_base, abs_position,
+                                                                 self.res)
 
-            # identify if large (unclaimed) node exists
-            circles = cv2.HoughCircles(square, cv2.HOUGH_GRADIENT, dp=1, minDist=self.res.min_dist(), param1=10,
-                                       param2=45, minRadius=self.res.detect_radius(), maxRadius=9999)
-            if circles is not None:
-                # convert the (x, y) coordinates and radius of the circles to integers
-                circles = np.round(circles[0, :]).astype("int")
-                if len(circles) > 1 or circles[0][2] < self.res.threshold_radius():
-                    pass # TODO throw error
-                r = self.res.large_node_inner_radius()
-                cv2.circle(square, (circles[0][0], circles[0][1]), r, 255, thickness=1)
+            if all(x is None for x in (r, color, match_name)):
+                continue
 
-                # identify color
-                unlockable = ImageUtil.cut_circle(self.cv_images[0].get_bgr(), (abs_position.x, abs_position.y), r)
-                color = ImageUtil.dominant_color(unlockable)
-                if color != "taupe" and color != "neutral":
-                    continue
-
-                # identify unlockable
-                r_small = r * 2 // 3
-                unlockable = image[abs_position.y - r_small:abs_position.y + r_small,
-                                   abs_position.x - r_small:abs_position.x + r_small]
-                height, width = unlockable.shape
-
-                # apply template matching
-                base = images.copy()
-                result = cv2.matchTemplate(base, unlockable, cv2.TM_CCORR_NORMED)
-
-                min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-
-                top_left = max_loc
-                bottom_right = (top_left[0] + width, top_left[1] + height)
-                match = base[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
-
-                match_name = names[round((bottom_right[1] - merged_base.full_dim / 2) / merged_base.full_dim)]
-                output.append(Circle(abs_position, r, color, match_name))
-
-                self.debugger.add_icon(unlockable, match)
-            else:
-                x, y, r = abs_position.x, abs_position.y, self.res.small_node_inner_radius()
-
-                # identify color
-                unlockable = ImageUtil.cut_circle(self.cv_images[0].get_bgr(), (x, y), r)
-                color = ImageUtil.dominant_color(unlockable)
-                if color != "red":
-                    continue
-                output.append(Circle(abs_position, r, color, "CLAIMED"))
+            output.append(Circle(abs_position, r, color, match_name))\
 
             # print(circle_num)
             # print(color)
@@ -147,6 +104,67 @@ class Matcher:
             # cv2.waitKey(0)
         self.debugger.set_valid_circles(output)
         return output
+
+    @staticmethod
+    def get_circle_properties(debugger, image_gray, image_bgr, image_filtered, merged_base, abs_position, res):
+        if merged_base is not None:
+            names = merged_base.names
+            images = merged_base.images
+        ur = res.unlockable_radius()
+
+        square = image_filtered.copy()[abs_position.y-ur:abs_position.y+ur, abs_position.x-ur:abs_position.x+ur]
+
+        # identify if large (unclaimed) node exists
+        circles = cv2.HoughCircles(square, cv2.HOUGH_GRADIENT, dp=1, minDist=res.min_dist(), param1=10,
+                                   param2=45, minRadius=res.detect_radius(), maxRadius=res.detect_radius() + 20)
+        if circles is None:
+            x, y, r = abs_position.x, abs_position.y, res.small_node_inner_radius()
+
+            # identify color
+            unlockable = ImageUtil.cut_circle(image_bgr, (x, y), r)
+            color = ImageUtil.dominant_color(unlockable)
+            if color != "red":
+                return None, None, None
+            return r, color, "CLAIMED"
+        else:
+            # convert the (x, y) coordinates and radius of the circles to integers
+            circles = np.round(circles[0, :]).astype("int")
+            if len(circles) > 1 or circles[0][2] < res.threshold_radius():
+                pass # TODO throw error
+            r = res.large_node_inner_radius()
+            cv2.circle(square, (circles[0][0], circles[0][1]), r, 255, thickness=1)
+
+            # identify color
+            unlockable = ImageUtil.cut_circle(image_bgr, (abs_position.x, abs_position.y), r)
+            color = ImageUtil.dominant_color(unlockable)
+            if color != "taupe" and color != "neutral":
+                return None, None, None # TODO threw error
+
+            # identify unlockable
+            r_small = r * 2 // 3
+            unlockable = image_gray[abs_position.y-r_small:abs_position.y+r_small,
+                                    abs_position.x-r_small:abs_position.x+r_small]
+            height, width = unlockable.shape
+
+            # only need radius and color
+            if merged_base is None:
+                return r, color, None
+
+            # apply template matching
+            base = images.copy()
+            result = cv2.matchTemplate(base, unlockable, cv2.TM_CCORR_NORMED)
+
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+
+            top_left = max_loc
+            bottom_right = (top_left[0] + width, top_left[1] + height)
+            match = base[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
+
+            if debugger is not None:
+                debugger.add_icon(unlockable, match)
+
+            match_name = names[round((bottom_right[1] - merged_base.full_dim / 2) / merged_base.full_dim)]
+            return r, color, match_name
 
     def match_lines(self, circles, threshold=30):
         validated1_output = []

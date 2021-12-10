@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 
 import cv2
 
@@ -9,27 +8,27 @@ from utils.network_util import NetworkUtil
 
 
 class Debugger:
-    def __init__(self, cv_images, write_to_output):
+    def __init__(self, cv_images, write_to_output, timestamp, i):
         self.cv_images = cv_images
         self.write_to_output = write_to_output
 
-        self.iteration = 0
-        self.time = datetime.now().strftime("%d-%m-%y %H-%M-%S")
+        self.i = i
+        self.time = timestamp.strftime("%d-%m-%y %H-%M-%S")
         self.all_circles = []
         self.icons = []
         self.edge_images = []
         self.all_lines = {}
 
         if self.write_to_output:
-            os.mkdir(f"output/{self.time}")
-            for i in range(len(self.cv_images)):
-                cv2.imwrite(f"output/{self.time}/image_{i}.png", self.cv_images[i].get_bgr())
+            if not os.path.isdir(f"output/{self.time}"):
+                os.mkdir(f"output/{self.time}")
+            for j in range(len(self.cv_images)):
+                cv2.imwrite(f"output/{self.time}/initial_image_{i}_{j}.png", self.cv_images[j].get_bgr())
 
     # merger
     def set_merger(self, merger):
-        self.merger = merger
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/collage.png", self.merger.images)
+            cv2.imwrite(f"output/{self.time}/collage.png", merger.images)
         return self
 
     # match origin
@@ -53,6 +52,9 @@ class Debugger:
     # match lines
     def add_edge_image(self, edges):
         self.edge_images.append(edges)
+        if self.write_to_output:
+            index = len(self.edge_images) - 1
+            cv2.imwrite(f"output/{self.time}/edges_{self.i}_{index}.png", self.edge_images[index])
 
     def add_line(self, num, line):
         if self.all_lines.get(num) is None:
@@ -65,14 +67,19 @@ class Debugger:
     # grapher
     def set_base_bloodweb(self, base_bloodweb):
         if self.write_to_output:
-            NetworkUtil.write_to_html(base_bloodweb, f"output/{self.time}/base_bloodweb_{self.iteration}.png")
+            NetworkUtil.write_to_html(base_bloodweb, f"output/{self.time}/base_bloodweb_{self.i}.png")
         return self
 
     # optimiser
-    def set_optimiser(self, optimiser, j):
-        self.optimiser = optimiser
+    def set_dijkstra(self, dijkstra_graph, j):
         if self.write_to_output:
-            NetworkUtil.write_to_html(optimiser.dijkstra_graph, f"output/{self.time}/dijkstra_{self.iteration}_{j}.png")
+            NetworkUtil.write_to_html(dijkstra_graph, f"output/{self.time}/dijkstra_{self.i}_{j}.png")
+        return self
+
+    # updated image
+    def add_updated_image(self, updated_image, j):
+        if self.write_to_output:
+            cv2.imwrite(f"output/{self.time}/updated_image_{self.i}_{j}.png", updated_image)
         return self
 
     def show_images(self):
@@ -120,3 +127,5 @@ class Debugger:
             cv2.imshow("unlockable from screen", cv2.resize(from_screen, (200, 200), interpolation=Images.interpolation))
             cv2.imshow(f"matched unlockable", cv2.resize(matched, (200, 200), interpolation=Images.interpolation))
             cv2.waitKey(0)
+
+        cv2.destroyAllWindows()

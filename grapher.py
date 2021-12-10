@@ -1,6 +1,9 @@
+import cv2
 import networkx as nx
 
+from matcher import Matcher
 from node import Node
+from shapes import Position
 
 
 class Grapher:
@@ -36,3 +39,31 @@ class Grapher:
         graph.add_nodes_from(nodes)
         graph.add_edges_from(edges)
         return graph
+
+    @staticmethod
+    def update(base_bloodweb, updated_images, res):
+        image_filtered = updated_images.get_gray()
+        image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.4, beta=0)
+        image_filtered = cv2.fastNlMeansDenoising(image_filtered, None, 3, 7, 21)
+        #image_filtered = cv2.GaussianBlur(image_filtered, (self.res.gaussian_c(), self.res.gaussian_c()), sigmaX=0, sigmaY=0)
+        #image_filtered = cv2.bilateralFilter(image_filtered, self.res.bilateral_c(), 200, 200)
+
+        to_remove = []
+        for node_id, data in base_bloodweb.nodes.items():
+            if data["is_user_claimed"]:
+                # the one the user just claimed is handled previously in the main method
+                continue
+            r, color, match_name = Matcher.get_circle_properties(None, updated_images.get_gray(), updated_images.get_bgr(),
+                                                                 image_filtered, None,
+                                                                 Position(int(data["x"]), int(data["y"])), res)
+            if all(x is None for x in (r, color, match_name)):
+                # consumed by entity
+                to_remove.append(node_id)
+            else:
+                # became available
+                is_accessible, is_user_claimed = Node.state_from_color(color)
+                nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=is_accessible,
+                                                                     is_user_claimed=is_user_claimed).get_dict())
+
+        for node_id in to_remove:
+            base_bloodweb.remove_node(node_id)

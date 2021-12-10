@@ -74,13 +74,6 @@ class Optimiser:
 
         return Node.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
 
-    def num_left(self):
-        total = 0
-        for node_id, data in self.dijkstra_graph.nodes.items():
-            if not data["is_user_claimed"]:
-                total += 1
-        return total
-
     def run(self):
         desired_unlockables = ["iconAddon_heavyPanting.png",
                                "iconAddon_darkCincture.png",
