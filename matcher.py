@@ -173,12 +173,12 @@ class Matcher:
             image_filtered = cv2.bilateralFilter(image_filtered, 5, 200, 200)
             image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.3, beta=50)
             edges = cv2.Canny(image_filtered, self.res.canny_min(), self.res.canny_max())
-            self.debugger.add_edge_image(edges)
 
             for circle in circles:
                 # remove the node's circle from the edges graph (reduces noise)
                 cv2.circle(edges, (circle.x(), circle.y()), circle.radius + Resolution.additional_radius(circle.radius),
                            0, thickness=-1)
+            self.debugger.add_edge_image(edges)
 
             lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 180, threshold=threshold,
                                     minLineLength=self.res.line_length(), maxLineGap=self.res.line_length())

@@ -93,7 +93,7 @@ def main_loop(debug):
 
     # initialisation: merged base for template matching
     print("initialisation, merging")
-    merged_base = MergedBase(resolution, "survivor") # TODO config
+    merged_base = MergedBase(resolution, "nurse") # TODO config
     pyautogui.moveTo(0, 0)
 
     i = 0
@@ -143,9 +143,9 @@ def main_loop(debug):
             # hold on the perk for 0.5s
             pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
             pyautogui.mouseDown()
-            time.sleep(0.05)
+            time.sleep(0.1)
             pyautogui.moveTo(0, 0)
-            time.sleep(0.45)
+            time.sleep(0.4)
             pyautogui.mouseUp()
 
             # mystery box: click

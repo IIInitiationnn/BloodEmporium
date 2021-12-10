@@ -15,6 +15,6 @@ class NetworkUtil:
 
         graph_copy = graph.copy()
         for node_id, data in graph_copy.nodes.items():
-            nx.set_node_attributes(graph_copy, Node.from_dict(data, x=int(data["x"]) - 1000, y=int(data["y"]) - 1000).get_dict())
+            nx.set_node_attributes(graph_copy, Node.from_dict(data, x=int(data["x"]) - 600, y=int(data["y"]) - 600).get_dict())
         net.from_nx(graph_copy)
         net.show(f"{file_name}.html")
