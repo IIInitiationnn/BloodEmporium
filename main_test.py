@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 res = Resolution(2560, 1440, 100)
 
             path_to_image = os.path.join(subdir, file)
-            image_bgr = cv2.imread(path_to_image, cv2.IMREAD_UNCHANGED)
+            image_bgr = cv2.imread(path_to_image, cv2.IMREAD_COLOR)
             image_gray = cv2.imread(path_to_image, cv2.IMREAD_GRAYSCALE)
 
             if ratio != 1:

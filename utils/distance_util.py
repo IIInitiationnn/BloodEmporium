@@ -1,18 +1,7 @@
 import math
 
 import numpy as np
-
-def points_are_close(a, b, res):
-    '''
-    used for proximity between two points
-    '''
-    x1 = a[0]
-    y1 = a[1]
-    x2 = b[0]
-    y2 = b[1]
-    max_dist = res.ratio() * 30
-    return abs(x1 - x2) < max_dist and abs(y1 - y2) < max_dist
-
+# TODO delete this file
 def line_close_to_circle(a, b, res):
     '''
     used for line endpoint proximity to centre of circle

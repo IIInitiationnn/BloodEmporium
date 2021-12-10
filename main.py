@@ -16,7 +16,8 @@ from pynput import keyboard
 from capturer import Capturer
 from config import Config
 from debugger import Debugger
-from matcher import Matcher, HoughTransform
+from grapher import Grapher
+from matcher import Matcher, HoughTransform, IconMatcher
 from mergedbase import MergedBase
 from node import Node
 from optimiser import Optimiser
@@ -37,6 +38,7 @@ from utils.network_util import NetworkUtil
 #       - use knowledge of which node was last selected, check all other unclaimed nodes if they are now black,
 #       update graph using that info. dont need to match, only need to wait 2 secs and check circle colour at position
 #       dont need to run hough circle or line!
+#   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
 
 ''' timeline
     - [DONE] backend with algorithm
@@ -80,19 +82,19 @@ def main_loop(debug):
     # read config settings
     config = Config()
 
-    # resolution
     resolution = config.resolution()
+    x, y = config.top_left()
 
     ratio = 1
     if not math.isclose(resolution.aspect_ratio(), 16 / 9, abs_tol=0.01):
         pass # TODO stretched res support in the future...?
-    elif resolution.width > 2560:
+    elif resolution.width != 2560 and resolution.ui_scale != 100:
         ratio = resolution.width / 2560 * resolution.ui_scale / 100
         resolution = Resolution(2560, 1440, 100)
 
     # initialisation: merged base for template matching
     print("initialisation, merging")
-    merged_base = MergedBase(resolution, "survivor") # TODO
+    merged_base = MergedBase(resolution, "nurse") # TODO config
     mouse = Controller()
     mouse.position = (0, 0)
 
@@ -107,32 +109,24 @@ def main_loop(debug):
         matcher = Matcher(debugger, cv_images, resolution)
         origin = matcher.match_origin()
 
-        # hough transform: detect circles
-        circles = matcher.match_circles()
-        circles.append(origin)
+        # vectors: detect circles and match to unlockables
+        print("vector: circles and match to unlockables")
+        circles = matcher.vector_circles(origin, merged_base)
 
-        # TODO hough transform: detect lines
-        lines = matcher.match_lines(circles)
-
-        debugger.show_images() # hhhhh
-        return
+        # hough transform: detect lines
+        print("hough transform: lines")
+        connections = matcher.match_lines(circles)
 
         # hough transform: detect circles and lines
-        print("hough transform")
-        nodes_connections = HoughTransform(images, resolution)
-        debugger.set_hough(nodes_connections) # hhhhh
+        # print("hough transform")
+        # nodes_connections = HoughTransform(images, resolution)
+        # debugger.set_hough(nodes_connections) # hhhhh
 
-        # match circles to unlockables: create networkx graph of nodes
-        print("match to unlockables")
-        matcher = MatcherOld(image_gray, nodes_connections, merged_base)
-        base_bloodweb = matcher.graph # all 9999
-        debugger.set_matcher(matcher) # hhhhh
-
-        # correct reachable nodes
-        for node_id, data in base_bloodweb.nodes.items():
-            if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in base_bloodweb.neighbors(node_id)]) \
-                    and not data["is_accessible"]:
-                nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+        # create networkx graph of nodes
+        print("creating networkx graph")
+        grapher = Grapher(debugger, circles, connections) # all 9999
+        base_bloodweb = grapher.create()
+        debugger.set_base_bloodweb(base_bloodweb)
 
         if debug:
             debugger.show_images() # hhhhh
@@ -140,12 +134,6 @@ def main_loop(debug):
         j = 1
         run = True
         while run:
-            # correct reachable nodes
-            for node_id, data in base_bloodweb.nodes.items():
-                if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in base_bloodweb.neighbors(node_id)]) \
-                        and not data["is_accessible"]:
-                    nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
-
             # run through optimiser
             print("optimiser")
             optimiser = Optimiser(base_bloodweb)
@@ -175,22 +163,17 @@ def main_loop(debug):
                 time.sleep(0.9)
                 mouse.click(Button.left)
 
+            # TODO take new picture and update colours, put in method in grapher
+
             # new level
-            # if optimiser.num_left() <= 2: # TODO change to if no more nodes left
-            #     print("level cleared")
-            #     time.sleep(2) # 2 sec to clear out until new level screen
-            #     mouse.click(Button.left)
+            if optimiser.num_left() == 0:
+                print("level cleared")
+                run = False
+                time.sleep(2) # 2 sec to clear out until new level screen
+                mouse.click(Button.left)
 
             time.sleep(0.5) # "fast" mode - no captures in between generates
             # time.sleep(2) # 2 secs to generate
-
-            if all([data["is_user_claimed"] for data in base_bloodweb.nodes.values()]):
-                run = False
-
-        print("level cleared")
-        time.sleep(2) # 2 secs to clear out until new level screen
-        mouse.click(Button.left)
-        time.sleep(2) # 2 secs to generate
 
         i += 1
 
@@ -210,6 +193,7 @@ def on_press(key):
         print("thread started without debugging")
     elif str(format(key)) == "'0'":
         thread.terminate()
+        thread = None
         print("thread terminated")
 
 if __name__ == '__main__':

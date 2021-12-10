@@ -11,10 +11,10 @@ class CVImages:
         return CVImages(cv2.imread(path, cv2.IMREAD_COLOR))
 
     def get_bgr(self):
-        return self.bgr
+        return self.bgr.copy()
 
     def get_gray(self):
-        return self.gray
+        return self.gray.copy()
 
     def get_red(self):
-        return self.r
+        return self.r.copy()

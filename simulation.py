@@ -3,7 +3,7 @@ from pprint import pprint
 import cv2
 import networkx as nx
 
-from matcher import HoughTransform, Matcher
+from matcher import HoughTransform, IconMatcher
 from mergedbase import MergedBase
 from node import Node
 from optimiser import Optimiser
@@ -26,12 +26,12 @@ class Simulation:
         self.image = nodes_connections.output
         self.hhhhh = nodes_connections.hhhhh
 
-        cv2.imshow("cropped for origin matching", nodes_connections.cropped)
-        # cv2.imshow("matched origin", cv2.split(cv2.imread(f"{Path.assets_origins}/{nodes_connections.origin_type}", cv2.IMREAD_UNCHANGED))[2])
-        cv2.imshow("edges for matching lines", nodes_connections.edges)
-        cv2.imshow("unfiltered raw output (r-adjusted)", nodes_connections.output)
-        cv2.imshow("validated & processed output (r-adjusted)", nodes_connections.output_validated)
-        cv2.waitKey(0)
+        # cv2.imshow("cropped for origin matching", nodes_connections.cropped)
+        # # cv2.imshow("matched origin", cv2.split(cv2.imread(f"{Path.assets_origins}/{nodes_connections.origin_type}", cv2.IMREAD_UNCHANGED))[2])
+        # cv2.imshow("edges for matching lines", nodes_connections.edges)
+        # cv2.imshow("unfiltered raw output (r-adjusted)", nodes_connections.output)
+        # cv2.imshow("validated & processed output (r-adjusted)", nodes_connections.output_validated)
+        # cv2.waitKey(0)
 
         # resized to 2/3
         # cv2.imshow("edges for matching lines", cv2.resize(nodes_connections.edges, (nodes_connections.edges.shape[1] * 2 // 3, nodes_connections.edges.shape[0] * 2 // 3)))
@@ -41,7 +41,7 @@ class Simulation:
 
         if self.run_optimiser:
             # match circles to unlockables: create networkx graph of nodes
-            matcher = Matcher(self.images["gray"], nodes_connections, merged_base)
+            matcher = IconMatcher(self.images["bgr"], nodes_connections, merged_base)
             base_bloodweb = matcher.graph # all 9999
 
         i = 0

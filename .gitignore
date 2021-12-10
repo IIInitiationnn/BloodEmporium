@@ -1,6 +1,7 @@
 *.html
 compile.json
 main.spec
+temp.py
 
 .idea/
 __pycache__/
