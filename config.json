@@ -16,23 +16,170 @@
     "profiles": [
         {
             "id": "default",
+            "iconFavors_bloodyPartyStreamers": {
+                "tier": 5,
+                "subtier": 4
+            },
             "iconFavors_survivorPudding": {
+                "tier": 5,
+                "subtier": 3
+            },
+            "iconFavors_escapeCake": {
+                "tier": 5,
+                "subtier": 3
+            },
+            "iconFavors_hollowShell": {
+                "tier": 3,
+                "subtier": 1
+            },
+            "iconFavors_wardBlack": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconFavors_wardWhite": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_rangersAidKit": {
+                "tier": 3,
+                "subtier": 4
+            },
+            "iconItems_medkit": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconItems_firstAidKit": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconItems_rundownAidKit": {
+                "tier": 3,
+                "subtier": 1
+            },
+            "iconAddon_stypticAgent": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconAddon_syringe": {
+                "tier": 3,
+                "subtier": 1
+            },
+            "iconAddon_gelDressings": {
+                "tier": 2,
+                "subtier": 2
+            },
+            "iconAddon_surgicalSuture": {
+                "tier": 2,
+                "subtier": 1
+            },
+            "iconItems_flashlightUtility": {
+                "tier": 4,
+                "subtier": 4
+            },
+            "iconItems_flashlightSport": {
                 "tier": 4,
                 "subtier": 3
             },
+            "iconItems_flashlight": {
+                "tier": 4,
+                "subtier": 2
+            },
+            "iconAddon_longLifeBattery": {
+                "tier": 3,
+                "subtier": 4
+            },
+            "iconAddon_heavyDutyBattery": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconAddon_threadedFilament": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconAddon_battery": {
+                "tier": 3,
+                "subtier": 2
+            }
+        },
+        {
+            "id": "initiation",
             "iconFavors_bloodyPartyStreamers": {
+                "tier": 5,
+                "subtier": 4
+            },
+            "iconFavors_survivorPudding": {
+                "tier": 5,
+                "subtier": 3
+            },
+            "iconFavors_escapeCake": {
+                "tier": 5,
+                "subtier": 3
+            },
+            "iconFavors_hollowShell": {
+                "tier": 3,
+                "subtier": 1
+            },
+            "iconFavors_wardBlack": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconFavors_wardWhite": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_rangersAidKit": {
+                "tier": 2,
+                "subtier": 4
+            },
+            "iconItems_medkit": {
+                "tier": 2,
+                "subtier": 3
+            },
+            "iconItems_firstAidKit": {
+                "tier": 2,
+                "subtier": 2
+            },
+            "iconItems_rundownAidKit": {
+                "tier": 2,
+                "subtier": 1
+            },
+            "iconAddon_gelDressings": {
+                "tier": 2,
+                "subtier": 2
+            },
+            "iconItems_flashlightUtility": {
+                "tier": 4,
+                "subtier": 4
+            },
+            "iconItems_flashlightSport": {
                 "tier": 4,
                 "subtier": 3
+            },
+            "iconItems_flashlight": {
+                "tier": 4,
+                "subtier": 2
+            },
+            "iconAddon_longLifeBattery": {
+                "tier": 3,
+                "subtier": 4
+            },
+            "iconAddon_heavyDutyBattery": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconAddon_threadedFilament": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconAddon_battery": {
+                "tier": 3,
+                "subtier": 2
             },
             "iconAddon_fragileWheeze": {
                 "tier": 4,
                 "subtier": 2
             },
             "iconAddon_darkCincture": {
-                "tier": 4,
-                "subtier": 1
-            },
-            "iconFavors_hollowShell": {
                 "tier": 4,
                 "subtier": 1
             },
@@ -44,10 +191,6 @@
                 "tier": 3,
                 "subtier": 1
             },
-            "iconFavors_wardBlack": {
-                "tier": 1,
-                "subtier": 2
-            },
             "iconAddon_ataxicRespiration": {
                 "tier": 1,
                 "subtier": 1
@@ -56,85 +199,41 @@
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_petrifiedOak": {
-                "tier": 4,
-                "subtier": 1
-            },
-            "iconAddon_bandages": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconAddon_battery": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconAddon_brokenFlashlightBulb": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconAddon_gelDressings": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconAddon_heavyDutyBattery": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconAddon_longLifeBattery": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconAddon_metalSaw": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconAddon_scraps": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconFavors_escapeCake": {
-                "tier": 4,
-                "subtier": 2
-            },
-            "iconItems_firstAidKit": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconItems_flashlight": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconItems_flashlightSport": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconItems_flashlightUtility": {
-                "tier": 1,
-                "subtier": 1
-            },
             "iconItems_toolboxAlexs": {
-                "tier": 1,
+                "tier": 4,
                 "subtier": 1
             },
             "iconItems_toolboxWornOut": {
-                "tier": 1,
+                "tier": 3,
                 "subtier": 1
             },
             "iconItems_toolbox": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_rangersAidKit": {
-                "tier": 1,
+            "iconAddon_metalSaw": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconAddon_spoolOfWire": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconAddon_cuttingWire": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconAddon_gripWrench": {
+                "tier": 3,
                 "subtier": 1
             },
-            "iconItems_rundownAidKit": {
-                "tier": 1,
+            "iconAddon_scraps": {
+                "tier": 3,
                 "subtier": 1
             },
-            "iconFavors_wardWhite": {
-                "tier": 1,
-                "subtier": 1
+            "iconFavors_petrifiedOak": {
+                "tier": 4,
+                "subtier": 5
             }
         }
     ]

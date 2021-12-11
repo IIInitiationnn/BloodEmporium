@@ -1,15 +1,8 @@
-import json
-import math
-import os
 import time
 from datetime import datetime
 from multiprocessing import Process
-from pathlib import Path, PurePosixPath
-from pprint import pprint
 
-import cv2
 import networkx as nx
-import numpy as np
 import pyautogui
 from pynput import keyboard
 
@@ -19,14 +12,13 @@ from debugger import Debugger
 from grapher import Grapher
 from matcher import Matcher
 from mergedbase import MergedBase
-from node import Node
 from optimiser import Optimiser
-from resolution import Resolution
-from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
-#   - create a default config file if deleted, then when adding gui also make a function to create one from user input
 #   - improve line accuracy
+#   - set some preferences for default preference profile in config
+#   - exe working
+#   - create a default config file if deleted, then when adding gui also make a function to create one from user input
 #   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
 
 ''' timeline

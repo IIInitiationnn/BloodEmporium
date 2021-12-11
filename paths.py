@@ -4,7 +4,6 @@ from config import Config
 
 
 class Path:
-    # diff for win and mac, but in development we use linux
     if platform.system() == "Linux":
         vanilla_image = "/mnt/c/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons (Vanilla)"
         image = "/mnt/c/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons"
