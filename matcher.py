@@ -140,6 +140,8 @@ class Matcher:
             r_small = r * 2 // 3
             unlockable = image_gray[abs_position.y-r_small:abs_position.y+r_small,
                                     abs_position.x-r_small:abs_position.x+r_small]
+            # if color == "neutral":
+            #     unlockable = cv2.add(unlockable, np.array([50.0]))
             height, width = unlockable.shape
 
             # only need radius and color

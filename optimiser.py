@@ -15,18 +15,6 @@ class Optimiser:
 
     def dijkstra(self, desired_node_id, tier, subtier):
         heatmap = copy.deepcopy(self.base_graph)
-        """TODO: for each priority higher (aka more desirable) set desired_value to be 20 lower thus negating distance
-            ie it will go longer if it needs to to get something which is fiercely desired
-            for each priority lower (aka less desirable) set desired_value to be 12 higher
-            ie if there is a path to desirable through 1 undesirable vs a path to a desirable (lower prio than first) through neutral
-            we will path through undesirable; however if theres multiple (2+) undesirable in the path OR something 2 degrees of undesirable then we will opt for neutral path first
-            adjust numbers later as needed, refer to desirability.png
-            
-            amongst multiple of the same lowest, choose randomly? print if random and see if any situations where random fails
-            
-            in total probably 5 tiers of desirability: 4 normal, then 1 at negative infinite
-            then neutral,
-            then 3 tiers of undesirability: 2 normal, then 1 at infinite (never ever pick unless forced)"""
         desired_value = -(9999 * tier + subtier)
         base_data = self.base_graph.nodes[desired_node_id]
         nx.set_node_attributes(heatmap, Node.from_dict(base_data, value=desired_value).get_dict())
@@ -41,8 +29,8 @@ class Optimiser:
                 if node_id == "ORIGIN":
                     continue
 
-                # TODO if this node is undesirable, add 12? refer to run3.html on the left side
-                neighbor_values = [heatmap.nodes[neighbor]["value"] for neighbor in heatmap.neighbors(node_id)]
+                neighbor_values = [heatmap.nodes[neighbor]["value"] for neighbor in heatmap.neighbors(node_id)
+                                   if not heatmap.nodes[neighbor]["is_accessible"]]
                 lowest_neighbor_value = min(neighbor_values) if len(neighbor_values) > 0 else 9999 # if node is not connected to rest of graph
                 if data["value"] > lowest_neighbor_value + 1:
                     nx.set_node_attributes(heatmap, Node.from_dict(data, value=lowest_neighbor_value + 1).get_dict())

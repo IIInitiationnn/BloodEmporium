@@ -26,11 +26,7 @@ from utils.network_util import NetworkUtil
 
 # TODO immediate priorities
 #   - create a default config file if deleted, then when adding gui also make a function to create one from user input
-#   - improve line accuracy, then do testing, then match for vanilla icons, then optimise, then config, then gui
-#   - calibrate brightness of background of default pack
-#   - 2 layers of priority:
-#       - tier for multiples e.g. tier 2 equivalent to 2 tier 1, tier -2 equally unlikeable as 2 tier -1
-#       - subtier to order in these tiers, non negative
+#   - improve line accuracy
 #   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
 
 ''' timeline
@@ -81,8 +77,6 @@ def main_loop(debug):
     x, y = config.top_left()
 
     ratio = 1
-    if not math.isclose(resolution.aspect_ratio(), 16 / 9, abs_tol=0.01):
-        pass # TODO stretched res support in the future...?
 
     # initialisation: merged base for template matching
     print("initialisation, merging")

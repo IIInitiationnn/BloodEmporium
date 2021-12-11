@@ -8,7 +8,6 @@ from config import Config
 from paths import Path
 from categories import Categories
 from images import Images
-from resolution import Resolution
 
 
 class MergedBase:
@@ -33,7 +32,6 @@ class MergedBase:
         self.res = res
         self.full_dim = round(1 + self.res.mystery_box())
 
-        # TODO read all asset files, use for reward config
         path = Config().path() # user's default folder for icons; could be custom icons
         all_files = [(subdir, file) for subdir, dirs, files in os.walk(path) for file in files]
         image_paths = []

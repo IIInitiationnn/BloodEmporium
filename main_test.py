@@ -68,8 +68,6 @@ if __name__ == '__main__':
             res = Resolution(int(s.split("x")[0]), int(s.split("x")[1].split("_")[0]), int(s.split("_")[-1]))
 
             ratio = 1
-            if not math.isclose(res.aspect_ratio(), 16 / 9, abs_tol=0.01):
-                pass # TODO stretched res support in the future...?
 
             path_to_image = os.path.join(subdir, file)
             image_bgr = cv2.imread(path_to_image, cv2.IMREAD_COLOR)
