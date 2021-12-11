@@ -4,6 +4,7 @@ import random
 
 import networkx as nx
 
+from config import Config
 from node import Node
 
 
@@ -12,7 +13,7 @@ class Optimiser:
         self.base_graph = graph
         self.dijkstra_graph = None
 
-    def dijkstra(self, desired_node_id):
+    def dijkstra(self, desired_node_id, tier, subtier):
         heatmap = copy.deepcopy(self.base_graph)
         """TODO: for each priority higher (aka more desirable) set desired_value to be 20 lower thus negating distance
             ie it will go longer if it needs to to get something which is fiercely desired
@@ -26,7 +27,7 @@ class Optimiser:
             in total probably 5 tiers of desirability: 4 normal, then 1 at negative infinite
             then neutral,
             then 3 tiers of undesirability: 2 normal, then 1 at infinite (never ever pick unless forced)"""
-        desired_value = -20 # TODO for now, will read from config later: set to negative for desired, >9999 for non-desired (aka invert priority in config), 9999 for neutral
+        desired_value = -(9999 * tier + subtier)
         base_data = self.base_graph.nodes[desired_node_id]
         nx.set_node_attributes(heatmap, Node.from_dict(base_data, value=desired_value).get_dict())
 
@@ -41,15 +42,11 @@ class Optimiser:
                     continue
 
                 # TODO if this node is undesirable, add 12? refer to run3.html on the left side
-                lowest_neighbor_value = min([heatmap.nodes[neighbor]["value"] for neighbor in heatmap.neighbors(node_id)])
-                """has_path = False # whether there is a simple path from ORIGIN to name to desired_name
-                for path in nx.all_simple_paths(heatmap, "ORIGIN", desired_name):
-                    if name in path:
-                        has_path = True"""
+                neighbor_values = [heatmap.nodes[neighbor]["value"] for neighbor in heatmap.neighbors(node_id)]
+                lowest_neighbor_value = min(neighbor_values) if len(neighbor_values) > 0 else 9999 # if node is not connected to rest of graph
                 if data["value"] > lowest_neighbor_value + 1:
                     nx.set_node_attributes(heatmap, Node.from_dict(data, value=lowest_neighbor_value + 1).get_dict())
                     edited = True
-                # print(unlockable, min([heatmap.nodes[neighbor]["value"] for neighbor in heatmap.neighbors(unlockable)]))
 
         return heatmap
 
@@ -75,54 +72,20 @@ class Optimiser:
         return Node.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
 
     def run(self):
-        desired_unlockables = ["iconAddon_heavyPanting.png",
-                               "iconAddon_darkCincture.png",
-                               "iconAddon_ataxicRespiration.png",
-                               "iconAddon_badMansLastBreath.png",
-                               "iconAddon_fragileWheeze.png",
-                               "iconAddon_kavanaghsLastBreath.png",
-                               "iconFavors_hollowShell.png",
-                               "iconFavors_survivorPudding.png",
-                               "iconFavors_bloodyPartyStreamers.png",
-                               "iconFavors_wardBlack.png",
-                               "iconAddon_bandages.png",
-                               "iconAddon_battery.png",
-                               "iconAddon_brokenFlashlightBulb.png",
-                               "iconAddon_gelDressings.png",
-                               "iconAddon_heavyDutyBattery.png",
-                               "iconAddon_longLifeBattery.png",
-                               "iconAddon_metalSaw.png",
-                               "iconAddon_scraps",
-                               "iconFavors_escapeCake.png",
-                               "iconItems_firstAidKit.png",
-                               "iconItems_flashlight.png",
-                               "iconItems_flashlightSport.png",
-                               "iconItems_flashlightUtility.png",
-                               "iconItems_toolboxAlexs.png",
-                               "iconItems_toolboxWornOut.png",
-                               "iconItems_toolbox.png",
-                               "iconItems_rangersAidKit.png",
-                               "iconItems_rundownAidKit.png",
-                               "iconFavors_wardWhite.png",
-                               "iconFavors_petrifiedOak.png",
-
-                               # "iconFavors_ardentRavenWreath.png",
-                               # "iconFavors_ardentShrikeWreath.png",
-                               # "iconFavors_ardentSpottedOwlWreath.png",
-                               # "iconFavors_ardentTanagerWreath.png",
-                               ]
-        undesired_unlockables = ["annotated_blueprint", "first_aid_kit"]
-
+        config = Config()
         graphs = []
         for node_id, data in self.base_graph.nodes.items():
             if data["is_user_claimed"]: # claimed
                 pass
-            elif data["name"] in desired_unlockables: # desirable and unclaimed TODO in future use value assigned in config
-                graphs.append(self.dijkstra(node_id))
-            elif data["name"] in undesired_unlockables: # temp: undesirable and unclaimed
-                heatmap = copy.deepcopy(self.base_graph)
-                nx.set_node_attributes(heatmap, Node.from_dict(heatmap.nodes[node_id], value=heatmap.nodes[node_id]["value"] + 12).get_dict())
-                graphs.append(heatmap)
+            else:
+                tier, subtier = config.preference(data["name"])
+                if tier > 0: # desirable and unclaimed
+                    graphs.append(self.dijkstra(node_id, tier, subtier))
+                elif tier < 0: # temp: undesirable and unclaimed
+                    heatmap = copy.deepcopy(self.base_graph)
+                    cost = heatmap.nodes[node_id]["value"] + 9999 * tier + subtier
+                    nx.set_node_attributes(heatmap, Node.from_dict(heatmap.nodes[node_id], value=cost).get_dict())
+                    graphs.append(heatmap)
 
         if len(graphs) == 0:
             graphs = [self.base_graph]

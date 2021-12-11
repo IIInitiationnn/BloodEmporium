@@ -86,7 +86,6 @@ class Matcher:
 
         output = [origin]
 
-        ur = self.res.unlockable_radius()
         for circle_num, rel_position in self.res.circles().items():
             abs_position = origin.position.sum(rel_position)
             r, color, match_name = Matcher.get_circle_properties(self.debugger, image_gray, self.cv_images[0].get_bgr(),
@@ -107,9 +106,6 @@ class Matcher:
 
     @staticmethod
     def get_circle_properties(debugger, image_gray, image_bgr, image_filtered, merged_base, abs_position, res):
-        if merged_base is not None:
-            names = merged_base.names
-            images = merged_base.images
         ur = res.unlockable_radius()
 
         square = image_filtered.copy()[abs_position.y-ur:abs_position.y+ur, abs_position.x-ur:abs_position.x+ur]
@@ -150,9 +146,13 @@ class Matcher:
             if merged_base is None:
                 return r, color, None
 
+            names = merged_base.names
+            images = merged_base.images
+
             # apply template matching
             base = images.copy()
-            result = cv2.matchTemplate(base, unlockable, cv2.TM_CCORR_NORMED)
+            #result = cv2.matchTemplate(base, unlockable, cv2.TM_CCORR_NORMED)
+            result = cv2.matchTemplate(base, unlockable, cv2.TM_CCOEFF_NORMED)
 
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
 

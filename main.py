@@ -31,10 +31,6 @@ from utils.network_util import NetworkUtil
 #   - 2 layers of priority:
 #       - tier for multiples e.g. tier 2 equivalent to 2 tier 1, tier -2 equally unlikeable as 2 tier -1
 #       - subtier to order in these tiers, non negative
-#   - slow mode = fast mode!
-#       - use knowledge of which node was last selected, check all other unclaimed nodes if they are now black,
-#       update graph using that info. dont need to match, only need to wait 2 secs and check circle colour at position
-#       dont need to run hough circle or line!
 #   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
 
 ''' timeline
@@ -87,13 +83,10 @@ def main_loop(debug):
     ratio = 1
     if not math.isclose(resolution.aspect_ratio(), 16 / 9, abs_tol=0.01):
         pass # TODO stretched res support in the future...?
-    elif resolution.width != 2560 and resolution.ui_scale != 100:
-        ratio = resolution.width / 2560 * resolution.ui_scale / 100
-        resolution = Resolution(2560, 1440, 100)
 
     # initialisation: merged base for template matching
     print("initialisation, merging")
-    merged_base = MergedBase(resolution, "nurse") # TODO config
+    merged_base = MergedBase(resolution, config.character())
     pyautogui.moveTo(0, 0)
 
     i = 0
@@ -149,7 +142,7 @@ def main_loop(debug):
             pyautogui.mouseUp()
 
             # mystery box: click
-            if optimal_unlockable.name == "iconHelp_mysteryBox.png":
+            if optimal_unlockable.name == "iconHelp_mysteryBox":
                 print("mystery box selected")
                 time.sleep(0.9)
                 pyautogui.click()

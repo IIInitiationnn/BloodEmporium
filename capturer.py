@@ -7,6 +7,8 @@ import pyautogui
 
 from config import Config
 from cv_images import CVImages
+from images import Images
+
 
 class Capturer:
     def __init__(self, ratio, iterations=3):
@@ -26,7 +28,7 @@ class Capturer:
             if ratio != 1:
                 height, width, layers = screenshot.shape
                 new_height, new_width = round(height / ratio), round(width / ratio)
-                screenshot = cv2.resize(screenshot, (new_width, new_height))
+                screenshot = cv2.resize(screenshot, (new_width, new_height), interpolation=Images.interpolation)
 
             self.output.append(CVImages(screenshot))
 

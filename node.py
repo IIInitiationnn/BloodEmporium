@@ -5,7 +5,7 @@ from utils.color_util import ColorUtil
 class Node:
     def __init__(self, node_id, name, value, position, is_accessible, is_user_claimed):
         self.node_id = node_id
-        self.name = name
+        self.name = name.replace(".png", "")
         self.value = value
         self.x, self.y = position
         self.is_accessible = is_accessible

@@ -5,6 +5,7 @@ from pathlib import Path
 import cv2
 import os
 
+from images import Images
 from resolution import Resolution
 from simulation import Simulation
 
@@ -69,11 +70,6 @@ if __name__ == '__main__':
             ratio = 1
             if not math.isclose(res.aspect_ratio(), 16 / 9, abs_tol=0.01):
                 pass # TODO stretched res support in the future...?
-            elif res.width > 2560:
-                # ratio = res.width / 1920 * res.ui_scale / 100
-                # res = Resolution(1920, 1080, 100)
-                ratio = res.width / 2560 * res.ui_scale / 100
-                res = Resolution(2560, 1440, 100)
 
             path_to_image = os.path.join(subdir, file)
             image_bgr = cv2.imread(path_to_image, cv2.IMREAD_COLOR)
@@ -82,8 +78,8 @@ if __name__ == '__main__':
             if ratio != 1:
                 height, width = image_gray.shape
                 new_height, new_width = round(height / ratio), round(width / ratio)
-                image_bgr = cv2.resize(image_bgr, (new_width, new_height))
-                image_gray = cv2.resize(image_gray, (new_width, new_height))
+                image_bgr = cv2.resize(image_bgr, (new_width, new_height), interpolation=Images.interpolation)
+                image_gray = cv2.resize(image_gray, (new_width, new_height), interpolation=Images.interpolation)
 
             images = {"bgr": image_bgr, "gray": image_gray}
 

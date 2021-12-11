@@ -10,7 +10,7 @@ class Path:
         image = "/mnt/c/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons"
     else:
         vanilla_image = "C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons (Vanilla)"
-        image = Config().config["path"]
+        image = Config().path()
 
     offerings = image + "/Favors" # 70, 50
     addons = image + "/ItemAddons" # 50, 40

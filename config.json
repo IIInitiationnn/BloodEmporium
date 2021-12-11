@@ -10,5 +10,132 @@
         "width": 800,
         "height": 800
     },
-    "path": "C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons"
+    "path": "C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons",
+    "character": "nurse",
+    "active_profile": "default",
+    "profiles": [
+        {
+            "id": "default",
+            "iconFavors_survivorPudding": {
+                "tier": 4,
+                "subtier": 3
+            },
+            "iconFavors_bloodyPartyStreamers": {
+                "tier": 4,
+                "subtier": 3
+            },
+            "iconAddon_fragileWheeze": {
+                "tier": 4,
+                "subtier": 2
+            },
+            "iconAddon_darkCincture": {
+                "tier": 4,
+                "subtier": 1
+            },
+            "iconFavors_hollowShell": {
+                "tier": 4,
+                "subtier": 1
+            },
+            "iconAddon_kavanaghsLastBreath": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconAddon_heavyPanting": {
+                "tier": 3,
+                "subtier": 1
+            },
+            "iconFavors_wardBlack": {
+                "tier": 1,
+                "subtier": 2
+            },
+            "iconAddon_ataxicRespiration": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_badMansLastBreath": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconFavors_petrifiedOak": {
+                "tier": 4,
+                "subtier": 1
+            },
+            "iconAddon_bandages": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_battery": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_brokenFlashlightBulb": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_gelDressings": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_heavyDutyBattery": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_longLifeBattery": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_metalSaw": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_scraps": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconFavors_escapeCake": {
+                "tier": 4,
+                "subtier": 2
+            },
+            "iconItems_firstAidKit": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_flashlight": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_flashlightSport": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_flashlightUtility": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_toolboxAlexs": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_toolboxWornOut": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_toolbox": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_rangersAidKit": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconItems_rundownAidKit": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconFavors_wardWhite": {
+                "tier": 1,
+                "subtier": 1
+            }
+        }
+    ]
 }
