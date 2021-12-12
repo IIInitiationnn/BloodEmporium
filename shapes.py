@@ -99,7 +99,7 @@ class Line:
             dist_c1 = np.abs(np.cross(line_p2 - line_p1, line_p1 - circle_p1)) / np.linalg.norm(line_p2 - line_p1)
             dist_c2 = np.abs(np.cross(line_p2 - line_p1, line_p1 - circle_p2)) / np.linalg.norm(line_p2 - line_p1)
 
-            max_dist = 30 * res.ratio()
+            max_dist = 35 * res.ratio()
             if dist_c1 > max_dist or dist_c2 > max_dist:
                 circle1 = None
                 circle2 = None

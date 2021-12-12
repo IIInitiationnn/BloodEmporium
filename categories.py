@@ -94,7 +94,7 @@ class Categories:
             "iconFavors_annotatedBlueprint",
             "iconFavors_vigosBlueprint",
 
-            # maps
+            # mapsw
             "iconFavors_wardSacrificial",
             "iconFavors_azarovsKey",
             "iconFavors_granmasCookbook",
@@ -385,8 +385,8 @@ class Categories:
             "iconFavors_jarOfSaltyLips",
 
             # chests
-            "iconFavors_shinyCoin",
             "iconFavors_tarnishedCoin",
+            "iconFavors_shinyCoin",
 
             # hooks
             "iconFavors_petrifiedOak",

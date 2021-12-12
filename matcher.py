@@ -140,8 +140,6 @@ class Matcher:
             r_small = r * 2 // 3
             unlockable = image_gray[abs_position.y-r_small:abs_position.y+r_small,
                                     abs_position.x-r_small:abs_position.x+r_small]
-            # if color == "neutral":
-            #     unlockable = cv2.add(unlockable, np.array([50.0]))
             height, width = unlockable.shape
 
             # only need radius and color
@@ -171,9 +169,11 @@ class Matcher:
     def match_lines(self, circles, threshold=30):
         validated1_output = []
         for i in range(len(self.cv_images)):
-            image_filtered = self.cv_images[i].get_gray()
-            image_filtered = cv2.bilateralFilter(image_filtered, 5, 200, 200)
+            image_filtered = self.cv_images[i].get_red() # hhhhh testing red
+            image_filtered = cv2.bilateralFilter(image_filtered, round(6 * self.res.ratio()), 75, 75)
             image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.3, beta=50)
+            # cv2.imshow("filtered", image_filtered) # hhhhh
+            # print(round(6 * self.res.ratio()))
             edges = cv2.Canny(image_filtered, self.res.canny_min(), self.res.canny_max())
 
             for circle in circles:

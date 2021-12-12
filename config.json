@@ -11,8 +11,8 @@
         "height": 800
     },
     "path": "C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons",
-    "character": "nurse",
-    "active_profile": "default",
+    "character": "survivor",
+    "active_profile": "initiation",
     "profiles": [
         {
             "id": "default",
@@ -119,6 +119,14 @@
                 "tier": 3,
                 "subtier": 1
             },
+            "iconFavors_boundEnvelope": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconFavors_sealedEnvelope": {
+                "tier": 3,
+                "subtier": 1
+            },
             "iconFavors_wardBlack": {
                 "tier": 1,
                 "subtier": 1
@@ -203,11 +211,11 @@
                 "tier": 4,
                 "subtier": 1
             },
-            "iconItems_toolboxWornOut": {
+            "iconItems_toolbox": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconItems_toolbox": {
+            "iconItems_toolboxWornOut": {
                 "tier": 1,
                 "subtier": 1
             },
@@ -234,6 +242,167 @@
             "iconFavors_petrifiedOak": {
                 "tier": 4,
                 "subtier": 5
+            },
+
+            "iconFavors_wardSacrificial": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_azarovsKey": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_granmasCookbook": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_heartLocket": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_charredWeddingPhotograph": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_crowsEye": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_jigsawPiece": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_dustyNoose": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_strodeRealtyKey": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_shatteredGlasses": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_macmilliansPhalanxBone": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_damagedPhoto": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconsFavors_RPDBadge": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_theLastMask": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_marysLetter": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_thePiedPiper": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_yamaokasCrest": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconHelp_mysteryBox": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconFavors_murkyReagent": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconItems_brokenKey": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconItems_dullKey": {
+                "tier": -3,
+                "subtier": 1
+            },
+            "iconItems_key": {
+                "tier": -3,
+                "subtier": 1
+            },
+            "iconAddon_tokenGold": {
+                "tier": -3,
+                "subtier": 1
+            },
+            "iconAddon_weavedRing": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_milkyGlass": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_bloodAmber": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_uniqueRing": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconItems_rainbowMap": {
+                "tier": -3,
+                "subtier": 1
+            },
+            "iconAddon_stampOdd": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconAddon_ropeBlack": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_beadCrystal": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_abdominalDressing": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconAddon_stypticAgent": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_syringe": {
+                "tier": -3,
+                "subtier": 1
+            },
+            "iconItems_toolboxMechanics": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconItems_toolboxCommodious": {
+                "tier": -1,
+                "subtier": 1
+            },
+            "iconItems_toolboxEngineers":  {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_brandNewPart": {
+                "tier": -3,
+                "subtier": 1
+            },
+            "iconFavors_shinyCoin": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconFavors_shroudOfBinding": {
+                "tier": -2,
+                "subtier": 1
             }
         }
     ]

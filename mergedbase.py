@@ -62,6 +62,7 @@ class MergedBase:
         ret_names = []
         ret_images = []
         for file in image_paths:
+            # TODO image_name, file etc. needs to be correct slashes
             image_name = file.split("/")[-1]
 
             if "mysteryBox" in image_name:

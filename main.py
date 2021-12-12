@@ -16,7 +16,7 @@ from optimiser import Optimiser
 
 # TODO immediate priorities
 #   - improve line accuracy
-#   - set some preferences for default preference profile in config
+#   - stdout -> log
 #   - exe working
 #   - create a default config file if deleted, then when adding gui also make a function to create one from user input
 #   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
@@ -122,9 +122,9 @@ def main_loop(debug):
             # hold on the perk for 0.5s
             pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
             pyautogui.mouseDown()
-            time.sleep(0.1)
+            time.sleep(0.25)
             pyautogui.moveTo(0, 0)
-            time.sleep(0.4)
+            time.sleep(0.25)
             pyautogui.mouseUp()
 
             # mystery box: click

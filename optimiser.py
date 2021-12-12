@@ -71,7 +71,7 @@ class Optimiser:
                     graphs.append(self.dijkstra(node_id, tier, subtier))
                 elif tier < 0: # temp: undesirable and unclaimed
                     heatmap = copy.deepcopy(self.base_graph)
-                    cost = heatmap.nodes[node_id]["value"] + 9999 * tier + subtier
+                    cost = heatmap.nodes[node_id]["value"] - 9999 * tier + subtier
                     nx.set_node_attributes(heatmap, Node.from_dict(heatmap.nodes[node_id], value=cost).get_dict())
                     graphs.append(heatmap)
 
