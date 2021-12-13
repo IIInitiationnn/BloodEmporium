@@ -20,6 +20,7 @@ from optimiser import Optimiser
 #   - exe working
 #   - create a default config file if deleted, then when adding gui also make a function to create one from user input
 #   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
+from resolution import Resolution
 
 ''' timeline
     - [DONE] backend with algorithm
@@ -65,10 +66,13 @@ def main_loop(debug):
     # read config settings
     config = Config()
 
-    resolution = config.resolution()
-    x, y = config.top_left()
+    base_res = resolution = config.resolution()
+    x, y = base_res.top_left()
 
     ratio = 1
+    if base_res.width != 1920 or base_res.ui_scale != 100:
+        ratio = base_res.width / 1920 * base_res.ui_scale / 100
+        resolution = Resolution(1920, 1080, 100)
 
     # initialisation: merged base for template matching
     print("initialisation, merging")
@@ -80,7 +84,7 @@ def main_loop(debug):
     while True:
         # screen capture
         print("capturing screen")
-        cv_images = Capturer(ratio, 3).output
+        cv_images = Capturer(base_res, ratio, 3).output
         debugger = Debugger(cv_images, True, timestamp, i).set_merger(merged_base)
 
         matcher = Matcher(debugger, cv_images, resolution)

@@ -25,7 +25,7 @@ class ImageUtil:
         masked_data[mask == 0] = (255, 255, 255)
 
         # black mask with white center to remove everything outside
-        full_radius = radius + Resolution.additional_radius(radius)
+        full_radius = radius + round(Resolution.additional_radius(radius) * 5 / 6)
         mask = np.zeros((height, width), np.uint8)
         cv2.circle(mask, centre, full_radius, (255, 255, 255), thickness=-1)
         masked_data[mask == 0] = (255, 255, 255)

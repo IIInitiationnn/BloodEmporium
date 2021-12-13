@@ -129,10 +129,23 @@ class Resolution:
     def ratio(self):
         return self.width / Resolution.__width * self.ui_scale / Resolution.__ui_scale
 
+    # screenshot dimensions and points
+    def top_left(self):
+        return self.top_left_x(), self.top_left_y()
+
+    def top_left_x(self):
+        return round(22 + 0.129 * self.width * self.ui_scale / 100)
+
+    def top_left_y(self):
+        return round(56 + 0.08155 * self.ui_scale + 0.498 * self.height - 0.224 * self.width * self.ui_scale / 100)
+
+    def cap_dim(self):
+        return round(10 + 0.441 * self.width * self.ui_scale / 100)
+
     # node sizes
     @staticmethod
     def additional_radius(radius):
-        return round(1.1 * (Resolution.__large_node_outer_radius / Resolution.__large_node_inner_radius * radius - radius))
+        return round(1.2 * (Resolution.__large_node_outer_radius / Resolution.__large_node_inner_radius * radius - radius))
 
     def threshold_radius(self):
         return round(Resolution.__threshold_radius * self.ratio())

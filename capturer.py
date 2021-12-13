@@ -5,18 +5,15 @@ import cv2
 import numpy as np
 import pyautogui
 
-from config import Config
 from cv_images import CVImages
 from images import Images
 
 
 class Capturer:
-    def __init__(self, ratio, iterations=3):
-        config = Config()
-
+    def __init__(self, base_res, ratio, iterations=3):
         # get capture region
-        x, y = config.top_left()
-        width, height = config.width(), config.height()
+        x, y = base_res.top_left()
+        width = height = base_res.cap_dim()
 
         self.output = []
 

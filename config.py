@@ -31,12 +31,6 @@ class Config:
     def top_left(self):
         return self.config["capture"]["top_left_x"], self.config["capture"]["top_left_y"]
 
-    def width(self):
-        return self.config["capture"]["width"]
-
-    def height(self):
-        return self.config["capture"]["height"]
-
     def path(self):
         return self.config["path"]
 

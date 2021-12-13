@@ -2,6 +2,7 @@ import os.path
 import math
 import time
 from datetime import datetime
+from pprint import pprint
 from statistics import mean, mode
 
 import cv2
@@ -81,8 +82,6 @@ class Matcher:
         image_filtered = self.cv_images[0].get_gray()
         image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.4, beta=0)
         image_filtered = cv2.fastNlMeansDenoising(image_filtered, None, 3, 7, 21)
-        #image_filtered = cv2.GaussianBlur(image_filtered, (self.res.gaussian_c(), self.res.gaussian_c()), sigmaX=0, sigmaY=0)
-        #image_filtered = cv2.bilateralFilter(image_filtered, self.res.bilateral_c(), 200, 200)
 
         output = [origin]
 
@@ -95,12 +94,11 @@ class Matcher:
             if all(x is None for x in (r, color, match_name)):
                 continue
 
-            output.append(Circle(abs_position, r, color, match_name))\
+            output.append(Circle(abs_position, r, color, match_name))
 
             # print(circle_num)
             # print(color)
-            # cv2.imshow("square", square)
-            # cv2.waitKey(0)
+            # print(match_name)
         self.debugger.set_valid_circles(output)
         return output
 
@@ -128,7 +126,9 @@ class Matcher:
             if len(circles) > 1 or circles[0][2] < res.threshold_radius():
                 pass # TODO throw error
             r = res.large_node_inner_radius()
-            cv2.circle(square, (circles[0][0], circles[0][1]), r, 255, thickness=1)
+            # cv2.circle(square, (circles[0][0], circles[0][1]), r, 255, thickness=1)
+            # cv2.imshow("square", square) # hhhhh
+            # cv2.waitKey(0)
 
             # identify color
             unlockable = ImageUtil.cut_circle(image_bgr, (abs_position.x, abs_position.y), r)
@@ -169,11 +169,10 @@ class Matcher:
     def match_lines(self, circles, threshold=30):
         validated1_output = []
         for i in range(len(self.cv_images)):
-            image_filtered = self.cv_images[i].get_red() # hhhhh testing red
-            image_filtered = cv2.bilateralFilter(image_filtered, round(6 * self.res.ratio()), 75, 75)
+            image_filtered = self.cv_images[i].get_red()
+            ratio = 3
+            image_filtered = cv2.bilateralFilter(image_filtered, ratio, 110, 110)
             image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.3, beta=50)
-            # cv2.imshow("filtered", image_filtered) # hhhhh
-            # print(round(6 * self.res.ratio()))
             edges = cv2.Canny(image_filtered, self.res.canny_min(), self.res.canny_max())
 
             for circle in circles:

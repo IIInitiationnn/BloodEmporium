@@ -4,12 +4,6 @@
         "height": 1440,
         "ui_scale": 70
     },
-    "capture": {
-        "top_left_x": 255,
-        "top_left_y": 360,
-        "width": 800,
-        "height": 800
-    },
     "path": "C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons",
     "character": "survivor",
     "active_profile": "initiation",
