@@ -1,9 +1,7 @@
-import math
-import sys
+import os
 from pathlib import Path
 
 import cv2
-import os
 
 from images import Images
 from resolution import Resolution

@@ -4,10 +4,10 @@ import os
 import cv2
 import numpy as np
 
-from config import Config
-from paths import Path
 from categories import Categories
+from config import Config
 from images import Images
+from paths import Path
 
 
 class MergedBase:

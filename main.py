@@ -1,6 +1,6 @@
 import time
 from datetime import datetime
-from multiprocessing import Process
+from multiprocessing import Process, freeze_support, Event
 
 import networkx as nx
 import pyautogui
@@ -13,14 +13,13 @@ from grapher import Grapher
 from matcher import Matcher
 from mergedbase import MergedBase
 from optimiser import Optimiser
+from resolution import Resolution
 
 # TODO immediate priorities
-#   - improve line accuracy
 #   - stdout -> log
 #   - exe working
 #   - create a default config file if deleted, then when adding gui also make a function to create one from user input
 #   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
-from resolution import Resolution
 
 ''' timeline
     - [DONE] backend with algorithm
@@ -184,7 +183,11 @@ def on_press(key):
             print("thread terminated")
 
 if __name__ == '__main__':
+    freeze_support() # --onedir
+
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
 
-    time.sleep(300)
+    # wait until termination
+    dummy_event = Event()
+    dummy_event.wait()

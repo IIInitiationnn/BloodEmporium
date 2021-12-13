@@ -1,6 +1,5 @@
 from pprint import pprint
 
-import cv2
 import networkx as nx
 
 from matcher import HoughTransform, IconMatcher
@@ -8,6 +7,7 @@ from mergedbase import MergedBase
 from node import Node
 from optimiser import Optimiser
 from utils.network_util import NetworkUtil
+
 
 # TODO fix
 class Simulation:

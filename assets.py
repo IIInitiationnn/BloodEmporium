@@ -1,9 +1,8 @@
 import os
-
-from paths import Path
+import shutil
 
 from categories import Categories
-import shutil
+from paths import Path
 
 if __name__ == '__main__':
     all_files = [(subdir, file) for subdir, dirs, files in os.walk(Path.vanilla_image) for file in files]
