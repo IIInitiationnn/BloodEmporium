@@ -141,7 +141,7 @@ def main_loop(debug):
 
             # take new picture and update colours
             print("updating bloodweb")
-            updated_images = Capturer(ratio, 1).output[0]
+            updated_images = Capturer(base_res, ratio, 1).output[0]
             Grapher.update(base_bloodweb, updated_images, resolution)
             debugger.add_updated_image(updated_images.get_bgr(), j)
 
