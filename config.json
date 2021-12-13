@@ -129,113 +129,73 @@
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_rangersAidKit": {
-                "tier": 2,
-                "subtier": 4
-            },
-            "iconItems_medkit": {
-                "tier": 2,
-                "subtier": 3
-            },
-            "iconItems_firstAidKit": {
-                "tier": 2,
-                "subtier": 2
-            },
-            "iconItems_rundownAidKit": {
-                "tier": 2,
+
+
+
+            "iconAddon_woodenHorse": {
+                "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_gelDressings": {
-                "tier": 2,
-                "subtier": 2
+            "iconAddon_whiteNitComb": {
+                "tier": 1,
+                "subtier": 1
             },
-            "iconItems_flashlightUtility": {
-                "tier": 4,
-                "subtier": 4
+            "iconAddon_plaidFlannel": {
+                "tier": 1,
+                "subtier": 1
             },
-            "iconItems_flashlightSport": {
-                "tier": 4,
-                "subtier": 3
+            "iconAddon_metalSpoon": {
+                "tier": 1,
+                "subtier": 1
             },
-            "iconItems_flashlight": {
-                "tier": 4,
-                "subtier": 2
-            },
-            "iconAddon_longLifeBattery": {
-                "tier": 3,
-                "subtier": 4
-            },
-            "iconAddon_heavyDutyBattery": {
-                "tier": 3,
-                "subtier": 3
-            },
-            "iconAddon_threadedFilament": {
-                "tier": 3,
-                "subtier": 3
-            },
-            "iconAddon_battery": {
-                "tier": 3,
-                "subtier": 2
-            },
-            "iconAddon_fragileWheeze": {
-                "tier": 4,
-                "subtier": 2
-            },
+
+
             "iconAddon_darkCincture": {
                 "tier": 4,
                 "subtier": 1
             },
-            "iconAddon_kavanaghsLastBreath": {
-                "tier": 3,
-                "subtier": 2
+
+            "iconAddon_spasmodicBreath": {
+                "tier": -1,
+                "subtier": 1
             },
             "iconAddon_heavyPanting": {
                 "tier": 3,
                 "subtier": 1
             },
+            "iconAddon_fragileWheeze": {
+                "tier": 4,
+                "subtier": 2
+            },
             "iconAddon_ataxicRespiration": {
                 "tier": 1,
+                "subtier": 2
+            },
+            "iconAddon_anxiousGasp": {
+                "tier": -1,
+                "subtier": 1
+            },
+
+            "iconAddon_kavanaghsLastBreath": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconAddon_jennersLastBreath": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_campbellsLastBreath": {
+                "tier": -2,
                 "subtier": 1
             },
             "iconAddon_badMansLastBreath": {
                 "tier": 1,
-                "subtier": 1
-            },
-            "iconItems_toolboxAlexs": {
-                "tier": 4,
-                "subtier": 1
-            },
-            "iconItems_toolbox": {
-                "tier": 3,
-                "subtier": 1
-            },
-            "iconItems_toolboxWornOut": {
-                "tier": 1,
-                "subtier": 1
-            },
-            "iconAddon_metalSaw": {
-                "tier": 3,
-                "subtier": 3
-            },
-            "iconAddon_spoolOfWire": {
-                "tier": 3,
                 "subtier": 2
             },
-            "iconAddon_cuttingWire": {
-                "tier": 3,
-                "subtier": 2
-            },
-            "iconAddon_gripWrench": {
-                "tier": 3,
+
+            "iconAddon_matchBox": {
+                "tier": -3,
                 "subtier": 1
-            },
-            "iconAddon_scraps": {
-                "tier": 3,
-                "subtier": 1
-            },
-            "iconFavors_petrifiedOak": {
-                "tier": 4,
-                "subtier": 5
             },
 
             "iconFavors_wardSacrificial": {
@@ -362,6 +322,26 @@
                 "tier": -2,
                 "subtier": 1
             },
+            "iconItems_rangersAidKit": {
+                "tier": 2,
+                "subtier": 4
+            },
+            "iconItems_medkit": {
+                "tier": 2,
+                "subtier": 3
+            },
+            "iconItems_firstAidKit": {
+                "tier": 2,
+                "subtier": 2
+            },
+            "iconItems_rundownAidKit": {
+                "tier": 2,
+                "subtier": 1
+            },
+            "iconAddon_gelDressings": {
+                "tier": 2,
+                "subtier": 2
+            },
             "iconAddon_abdominalDressing": {
                 "tier": -1,
                 "subtier": 1
@@ -372,6 +352,38 @@
             },
             "iconAddon_syringe": {
                 "tier": -3,
+                "subtier": 1
+            },
+            "iconItems_toolboxAlexs": {
+                "tier": 4,
+                "subtier": 1
+            },
+            "iconItems_toolbox": {
+                "tier": 3,
+                "subtier": 1
+            },
+            "iconItems_toolboxWornOut": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconAddon_metalSaw": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconAddon_spoolOfWire": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconAddon_cuttingWire": {
+                "tier": 3,
+                "subtier": 2
+            },
+            "iconAddon_gripWrench": {
+                "tier": 3,
+                "subtier": 1
+            },
+            "iconAddon_scraps": {
+                "tier": 3,
                 "subtier": 1
             },
             "iconItems_toolboxMechanics": {
@@ -390,6 +402,34 @@
                 "tier": -3,
                 "subtier": 1
             },
+            "iconItems_flashlightUtility": {
+                "tier": 4,
+                "subtier": 4
+            },
+            "iconItems_flashlightSport": {
+                "tier": 4,
+                "subtier": 3
+            },
+            "iconItems_flashlight": {
+                "tier": 4,
+                "subtier": 2
+            },
+            "iconAddon_longLifeBattery": {
+                "tier": 3,
+                "subtier": 4
+            },
+            "iconAddon_heavyDutyBattery": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconAddon_threadedFilament": {
+                "tier": 3,
+                "subtier": 3
+            },
+            "iconAddon_battery": {
+                "tier": 3,
+                "subtier": 2
+            },
             "iconFavors_shinyCoin": {
                 "tier": -2,
                 "subtier": 1
@@ -397,6 +437,10 @@
             "iconFavors_shroudOfBinding": {
                 "tier": -2,
                 "subtier": 1
+            },
+            "iconFavors_petrifiedOak": {
+                "tier": 4,
+                "subtier": 5
             }
         }
     ]
