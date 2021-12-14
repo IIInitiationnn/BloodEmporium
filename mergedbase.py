@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 
-from categories import Categories
+from data import Data
 from config import Config
 from images import Images
 from paths import Path
@@ -18,7 +18,7 @@ class MergedBase:
         '''
 
         categories = ["universal"]
-        if category in Categories.get_killers():
+        if category in Data.get_killers():
             # particular killer
             categories.append("killer")
             categories.append(category)
@@ -35,7 +35,7 @@ class MergedBase:
         path = Config().path() # user's default folder for icons; could be custom icons
         all_files = [(subdir, file) for subdir, dirs, files in os.walk(path) for file in files]
         image_paths = []
-        for category, unlockable in Categories.categories_as_tuples(categories):
+        for category, unlockable in Data.categories_as_tuples(categories):
             # search in user's folder
             found = False
             for subdir, file in all_files:

@@ -1,13 +1,13 @@
 import os
 import shutil
 
-from categories import Categories
+from data import Data
 from paths import Path
 
 if __name__ == '__main__':
     all_files = [(subdir, file) for subdir, dirs, files in os.walk(Path.vanilla_image) for file in files]
 
-    for category, unlockable in Categories.categories_as_tuples():
+    for category, unlockable in Data.categories_as_tuples():
         if os.path.isfile(Path.assets_file(category, unlockable)):
             continue
 
