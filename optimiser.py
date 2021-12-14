@@ -74,6 +74,7 @@ class Optimiser:
                     cost = heatmap.nodes[node_id]["value"] - 9999 * tier + subtier
                     nx.set_node_attributes(heatmap, Node.from_dict(heatmap.nodes[node_id], value=cost).get_dict())
                     graphs.append(heatmap)
+                # TODO tier 0 with subtier
 
         if len(graphs) == 0:
             graphs = [self.base_graph]

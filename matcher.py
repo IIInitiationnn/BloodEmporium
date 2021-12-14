@@ -40,7 +40,7 @@ class Matcher:
                         round(width / crop_ratio):round((crop_ratio - 1) * width / crop_ratio)]
         self.debugger.set_cropped(cropped)
 
-        dim = self.res.origin_dim() # TODO some issues matching origin at different resolutions
+        dim = self.res.origin_dim()
         radius = round(dim / 2)
         for subdir, dirs, files in os.walk(Path.assets_origins):
             for file in files:

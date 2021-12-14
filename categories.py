@@ -1,3 +1,15 @@
+import sqlite3
+
+from paths import Path
+
+class Unlockable:
+    def __init__(self, unlockable_id, name, category, rarity, notes):
+        self.id = unlockable_id
+        self.name = name
+        self.category = category
+        self.rarity = rarity
+        self.notes = notes
+
 class Categories:
     categories = {
         "retired": [
@@ -19,8 +31,6 @@ class Categories:
             "iconAddon_katsumoriTalisman",      # spirit
             "iconAddon_prayersBeads",           # spirit
             "iconAddon_fathersGlasses",         # spirit
-            "iconAddon_artifactER",             # twins
-            "icons_Addon_SmashNrunGloves",      # trickster
 
             # maps
             "iconFavors_plateShredded",
@@ -64,6 +74,8 @@ class Categories:
             "iconPerks_secondWind",
         ],
         "unused": [
+            "iconAddon_artifactER",             # twins
+            "icons_Addon_SmashNrunGloves",      # trickster
             "iconAddon_sootShadowDance",        # wraith
             "iconFavors_graduationCap",
         ],
@@ -1212,6 +1224,40 @@ class Categories:
     ]
 
     @staticmethod
+    def __connection():
+        connection = None
+        try:
+            connection = sqlite3.connect(Path.assets_database)
+            print("connected to database")
+        except:
+            print(f"error")
+        return connection
+
+    @staticmethod
+    def get_unlockables():
+        connection = Categories.__connection()
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM unlockables")
+        rows = cursor.fetchall()
+
+        unlockables = [Unlockable(*row) for row in rows]
+        connection.close()
+        return unlockables
+
+    @staticmethod
+    def get_killers():
+        connection = Categories.__connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM killers")
+        rows = cursor.fetchall()
+
+        killers = [killer for killer, in rows]
+        connection.close()
+        return killers
+
+
+    @staticmethod
     def categories_as_tuples(categories=None):
-        return [(category, unlockable) for category, unlockables in Categories.categories.items()
-                for unlockable in unlockables if categories is None or category in categories]
+        return [(u.category, u.id) for u in Categories.get_unlockables()
+                if categories is None or u.category in categories]

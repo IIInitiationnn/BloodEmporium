@@ -18,6 +18,7 @@ class Path:
 
     assets = "assets"
     assets_origins = "assets/origins"
+    assets_database = "assets/data.db"
 
     @staticmethod
     def assets_file(category, unlockable):

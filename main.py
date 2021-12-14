@@ -17,7 +17,6 @@ from resolution import Resolution
 
 # TODO immediate priorities
 #   - stdout -> log
-#   - exe working
 #   - create a default config file if deleted, then when adding gui also make a function to create one from user input
 #   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
 
