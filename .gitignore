@@ -2,6 +2,7 @@
 compile.json
 main.spec
 temp.py
+cheapskate.py
 
 .idea/
 __pycache__/

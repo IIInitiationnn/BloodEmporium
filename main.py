@@ -17,6 +17,7 @@ from resolution import Resolution
 
 # TODO immediate priorities
 #   - stdout -> log
+#   - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
 #   - create a default config file if deleted, then when adding gui also make a function to create one from user input
 #   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
 
@@ -182,7 +183,7 @@ def on_press(key):
             print("thread terminated")
 
 if __name__ == '__main__':
-    freeze_support() # --onedir
+    freeze_support() # --onedir (for exe)
 
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
