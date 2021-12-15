@@ -1,4 +1,3 @@
-import sys
 import time
 from datetime import datetime
 from multiprocessing import Process, freeze_support, Event
@@ -16,49 +15,22 @@ from mergedbase import MergedBase
 from optimiser import Optimiser
 from resolution import Resolution
 
-# TODO immediate priorities
-#   - stdout -> log
-#   - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
-#       - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
-#   - create a default config file if deleted, then when adding gui also make a function to create one from user input
-#   - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
+'''
+immediate priorities
+    - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
+        - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
+    - missing p3 origin - maybe replace origin assets with https://deadbydaylight.fandom.com/wiki/Levels_%26_Prestige
+    - need to double click cos of new level
+    - create a default config file if deleted, then when adding gui also make a function to create one from user input
+    - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
 
-''' timeline
-    - [DONE] backend with algorithm
-    - [DONE] openCV icon recognition
-    - desire values from config file
-        - can have multiple profiles of desire values and can switch
+features to add
     - frontend with GUI
         - debug mode using pyvis showing matched unlockables, paths and selected nodes
-    - for higher matching accuracy, enable manual category selection in frontend
-        to only select nurse unlockables, or survivor unlockables for instance
     - icon with entity hand (like EGC) grasping a glowing shard
-    
-    - if p1, p2 or p3, stop processing
+    - if p1, p2 or p3, stop processing (config option to ignore prestige)
         - options for each prestige to continue unlocking in the bloodweb
-    
-    process:
-    1. setup
-        - using packs for which items? those which aren't need to be stored in assets
-        - calibration with resolution
-    
-    on program launch:
-    2. initialisation
-    -> merger for template matching
-    
-    3. screen capture
-    -> reads "click to continue" ? click anywhere
-    -> identify lines and circles
-        - circle: id, centre, color
-        - line: circles it joins
-        - origin
-            - if prestige, pause
-    -> matching circles to unlockable
-        - networkx graph of nodes
-    -> optimiser
-        - optimal unlockable
-    -> mouse
-        - hold on position
+    - spend certain amount of bloodpoints
     
 '''
 def main_loop(debug):
