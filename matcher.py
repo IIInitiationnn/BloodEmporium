@@ -35,7 +35,7 @@ class Matcher:
         image = self.cv_images[0].get_red()
 
         height, width = image.shape
-        crop_ratio = 3
+        crop_ratio = 2.3
         cropped = image[round(height / crop_ratio):round((crop_ratio - 1) * height / crop_ratio),
                         round(width / crop_ratio):round((crop_ratio - 1) * width / crop_ratio)]
         self.debugger.set_cropped(cropped)

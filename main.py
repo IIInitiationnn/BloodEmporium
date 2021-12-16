@@ -20,13 +20,12 @@ immediate priorities
     - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
         - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
     - tweak hough line parameters
-    - need to double click cos of new level
-    - create a default config file if deleted, then when adding gui also make a function to create one from user input
-    - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
 
 features to add
     - frontend with GUI
         - debug mode using pyvis showing matched unlockables, paths and selected nodes
+        - create config from user input
+        - sort / filter unlockables by rarity, cost, search by name etc
     - icon with entity hand (like EGC) grasping a glowing shard
     - if p1, p2 or p3, stop processing (config option to ignore prestige)
         - options for each prestige to continue unlocking in the bloodweb
@@ -95,8 +94,7 @@ def main_loop(debug):
             optimal_unlockable.set_value(9999)
             nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
 
-            # select perk
-            # hold on the perk for 0.5s
+            # select perk: hold on the perk for 0.5s
             pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
             pyautogui.mouseDown()
             time.sleep(0.25)
@@ -111,7 +109,11 @@ def main_loop(debug):
                 pyautogui.click()
                 time.sleep(0.2)
 
-            time.sleep(0.3) # time for bloodweb to update
+            # move mouse again in case it didn't the first time
+            pyautogui.moveTo(0, 0)
+
+            # time for bloodweb to update
+            time.sleep(0.3)
 
             # take new picture and update colours
             print("updating bloodweb")
@@ -129,6 +131,8 @@ def main_loop(debug):
                 print("level cleared")
                 run = False
                 time.sleep(2) # 2 sec to clear out until new level screen
+                pyautogui.click()
+                time.sleep(0.5) # in case of extra information on early level (eg. lvl 2 or lvl 5)
                 pyautogui.click()
                 time.sleep(2) # 2 secs to generate
             j += 1
