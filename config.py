@@ -1,27 +1,51 @@
 import json
 
+import os
+from shutil import copyfile
+
+from exceptions import ConfigError
 from resolution import Resolution
 
 
 class Config:
     def __init__(self):
-        # TODO if config file does not exist
+        if not os.path.isfile("config.json"):
+            copyfile("assets/default_config.json", "config.json")
+
         with open("config.json") as f:
             self.config = dict(json.load(f))
 
-        keys = [
-            "resolution",
-            "capture",
-            "path",
-            "character",
-            "active_profile",
-            "profiles",
-        ]
-
         # ensure all parameters are legal
-        if not all([k in keys for k in self.config.keys()]):
-            pass # TODO add to config as default config
+        if "resolution" not in self.config.keys():
+            raise ConfigError("Missing resolution in config.json")
+        if "width" not in self.config["resolution"].keys():
+            raise ConfigError("Missing resolution width in config.json")
+        if "height" not in self.config["resolution"].keys():
+            raise ConfigError("Missing resolution height in config.json")
+        if "ui_scale" not in self.config["resolution"].keys():
+            raise ConfigError("Missing resolution UI scale in config.json")
 
+        if "path" not in self.config.keys():
+            raise ConfigError("Missing path in config.json")
+
+        if "character" not in self.config.keys():
+            raise ConfigError("Missing character in config.json")
+
+        if "active_profile" not in self.config.keys():
+            raise ConfigError("Missing active profile in config.json")
+
+        if "profiles" not in self.config.keys():
+            raise ConfigError("Missing profiles in config.json")
+
+        for num, profile in enumerate(self.config["profiles"], 1):
+            if "id" not in profile.keys():
+                raise ConfigError(f"Missing profile id for profile {num} in config.json")
+            for unlockable, v in profile.items():
+                if unlockable != "id":
+                    if "tier" not in v:
+                        raise ConfigError(f"Missing tier for unlockable {unlockable} under profile {profile['id']} in config.json")
+                    if "subtier" not in v:
+                        raise ConfigError(f"Missing subtier for unlockable {unlockable} under profile {profile['id']} in config.json")
 
     def resolution(self):
         return Resolution(self.config["resolution"]["width"],
