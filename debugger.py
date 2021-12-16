@@ -22,8 +22,10 @@ class Debugger:
         if self.write_to_output:
             if not os.path.isdir(f"output/{self.time}"):
                 os.mkdir(f"output/{self.time}")
+            if not os.path.isdir(f"output/{self.time}/{i}"):
+                os.mkdir(f"output/{self.time}/{i}")
             for j in range(len(self.cv_images)):
-                cv2.imwrite(f"output/{self.time}/initial_image_{i}_{j}.png", self.cv_images[j].get_bgr())
+                cv2.imwrite(f"output/{self.time}/{i}/initial_image_{j}.png", self.cv_images[j].get_bgr())
 
     # merger
     def set_merger(self, merger):
@@ -54,7 +56,7 @@ class Debugger:
         self.edge_images.append(edges)
         if self.write_to_output:
             index = len(self.edge_images) - 1
-            cv2.imwrite(f"output/{self.time}/edges_{self.i}_{index}.png", self.edge_images[index])
+            cv2.imwrite(f"output/{self.time}/{self.i}/edges_{index}.png", self.edge_images[index])
 
     def add_line(self, num, line):
         if self.all_lines.get(num) is None:
@@ -67,19 +69,19 @@ class Debugger:
     # grapher
     def set_base_bloodweb(self, base_bloodweb):
         if self.write_to_output:
-            NetworkUtil.write_to_html(base_bloodweb, f"output/{self.time}/base_bloodweb_{self.i}.png")
+            NetworkUtil.write_to_html(base_bloodweb, f"output/{self.time}/{self.i}/base_bloodweb.png")
         return self
 
     # optimiser
     def set_dijkstra(self, dijkstra_graph, j):
         if self.write_to_output:
-            NetworkUtil.write_to_html(dijkstra_graph, f"output/{self.time}/dijkstra_{self.i}_{j}.png")
+            NetworkUtil.write_to_html(dijkstra_graph, f"output/{self.time}/{self.i}/dijkstra_{j}.png")
         return self
 
     # updated image
     def add_updated_image(self, updated_image, j):
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/updated_image_{self.i}_{j}.png", updated_image)
+            cv2.imwrite(f"output/{self.time}/{self.i}/updated_image_{j}.png", updated_image)
         return self
 
     def show_images(self):

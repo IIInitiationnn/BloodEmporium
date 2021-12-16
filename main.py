@@ -20,7 +20,6 @@ immediate priorities
     - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
         - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
     - tweak hough line parameters
-    - change output to folders for each iteration
     - need to double click cos of new level
     - create a default config file if deleted, then when adding gui also make a function to create one from user input
     - search perks / addons on GUI, sort by categories like character, rarity (may need unlockable class)
