@@ -39,3 +39,6 @@ A program to automatically level the Bloodweb in the game Dead by Daylight.
 - Configuration for:
   - Hotkeys
   - Pausing the program when a player can prestige (reaching level 50)
+
+### Credits
+Icons taken from [The Noun Project](https://thenounproject.com/).
