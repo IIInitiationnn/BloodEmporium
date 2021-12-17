@@ -6,7 +6,7 @@
     },
     "path": "C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons",
     "character": "survivor",
-    "active_profile": "default",
+    "active_profile": "initiation",
     "profiles": [
         {
             "id": "default",
@@ -98,15 +98,15 @@
         {
             "id": "initiation",
             "iconFavors_bloodyPartyStreamers": {
-                "tier": 5,
+                "tier": 8,
                 "subtier": 4
             },
             "iconFavors_survivorPudding": {
-                "tier": 5,
+                "tier": 8,
                 "subtier": 3
             },
             "iconFavors_escapeCake": {
-                "tier": 5,
+                "tier": 8,
                 "subtier": 3
             },
             "iconFavors_hollowShell": {

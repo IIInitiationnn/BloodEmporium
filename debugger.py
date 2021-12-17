@@ -69,13 +69,13 @@ class Debugger:
     # grapher
     def set_base_bloodweb(self, base_bloodweb):
         if self.write_to_output:
-            NetworkUtil.write_to_html(base_bloodweb, f"output/{self.time}/{self.i}/base_bloodweb.png")
+            NetworkUtil.write_to_html(base_bloodweb, f"output/{self.time}/{self.i}/base_bloodweb")
         return self
 
     # optimiser
     def set_dijkstra(self, dijkstra_graph, j):
         if self.write_to_output:
-            NetworkUtil.write_to_html(dijkstra_graph, f"output/{self.time}/{self.i}/dijkstra_{j}.png")
+            NetworkUtil.write_to_html(dijkstra_graph, f"output/{self.time}/{self.i}/dijkstra_{j}")
         return self
 
     # updated image
