@@ -135,13 +135,12 @@ class MainWindow(QMainWindow):
         self.move(self.pos() + dpos) # TODO fix when dragging from maximized
 
     def animate(self):
-        # TODO
-        animation = QPropertyAnimation(self.leftMenu, b"minimumWidth")
-        animation.setDuration(500)
-        animation.setEasingCurve(QEasingCurve.InOutQuart)
-        animation.setStartValue(70 if self.leftMenu.width() == 250 else 250)
-        animation.setEndValue(250 if self.leftMenu.width() == 250 else 70)
-        animation.start()
+        self.animation = QPropertyAnimation(self.leftMenu, b"minimumWidth")
+        self.animation.setDuration(500)
+        self.animation.setStartValue(self.leftMenu.width())
+        self.animation.setEndValue(70 if self.leftMenu.width() == 250 else 250)
+        self.animation.setEasingCurve(QEasingCurve.InOutQuart)
+        self.animation.start()
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -283,6 +282,8 @@ class MainWindow(QMainWindow):
         self.homeButton.setObjectName("homeButton")
         self.preferencesButton = LeftMenuButton(QIcon(Icons.preferences), self.leftMenu)
         self.preferencesButton.setObjectName("preferencesButton")
+        self.bloodwebButton = LeftMenuButton(QIcon(Icons.bloodweb), self.leftMenu)
+        self.bloodwebButton.setObjectName("bloodwebButton")
 
         # settings button
         self.settingsButton = LeftMenuButton(QIcon(Icons.settings), self.menuColumn)
@@ -389,11 +390,12 @@ class MainWindow(QMainWindow):
 
         '''
         menuColumn
-            -> 3 buttons
+            -> 4 buttons
         '''
         self.menuColumnLayout.addWidget(self.toggleButton)
         self.menuColumnLayout.addWidget(self.homeButton)
         self.menuColumnLayout.addWidget(self.preferencesButton)
+        self.menuColumnLayout.addWidget(self.bloodwebButton)
 
         '''
         bottomBar
@@ -416,6 +418,7 @@ class Icons:
     home = __base + "/icon_home.png"
     preferences = __base + "/icon_preferences.png"
     settings = __base + "/icon_settings.png"
+    bloodweb = __base + "/icon_graph.png"
 
 if __name__ == "__main__":
     app = QApplication([])
