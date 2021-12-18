@@ -83,6 +83,7 @@ class LeftMenuButton(QPushButton):
     style_sheet = '''
         QPushButton {
             background-color: rgba(0, 0, 0, 0);
+            padding: 0 90 0 -90;
         }
         QPushButton:hover {
             background-color: rgb(40, 44, 52);
@@ -95,8 +96,8 @@ class LeftMenuButton(QPushButton):
 
     def __init__(self, icon, parent, style_sheet=style_sheet):
         QPushButton.__init__(self, parent)
-        self.setMinimumSize(QSize(70, 60))
-        self.setBaseSize(QSize(70, 60))
+        self.setMinimumSize(QSize(250, 60))
+        self.setBaseSize(QSize(250, 60))
         self.setMaximumSize(QSize(250, 60))
         self.setStyleSheet(style_sheet)
         self.setIconSize(QSize(30, 30))
@@ -134,12 +135,12 @@ class MainWindow(QMainWindow):
         self.move(self.pos() + dpos) # TODO fix when dragging from maximized
 
     def animate(self):
-        # TODO expand width
-        animation = QPropertyAnimation(self.leftMenu, b"size")
-        animation.setEasingCurve(QEasingCurve.InOutQuint)
+        # TODO
+        animation = QPropertyAnimation(self.leftMenu, b"minimumWidth")
         animation.setDuration(500)
-        animation.setStartValue(QSize(70, 500) if self.leftMenu.width() == 250 else QSize(250, 500))
-        animation.setEndValue(QSize(250, 500) if self.leftMenu.width() == 250 else QSize(70, 500))
+        animation.setEasingCurve(QEasingCurve.InOutQuart)
+        animation.setStartValue(70 if self.leftMenu.width() == 250 else 250)
+        animation.setEndValue(250 if self.leftMenu.width() == 250 else 70)
         animation.start()
 
     def __init__(self):
@@ -151,8 +152,8 @@ class MainWindow(QMainWindow):
         # self.ui.setupUi(self)
         # widgets = self.ui
 
-        self.setWindowFlag(Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        # self.setWindowFlag(Qt.FramelessWindowHint)
+        # self.setAttribute(Qt.WA_TranslucentBackground)
 
 
         self.resize(1000, 580)
@@ -255,7 +256,8 @@ class MainWindow(QMainWindow):
         # left menu
         self.leftMenu = QFrame(self.content)
         self.leftMenu.setObjectName("leftMenu")
-        self.leftMenu.setBaseSize(QSize(70, 60))
+        self.leftMenu.setMinimumWidth(70)
+        self.leftMenu.setMaximumWidth(70)
         self.leftMenu.setStyleSheet('''
             QFrame#leftMenu {
                 background-color: rgb(33, 37, 43);
@@ -309,9 +311,20 @@ class MainWindow(QMainWindow):
 
         self.bottomBarLayout = QHBoxLayout(self.bottomBar)
         self.bottomBarLayout.setObjectName("bottomBarLayout")
-        self.bottomBarLayout.setContentsMargins(5, 0, 5, 0)
+        self.bottomBarLayout.setContentsMargins(10, 0, 10, 0)
 
-        # LAYOUTS
+        self.authorLabel = QLabel(self.bottomBar)
+        self.authorLabel.setObjectName("authorLabel")
+        self.authorLabel.setFont(Font(8))
+        self.authorLabel.setStyleSheet("color: rgb(255, 255, 255);")
+        self.authorLabel.setText("Made by IIInitiationnn")
+
+        self.versionLabel = QLabel(self.bottomBar)
+        self.versionLabel.setObjectName("versionLabel")
+        self.versionLabel.setFont(Font(8))
+        self.versionLabel.setStyleSheet("color: rgb(255, 255, 255);")
+        self.versionLabel.setText("v0.1.1") # TODO get from backend
+
 
         '''
         central
@@ -363,7 +376,7 @@ class MainWindow(QMainWindow):
         self.contentLayout.addWidget(self.contentPages, 0, 1, 1, 1)
         self.contentLayout.addWidget(self.bottomBar, 1, 1, 1, 1)
         self.contentLayout.setRowStretch(0, 1) # stretch contentPages down as much as possible (pushing down on bottomBar)
-        self.contentLayout.setColumnStretch(1, 1) # stretch contentPages and bottomBar on the leftMenu
+        # self.contentLayout.setColumnStretch(1, 1) # stretch contentPages and bottomBar on the leftMenu
 
 
         '''
@@ -382,57 +395,14 @@ class MainWindow(QMainWindow):
         self.menuColumnLayout.addWidget(self.homeButton)
         self.menuColumnLayout.addWidget(self.preferencesButton)
 
-
-
-
         '''
-
-        self.authorLabel = QtWidgets.QLabel(self.bottomBar)
-        font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        self.authorLabel.setFont(font)
-        self.authorLabel.setStyleSheet("color: rgb(255, 255, 255);")
-        self.authorLabel.setObjectName("authorLabel")
+        bottomBar
+            -> authorLabel
+            -> versionLabel
+        '''
         self.bottomBarLayout.addWidget(self.authorLabel)
-        self.versionLabel = QtWidgets.QLabel(self.bottomBar)
-        font = QtGui.QFont()
-        font.setFamily("Segoe UI")
-        self.versionLabel.setFont(font)
-        self.versionLabel.setStyleSheet("color: rgb(255, 255, 255);")
-        self.versionLabel.setObjectName("versionLabel")
         self.bottomBarLayout.addWidget(self.versionLabel)
-        self.contentLayout.addWidget(self.bottomBar, 1, 1, 1, 1, QtCore.Qt.AlignRight|QtCore.Qt.AlignBottom)
-)
-        self.topBar = QtWidgets.QFrame(self.background)
-        self.topBar.setMaximumSize(QtCore.QSize(16777215, 60))
-        self.topBar.setStyleSheet("QFrame#topBar {\n"
-"    background-color: rgb(33, 37, 43);\n"
-"}")
-        self.topBar.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.topBar.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.topBar.setObjectName("topBar")
-
-        
-        
-        
-        self.topBarLayout.addWidget(self.titleBar, 1, 1, 1, 1, QtCore.Qt.AlignLeft)
-
-        self.backgroundLayout.addWidget(self.topBar, 0, 0, 1, 1)
-        self.centralLayout.addWidget(self.background)
-        main.setCentralWidget(self.centralWidget)
-
-        self.retranslateUi(main)
-        QtCore.QMetaObject.connectSlotsByName(main)
-
-
-
-
-
-
-
-        '''
-
-
+        self.bottomBarLayout.setStretch(0, 1)
 
         self.show()
 
