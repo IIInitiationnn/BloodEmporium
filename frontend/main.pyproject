@@ -1,3 +1,0 @@
-{
-    "files": ["qml/controls/ToggleButton.qml","qml/controls/TopBarButton.qml","main.qml","main.py","qml/controls/LeftMenuButton.qml"]
-}
