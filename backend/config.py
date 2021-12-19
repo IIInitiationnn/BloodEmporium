@@ -37,9 +37,14 @@ class Config:
         if "profiles" not in self.config.keys():
             raise ConfigError("Missing profiles in config.json")
 
+        ids = []
         for num, profile in enumerate(self.config["profiles"], 1):
             if "id" not in profile.keys():
                 raise ConfigError(f"Missing profile id for profile {num} in config.json")
+            if profile["id"] in ids:
+                raise ConfigError(f"Multiple profiles with same id (profile {num}) in config.json")
+
+            ids.append(profile["id"])
             for unlockable, v in profile.items():
                 if unlockable != "id":
                     if "tier" not in v:
@@ -72,3 +77,6 @@ class Config:
     def preference(self, unlockable):
         p = self.active_profile().get(unlockable, {})
         return p.get("tier", 0), p.get("subtier", 0)
+
+    def profile_names(self):
+        return [profile["id"] for profile in self.__profiles()]

@@ -4,9 +4,19 @@ import sys
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QMouseEvent, QColor, QKeySequence
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QSizePolicy, QSpacerItem
+    QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QSizePolicy, QSpacerItem, QComboBox, QListView, \
+    QScrollArea, QScrollBar
 
-from base import Ui_main
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
+
+from backend.config import Config
+
+debug_style_sheet = '''
+    background-color: rgb(40, 44, 52);
+    border: 5px solid black;
+'''
+
 
 class Font(QFont):
     def __init__(self, font_size):
@@ -16,7 +26,7 @@ class Font(QFont):
 
 class TopBar(QFrame):
     style_sheet = '''
-        QFrame {
+        QFrame#topBar {
             background-color: rgb(33, 37, 43);
         }'''
 
@@ -29,7 +39,7 @@ class TopBar(QFrame):
 class TopBarButton(QPushButton):
     style_sheet = '''
         QPushButton {
-            background-color: rgba(0, 0, 0, 0);
+            background-color: transparent;
             border-radius: 5;
         }
         QPushButton:hover {
@@ -62,12 +72,6 @@ class TitleBar(QWidget):
         self.setMinimumHeight(60)
         self.onDoubleClick = on_double_click
         self.onDrag = on_drag
-        # self.setStyleSheet('''
-        #     background-color: rgb(40, 44, 52);
-        #     border-width: 5;
-        #     border-style: solid;
-        #     border-color: rgb(0, 0, 0);
-        # ''') # for debugging to see the region it occupies
 
     def mouseDoubleClickEvent(self, event):
         self.onDoubleClick()
@@ -87,7 +91,7 @@ class LeftMenuButton(QPushButton):
 
     inactive_style_sheet = f'''
         QPushButton {{
-            background-color: rgba(0, 0, 0, 0);
+            background-color: transparent;
             padding: 0 {padding} 0 -{padding};
             border: none;
         }}
@@ -192,7 +196,7 @@ class HomePageLabel(QLabel):
 class PageButton(QPushButton):
     style_sheet = '''
         QPushButton {
-            background-color: rgba(0, 0, 0, 0);
+            background-color: transparent;
             border: none;
             border-radius: 5;
         }
@@ -257,6 +261,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         QMainWindow.__init__(self)
+        config = Config()
         # TODO windows up + windows down; resize areas; cursor when hovering over buttons
 
         self.is_maximized = False
@@ -318,7 +323,7 @@ class MainWindow(QMainWindow):
         # icon
         self.icon = QLabel(self.topBar)
         self.icon.setFixedSize(QSize(60, 60))
-        self.icon.setPixmap(QPixmap(os.getcwd() + "/images/inspo1.png"))
+        self.icon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.icon))
         self.icon.setScaledContents(True)
         self.icon.setObjectName("icon")
 
@@ -360,14 +365,6 @@ class MainWindow(QMainWindow):
         # content
         self.content = QFrame(self.background)
         self.content.setObjectName("content")
-        # self.content.setStyleSheet('''
-        #     QFrame#content {
-        #         background-color: rgb(40, 44, 52);
-        #         border-width: 10;
-        #         border-style: solid;
-        #         border-color: rgb(0, 0, 0);
-        #     }
-        # ''') # for debugging to see the region it occupies
 
         self.contentLayout = QGridLayout(self.content)
         self.contentLayout.setObjectName("contentLayout")
@@ -441,14 +438,6 @@ class MainWindow(QMainWindow):
         # content pages
         self.contentPages = QFrame(self.content)
         self.contentPages.setObjectName("contentPages")
-        # self.contentPages.setStyleSheet('''
-        #     QFrame#contentPages {
-        #         background-color: rgb(40, 44, 52);
-        #         border-width: 5;
-        #         border-style: solid;
-        #         border-color: rgb(50, 50, 50);
-        #     }
-        # ''') # for debugging to see the region it occupies
 
         self.contentPagesLayout = QGridLayout(self.contentPages)
         self.contentPagesLayout.setObjectName("contentPagesLayout")
@@ -458,7 +447,7 @@ class MainWindow(QMainWindow):
         # stack
         self.stack = QStackedWidget(self.contentPages)
         self.stack.setObjectName("stack")
-        self.stack.setStyleSheet("background: transparent;")
+        self.stack.setStyleSheet("QStackedWidget#stack {background: transparent;}")
 
         # stack: homePage
         self.homePage = QWidget()
@@ -497,39 +486,130 @@ class MainWindow(QMainWindow):
         self.homePageLabel3 = HomePageLabel(self.homePageRow3, "Ready? Start clearing your bloodweb!")
         self.homePageLabel3.setObjectName("homePageLabel3")
 
-        # self.homePageLabel1.setStyleSheet('''
-        #     background-color: rgb(40, 44, 52);
-        #     border-width: 5;
-        #     border-style: solid;
-        #     border-color: rgb(0, 0, 0);
-        # ''') # for debugging to see the region it occupies
-        # self.homePageButton1.setStyleSheet('''
-        #     background-color: rgb(40, 44, 52);
-        #     border-width: 5;
-        #     border-style: solid;
-        #     border-color: rgb(0, 0, 0);
-        # ''') # for debugging to see the region it occupies
-
-        self.stack.addWidget(self.homePage)
-        self.stack.setCurrentWidget(self.homePage)
-
         # stack: preferencesPage
         self.preferencesPage = QWidget()
         self.preferencesPage.setObjectName("preferencesPage")
         self.preferencesButton.setPage(self.preferencesPage)
-        self.stack.addWidget(self.preferencesPage)
+
+        self.preferencesPageLayout = QGridLayout(self.preferencesPage)
+        self.preferencesPageLayout.setObjectName("preferencesPageLayout")
+        self.preferencesPageLayout.setContentsMargins(25, 25, 25, 25)
+        self.preferencesPageLayout.setSpacing(0)
+
+        self.preferencesPageScrollBar = QScrollBar(self.preferencesPage)
+        self.preferencesPageScrollBar.setObjectName("preferencesPageScrollBar")
+        self.preferencesPageScrollBar.setOrientation(Qt.Vertical)
+        self.preferencesPageScrollBar.setStyleSheet('''
+            QScrollBar:vertical {
+                background: rgb(52, 59, 72);
+                width: 8px;
+                border: 0px solid white;
+                border-radius: 4px;
+            }
+            
+            QScrollBar::handle:vertical {	
+                background: rgb(189, 147, 249);
+                min-height: 100px;
+                border-radius: 4px;
+            }
+            
+            QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: none;
+            }
+            
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                border: none;
+            }''')
+
+        self.preferencesPageScrollArea = QScrollArea(self.preferencesPage)
+        self.preferencesPageScrollArea.setObjectName("preferencesPageScrollArea")
+        self.preferencesPageScrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.preferencesPageScrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.preferencesPageScrollArea.setVerticalScrollBar(self.preferencesPageScrollBar)
+        self.preferencesPageScrollArea.setWidgetResizable(True)
+        self.preferencesPageScrollArea.setStyleSheet('''
+            QScrollArea#preferencesPageScrollArea {
+                background: transparent;
+                border: 0px;
+            }''')
+
+        self.preferencesPageScrollAreaContent = QWidget(self.preferencesPageScrollArea)
+        self.preferencesPageScrollAreaContent.setObjectName("preferencesPageScrollAreaContent")
+        self.preferencesPageScrollAreaContent.setStyleSheet('''
+            QWidget#preferencesPageScrollAreaContent {
+                background: transparent;
+            }''')
+        self.preferencesPageScrollArea.setWidget(self.preferencesPageScrollAreaContent)
+
+        self.preferencesPageScrollAreaContentLayout = QGridLayout(self.preferencesPageScrollAreaContent)
+        self.preferencesPageScrollAreaContentLayout.setObjectName("preferencesPageScrollAreaContentLayout")
+        self.preferencesPageScrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
+        self.preferencesPageScrollAreaContentLayout.setSpacing(10)
+
+        self.preferencesPageProfileLabel = QLabel(self.preferencesPageScrollAreaContent)
+        self.preferencesPageProfileLabel.setObjectName("preferencesPageProfileLabel")
+        self.preferencesPageProfileLabel.setFont(Font(11))
+        self.preferencesPageProfileLabel.setText("Profile")
+        self.preferencesPageProfileLabel.setStyleSheet("QLabel#preferencesPageProfileLabel {color: rgb(255, 255, 255);}")
+
+        self.preferencesPageProfileView = QListView()
+        self.preferencesPageProfileView.setFont(Font(8))
+        self.preferencesPageProfileSelector = QComboBox(self.preferencesPageScrollAreaContent)
+        self.preferencesPageProfileSelector.setObjectName("preferencesPageProfileSelector")
+        self.preferencesPageProfileSelector.setFont(Font(10))
+        self.preferencesPageProfileSelector.setFixedSize(150, 40)
+        self.preferencesPageProfileSelector.addItems(config.profile_names())
+        self.preferencesPageProfileSelector.setView(self.preferencesPageProfileView)
+        self.preferencesPageProfileSelector.setStyleSheet('''
+            QComboBox {
+                background-color: rgb(33, 37, 43);
+                color: rgb(255, 255, 255);
+                border-radius: 5px;
+                border: 2px solid rgba(0, 0, 0, 0);
+                padding-left: 10px;
+            }
+            
+            QComboBox:hover {
+                border: 2px solid rgb(47, 52, 61);
+            }
+            
+            QComboBox::drop-down {
+                width: 30px;
+                border: transparent;
+            }
+            
+            QComboBox::down-arrow {
+                image: url("assets/images/icons/icon_down_arrow.png");
+                width: 15;
+                height: 15;
+            }
+            
+            QComboBox QAbstractItemView {
+                outline: 0px;
+                color: rgb(189, 147, 249);
+                background-color: rgb(33, 37, 43);
+                padding: 10px 0px 10px 10px;
+            }
+            
+            QComboBox QAbstractItemView::item {
+                min-height: 25px;
+            }
+            
+            QListView::item:selected {
+                color: rgb(255, 255, 255);
+                background-color: rgb(39, 44, 54);
+            }''')
+
 
         # stack: bloodwebPage
         self.bloodwebPage = QWidget()
         self.bloodwebPage.setObjectName("bloodwebPage")
         self.bloodwebButton.setPage(self.bloodwebPage)
-        self.stack.addWidget(self.bloodwebPage)
 
         # stack: settingsPage
         self.settingsPage = QWidget()
         self.settingsPage.setObjectName("settingsPage")
         self.settingsButton.setPage(self.settingsPage)
-        self.stack.addWidget(self.settingsPage)
 
         # bottom bar
         self.bottomBar = QFrame(self.content)
@@ -638,12 +718,22 @@ class MainWindow(QMainWindow):
         '''
         contentPage
             -> stack
-                -> homePage
-                -> preferencesPage
-                -> bloodwebPage
-                -> settingsPage
+                
         '''
         self.contentPagesLayout.addWidget(self.stack, 0, 0, 1, 1)
+
+        '''
+        stack
+            -> homePage
+            -> preferencesPage
+            -> bloodwebPage
+            -> settingsPage
+        '''
+        self.stack.addWidget(self.homePage)
+        self.stack.addWidget(self.preferencesPage)
+        self.stack.addWidget(self.bloodwebPage)
+        self.stack.addWidget(self.settingsPage)
+        self.stack.setCurrentWidget(self.homePage)
 
         '''
         homePage
@@ -678,13 +768,30 @@ class MainWindow(QMainWindow):
 
         self.homePageLayout.addStretch(1)
 
+        '''
+        preferencesPage
+            -> scrollArea
+                -> scrollAreaContent (widget)
+                    -> labels, combobox, everything
+            -> scrollBar
+        '''
+        self.preferencesPageLayout.addWidget(self.preferencesPageScrollArea, 0, 0, 1, 1)
+        self.preferencesPageLayout.addWidget(self.preferencesPageScrollBar, 0, 1, 1, 1)
+        self.preferencesPageLayout.setRowStretch(0, 1)
+        self.preferencesPageLayout.setColumnStretch(0, 1)
+
+        self.preferencesPageScrollAreaContentLayout.addWidget(self.preferencesPageProfileLabel, 0, 0, 1, 1)
+        self.preferencesPageScrollAreaContentLayout.addWidget(self.preferencesPageProfileSelector, 1, 0, 1, 1)
+
+        self.preferencesPageScrollAreaContentLayout.setColumnStretch(1, 1)
+        self.preferencesPageScrollAreaContentLayout.setRowStretch(2, 1)
 
 
         self.show()
 
 class Icons:
-    __base = "images/icons"
-    icon = "images/inspo1.png"
+    __base = "assets/images/icons"
+    icon = "assets/images/inspo1.png"
     minimize = __base + "/icon_minimize.png"
     restore = __base + "/icon_restore.png"
     maximize = __base + "/icon_maximize.png"
@@ -696,6 +803,11 @@ class Icons:
     bloodweb = __base + "/icon_graph.png"
 
 if __name__ == "__main__":
+    os.environ["QT_DEVICE_PIXEL_RATIO"] = "0"
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
+    os.environ["QT_SCALE_FACTOR"] = "1"
+
     app = QApplication([])
     window = MainWindow()
     sys.exit(app.exec_())

@@ -98,15 +98,15 @@
         {
             "id": "initiation",
             "iconFavors_bloodyPartyStreamers": {
-                "tier": 5,
+                "tier": 8,
                 "subtier": 4
             },
             "iconFavors_survivorPudding": {
-                "tier": 5,
+                "tier": 8,
                 "subtier": 3
             },
             "iconFavors_escapeCake": {
-                "tier": 5,
+                "tier": 8,
                 "subtier": 3
             },
             "iconFavors_hollowShell": {
