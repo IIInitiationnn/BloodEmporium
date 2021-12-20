@@ -32,8 +32,9 @@ class MergedBase:
         self.res = res
         self.full_dim = round(1 + self.res.mystery_box())
 
-        path = Config().path() # user's default folder for icons; could be custom icons
-        all_files = [(subdir, file) for subdir, dirs, files in os.walk(path) for file in files]
+        image_paths = [unlockable.image_path for unlockable in Data.get_unlockables() if unlockable.category in categories]
+
+        '''all_files = [(subdir, file) for subdir, dirs, files in os.walk(path) for file in files]
         image_paths = []
         for category, unlockable in Data.categories_as_tuples(categories):
             # search in user's folder
@@ -51,7 +52,7 @@ class MergedBase:
             if os.path.isfile(asset_path):
                 image_paths.append(os.path.abspath(asset_path))
             else:
-                print(f"no source found for desired unlockable: {unlockable} under category: {category}")
+                print(f"no source found for desired unlockable: {unlockable} under category: {category}")'''
 
         valid_names, valid_images = self.__get_valid_images(image_paths)
 
@@ -62,8 +63,7 @@ class MergedBase:
         ret_names = []
         ret_images = []
         for file in image_paths:
-            # TODO image_name, file etc. needs to be correct slashes
-            image_name = file.split("/")[-1]
+            image_name = file.split("\\")[-1]
 
             if "mysteryBox" in image_name:
                 dim = self.res.mystery_box()
@@ -95,7 +95,7 @@ class MergedBase:
             border2 = math.ceil((self.full_dim - dim) / 2)
             template = cv2.copyMakeBorder(template, border1, border2, border1, border2, cv2.BORDER_CONSTANT, value=0)
 
-            ret_names.append(file.split("\\")[-1])
+            ret_names.append(image_name)
             ret_images.append(template)
 
         """for subdir, dirs, files in os.walk(path):

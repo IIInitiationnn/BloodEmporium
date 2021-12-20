@@ -5,18 +5,24 @@ from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QMouseEvent, QColor, QKeySequence
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QSizePolicy, QSpacerItem, QComboBox, QListView, \
-    QScrollArea, QScrollBar
+    QScrollArea, QScrollBar, QCheckBox
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 from backend.config import Config
+from backend.data import Data, Unlockable
 
 debug_style_sheet = '''
     background-color: rgb(40, 44, 52);
     border: 5px solid black;
 '''
 
+'''
+pink: rgb(255, 121, 198)
+purple: rgb(189, 147, 249)
+
+
+'''
 
 class Font(QFont):
     def __init__(self, font_size):
@@ -221,6 +227,82 @@ class PageButton(QPushButton):
 
         self.clicked.connect(on_click)
 
+class SaveButton(QPushButton):
+    def __init__(self, parent, object_name, text, size: QSize):
+        QPushButton.__init__(self, parent)
+        self.setObjectName(object_name)
+        self.setFixedSize(size)
+        self.setFont(Font(10))
+        self.setText(text)
+        self.setStyleSheet(f'''
+            QPushButton {{
+                color: rgb(255, 255, 255);
+                background-color: rgb(56, 62, 73);
+                border: none;
+                border-radius: 5px;
+            }}
+            QPushButton:hover {{
+                background-color: rgb(94, 104, 122);
+                border: none;
+            }}
+            QPushButton:pressed {{
+                background-color: rgb(139, 158, 194);
+                border: none;
+            }}''')
+
+class CheckBox(QCheckBox):
+    def __init__(self, parent, object_name):
+        QCheckBox.__init__(self, parent)
+        self.setObjectName(object_name)
+        self.setAutoFillBackground(False)
+        self.setStyleSheet(f'''
+            QCheckBox::indicator {{
+                width: 15px;
+                height: 15px;
+                border: 3px solid rgb(94, 104, 122);
+                border-radius: 5px;
+            }}
+            
+            QCheckBox::indicator:unchecked:hover {{
+                border: 3px solid rgb(139, 158, 194);
+            }}
+            
+            QCheckBox::indicator:checked {{
+                background: rgb(94, 104, 122);
+            }}''')
+
+class UnlockableWidget(QWidget):
+    def __init__(self, parent, unlockable: Unlockable):
+        # TODO also add check box to the left, name to the right, tier to the right of that then subtier
+        name = "".join([i for i in unlockable.name if i.isalpha() or i == " "]).title().replace(" ", "")
+        name = name[0].lower() + name[1:]
+
+        QWidget.__init__(self, parent)
+        self.setObjectName(f"{name}Widget")
+
+        self.layout = QGridLayout(self)
+        self.layout.setObjectName(f"{name}Layout")
+        self.layout.setContentsMargins(25, 0, 0, 0)
+        self.layout.setSpacing(15)
+
+        self.checkBox = CheckBox(self, f"{name}CheckBox")
+        self.checkBox.setFixedSize(25, 25)
+        self.layout.addWidget(self.checkBox, 0, 0, 1, 1)
+
+        self.image = QLabel(self)
+        self.image.setObjectName(f"{name}Image")
+        self.image.setFixedSize(QSize(75, 75))
+        self.image.setPixmap(QPixmap(unlockable.image_path))
+        self.image.setScaledContents(True)
+        self.layout.addWidget(self.image, 0, 1, 1, 1)
+
+        self.label = QLabel(self)
+        self.label.setObjectName(f"{name}Label")
+        self.label.setFont(Font(10))
+        self.label.setStyleSheet("color: rgb(255, 255, 255);")
+        self.label.setText(unlockable.name)
+        self.layout.addWidget(self.label, 0, 2, 1, 1)
+
 class MainWindow(QMainWindow):
     def minimize(self):
         self.showMinimized()
@@ -266,10 +348,6 @@ class MainWindow(QMainWindow):
 
         self.is_maximized = False
 
-        # self.ui = Ui_main()
-        # self.ui.setupUi(self)
-        # widgets = self.ui
-
         # self.setWindowFlag(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
 
@@ -302,9 +380,9 @@ class MainWindow(QMainWindow):
                 border-color: rgb(58, 64, 76);
             }''')
         self.shadow = QGraphicsDropShadowEffect(self)
-        self.shadow.setBlurRadius(15)
+        self.shadow.setBlurRadius(10)
         self.shadow.setOffset(0, 0)
-        self.shadow.setColor(QColor(0, 0, 0, 150))
+        self.shadow.setColor(QColor(0, 0, 0, 200))
         self.background.setGraphicsEffect(self.shadow)
 
         self.backgroundLayout = QGridLayout(self.background)
@@ -322,10 +400,10 @@ class MainWindow(QMainWindow):
 
         # icon
         self.icon = QLabel(self.topBar)
+        self.icon.setObjectName("icon")
         self.icon.setFixedSize(QSize(60, 60))
         self.icon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.icon))
         self.icon.setScaledContents(True)
-        self.icon.setObjectName("icon")
 
         # title bar
         self.titleBar = TitleBar(self.topBar, self.maximize_restore, self.drag)
@@ -509,7 +587,7 @@ class MainWindow(QMainWindow):
             
             QScrollBar::handle:vertical {	
                 background: rgb(189, 147, 249);
-                min-height: 100px;
+                min-height: 25px;
                 border-radius: 4px;
             }
             
@@ -541,20 +619,27 @@ class MainWindow(QMainWindow):
             }''')
         self.preferencesPageScrollArea.setWidget(self.preferencesPageScrollAreaContent)
 
-        self.preferencesPageScrollAreaContentLayout = QGridLayout(self.preferencesPageScrollAreaContent)
+        self.preferencesPageScrollAreaContentLayout = QVBoxLayout(self.preferencesPageScrollAreaContent)
         self.preferencesPageScrollAreaContentLayout.setObjectName("preferencesPageScrollAreaContentLayout")
         self.preferencesPageScrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
-        self.preferencesPageScrollAreaContentLayout.setSpacing(10)
+        self.preferencesPageScrollAreaContentLayout.setSpacing(15)
 
         self.preferencesPageProfileLabel = QLabel(self.preferencesPageScrollAreaContent)
         self.preferencesPageProfileLabel.setObjectName("preferencesPageProfileLabel")
+        self.preferencesPageProfileLabel.setMaximumWidth(80)
         self.preferencesPageProfileLabel.setFont(Font(11))
         self.preferencesPageProfileLabel.setText("Profile")
         self.preferencesPageProfileLabel.setStyleSheet("QLabel#preferencesPageProfileLabel {color: rgb(255, 255, 255);}")
 
+        self.preferencesPageProfileRowWidget = QWidget(self.preferencesPageScrollAreaContent)
+        self.preferencesPageProfileRowWidget.setObjectName("preferencesPageProfileRowWidget")
+        self.preferencesPageProfileRowWidgetLayout = QHBoxLayout(self.preferencesPageProfileRowWidget)
+        self.preferencesPageProfileRowWidgetLayout.setContentsMargins(0, 0, 0, 0)
+        self.preferencesPageProfileRowWidgetLayout.setSpacing(15)
+
         self.preferencesPageProfileView = QListView()
         self.preferencesPageProfileView.setFont(Font(8))
-        self.preferencesPageProfileSelector = QComboBox(self.preferencesPageScrollAreaContent)
+        self.preferencesPageProfileSelector = QComboBox(self.preferencesPageProfileRowWidget)
         self.preferencesPageProfileSelector.setObjectName("preferencesPageProfileSelector")
         self.preferencesPageProfileSelector.setFont(Font(10))
         self.preferencesPageProfileSelector.setFixedSize(150, 40)
@@ -600,6 +685,21 @@ class MainWindow(QMainWindow):
                 background-color: rgb(39, 44, 54);
             }''')
 
+        self.preferencesPageSaveButton = SaveButton(self.preferencesPageProfileRowWidget, "preferencesPageSaveButton",
+                                                    "Save", QSize(60, 35))
+        # TODO create new profile, save as (with text box), clone
+
+        # TODO search bar and sort / filter by properties, also save button all as floating bar at the bottom
+        self.preferencesPageUnlockableWidgets = []
+        for unlockable in Data.get_unlockables():
+            if unlockable.category in ["unused", "retired"]:
+                continue
+
+            # each one should be a widget with all the items, then can make visible or not using that
+            # retain check box status even when filtering by different things
+
+            unlockable_widget = UnlockableWidget(self.preferencesPageScrollAreaContent, unlockable)
+            self.preferencesPageUnlockableWidgets.append(unlockable_widget)
 
         # stack: bloodwebPage
         self.bloodwebPage = QWidget()
@@ -780,12 +880,19 @@ class MainWindow(QMainWindow):
         self.preferencesPageLayout.setRowStretch(0, 1)
         self.preferencesPageLayout.setColumnStretch(0, 1)
 
-        self.preferencesPageScrollAreaContentLayout.addWidget(self.preferencesPageProfileLabel, 0, 0, 1, 1)
-        self.preferencesPageScrollAreaContentLayout.addWidget(self.preferencesPageProfileSelector, 1, 0, 1, 1)
+        self.preferencesPageProfileRowWidgetLayout.addWidget(self.preferencesPageProfileSelector)
+        self.preferencesPageProfileRowWidgetLayout.addWidget(self.preferencesPageSaveButton)
+        self.preferencesPageProfileRowWidgetLayout.addStretch(1)
 
-        self.preferencesPageScrollAreaContentLayout.setColumnStretch(1, 1)
-        self.preferencesPageScrollAreaContentLayout.setRowStretch(2, 1)
+        self.preferencesPageScrollAreaContentLayout.addWidget(self.preferencesPageProfileLabel)
+        self.preferencesPageScrollAreaContentLayout.addWidget(self.preferencesPageProfileRowWidget)
+        for unlockableWidget in self.preferencesPageUnlockableWidgets:
+            self.preferencesPageScrollAreaContentLayout.addWidget(unlockableWidget)
+        self.preferencesPageScrollAreaContentLayout.addStretch(1)
 
+        # self.preferencesPageProfileSelector.setStyleSheet(debug_style_sheet)
+        # self.preferencesPageSaveButton.setStyleSheet(debug_style_sheet)
+        # self.preferencesPageProfileLabel.setStyleSheet(debug_style_sheet)
 
         self.show()
 

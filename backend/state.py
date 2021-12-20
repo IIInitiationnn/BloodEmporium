@@ -19,6 +19,8 @@ from resolution import Resolution
 immediate priorities
     - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
         - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
+            - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
+            - type of unlockable in db: item, perk etc
     - tweak hough line parameters
         - if lines are invalidated from not being in the majority of images, print which nodes it connects
             - can determine whether it's hough or some other kind of invalidation
