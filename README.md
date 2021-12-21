@@ -17,7 +17,7 @@ A program to automatically level the Bloodweb in the game Dead by Daylight.
     - You do not need to configure unlockables for which you have a neutral preference.
     (tier and subtier are both 0 in this case)
       - Any items not in the profile will be assumed to be tier and subtier 0.
-    - Tiers can be from -999 to 999, subtiers can only be from 1 to 999.
+    - Tiers and subtiers can be from -999 to 999.
     - Subtier allows for preference within a tier e.g. a tier 3 subtier 3 is higher priority than tier 3 subtier 2.
     - Roughly speaking, two tier 1 unlockables is equivalent in preference to one tier 2 unlockable, and so on.
     (basic maths)

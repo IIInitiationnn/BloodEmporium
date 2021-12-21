@@ -34,9 +34,12 @@ features to add
     - if p1, p2 or p3, stop processing (config option to ignore prestige)
         - options for each prestige to continue unlocking in the bloodweb
     - spend certain amount of bloodpoints (add cost to unlockable class)
+    - prioritise perk option (will always path to perks first and ignore perk config)
 '''
 
 class State:
+    version = "v0.1.1"
+
     def __init__(self):
         self.thread = None
         listener = keyboard.Listener(on_press=self.on_press)

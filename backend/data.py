@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-from backend.config import Config
+from config import Config
 from paths import Path
 
 class Unlockable:
@@ -15,6 +15,7 @@ class Unlockable:
         self.image_path = image_path
 
 class Data:
+    # TODO why being called twice
     __connection = None
     try:
         __connection = sqlite3.connect(Path.assets_database)
@@ -68,3 +69,68 @@ class Data:
     @staticmethod
     def get_killers():
         return [killer for killer, in Data.__killers_rows]
+
+    @staticmethod
+    def get_characters():
+        return ["universal", "survivor", "killer"] + Data.get_killers()
+
+    @staticmethod
+    def get_types():
+        return ["add-on", "item", "offering", "perk", "universal"]
+
+    @staticmethod
+    def get_rarities():
+        return ["common", "uncommon", "rare", "very_rare", "ultra_rare", "event", "varies"]
+
+    @staticmethod
+    def get_sorts():
+        return ["default (usually does the job)", "name", "character", "rarity", "type"]
+
+    @staticmethod
+    def __get_default_ordering(widgets):
+        print(len(widgets))
+        h = [widget for widget in widgets for u_id, u_name, _, _, _, _ in Data.__unlockables_rows
+                if u_id == widget.unlockable.id and u_name == widget.unlockable.name]
+        print(len(h))
+        return h
+
+    @staticmethod
+    def filter(unlockable_widgets, name, categories, rarities, types, sort_by=None):
+        # category = character
+
+        # sorted_widgets = Data.__get_default_ordering(unlockable_widgets) # technically not needed since unlockable_widgets never changes order
+        sorted_widgets = unlockable_widgets
+        if sort_by == "default (usually does the job)":
+            pass # do nothing, or equivalently call __get_default_ordering
+        elif sort_by == "name":
+            sorted_widgets = sorted(sorted_widgets, key=lambda unlockable_widget: unlockable_widget.unlockable.name)
+        elif sort_by == "character":
+            sorted_widgets = sorted(sorted_widgets, key=lambda unlockable_widget: unlockable_widget.unlockable.category)
+        elif sort_by == "rarity":
+            rarities_enum = {"common": 1, "uncommon": 2, "rare": 3, "very_rare": 4, "ultra_rare": 5, "event": 6, "varies": 7}
+            sorted_widgets = sorted(sorted_widgets, key=lambda unlockable_widget: rarities_enum[unlockable_widget.unlockable.rarity])
+        elif sort_by == "type":
+            sorted_widgets = sorted(sorted_widgets, key=lambda unlockable_widget: unlockable_widget.unlockable.type)
+
+        filtered = []
+        for unlockable_widget in sorted_widgets:
+            unlockable = unlockable_widget.unlockable
+            if name != "" and name.lower() not in unlockable.name.lower():
+                filtered.append((unlockable_widget, False))
+                continue
+
+            if len(categories) != 0 and unlockable.category not in categories:
+                filtered.append((unlockable_widget, False))
+                continue
+
+            if len(rarities) != 0 and unlockable.rarity not in rarities:
+                filtered.append((unlockable_widget, False))
+                continue
+
+            if len(types) != 0 and unlockable.type not in types:
+                filtered.append((unlockable_widget, False))
+                continue
+
+            filtered.append((unlockable_widget, True))
+
+        return filtered
