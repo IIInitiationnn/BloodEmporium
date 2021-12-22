@@ -18,15 +18,15 @@ class Grapher:
 
         i = 1
         for circle in self.circles:
-            if circle.name == "ORIGIN":
+            if circle.unique_id == "ORIGIN":
                 ids[circle] = "ORIGIN"
-                nodes.append(Node("ORIGIN", circle.name, 9999, circle.xy(), True, True).get_tuple())
+                nodes.append(Node("ORIGIN", circle.unique_id, 9999, circle.xy(), True, True).get_tuple())
                 continue
 
-            node_id = f"{i}_{circle.name}"
+            node_id = f"{i}_{circle.unique_id}"
             ids[circle] = node_id
             is_accessible, is_user_claimed = Node.state_from_color(circle.color)
-            nodes.append(Node(node_id, circle.name, 9999, circle.xy(), is_accessible, is_user_claimed).get_tuple())
+            nodes.append(Node(node_id, circle.unique_id, 9999, circle.xy(), is_accessible, is_user_claimed).get_tuple())
             i += 1
 
         # actual edges joining circles
@@ -53,10 +53,10 @@ class Grapher:
             if data["is_user_claimed"]:
                 # the one the user just claimed is handled previously in the main method
                 continue
-            r, color, match_name = Matcher.get_circle_properties(None, updated_images.get_gray(), updated_images.get_bgr(),
-                                                                 image_filtered, None,
-                                                                 Position(int(data["x"]), int(data["y"])), res)
-            if all(x is None for x in (r, color, match_name)):
+            r, color, match_unique_id = Matcher.get_circle_properties(None, updated_images.get_gray(), updated_images.get_bgr(),
+                                                                      image_filtered, None,
+                                                                      Position(int(data["x"]), int(data["y"])), res)
+            if all(x is None for x in (r, color, match_unique_id)):
                 # consumed by entity
                 to_remove.append(node_id)
             else:

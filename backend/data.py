@@ -5,7 +5,12 @@ from config import Config
 from paths import Path
 
 class Unlockable:
+    @staticmethod
+    def generate_unique_id(unlockable_id, category):
+        return f"{unlockable_id}_{category}"
+
     def __init__(self, unlockable_id, name, category, rarity, notes, unlockable_type, image_path):
+        self.unique_id = Unlockable.generate_unique_id(unlockable_id, category)
         self.id = unlockable_id
         self.name = name
         self.category = category
@@ -89,8 +94,8 @@ class Data:
     @staticmethod
     def __get_default_ordering(widgets):
         print(len(widgets))
-        h = [widget for widget in widgets for u_id, u_name, _, _, _, _ in Data.__unlockables_rows
-                if u_id == widget.unlockable.id and u_name == widget.unlockable.name]
+        h = [widget for widget in widgets for u_id, u_name, u_category, _, _, _ in Data.__unlockables_rows
+             if Unlockable.generate_unique_id(u_id, u_category) == widget.unlockable.unique_id]
         print(len(h))
         return h
 

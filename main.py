@@ -579,6 +579,7 @@ class MainWindow(QMainWindow):
         config = Config()
         # TODO windows up + windows down; resize areas; cursor when hovering over buttons
         # TODO resize areas
+        # TODO a blank profile which cannot be saved to, all 0s
 
         self.is_maximized = False
 
@@ -909,7 +910,7 @@ class MainWindow(QMainWindow):
             if unlockable.category in ["unused", "retired"]:
                 continue
             self.preferencesPageUnlockableWidgets.append(UnlockableWidget(self.preferencesPageScrollAreaContent,
-                                                                          unlockable, *config.preference(unlockable.id)))
+                                                                          unlockable, *config.preference(unlockable.unique_id)))
 
         # stack: bloodwebPage
         self.bloodwebPage = QWidget()

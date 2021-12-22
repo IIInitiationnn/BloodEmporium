@@ -8,7 +8,7 @@ from utils.network_util import NetworkUtil
 
 
 class Debugger:
-    def __init__(self, cv_images, write_to_output, timestamp, i):
+    def __init__(self, cv_images, timestamp, i, write_to_output=False):
         self.cv_images = cv_images
         self.write_to_output = write_to_output
 
@@ -103,6 +103,10 @@ class Debugger:
             for line in self.all_lines[i]:
                 x1, y1, x2, y2 = line.positions()
                 cv2.line(raw_output, (x1, y1), (x2, y2), 255, 2)
+
+            if self.write_to_output:
+                cv2.imwrite(f"output/{self.time}/{self.i}/raw_output_{i}.png", raw_output)
+
             cv2.imshow("unfiltered raw output (r-adjusted)", raw_output)
             cv2.imshow("edges for matching lines", self.edge_images[i])
             cv2.waitKey(0)

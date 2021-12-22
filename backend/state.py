@@ -15,6 +15,8 @@ from mergedbase import MergedBase
 from optimiser import Optimiser
 from resolution import Resolution
 
+# TODO try catch for threads and terminate if error
+
 '''
 immediate priorities
     - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
@@ -51,13 +53,13 @@ class State:
 
     def run_debug_mode(self):
         if self.thread is None:
-            self.thread = Process(target=State.main_loop, args=(True,))
+            self.thread = Process(target=State.main_loop, args=(True, True))
             self.thread.start()
             print("thread started with debugging")
 
     def run_regular_mode(self):
         if self.thread is None:
-            self.thread = Process(target=State.main_loop, args=(False,))
+            self.thread = Process(target=State.main_loop, args=(False, True))
             self.thread.start()
             print("thread started without debugging")
 
@@ -77,7 +79,7 @@ class State:
             self.terminate()
 
     @staticmethod
-    def main_loop(debug):
+    def main_loop(debug, write_to_output):
         pyautogui.FAILSAFE = False
 
         # read config settings
@@ -102,7 +104,7 @@ class State:
             # screen capture
             print("capturing screen")
             cv_images = Capturer(base_res, ratio, 3).output
-            debugger = Debugger(cv_images, True, timestamp, i).set_merger(merged_base)
+            debugger = Debugger(cv_images, timestamp, i, write_to_output).set_merger(merged_base)
 
             matcher = Matcher(debugger, cv_images, resolution)
             origin = matcher.match_origin()

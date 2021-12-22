@@ -32,7 +32,8 @@ class MergedBase:
         self.res = res
         self.full_dim = round(1 + self.res.mystery_box())
 
-        image_paths = [unlockable.image_path for unlockable in Data.get_unlockables() if unlockable.category in categories]
+        image_paths = [(unlockable.image_path, unlockable.unique_id) for unlockable in Data.get_unlockables()
+                       if unlockable.category in categories]
 
         '''all_files = [(subdir, file) for subdir, dirs, files in os.walk(path) for file in files]
         image_paths = []
@@ -62,8 +63,8 @@ class MergedBase:
     def __get_valid_images(self, image_paths):
         ret_names = []
         ret_images = []
-        for file in image_paths:
-            image_name = file.split("\\")[-1]
+        for image_path, unique_id in image_paths:
+            image_name = image_path.split("\\")[-1]
 
             if "mysteryBox" in image_name:
                 dim = self.res.mystery_box()
@@ -74,10 +75,10 @@ class MergedBase:
             elif "Addon" in image_name or "Items" in image_name:
                 dim = self.res.items_addons()
             else:
-                print(f"error merging base with {file}")
+                print(f"error merging base with {image_path}")
                 continue
 
-            template = cv2.imread(file, cv2.IMREAD_UNCHANGED)
+            template = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
             template_alpha = template[:, :, 3] / 255.0
             bg_alpha = 1 - template_alpha
 
@@ -95,7 +96,7 @@ class MergedBase:
             border2 = math.ceil((self.full_dim - dim) / 2)
             template = cv2.copyMakeBorder(template, border1, border2, border1, border2, cv2.BORDER_CONSTANT, value=0)
 
-            ret_names.append(image_name)
+            ret_names.append(unique_id)
             ret_images.append(template)
 
         """for subdir, dirs, files in os.walk(path):

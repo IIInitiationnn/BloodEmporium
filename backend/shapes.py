@@ -30,11 +30,11 @@ class Position:
         return abs(position1.x - position2.x) < max_dist and abs(position1.y - position2.y) < max_dist
 
 class Circle:
-    def __init__(self, position, radius, color, name, is_origin=False):
+    def __init__(self, position, radius, color, unique_id, is_origin=False):
         self.position = position
         self.radius = radius
         self.color = color
-        self.name = name
+        self.unique_id = unique_id
         self.is_origin = is_origin
 
     def x(self):
@@ -99,14 +99,9 @@ class Line:
             dist_c1 = np.abs(np.cross(line_p2 - line_p1, line_p1 - circle_p1)) / np.linalg.norm(line_p2 - line_p1)
             dist_c2 = np.abs(np.cross(line_p2 - line_p1, line_p1 - circle_p2)) / np.linalg.norm(line_p2 - line_p1)
 
-            max_dist = 40 * res.ratio()
-            if dist_c1 > max_dist or dist_c2 > max_dist:
-                circle1 = None
-                circle2 = None
-
-        if circle1 is None or circle2 is None:
-            return None
-        else:
+            max_dist = 35 * res.ratio()
+            if dist_c1 <= max_dist and dist_c2 <= max_dist:
+                return Connection(circle1, circle2)
             return Connection(circle1, circle2)
 
 class Connection:

@@ -76,18 +76,15 @@ class Matcher:
 
         for circle_num, rel_position in self.res.circles().items():
             abs_position = origin.position.sum(rel_position)
-            r, color, match_name = Matcher.get_circle_properties(self.debugger, image_gray, self.cv_images[0].get_bgr(),
-                                                                 image_filtered, merged_base, abs_position,
-                                                                 self.res)
+            r, color, match_unique_id = Matcher.get_circle_properties(self.debugger, image_gray, self.cv_images[0].get_bgr(),
+                                                                      image_filtered, merged_base, abs_position,
+                                                                      self.res)
 
-            if all(x is None for x in (r, color, match_name)):
+            if all(x is None for x in (r, color, match_unique_id)):
                 continue
 
-            output.append(Circle(abs_position, r, color, match_name))
+            output.append(Circle(abs_position, r, color, match_unique_id))
 
-            # print(circle_num)
-            # print(color)
-            # print(match_name)
         self.debugger.set_valid_circles(output)
         return output
 
@@ -152,8 +149,8 @@ class Matcher:
             if debugger is not None:
                 debugger.add_icon(unlockable, match)
 
-            match_name = names[round((bottom_right[1] - merged_base.full_dim / 2) / merged_base.full_dim)]
-            return r, color, match_name
+            match_unique_id = names[round((bottom_right[1] - merged_base.full_dim / 2) / merged_base.full_dim)]
+            return r, color, match_unique_id
 
     def match_lines(self, circles, threshold=30):
         validated1_output = []

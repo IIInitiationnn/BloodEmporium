@@ -45,12 +45,13 @@ class Config:
                 raise ConfigError(f"Multiple profiles with same id (profile {num}) in config.json")
 
             ids.append(profile["id"])
-            for unlockable, v in profile.items():
-                if unlockable != "id":
+            for unique_id, v in profile.items():
+                # TODO validate that unique_id is a valid unlockable id
+                if unique_id != "id":
                     if "tier" not in v:
-                        raise ConfigError(f"Missing tier for unlockable {unlockable} under profile {profile['id']} in config.json")
+                        raise ConfigError(f"Missing tier for unlockable {unique_id} under profile {profile['id']} in config.json")
                     if "subtier" not in v:
-                        raise ConfigError(f"Missing subtier for unlockable {unlockable} under profile {profile['id']} in config.json")
+                        raise ConfigError(f"Missing subtier for unlockable {unique_id} under profile {profile['id']} in config.json")
 
     def resolution(self):
         return Resolution(self.config["resolution"]["width"],
@@ -74,8 +75,8 @@ class Config:
             if profile["id"] == self.config["active_profile"]:
                 return profile
 
-    def preference(self, unlockable):
-        p = self.active_profile().get(unlockable, {})
+    def preference(self, unique_id):
+        p = self.active_profile().get(unique_id, {})
         return p.get("tier", 0), p.get("subtier", 0)
 
     def profile_names(self):
