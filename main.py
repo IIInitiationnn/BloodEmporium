@@ -38,6 +38,17 @@ class TextLabel(QLabel):
         self.setStyleSheet(style_sheet)
         self.setAlignment(Qt.AlignVCenter)
 
+class HyperlinkTextLabel(QLabel):
+    def __init__(self, parent, object_name, text, link, font):
+        QLabel.__init__(self, parent)
+        self.setObjectName(object_name)
+        self.setFont(font)
+        self.setText(f"<a style=\"color: white; text-decoration:none;\" href=\"{link}\">{text}</a>")
+        self.setAlignment(Qt.AlignVCenter)
+        self.setTextFormat(Qt.RichText)
+        self.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        self.setOpenExternalLinks(True)
+
 class TextInputBox(QLineEdit):
     def __init__(self, parent, object_name, size, placeholder_text, text=None, font=Font(10), style_sheet=StyleSheets.text_box):
         QLineEdit.__init__(self, parent)
@@ -361,6 +372,7 @@ class CollapsibleBox(QWidget):
         self.toggleButton.pressed.connect(self.on_pressed)
 
         # TODO clear filters button
+        # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier
         self.filters = QScrollArea(self)
         self.filters.setMinimumHeight(0)
         self.filters.setMaximumHeight(0)
@@ -505,8 +517,6 @@ Type: {TextUtil.title_case(unlockable.type)}''')
 
         self.layout.addStretch(1)
 
-        # TODO for filtering etc. pass widgets and filters to backend, it returns list of those to set visible and not visible
-        #   may also need to remove all widgets and then add them back so we can do the ordering
         self.unlockable = unlockable
 
 class MainWindow(QMainWindow):
@@ -935,7 +945,8 @@ class MainWindow(QMainWindow):
         self.bottomBarLayout.setObjectName("bottomBarLayout")
         self.bottomBarLayout.setContentsMargins(10, 0, 10, 0)
 
-        self.authorLabel = TextLabel(self.bottomBar, "authorLabel", "Made by IIInitiationnn", Font(8)) # TODO link to github
+        self.authorLabel = HyperlinkTextLabel(self.bottomBar, "authorLabel", "Made by IIInitiationnn",
+                                              "https://github.com/IIInitiationnn/BloodEmporium", Font(8))
         self.versionLabel = TextLabel(self.bottomBar, "versionLabel", State.version, Font(8))
 
         '''

@@ -10,1282 +10,1273 @@
     "profiles": [
         {
             "id": "default",
-            "iconFavors_bloodyPartyStreamers": {
+            "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 4
             },
-            "iconFavors_survivorPudding": {
+            "iconFavors_survivorPudding_killer": {
                 "tier": 5,
                 "subtier": 3
             },
-            "iconFavors_escapeCake": {
+            "iconFavors_escapeCake_survivor": {
                 "tier": 5,
                 "subtier": 3
             },
-            "iconFavors_hollowShell": {
+            "iconFavors_hollowShell_killer": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconFavors_wardBlack": {
+            "iconFavors_wardBlack_killer": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_wardWhite": {
+            "iconFavors_wardWhite_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_rangersAidKit": {
+            "iconItems_rangersAidKit_survivor": {
                 "tier": 3,
                 "subtier": 4
             },
-            "iconItems_medkit": {
+            "iconItems_medkit_survivor": {
                 "tier": 3,
                 "subtier": 3
             },
-            "iconItems_firstAidKit": {
+            "iconItems_firstAidKit_survivor": {
                 "tier": 3,
                 "subtier": 2
             },
-            "iconItems_rundownAidKit": {
+            "iconItems_rundownAidKit_survivor": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconAddon_stypticAgent": {
+            "iconAddon_stypticAgent_survivor": {
                 "tier": 3,
                 "subtier": 2
             },
-            "iconAddon_syringe": {
+            "iconAddon_syringe_survivor": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconAddon_gelDressings": {
+            "iconAddon_gelDressings_survivor": {
                 "tier": 2,
                 "subtier": 2
             },
-            "iconAddon_surgicalSuture": {
+            "iconAddon_surgicalSuture_survivor": {
                 "tier": 2,
                 "subtier": 1
             },
-            "iconItems_flashlightUtility": {
+            "iconItems_flashlightUtility_survivor": {
                 "tier": 4,
                 "subtier": 4
             },
-            "iconItems_flashlightSport": {
+            "iconItems_flashlightSport_survivor": {
                 "tier": 4,
                 "subtier": 3
             },
-            "iconItems_flashlight": {
+            "iconItems_flashlight_survivor": {
                 "tier": 4,
                 "subtier": 2
             },
-            "iconAddon_longLifeBattery": {
+            "iconAddon_longLifeBattery_survivor": {
                 "tier": 3,
                 "subtier": 4
             },
-            "iconAddon_heavyDutyBattery": {
+            "iconAddon_heavyDutyBattery_survivor": {
                 "tier": 3,
                 "subtier": 3
             },
-            "iconAddon_threadedFilament": {
+            "iconAddon_threadedFilament_survivor": {
                 "tier": 3,
                 "subtier": 3
             },
-            "iconAddon_battery": {
+            "iconAddon_battery_survivor": {
                 "tier": 3,
                 "subtier": 2
             }
         },
         {
             "id": "initiation",
-            "iconFavors_bloodyPartyStreamers": {
+            "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 8,
                 "subtier": 4
             },
-            "iconFavors_survivorPudding": {
+            "iconFavors_survivorPudding_killer": {
                 "tier": 8,
                 "subtier": 3
             },
-            "iconFavors_escapeCake": {
+            "iconFavors_escapeCake_survivor": {
                 "tier": 8,
                 "subtier": 3
             },
-            "iconFavors_hollowShell": {
+            "iconFavors_hollowShell_killer": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconFavors_boundEnvelope": {
+            "iconFavors_boundEnvelope_survivor": {
                 "tier": 3,
                 "subtier": 2
             },
-            "iconFavors_sealedEnvelope": {
+            "iconFavors_sealedEnvelope_survivor": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconFavors_wardBlack": {
+            "iconFavors_wardBlack_killer": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_wardWhite": {
+            "iconFavors_wardWhite_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-
-
-
-            "iconAddon_woodenHorse": {
+            "iconAddon_woodenHorse_nurse": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_whiteNitComb": {
+            "iconAddon_whiteNitComb_nurse": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_plaidFlannel": {
+            "iconAddon_plaidFlannel_nurse": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_metalSpoon": {
+            "iconAddon_metalSpoon_nurse": {
                 "tier": 1,
                 "subtier": 1
             },
-
-
-            "iconAddon_darkCincture": {
+            "iconAddon_darkCincture_nurse": {
                 "tier": 4,
                 "subtier": 1
             },
-
-            "iconAddon_spasmodicBreath": {
+            "iconAddon_spasmodicBreath_nurse": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_heavyPanting": {
+            "iconAddon_heavyPanting_nurse": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconAddon_fragileWheeze": {
+            "iconAddon_fragileWheeze_nurse": {
                 "tier": 4,
                 "subtier": 2
             },
-            "iconAddon_ataxicRespiration": {
+            "iconAddon_ataxicRespiration_nurse": {
                 "tier": 1,
                 "subtier": 2
             },
-            "iconAddon_anxiousGasp": {
+            "iconAddon_anxiousGasp_nurse": {
                 "tier": -1,
                 "subtier": 1
             },
-
-            "iconAddon_kavanaghsLastBreath": {
+            "iconAddon_kavanaghsLastBreath_nurse": {
                 "tier": 3,
                 "subtier": 2
             },
-            "iconAddon_jennersLastBreath": {
+            "iconAddon_jennersLastBreath_nurse": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_campbellsLastBreath": {
+            "iconAddon_campbellsLastBreath_nurse": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_badMansLastBreath": {
+            "iconAddon_badMansLastBreath_nurse": {
                 "tier": 1,
                 "subtier": 2
             },
-
-            "iconAddon_matchBox": {
+            "iconAddon_matchBox_nurse": {
                 "tier": -3,
                 "subtier": 1
             },
-
-            "iconFavors_wardSacrificial": {
+            "iconFavors_wardSacrificial_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_azarovsKey": {
+            "iconFavors_azarovsKey_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_granmasCookbook": {
+            "iconFavors_granmasCookbook_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_heartLocket": {
+            "iconFavors_heartLocket_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_charredWeddingPhotograph": {
+            "iconFavors_charredWeddingPhotograph_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_crowsEye": {
+            "iconFavors_crowsEye_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_jigsawPiece": {
+            "iconFavors_jigsawPiece_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_dustyNoose": {
+            "iconFavors_dustyNoose_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_strodeRealtyKey": {
+            "iconFavors_strodeRealtyKey_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_shatteredGlasses": {
+            "iconFavors_shatteredGlasses_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_macmilliansPhalanxBone": {
+            "iconFavors_macmilliansPhalanxBone_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_damagedPhoto": {
+            "iconFavors_damagedPhoto_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconsFavors_RPDBadge": {
+            "iconsFavors_RPDBadge_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_theLastMask": {
+            "iconFavors_theLastMask_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_marysLetter": {
+            "iconFavors_marysLetter_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_thePiedPiper": {
+            "iconFavors_thePiedPiper_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_yamaokasCrest": {
+            "iconFavors_yamaokasCrest_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconHelp_mysteryBox": {
+            "iconHelp_mysteryBox_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_murkyReagent": {
+            "iconFavors_murkyReagent_universal": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconItems_brokenKey": {
+            "iconItems_brokenKey_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconItems_dullKey": {
+            "iconItems_dullKey_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconItems_key": {
+            "iconItems_key_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconAddon_tokenGold": {
+            "iconAddon_tokenGold_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconAddon_weavedRing": {
+            "iconAddon_weavedRing_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_milkyGlass": {
+            "iconAddon_milkyGlass_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_bloodAmber": {
+            "iconAddon_bloodAmber_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_uniqueRing": {
+            "iconAddon_uniqueRing_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconItems_rainbowMap": {
+            "iconItems_rainbowMap_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconAddon_stampOdd": {
+            "iconAddon_stampOdd_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_ropeBlack": {
+            "iconAddon_ropeBlack_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_beadCrystal": {
+            "iconAddon_beadCrystal_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconItems_rangersAidKit": {
+            "iconItems_rangersAidKit_survivor": {
                 "tier": 2,
                 "subtier": 4
             },
-            "iconItems_medkit": {
+            "iconItems_medkit_survivor": {
                 "tier": 2,
                 "subtier": 3
             },
-            "iconItems_firstAidKit": {
+            "iconItems_firstAidKit_survivor": {
                 "tier": 2,
                 "subtier": 2
             },
-            "iconItems_rundownAidKit": {
+            "iconItems_rundownAidKit_survivor": {
                 "tier": 2,
                 "subtier": 1
             },
-            "iconAddon_gelDressings": {
+            "iconAddon_gelDressings_survivor": {
                 "tier": 2,
                 "subtier": 2
             },
-            "iconAddon_abdominalDressing": {
+            "iconAddon_abdominalDressing_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_stypticAgent": {
+            "iconAddon_stypticAgent_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_syringe": {
+            "iconAddon_syringe_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconItems_toolboxAlexs": {
+            "iconItems_toolboxAlexs_survivor": {
                 "tier": 4,
                 "subtier": 1
             },
-            "iconItems_toolbox": {
+            "iconItems_toolbox_survivor": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconItems_toolboxWornOut": {
+            "iconItems_toolboxWornOut_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_metalSaw": {
+            "iconAddon_metalSaw_survivor": {
                 "tier": 3,
                 "subtier": 3
             },
-            "iconAddon_spoolOfWire": {
+            "iconAddon_spoolOfWire_survivor": {
                 "tier": 3,
                 "subtier": 2
             },
-            "iconAddon_cuttingWire": {
+            "iconAddon_cuttingWire_survivor": {
                 "tier": 3,
                 "subtier": 2
             },
-            "iconAddon_gripWrench": {
+            "iconAddon_gripWrench_survivor": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconAddon_scraps": {
+            "iconAddon_scraps_survivor": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconItems_toolboxMechanics": {
+            "iconItems_toolboxMechanics_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconItems_toolboxCommodious": {
+            "iconItems_toolboxCommodious_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconItems_toolboxEngineers":  {
+            "iconItems_toolboxEngineers_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_brandNewPart": {
+            "iconAddon_brandNewPart_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconItems_flashlightUtility": {
+            "iconItems_flashlightUtility_survivor": {
                 "tier": 4,
                 "subtier": 4
             },
-            "iconItems_flashlightSport": {
+            "iconItems_flashlightSport_survivor": {
                 "tier": 4,
                 "subtier": 3
             },
-            "iconItems_flashlight": {
+            "iconItems_flashlight_survivor": {
                 "tier": 4,
                 "subtier": 2
             },
-            "iconAddon_longLifeBattery": {
+            "iconAddon_longLifeBattery_survivor": {
                 "tier": 3,
                 "subtier": 4
             },
-            "iconAddon_heavyDutyBattery": {
+            "iconAddon_heavyDutyBattery_survivor": {
                 "tier": 3,
                 "subtier": 3
             },
-            "iconAddon_threadedFilament": {
+            "iconAddon_threadedFilament_survivor": {
                 "tier": 3,
                 "subtier": 3
             },
-            "iconAddon_battery": {
+            "iconAddon_battery_survivor": {
                 "tier": 3,
                 "subtier": 2
             },
-            "iconFavors_shinyCoin": {
+            "iconFavors_shinyCoin_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconFavors_shroudOfBinding": {
+            "iconFavors_shroudOfBinding_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconFavors_petrifiedOak": {
+            "iconFavors_petrifiedOak_survivor": {
                 "tier": 4,
                 "subtier": 5
             }
         },
         {
             "id": "cheapskate",
-            "iconFavors_bloodyPartyStreamers": {
+            "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 2
             },
-            "iconFavors_escapeCake": {
+            "iconFavors_escapeCake_survivor": {
                 "tier": 5,
                 "subtier": 1
             },
-            "iconFavors_bloodiedBlueprint": {
+            "iconFavors_bloodiedBlueprint_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_tornBlueprint": {
+            "iconFavors_tornBlueprint_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_clearReagent": {
+            "iconFavors_clearReagent_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_faintReagent": {
+            "iconFavors_faintReagent_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_murkyReagent": {
+            "iconFavors_murkyReagent_universal": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconFavors_annotatedBlueprint": {
+            "iconFavors_annotatedBlueprint_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_vigosBlueprint": {
+            "iconFavors_vigosBlueprint_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_wardSacrificial": {
+            "iconFavors_wardSacrificial_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_azarovsKey": {
+            "iconFavors_azarovsKey_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_granmasCookbook": {
+            "iconFavors_granmasCookbook_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_heartLocket": {
+            "iconFavors_heartLocket_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_charredWeddingPhotograph": {
+            "iconFavors_charredWeddingPhotograph_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_crowsEye": {
+            "iconFavors_crowsEye_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_jigsawPiece": {
+            "iconFavors_jigsawPiece_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_dustyNoose": {
+            "iconFavors_dustyNoose_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_strodeRealtyKey": {
+            "iconFavors_strodeRealtyKey_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_shatteredGlasses": {
+            "iconFavors_shatteredGlasses_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_macmilliansPhalanxBone": {
+            "iconFavors_macmilliansPhalanxBone_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_damagedPhoto": {
+            "iconFavors_damagedPhoto_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconsFavors_RPDBadge": {
+            "iconsFavors_RPDBadge_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_theLastMask": {
+            "iconFavors_theLastMask_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_marysLetter": {
+            "iconFavors_marysLetter_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_thePiedPiper": {
+            "iconFavors_thePiedPiper_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_yamaokasCrest": {
+            "iconFavors_yamaokasCrest_universal": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconHelp_mysteryBox": {
+            "iconHelp_mysteryBox_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_boundEnvelope": {
+            "iconFavors_boundEnvelope_survivor": {
                 "tier": 4,
                 "subtier": 1
             },
-            "iconItems_flashlight": {
+            "iconItems_flashlight_survivor": {
                 "tier": 3,
                 "subtier": 3
             },
-            "iconItems_flashlightSport": {
+            "iconItems_flashlightSport_survivor": {
                 "tier": 3,
                 "subtier": 2
             },
-            "iconItems_flashlightUtility": {
+            "iconItems_flashlightUtility_survivor": {
                 "tier": 3,
                 "subtier": 1
             },
-            "iconAddon_wideLens": {
+            "iconAddon_wideLens_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_powerBulb": {
+            "iconAddon_powerBulb_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_leatherGrip": {
+            "iconAddon_leatherGrip_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_battery": {
+            "iconAddon_battery_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_longLifeBattery": {
+            "iconAddon_longLifeBattery_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_intenseHalogen": {
+            "iconAddon_intenseHalogen_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_highEndSapphireLens": {
+            "iconAddon_highEndSapphireLens_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_oddBulb": {
+            "iconAddon_oddBulb_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconItems_brokenKey": {
+            "iconItems_brokenKey_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconItems_dullKey": {
+            "iconItems_dullKey_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconItems_key": {
+            "iconItems_key_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconAddon_prayerRope": {
+            "iconAddon_prayerRope_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_tokenGold": {
+            "iconAddon_tokenGold_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_weavedRing": {
+            "iconAddon_weavedRing_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_milkyGlass": {
+            "iconAddon_milkyGlass_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_bloodAmber": {
+            "iconAddon_bloodAmber_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_uniqueRing": {
+            "iconAddon_uniqueRing_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconItems_map": {
+            "iconItems_map_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconItems_rainbowMap": {
+            "iconItems_rainbowMap_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconAddon_mapAddendum": {
+            "iconAddon_mapAddendum_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_stampOdd": {
+            "iconAddon_stampOdd_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_ropeBlack": {
+            "iconAddon_ropeBlack_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_beadCrystal": {
+            "iconAddon_beadCrystal_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconItems_rundownAidKit": {
+            "iconItems_rundownAidKit_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_medkit": {
+            "iconItems_medkit_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconItems_rangersAidKit": {
+            "iconItems_rangersAidKit_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_gloves": {
+            "iconAddon_gloves_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_butterflyTape": {
+            "iconAddon_butterflyTape_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_bandages": {
+            "iconAddon_bandages_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_surgicalSuture": {
+            "iconAddon_surgicalSuture_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_gelDressings": {
+            "iconAddon_gelDressings_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_abdominalDressing": {
+            "iconAddon_abdominalDressing_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_stypticAgent": {
+            "iconAddon_stypticAgent_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_syringe": {
+            "iconAddon_syringe_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconItems_toolboxWornOut": {
+            "iconItems_toolboxWornOut_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_toolboxMechanics": {
+            "iconItems_toolboxMechanics_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconItems_toolboxCommodious": {
+            "iconItems_toolboxCommodious_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconItems_toolboxEngineers": {
+            "iconItems_toolboxEngineers_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconItems_toolboxAlexs": {
+            "iconItems_toolboxAlexs_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconAddon_scraps": {
+            "iconAddon_scraps_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_instructions": {
+            "iconAddon_instructions_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_cleanRag": {
+            "iconAddon_cleanRag_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_metalSaw": {
+            "iconAddon_metalSaw_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_gripWrench": {
+            "iconAddon_gripWrench_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconAddon_brandNewPart": {
+            "iconAddon_brandNewPart_survivor": {
                 "tier": -3,
                 "subtier": 1
             },
-            "iconFavors_primroseBlossomSachet": {
+            "iconFavors_primroseBlossomSachet_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_fragrantPrimroseBlossom": {
+            "iconFavors_fragrantPrimroseBlossom_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_sweetWilliamSachet": {
+            "iconFavors_sweetWilliamSachet_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_fragrantSweetWilliam": {
+            "iconFavors_fragrantSweetWilliam_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_bogLaurelSachet": {
+            "iconFavors_bogLaurelSachet_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_fragrantBogLaurel": {
+            "iconFavors_fragrantBogLaurel_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_crispleafAmaranthSachet": {
+            "iconFavors_crispleafAmaranthSachet_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_fragrantCrispleafAmaranth": {
+            "iconFavors_fragrantCrispleafAmaranth_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_chalkPouch": {
+            "iconFavors_chalkPouch_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_ivoryChalkPouch": {
+            "iconFavors_ivoryChalkPouch_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_blackSaltStatuette": {
+            "iconFavors_blackSaltStatuette_survivor": {
                 "tier": -1,
                 "subtier": 1
             },
-            "iconFavors_jarOfSaltyLips": {
+            "iconFavors_jarOfSaltyLips_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconFavors_shinyCoin": {
+            "iconFavors_shinyCoin_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconFavors_petrifiedOak": {
+            "iconFavors_petrifiedOak_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconFavors_shroudOfBinding": {
+            "iconFavors_shroudOfBinding_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconFavors_wardWhite": {
+            "iconFavors_wardWhite_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconPerks_darkSense": {
+            "iconPerks_darkSense_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_dejaVu": {
+            "iconPerks_dejaVu_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_hope": {
+            "iconPerks_hope_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_kindred": {
+            "iconPerks_kindred_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_lightweight": {
+            "iconPerks_lightweight_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_noOneLeftBehind": {
+            "iconPerks_noOneLeftBehind_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_plunderersInstinct": {
+            "iconPerks_plunderersInstinct_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_premonition": {
+            "iconPerks_premonition_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_resilience": {
+            "iconPerks_resilience_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_slipperyMeat": {
+            "iconPerks_slipperyMeat_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_smallGame": {
+            "iconPerks_smallGame_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_spineChill": {
+            "iconPerks_spineChill_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_thisIsNotHappening": {
+            "iconPerks_thisIsNotHappening_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_wellMakeIt": {
+            "iconPerks_wellMakeIt_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_situationalAwareness": {
+            "iconPerks_situationalAwareness_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_fixated": {
+            "iconPerks_fixated_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_survivalInstincts": {
+            "iconPerks_survivalInstincts_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_guardian": {
+            "iconPerks_guardian_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_camaraderie": {
+            "iconPerks_camaraderie_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_pushThroughIt": {
+            "iconPerks_pushThroughIt_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_bond": {
+            "iconPerks_bond_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_proveThyself": {
+            "iconPerks_proveThyself_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_leader": {
+            "iconPerks_leader_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_quickAndQuiet": {
+            "iconPerks_quickAndQuiet_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_sprintBurst": {
+            "iconPerks_sprintBurst_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_adrenaline": {
+            "iconPerks_adrenaline_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_empathy": {
+            "iconPerks_empathy_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_botanyKnowledge": {
+            "iconPerks_botanyKnowledge_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_selfCare": {
+            "iconPerks_selfCare_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_ironWill": {
+            "iconPerks_ironWill_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_calmSpirit": {
+            "iconPerks_calmSpirit_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_saboteur": {
+            "iconPerks_saboteur_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_balancedLanding": {
+            "iconPerks_balancedLanding_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_urbanEvasion": {
+            "iconPerks_urbanEvasion_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_streetwise": {
+            "iconPerks_streetwise_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_soleSurvivor": {
+            "iconPerks_soleSurvivor_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_objectOfObsession": {
+            "iconPerks_objectOfObsession_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_decisiveStrike": {
+            "iconPerks_decisiveStrike_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_upTheAnte": {
+            "iconPerks_upTheAnte_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_openHanded": {
+            "iconPerks_openHanded_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_aceInTheHole": {
+            "iconPerks_aceInTheHole_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_leftBehind": {
+            "iconPerks_leftBehind_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_borrowedTime": {
+            "iconPerks_borrowedTime_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_unbreakable": {
+            "iconPerks_unbreakable_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_technician": {
+            "iconPerks_technician_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_lithe": {
+            "iconPerks_lithe_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_alert": {
+            "iconPerks_alert_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_WereGonnaLiveForever": {
+            "iconPerks_WereGonnaLiveForever_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_DeadHard": {
+            "iconPerks_DeadHard_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_NoMither": {
+            "iconPerks_NoMither_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_wakeUp": {
+            "iconPerks_wakeUp_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_pharmacy": {
+            "iconPerks_pharmacy_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_vigil": {
+            "iconPerks_vigil_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_tenacity": {
+            "iconPerks_tenacity_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_detectivesHunch": {
+            "iconPerks_detectivesHunch_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_stakeOut": {
+            "iconPerks_stakeOut_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_danceWithMe": {
+            "iconPerks_danceWithMe_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_windowsOfOpportunity": {
+            "iconPerks_windowsOfOpportunity_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_boilOver": {
+            "iconPerks_boilOver_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_diversion": {
+            "iconPerks_diversion_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_deliverance": {
+            "iconPerks_deliverance_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_autodidact": {
+            "iconPerks_autodidact_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_breakdown": {
+            "iconPerks_breakdown_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_aftercare": {
+            "iconPerks_aftercare_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_distortion": {
+            "iconPerks_distortion_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_solidarity": {
+            "iconPerks_solidarity_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_poised": {
+            "iconPerks_poised_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_headOn": {
+            "iconPerks_headOn_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_flipFlop": {
+            "iconPerks_flipFlop_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_buckleUp": {
+            "iconPerks_buckleUp_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_mettleOfMan": {
+            "iconPerks_mettleOfMan_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_luckyBreak": {
+            "iconPerks_luckyBreak_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_anyMeansNecessary": {
+            "iconPerks_anyMeansNecessary_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_breakout": {
+            "iconPerks_breakout_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_redHerring": {
+            "iconPerks_redHerring_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_offTheRecord": {
+            "iconPerks_offTheRecord_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_forThePeople": {
+            "iconPerks_forThePeople_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_soulGuard": {
+            "iconPerks_soulGuard_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_bloodPact": {
+            "iconPerks_bloodPact_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_repressedAlliance": {
+            "iconPerks_repressedAlliance_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_visionary": {
+            "iconPerks_visionary_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_desperateMeasures": {
+            "iconPerks_desperateMeasures_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_builtToLast": {
+            "iconPerks_builtToLast_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_appraisal": {
+            "iconPerks_appraisal_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_deception": {
+            "iconPerks_deception_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_powerStruggle": {
+            "iconPerks_powerStruggle_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_FastTrack": {
+            "iconPerks_FastTrack_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_SmashHit": {
+            "iconPerks_SmashHit_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_Self-Preservation": {
+            "iconPerks_Self-Preservation_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_Counterforce": {
+            "iconPerks_Counterforce_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_Resurgence": {
+            "iconPerks_Resurgence_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_blastMine": {
+            "iconPerks_blastMine_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_BiteTheBullet": {
+            "iconPerks_BiteTheBullet_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_Flashbang": {
+            "iconPerks_Flashbang_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_RookieSpirit": {
+            "iconPerks_RookieSpirit_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_Clairvoyance": {
+            "iconPerks_Clairvoyance_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_BoonCircleOfHealing": {
+            "iconPerks_BoonCircleOfHealing_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconPerks_BoonShadowStep": {
+            "iconPerks_BoonShadowStep_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "T_iconPerks_Overcome": {
+            "T_iconPerks_Overcome_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "T_iconPerks_CorrectiveAction": {
+            "T_iconPerks_CorrectiveAction_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "T_iconPerks_BoonExponential": {
+            "T_iconPerks_BoonExponential_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_gruesomeGateau": {
+            "iconFavors_gruesomeGateau_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_4thAnniversary": {
+            "iconFavors_4thAnniversary_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_5thAnniversary": {
+            "iconFavors_5thAnniversary_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_CursedSeed": {
+            "iconFavors_CursedSeed_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_pustulaPetals": {
+            "iconFavors_pustulaPetals_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_redMoneyPacket": {
+            "iconFavors_redMoneyPacket_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconFavors_bbqInvitation": {
+            "iconFavors_bbqInvitation_universal": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_chineseFirecracker": {
+            "iconItems_chineseFirecracker_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_winterEventFirecracker": {
+            "iconItems_winterEventFirecracker_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_partyPopper": {
+            "iconItems_partyPopper_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_flashlightHalloween": {
+            "iconItems_flashlightHalloween_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_flashlight_anniversary2020": {
+            "iconItems_flashlight_anniversary2020_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_brokenFlashlightBulb": {
+            "iconAddon_brokenFlashlightBulb_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_medkitHalloween": {
+            "iconItems_medkitHalloween_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_medkit_anniversary2020": {
+            "iconItems_medkit_anniversary2020_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconAddon_blightedSyringe": {
+            "iconAddon_blightedSyringe_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_toolbox_anniversary2021": {
+            "iconItems_toolbox_anniversary2021_survivor": {
                 "tier": 1,
                 "subtier": 1
             },
-            "iconItems_toolboxLunar": {
+            "iconItems_toolboxLunar_survivor": {
                 "tier": 1,
                 "subtier": 1
             }
