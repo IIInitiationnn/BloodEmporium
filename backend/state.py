@@ -82,10 +82,7 @@ class State:
     def main_loop(debug, write_to_output):
         pyautogui.FAILSAFE = False
 
-        # read config settings
-        config = Config()
-
-        base_res = resolution = config.resolution()
+        base_res = resolution = Config().resolution()
         x, y = base_res.top_left()
 
         ratio = 1
@@ -95,7 +92,7 @@ class State:
 
         # initialisation: merged base for template matching
         print("initialisation, merging")
-        merged_base = MergedBase(resolution, config.character())
+        merged_base = MergedBase(resolution, Config().character())
         pyautogui.moveTo(0, 0)
 
         i = 0

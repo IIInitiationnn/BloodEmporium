@@ -75,9 +75,44 @@ class Config:
             if profile["id"] == self.config["active_profile"]:
                 return profile
 
-    def preference(self, unique_id):
-        p = self.active_profile().get(unique_id, {})
+    def get_profile_by_id(self, profile_id):
+        print(profile_id)
+        return [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
+
+    def active_profile_name(self):
+        return self.active_profile()["id"]
+
+    def preference(self, unlockable_id, profile_id=None):
+        if profile_id is None:
+            p = self.active_profile().get(unlockable_id, {})
+        else:
+            p = self.get_profile_by_id(profile_id).get(unlockable_id, {})
         return p.get("tier", 0), p.get("subtier", 0)
 
     def profile_names(self):
         return [profile["id"] for profile in self.__profiles()]
+
+    def set_active_profile(self, active_profile):
+        self.config["active_profile"] = active_profile
+        with open("config.json", "w") as output:
+            json.dump(self.config, output, indent=4)
+
+    def set_profile(self, updated_profile):
+        self.config["profiles"][self.config["profiles"].index(self.get_profile_by_id(updated_profile["id"]))] = updated_profile
+
+        with open("config.json", "w") as output:
+            json.dump(self.config, output, indent=4)
+
+    def add_profile(self, new_profile):
+        existing_profile = None
+        for profile in self.__profiles():
+            if profile["id"] == new_profile["id"]:
+                existing_profile = profile
+
+        if existing_profile is None:
+            self.config["profiles"].append(new_profile)
+        else:
+            self.set_profile(new_profile)
+
+        with open("config.json", "w") as output:
+            json.dump(self.config, output, indent=4)

@@ -274,7 +274,7 @@ class PageButton(QPushButton):
         self.clicked.connect(on_click)
 
 class Selector(QComboBox):
-    def __init__(self, parent, object_name, size, items):
+    def __init__(self, parent, object_name, size, items, active_item=None):
         QComboBox.__init__(self, parent)
         self.view = QListView()
         self.view.setFont(Font(8))
@@ -283,6 +283,8 @@ class Selector(QComboBox):
         self.setFont(Font(10))
         self.setFixedSize(size)
         self.addItems(items)
+        if active_item is not None:
+            self.setCurrentIndex(self.findText(active_item))
         self.setView(self.view)
         self.setStyleSheet('''
             QComboBox {
@@ -497,9 +499,8 @@ Type: {TextUtil.title_case(unlockable.type)}''')
         self.layout.addWidget(self.tierLabel)
 
         self.tierInput = TextInputBox(self, f"{name}TierInput", QSize(110, 40), "Enter tier", str(tier),
-                                      style_sheet=StyleSheets.text_box_positive_tier_subtier if tier > 0
-                                      else StyleSheets.text_box_negative_tier_subtier if tier < 0
-                                      else StyleSheets.text_box)
+                                      style_sheet=StyleSheets.tiers_input(tier))
+        self.tierInput.textEdited.connect(self.on_tier_update)
         self.layout.addWidget(self.tierInput)
 
         self.subtierLabel = QLabel(self)
@@ -510,14 +511,28 @@ Type: {TextUtil.title_case(unlockable.type)}''')
         self.layout.addWidget(self.subtierLabel)
 
         self.subtierInput = TextInputBox(self, f"{name}SubtierInput", QSize(110, 40), "Enter subtier", str(subtier),
-                                         style_sheet=StyleSheets.text_box_positive_tier_subtier if subtier > 0
-                                         else StyleSheets.text_box_negative_tier_subtier if subtier < 0
-                                         else StyleSheets.text_box)
+                                         style_sheet=StyleSheets.tiers_input(tier))
+        self.subtierInput.textEdited.connect(self.on_subtier_update)
         self.layout.addWidget(self.subtierInput)
 
         self.layout.addStretch(1)
 
         self.unlockable = unlockable
+
+    def on_tier_update(self):
+        self.tierInput.setStyleSheet(StyleSheets.tiers_input(self.tierInput.text()))
+
+    def on_subtier_update(self):
+        self.subtierInput.setStyleSheet(StyleSheets.tiers_input(self.subtierInput.text()))
+
+    def setTiers(self, tier, subtier):
+        self.tierInput.setText(str(tier))
+        self.tierInput.setStyleSheet(StyleSheets.tiers_input(tier))
+        self.subtierInput.setText(str(subtier))
+        self.subtierInput.setStyleSheet(StyleSheets.tiers_input(subtier))
+
+    def getTiers(self):
+        return int(self.tierInput.text()), int(self.subtierInput.text())
 
 class MainWindow(QMainWindow):
     def minimize(self):
@@ -557,7 +572,15 @@ class MainWindow(QMainWindow):
         self.animation.setEasingCurve(QEasingCurve.InOutQuint)
         self.animation.start()
 
-    def replaceUnlockableWidgets(self):
+    def update_from_config(self):
+        while self.preferencesPageProfileSelector.count() > 0:
+            self.preferencesPageProfileSelector.removeItem(0)
+
+        self.preferencesPageProfileSelector.addItems(Config().profile_names())
+
+        # TODO replace all values with the updated config values
+
+    def replace_unlockable_widgets(self):
         sort_by = self.preferencesPageSortSelector.currentText()
 
         if self.lastSortedBy == sort_by:
@@ -584,14 +607,69 @@ class MainWindow(QMainWindow):
 
         self.lastSortedBy = sort_by
 
+    def switch_edit_profile(self):
+        if not self.ignore_switch_edit_profile_signal:
+            # TODO prompt: unsaved changes (save or discard)
+            profile_id = self.preferencesPageProfileSelector.currentText()
+
+            # self.update_from_config()
+
+            config = Config()
+            for widget in self.preferencesPageUnlockableWidgets:
+                widget.setTiers(*config.preference(widget.unlockable.unique_id, profile_id))
+
+    def save_profile(self):
+        profile_id = self.preferencesPageProfileSelector.currentText()
+
+        updated_profile = Config().get_profile_by_id(profile_id).copy()
+
+        for widget in self.preferencesPageUnlockableWidgets:
+            # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
+            tier, subtier = widget.getTiers()
+            if tier != 0 or subtier != 0:
+                updated_profile[widget.unlockable.unique_id]["tier"] = tier
+                updated_profile[widget.unlockable.unique_id]["subtier"] = subtier
+
+        Config().set_profile(updated_profile)
+        # TODO green text for 5 seconds: changes saved to X profile
+
+    def save_as_profile(self):
+        self.ignore_switch_edit_profile_signal = True # saving as new profile; don't trigger
+
+        profile_id = self.preferencesPageSaveAsInput.text()
+
+        new_profile = {"id": profile_id}
+
+        for widget in self.preferencesPageUnlockableWidgets:
+            # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
+            tier, subtier = widget.getTiers()
+            if tier != 0 or subtier != 0:
+                new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
+
+        Config().add_profile(new_profile)
+
+        # update dropdown
+        while self.preferencesPageProfileSelector.count() > 0:
+            self.preferencesPageProfileSelector.removeItem(0)
+
+        self.preferencesPageProfileSelector.addItems(Config().profile_names())
+        self.ignore_switch_edit_profile_signal = False
+
+        self.preferencesPageProfileSelector.setCurrentIndex(self.preferencesPageProfileSelector.findText(profile_id))
+
+        # TODO green text for 5 seconds: changes saved to X profile
+
+    def switch_run_profile(self):
+        pass # TODO Config().set_active_profile(active_profile)
+
     def __init__(self):
         QMainWindow.__init__(self)
-        config = Config()
         # TODO windows up + windows down; resize areas; cursor when hovering over buttons
         # TODO resize areas
         # TODO a blank profile which cannot be saved to, all 0s
 
         self.is_maximized = False
+        self.ignore_switch_edit_profile_signal = False
 
         # self.setWindowFlag(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
@@ -877,10 +955,14 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageProfileSelector = Selector(self.preferencesPageProfileSaveRow,
                                                        "preferencesPageProfileSelector",
-                                                       QSize(150, 40), config.profile_names())
+                                                       QSize(150, 40), Config().profile_names(),
+                                                       Config().active_profile_name())
+        self.preferencesPageProfileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
         self.preferencesPageSaveButton = SaveButton(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton",
                                                     "Save", QSize(60, 35))
+        self.preferencesPageSaveButton.clicked.connect(self.save_profile)
+        # TODO delete profile button next to this, rename profile
 
         # save as
         self.preferencesPageProfileSaveAsRow = QWidget(self.preferencesPageScrollAreaContent)
@@ -894,10 +976,11 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageSaveAsButton = SaveButton(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsButton",
                                                     "Save As", QSize(80, 35))
+        self.preferencesPageSaveAsButton.clicked.connect(self.save_as_profile)
 
         # filters
         self.preferencesPageFiltersBox = CollapsibleBox(self.preferencesPageScrollAreaContent,
-                                                        "preferencesPageScrollAreaContent", self.replaceUnlockableWidgets)
+                                                        "preferencesPageScrollAreaContent", self.replace_unlockable_widgets)
 
         # search bar & sort
         self.preferencesPageSearchSortRow = QWidget(self.preferencesPageScrollAreaContent)
@@ -908,14 +991,15 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageSearchBar = TextInputBox(self.preferencesPageSearchSortRow, "preferencesPageSearchBar",
                                                      QSize(200, 40), "Search by name")
-        self.preferencesPageSearchBar.textEdited.connect(self.replaceUnlockableWidgets)
+        self.preferencesPageSearchBar.textEdited.connect(self.replace_unlockable_widgets)
         self.preferencesPageSortLabel = TextLabel(self.preferencesPageSearchSortRow, "preferencesPageSortLabel", "Sort by")
         self.preferencesPageSortSelector = Selector(self.preferencesPageSearchSortRow, "preferencesPageSortSelector",
                                                     QSize(225, 40), Data.get_sorts())
-        self.preferencesPageSortSelector.currentIndexChanged.connect(self.replaceUnlockableWidgets)
+        self.preferencesPageSortSelector.currentIndexChanged.connect(self.replace_unlockable_widgets)
         self.lastSortedBy = "default (usually does the job)" # cache of last sort
 
         self.preferencesPageUnlockableWidgets = []
+        config = Config()
         for unlockable in Data.get_unlockables():
             if unlockable.category in ["unused", "retired"]:
                 continue
