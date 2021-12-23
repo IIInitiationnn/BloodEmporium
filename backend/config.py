@@ -76,7 +76,6 @@ class Config:
                 return profile
 
     def get_profile_by_id(self, profile_id):
-        print(profile_id)
         return [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
 
     def active_profile_name(self):
@@ -92,16 +91,17 @@ class Config:
     def profile_names(self):
         return [profile["id"] for profile in self.__profiles()]
 
-    def set_active_profile(self, active_profile):
-        self.config["active_profile"] = active_profile
+    def commit_changes(self):
         with open("config.json", "w") as output:
             json.dump(self.config, output, indent=4)
+
+    def set_active_profile(self, active_profile):
+        self.config["active_profile"] = active_profile
+        self.commit_changes()
 
     def set_profile(self, updated_profile):
         self.config["profiles"][self.config["profiles"].index(self.get_profile_by_id(updated_profile["id"]))] = updated_profile
-
-        with open("config.json", "w") as output:
-            json.dump(self.config, output, indent=4)
+        self.commit_changes()
 
     def add_profile(self, new_profile):
         existing_profile = None
@@ -114,5 +114,8 @@ class Config:
         else:
             self.set_profile(new_profile)
 
-        with open("config.json", "w") as output:
-            json.dump(self.config, output, indent=4)
+        self.commit_changes()
+
+    def set_character(self, character):
+        self.config["character"] = character
+        self.commit_changes()

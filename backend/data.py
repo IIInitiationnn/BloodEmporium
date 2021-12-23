@@ -76,8 +76,12 @@ class Data:
         return [killer for killer, in Data.__killers_rows]
 
     @staticmethod
-    def get_characters():
+    def get_categories():
         return ["universal", "survivor", "killer"] + Data.get_killers()
+
+    @staticmethod
+    def get_characters():
+        return ["survivor"] + Data.get_killers()
 
     @staticmethod
     def get_types():

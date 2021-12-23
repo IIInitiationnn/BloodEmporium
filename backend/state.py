@@ -47,24 +47,23 @@ class State:
         listener = keyboard.Listener(on_press=self.on_press)
         listener.start()
 
-        # wait until termination
-        dummy_event = Event()
-        dummy_event.wait()
+    def is_active(self):
+        return self.thread is not None
 
     def run_debug_mode(self):
-        if self.thread is None:
+        if not self.is_active():
             self.thread = Process(target=State.main_loop, args=(True, True))
             self.thread.start()
             print("thread started with debugging")
 
     def run_regular_mode(self):
-        if self.thread is None:
+        if not self.is_active():
             self.thread = Process(target=State.main_loop, args=(False, True))
             self.thread.start()
             print("thread started without debugging")
 
     def terminate(self):
-        if self.thread is not None:
+        if self.is_active():
             self.thread.terminate()
             self.thread = None
             print("thread terminated")
@@ -147,7 +146,7 @@ class State:
                 pyautogui.mouseUp()
 
                 # mystery box: click
-                if optimal_unlockable.name == "iconHelp_mysteryBox":
+                if optimal_unlockable.name == "iconHelp_mysteryBox_universal":
                     print("mystery box selected")
                     time.sleep(0.9)
                     pyautogui.click()

@@ -1,13 +1,11 @@
 import os
 import sys
-import time
 
-from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QParallelAnimationGroup, \
-    QAbstractAnimation
-from PyQt5.QtGui import QIcon, QPixmap, QFont, QMouseEvent, QColor, QKeySequence
+from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QKeySequence
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QSizePolicy, QSpacerItem, QComboBox, QListView, \
-    QScrollArea, QScrollBar, QCheckBox, QLineEdit, QToolButton
+    QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
+    QCheckBox, QLineEdit, QToolButton
 
 from backend.utils.text_util import TextUtil
 from frontend.stylesheets import StyleSheets
@@ -18,9 +16,8 @@ from backend.config import Config
 from backend.data import Data, Unlockable
 from backend.state import State
 
-# TODO change how config works, id is not sufficient since billy bubba shared addon
 # TODO new assets for frontend if using vanilla (so people can see rarity) with the full coloured background
-# TODO move as much as possible into custom classes to reduce repetition
+# TODO whenever changing config, call self.updateconfig(), always within the scope of self.ignore_signal being true
 
 # generic
 class Font(QFont):
@@ -66,63 +63,28 @@ class CheckBox(QCheckBox):
         if object_name is not None:
             self.setObjectName(object_name)
         self.setAutoFillBackground(False)
-        self.setStyleSheet(f'''
-            QCheckBox::indicator {{
-                width: 15px;
-                height: 15px;
-                border: 3px solid rgb(94, 104, 122);
-                border-radius: 5px;
-            }}
-            
-            QCheckBox::indicator:unchecked:hover {{
-                border: 3px solid rgb(139, 158, 194);
-            }}
-            
-            QCheckBox::indicator:checked {{
-                background: rgb(94, 104, 122);
-            }}''')
+        self.setStyleSheet(StyleSheets.check_box)
 
 # not so generic
 class TopBar(QFrame):
-    style_sheet = '''
-        QFrame#topBar {
-            background-color: rgb(33, 37, 43);
-        }'''
-
     def __init__(self, parent):
         QFrame.__init__(self, parent)
         self.setObjectName("topBar")
         self.setMinimumSize(QSize(300, 60))
-        self.setStyleSheet(TopBar.style_sheet)
+        self.setStyleSheet("QFrame#topBar {background-color: rgb(33, 37, 43);}")
 
 class TopBarButton(QPushButton):
-    style_sheet = '''
-        QPushButton {
-            background-color: transparent;
-            border-radius: 5;
-        }
-        QPushButton:hover {
-            background-color: rgb(40, 44, 52);
-            border: none;
-            border-radius: 5;
-        }
-        QPushButton:pressed {
-            background-color: rgb(255, 121, 198);
-            border: none;
-            border-radius: 5;
-        }'''
-
-    def __init__(self, icon, parent, function, style_sheet=style_sheet):
+    def __init__(self, parent, object_name, icon, on_click, style_sheet=StyleSheets.top_bar_button):
         QPushButton.__init__(self, parent)
+        self.setObjectName(object_name)
         self.setFixedSize(QSize(35, 35))
-
         self.setStyleSheet(style_sheet)
 
         # icon
         self.setIconSize(QSize(20, 20))
         self.setIcon(icon)
 
-        self.clicked.connect(function)
+        self.clicked.connect(on_click)
 
 class TitleBar(QWidget):
     def __init__(self, parent, on_double_click, on_drag):
@@ -148,36 +110,9 @@ class LeftMenuButton(QPushButton):
 
     padding = (max_width - min_width) / 2
 
-    inactive_style_sheet = f'''
-        QPushButton {{
-            background-color: transparent;
-            padding: 0 {padding} 0 -{padding};
-            border: none;
-        }}
-        QPushButton:hover {{
-            background-color: rgb(40, 44, 52);
-            border: none;
-        }}
-        QPushButton:pressed {{
-            background-color: rgb(189, 147, 249);
-            border: none;
-        }}'''
-
-    active_style_sheet = f'''
-        QPushButton {{
-            background-color: rgb(40, 44, 52);
-            padding: 0 {padding} 0 -{padding};
-            border: none;
-        }}
-        QPushButton:hover {{
-            border: none;
-        }}
-        QPushButton:pressed {{
-            border: none;
-        }}'''
-
-    def __init__(self, icon, parent, main_window, is_active=False):
+    def __init__(self, parent, object_name, icon, main_window, is_active=False):
         QPushButton.__init__(self, parent)
+        self.setObjectName(object_name)
         self.setMinimumSize(QSize(LeftMenuButton.max_width, 60))
         self.setMaximumSize(QSize(LeftMenuButton.max_width, 60))
         self.setIconSize(QSize(30, 30))
@@ -186,7 +121,7 @@ class LeftMenuButton(QPushButton):
         self.main = main_window
 
         self.is_active = is_active
-        self.setStyleSheet(LeftMenuButton.active_style_sheet if is_active else LeftMenuButton.inactive_style_sheet)
+        self.setStyleSheet(StyleSheets.left_menu_button(LeftMenuButton.padding, is_active))
 
         self.clicked.connect(self.on_click)
 
@@ -198,13 +133,13 @@ class LeftMenuButton(QPushButton):
 
     def activate(self):
         self.is_active = True
-        self.setStyleSheet(LeftMenuButton.active_style_sheet)
+        self.setStyleSheet(StyleSheets.left_menu_button_active(LeftMenuButton.padding))
         self.bar.activate()
         self.main.stack.setCurrentWidget(self.page)
 
     def deactivate(self):
         self.is_active = False
-        self.setStyleSheet(LeftMenuButton.inactive_style_sheet)
+        self.setStyleSheet(StyleSheets.left_menu_button_inactive(LeftMenuButton.padding))
         self.bar.deactivate()
 
     def on_click(self):
@@ -214,10 +149,11 @@ class LeftMenuButton(QPushButton):
         self.activate()
 
 class LeftMenuBar(QFrame):
-    def __init__(self, parent, visible=False):
+    def __init__(self, parent, object_name, visible=False):
         QFrame.__init__(self, parent)
+        self.setObjectName(object_name)
         self.setFixedSize(3, 60)
-        self.setStyleSheet("background-color: rgb(189, 147, 249);")
+        self.setStyleSheet(f"QFrame#{object_name} {{background-color: {StyleSheets.purple};}}")
         self.setVisible(visible)
 
     def activate(self):
@@ -227,10 +163,9 @@ class LeftMenuBar(QFrame):
         self.setVisible(False)
 
 class LeftMenuLabel(QLabel):
-    style_sheet = "color: rgb(255, 255, 255);"
-
-    def __init__(self, parent, text, style_sheet=style_sheet):
+    def __init__(self, parent, object_name, text, style_sheet=StyleSheets.white_text):
         QLabel.__init__(self, parent)
+        self.setObjectName(object_name)
         self.setFont(Font(8))
         self.setFixedHeight(60)
         self.setText(text)
@@ -238,38 +173,22 @@ class LeftMenuLabel(QLabel):
         self.move(self.geometry().topLeft() - parent.geometry().topLeft() + QPoint(80, 0))
 
 class ToggleButton(LeftMenuButton):
-    def __init__(self, icon, parent, main_window, on_click):
-        LeftMenuButton.__init__(self, icon, parent, main_window)
+    def __init__(self, parent, object_name, icon, main_window, on_click):
+        LeftMenuButton.__init__(self, parent, object_name, icon, main_window)
         self.clicked.connect(on_click)
 
     def on_click(self):
-        pass
+        pass # override base method
 
 class PageButton(QPushButton):
-    style_sheet = '''
-        QPushButton {
-            background-color: transparent;
-            border: none;
-            border-radius: 5;
-        }
-        QPushButton:hover {
-            background-color: rgb(33, 37, 43);
-            border: none;
-            border-radius: 5;
-        }
-        QPushButton:pressed {
-            background-color: rgb(255, 121, 198);
-            border: none;
-            border-radius: 5;
-        }'''
-
-    def __init__(self, icon, parent, on_click):
+    def __init__(self, parent, object_name, icon, on_click):
         QPushButton.__init__(self, parent)
+        self.setObjectName(object_name)
         self.setFixedSize(QSize(30, 30))
         self.setIconSize(QSize(30, 30))
         self.setIcon(icon)
 
-        self.setStyleSheet(PageButton.style_sheet)
+        self.setStyleSheet(StyleSheets.page_button)
 
         self.clicked.connect(on_click)
 
@@ -286,68 +205,16 @@ class Selector(QComboBox):
         if active_item is not None:
             self.setCurrentIndex(self.findText(active_item))
         self.setView(self.view)
-        self.setStyleSheet('''
-            QComboBox {
-                background-color: rgb(33, 37, 43);
-                color: rgb(255, 255, 255);
-                border-radius: 5px;
-                border: 2px solid rgba(0, 0, 0, 0);
-                padding-left: 10px;
-            }
-            
-            QComboBox:hover {
-                border: 2px solid rgb(47, 52, 61);
-            }
-            
-            QComboBox::drop-down {
-                width: 30px;
-                border: transparent;
-            }
-            
-            QComboBox::down-arrow {
-                image: url("assets/images/icons/icon_down_arrow.png");
-                width: 15;
-                height: 15;
-            }
-            
-            QComboBox QAbstractItemView {
-                outline: 0px;
-                color: rgb(189, 147, 249);
-                background-color: rgb(33, 37, 43);
-                padding: 10px 0px 10px 10px;
-            }
-            
-            QComboBox QAbstractItemView::item {
-                min-height: 25px;
-            }
-            
-            QListView::item:selected {
-                color: rgb(255, 255, 255);
-                background-color: rgb(39, 44, 54);
-            }''')
+        self.setStyleSheet(StyleSheets.selector)
 
-class SaveButton(QPushButton):
+class Button(QPushButton):
     def __init__(self, parent, object_name, text, size: QSize):
         QPushButton.__init__(self, parent)
         self.setObjectName(object_name)
         self.setFixedSize(size)
         self.setFont(Font(10))
         self.setText(text)
-        self.setStyleSheet(f'''
-            QPushButton {{
-                color: rgb(255, 255, 255);
-                background-color: rgb(56, 62, 73);
-                border: none;
-                border-radius: 5px;
-            }}
-            QPushButton:hover {{
-                background-color: rgb(94, 104, 122);
-                border: none;
-            }}
-            QPushButton:pressed {{
-                background-color: rgb(139, 158, 194);
-                border: none;
-            }}''')
+        self.setStyleSheet(StyleSheets.button)
 
 class CheckBoxWithFunction(CheckBox):
     def __init__(self, parent, object_name, on_click):
@@ -393,7 +260,7 @@ class CollapsibleBox(QWidget):
         self.filtersLayout.addWidget(self.characterHeading, 0, 0, 1, 2)
 
         self.characterCheckBoxes = {}
-        for i, character in enumerate(Data.get_characters(), 1):
+        for i, character in enumerate(Data.get_categories(), 1):
             checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterCheckBox", on_click)
             checkbox.setFixedSize(25, 25)
             self.characterCheckBoxes[character] = checkbox
@@ -575,8 +442,11 @@ class MainWindow(QMainWindow):
     def update_from_config(self):
         while self.preferencesPageProfileSelector.count() > 0:
             self.preferencesPageProfileSelector.removeItem(0)
-
         self.preferencesPageProfileSelector.addItems(Config().profile_names())
+
+        while self.bloodwebPageProfileSelector.count() > 0:
+            self.bloodwebPageProfileSelector.removeItem(0)
+        self.bloodwebPageProfileSelector.addItems(Config().profile_names())
 
         # TODO replace all values with the updated config values
 
@@ -608,11 +478,9 @@ class MainWindow(QMainWindow):
         self.lastSortedBy = sort_by
 
     def switch_edit_profile(self):
-        if not self.ignore_switch_edit_profile_signal:
+        if not self.ignore_signals:
             # TODO prompt: unsaved changes (save or discard)
             profile_id = self.preferencesPageProfileSelector.currentText()
-
-            # self.update_from_config()
 
             config = Config()
             for widget in self.preferencesPageUnlockableWidgets:
@@ -634,33 +502,57 @@ class MainWindow(QMainWindow):
         # TODO green text for 5 seconds: changes saved to X profile
 
     def save_as_profile(self):
-        self.ignore_switch_edit_profile_signal = True # saving as new profile; don't trigger
+        if not self.ignore_signals:
+            self.ignore_signals = True # saving as new profile; don't trigger
 
-        profile_id = self.preferencesPageSaveAsInput.text()
+            profile_id = self.preferencesPageSaveAsInput.text()
+            self.preferencesPageSaveAsInput.setText("")
 
-        new_profile = {"id": profile_id}
+            new_profile = {"id": profile_id}
 
-        for widget in self.preferencesPageUnlockableWidgets:
-            # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
-            tier, subtier = widget.getTiers()
-            if tier != 0 or subtier != 0:
-                new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
+            for widget in self.preferencesPageUnlockableWidgets:
+                # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
+                tier, subtier = widget.getTiers()
+                if tier != 0 or subtier != 0:
+                    new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
 
-        Config().add_profile(new_profile)
+            Config().add_profile(new_profile)
 
-        # update dropdown
-        while self.preferencesPageProfileSelector.count() > 0:
-            self.preferencesPageProfileSelector.removeItem(0)
+            self.update_from_config()
+            self.preferencesPageProfileSelector.setCurrentIndex(self.preferencesPageProfileSelector.findText(profile_id))
 
-        self.preferencesPageProfileSelector.addItems(Config().profile_names())
-        self.ignore_switch_edit_profile_signal = False
+            self.ignore_signals = False
 
-        self.preferencesPageProfileSelector.setCurrentIndex(self.preferencesPageProfileSelector.findText(profile_id))
 
         # TODO green text for 5 seconds: changes saved to X profile
 
     def switch_run_profile(self):
-        pass # TODO Config().set_active_profile(active_profile)
+        self.ignore_signals = True
+        profile_id = self.bloodwebPageProfileSelector.currentText()
+
+        Config().set_active_profile(profile_id)
+        self.update_from_config()
+
+        self.ignore_signals = False
+
+    def switch_character(self):
+        self.ignore_signals = True
+        character = self.bloodwebPageCharacterSelector.currentText()
+
+        Config().set_character(character)
+
+        self.ignore_signals = False
+
+    def run_terminate(self):
+        if self.state.is_active():
+            self.state.terminate()
+            self.bloodwebPageRunButton.setText("Run")
+            self.bloodwebPageRunButton.setFixedSize(QSize(60, 35))
+        else:
+            # self.minimize()
+            self.state.run_regular_mode()
+            self.bloodwebPageRunButton.setText("Terminate")
+            self.bloodwebPageRunButton.setFixedSize(QSize(92, 35))
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -669,7 +561,8 @@ class MainWindow(QMainWindow):
         # TODO a blank profile which cannot be saved to, all 0s
 
         self.is_maximized = False
-        self.ignore_switch_edit_profile_signal = False
+        self.ignore_signals = False
+        self.state = State()
 
         # self.setWindowFlag(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
@@ -749,14 +642,11 @@ class MainWindow(QMainWindow):
         self.windowButtonsLayout.setContentsMargins(0, 0, 0, 0)
         self.windowButtonsLayout.setSpacing(0)
 
-        self.minimizeButton = TopBarButton(QIcon(Icons.minimize), self.windowButtons, self.minimize)
-        self.minimizeButton.setObjectName("minimizeButton")
-
-        maximize_icon = QIcon(Icons.restore) if self.is_maximized else QIcon(Icons.maximize)
-        self.maximizeButton = TopBarButton(maximize_icon, self.windowButtons, self.maximize_restore)
-        self.maximizeButton.setObjectName("maximizeButton")
-        self.closeButton = TopBarButton(QIcon(Icons.close), self.windowButtons, self.close)
-        self.closeButton.setObjectName("closeButton")
+        self.minimizeButton = TopBarButton(self.windowButtons, "minimizeButton", QIcon(Icons.minimize), self.minimize)
+        self.maximizeButton = TopBarButton(self.windowButtons, "maximizeButton",
+                                           QIcon(Icons.restore) if self.is_maximized else QIcon(Icons.maximize),
+                                           self.maximize_restore)
+        self.closeButton = TopBarButton(self.windowButtons, "closeButton", QIcon(Icons.close), self.close)
 
         # content
         self.content = QFrame(self.background)
@@ -791,45 +681,37 @@ class MainWindow(QMainWindow):
         self.menuColumnLayout.setContentsMargins(0, 0, 0, 0)
         self.menuColumnLayout.setSpacing(0)
 
-        self.toggleButton = ToggleButton(QIcon(Icons.menu), self.leftMenu, self, self.animate)
-        self.toggleButton.setObjectName("toggleButton")
-        self.toggleLabel = LeftMenuLabel(self.toggleButton, "Hide", "color: rgb(150, 150, 150);")
-        self.toggleLabel.setObjectName("toggleLabel")
+        self.toggleButton = ToggleButton(self.leftMenu, "toggleButton", QIcon(Icons.menu), self, self.animate)
+        self.toggleLabel = LeftMenuLabel(self.toggleButton, "toggleLabel", "Hide", "color: rgb(150, 150, 150);")
 
-        self.homeButton = LeftMenuButton(QIcon(Icons.home), self.leftMenu, self, True)
-        self.homeButton.setObjectName("homeButton")
-        self.homeLabel = LeftMenuLabel(self.homeButton, "Home")
-        self.homeLabel.setObjectName("homeLabel")
-        self.homeBar = LeftMenuBar(self.homeButton, True)
-        self.homeBar.setObjectName("homeLeftBar")
+        self.homeButton = LeftMenuButton(self.leftMenu, "homeButton", QIcon(Icons.home), self, True)
+        self.homeLabel = LeftMenuLabel(self.homeButton, "homeLabel", "Home")
+        self.homeBar = LeftMenuBar(self.homeButton, "homeBar", True)
         self.homeButton.setBar(self.homeBar)
 
-        self.preferencesButton = LeftMenuButton(QIcon(Icons.preferences), self.leftMenu, self)
-        self.preferencesButton.setObjectName("preferencesButton")
-        self.preferencesLabel = LeftMenuLabel(self.preferencesButton, "Preference Profiles")
-        self.preferencesLabel.setObjectName("preferencesLabel")
-        self.preferencesBar = LeftMenuBar(self.preferencesButton)
-        self.preferencesBar.setObjectName("preferencesBar")
+        self.preferencesButton = LeftMenuButton(self.leftMenu, "preferencesButton", QIcon(Icons.preferences), self)
+        self.preferencesLabel = LeftMenuLabel(self.preferencesButton, "preferencesLabel", "Preference Profiles")
+        self.preferencesBar = LeftMenuBar(self.preferencesButton, "preferencesBar")
         self.preferencesButton.setBar(self.preferencesBar)
 
-        self.bloodwebButton = LeftMenuButton(QIcon(Icons.bloodweb), self.leftMenu, self)
-        self.bloodwebButton.setObjectName("bloodwebButton")
-        self.bloodwebLabel = LeftMenuLabel(self.bloodwebButton, "Run")
-        self.bloodwebLabel.setObjectName("bloodwebLabel")
-        self.bloodwebBar = LeftMenuBar(self.bloodwebButton)
-        self.bloodwebBar.setObjectName("bloodwebBar")
+        self.bloodwebButton = LeftMenuButton(self.leftMenu, "bloodwebButton", QIcon(Icons.bloodweb), self)
+        self.bloodwebLabel = LeftMenuLabel(self.bloodwebButton, "bloodwebLabel", "Run")
+        self.bloodwebBar = LeftMenuBar(self.bloodwebButton, "bloodwebBar")
         self.bloodwebButton.setBar(self.bloodwebBar)
 
+        # help button
+        self.helpButton = LeftMenuButton(self.menuColumn, "helpButton", QIcon(Icons.help), self)
+        self.helpLabel = LeftMenuLabel(self.helpButton, "helpLabel", "Help & Contact")
+        self.helpBar = LeftMenuBar(self.helpButton, "helpBar")
+        self.helpButton.setBar(self.helpBar)
+
         # settings button
-        self.settingsButton = LeftMenuButton(QIcon(Icons.settings), self.menuColumn, self)
-        self.settingsButton.setObjectName("settingsButton")
-        self.settingsLabel = LeftMenuLabel(self.settingsButton, "Settings")
-        self.settingsLabel.setObjectName("settingsLabel")
-        self.settingsBar = LeftMenuBar(self.settingsButton)
-        self.settingsBar.setObjectName("settingsBar")
+        self.settingsButton = LeftMenuButton(self.menuColumn, "settingsButton", QIcon(Icons.settings), self)
+        self.settingsLabel = LeftMenuLabel(self.settingsButton, "settingsLabel", "Settings")
+        self.settingsBar = LeftMenuBar(self.settingsButton, "settingsBar")
         self.settingsButton.setBar(self.settingsBar)
 
-        self.buttons = [self.homeButton, self.preferencesButton, self.bloodwebButton, self.settingsButton]
+        self.buttons = [self.homeButton, self.preferencesButton, self.bloodwebButton, self.helpButton, self.settingsButton]
 
         # content pages
         self.contentPages = QFrame(self.content)
@@ -864,22 +746,19 @@ class MainWindow(QMainWindow):
         # TODO make these into custom classes so don't have to set object name separately
         self.homePageRow1 = QWidget(self.homePage)
         self.homePageRow1.setObjectName("homePageRow1")
-        self.homePageButton1 = PageButton(QIcon(Icons.settings), self.homePageRow1, self.settingsButton.on_click)
-        self.homePageButton1.setObjectName("homePageButton1")
+        self.homePageButton1 = PageButton(self.homePageRow1, "homePageButton1", QIcon(Icons.settings), self.settingsButton.on_click)
         self.homePageLabel1 = TextLabel(self.homePageRow1, "homePageLabel1",
                                         "First time here? Recently change your game / display settings? Set up your config.")
 
         self.homePageRow2 = QWidget(self.homePage)
         self.homePageRow2.setObjectName("homePageRow2")
-        self.homePageButton2 = PageButton(QIcon(Icons.preferences), self.homePageRow2, self.preferencesButton.on_click)
-        self.homePageButton2.setObjectName("homePageButton2")
+        self.homePageButton2 = PageButton(self.homePageRow2, "homePageButton2", QIcon(Icons.preferences), self.preferencesButton.on_click)
         self.homePageLabel2 = TextLabel(self.homePageRow2, "homePageLabel2",
                                         "What would you like from the bloodweb? Set up your preferences.")
 
         self.homePageRow3 = QWidget(self.homePage)
         self.homePageRow3.setObjectName("homePageRow3")
-        self.homePageButton3 = PageButton(QIcon(Icons.bloodweb), self.homePageRow3, self.bloodwebButton.on_click)
-        self.homePageButton3.setObjectName("homePageButton3")
+        self.homePageButton3 = PageButton(self.homePageRow3, "homePageButton3", QIcon(Icons.bloodweb), self.bloodwebButton.on_click)
         self.homePageLabel3 = TextLabel(self.homePageRow3, "homePageLabel3",
                                         "Ready? Start clearing your bloodweb!")
 
@@ -896,27 +775,7 @@ class MainWindow(QMainWindow):
         self.preferencesPageScrollBar = QScrollBar(self.preferencesPage)
         self.preferencesPageScrollBar.setObjectName("preferencesPageScrollBar")
         self.preferencesPageScrollBar.setOrientation(Qt.Vertical)
-        self.preferencesPageScrollBar.setStyleSheet('''
-            QScrollBar:vertical {
-                background: rgb(52, 59, 72);
-                width: 8px;
-                border: 0px solid white;
-                border-radius: 4px;
-            }
-            
-            QScrollBar::handle:vertical {	
-                background: rgb(189, 147, 249);
-                min-height: 25px;
-                border-radius: 4px;
-            }
-            
-            QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-                background: none;
-            }
-            
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                border: none;
-            }''')
+        self.preferencesPageScrollBar.setStyleSheet(StyleSheets.scroll_bar)
 
         self.preferencesPageScrollArea = QScrollArea(self.preferencesPage)
         self.preferencesPageScrollArea.setObjectName("preferencesPageScrollArea")
@@ -945,7 +804,7 @@ class MainWindow(QMainWindow):
 
         # save
         self.preferencesPageProfileSaveRow = QWidget(self.preferencesPageScrollAreaContent)
-        self.preferencesPageProfileSaveRow.setObjectName("preferencesPageProfileRowWidget")
+        self.preferencesPageProfileSaveRow.setObjectName("preferencesPageProfileSaveRow")
         self.preferencesPageProfileSaveRowLayout = QHBoxLayout(self.preferencesPageProfileSaveRow)
         self.preferencesPageProfileSaveRowLayout.setContentsMargins(0, 0, 0, 0)
         self.preferencesPageProfileSaveRowLayout.setSpacing(15)
@@ -959,8 +818,8 @@ class MainWindow(QMainWindow):
                                                        Config().active_profile_name())
         self.preferencesPageProfileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
-        self.preferencesPageSaveButton = SaveButton(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton",
-                                                    "Save", QSize(60, 35))
+        self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton",
+                                                "Save", QSize(60, 35))
         self.preferencesPageSaveButton.clicked.connect(self.save_profile)
         # TODO delete profile button next to this, rename profile
 
@@ -974,8 +833,8 @@ class MainWindow(QMainWindow):
         self.preferencesPageSaveAsInput = TextInputBox(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsInput",
                                                        QSize(150, 40), "Enter profile name")
 
-        self.preferencesPageSaveAsButton = SaveButton(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsButton",
-                                                    "Save As", QSize(80, 35))
+        self.preferencesPageSaveAsButton = Button(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsButton",
+                                                  "Save As", QSize(80, 35))
         self.preferencesPageSaveAsButton.clicked.connect(self.save_as_profile)
 
         # filters
@@ -1010,6 +869,38 @@ class MainWindow(QMainWindow):
         self.bloodwebPage = QWidget()
         self.bloodwebPage.setObjectName("bloodwebPage")
         self.bloodwebButton.setPage(self.bloodwebPage)
+
+        self.bloodwebPageLayout = QVBoxLayout(self.bloodwebPage)
+        self.bloodwebPageLayout.setObjectName("bloodwebPageLayout")
+        self.bloodwebPageLayout.setContentsMargins(25, 25, 25, 25)
+        self.bloodwebPageLayout.setSpacing(15)
+
+        self.bloodwebPageProfileLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Profile", Font(11))
+        self.bloodwebPageProfileSelector = Selector(self.bloodwebPage, "bloodwebPageProfileSelector", QSize(150, 40),
+                                                    Config().profile_names(), Config().active_profile_name())
+        self.bloodwebPageProfileSelector.currentIndexChanged.connect(self.switch_run_profile)
+
+        self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Character", Font(11))
+        self.bloodwebPageCharacterSelector = Selector(self.bloodwebPage, "bloodwebPageCharacterSelector", QSize(150, 40),
+                                                      Data.get_characters(), Config().character())
+        self.bloodwebPageCharacterSelector.currentIndexChanged.connect(self.switch_character)
+
+        self.bloodwebPageRunRow = QWidget(self.bloodwebPage)
+        self.bloodwebPageRunRow.setObjectName("bloodwebPageRunRow")
+        self.bloodwebPageRunRowLayout = QHBoxLayout(self.bloodwebPageRunRow)
+        self.bloodwebPageRunRowLayout.setObjectName("bloodwebPageRunRowLayout")
+        self.bloodwebPageRunRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.bloodwebPageRunRowLayout.setSpacing(15)
+
+        self.bloodwebPageRunButton = Button(self.bloodwebPageRunRow, "bloodwebPageRunButton", "Run", QSize(60, 35)) # TODO change text
+        self.bloodwebPageRunButton.clicked.connect(self.run_terminate)
+        self.bloodwebPageRunLabel = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunLabel",
+                                              "Make sure your game is open on your monitor.", Font(10))
+
+        # stack: helpPage
+        self.helpPage = QWidget()
+        self.helpPage.setObjectName("helpPage")
+        self.helpButton.setPage(self.helpPage)
 
         # stack: settingsPage
         self.settingsPage = QWidget()
@@ -1088,9 +979,11 @@ class MainWindow(QMainWindow):
         '''
         leftMenu
             -> menuColumn
+            -> helpButton
             -> settingsButton
         '''
         self.leftMenuLayout.addWidget(self.menuColumn, 0, Qt.AlignTop)
+        self.leftMenuLayout.addWidget(self.helpButton)
         self.leftMenuLayout.addWidget(self.settingsButton)
 
         '''
@@ -1123,11 +1016,13 @@ class MainWindow(QMainWindow):
             -> homePage
             -> preferencesPage
             -> bloodwebPage
+            -> helpPage
             -> settingsPage
         '''
         self.stack.addWidget(self.homePage)
         self.stack.addWidget(self.preferencesPage)
         self.stack.addWidget(self.bloodwebPage)
+        self.stack.addWidget(self.helpPage)
         self.stack.addWidget(self.settingsPage)
         self.stack.setCurrentWidget(self.homePage)
 
@@ -1172,11 +1067,6 @@ class MainWindow(QMainWindow):
             -> scrollBar
         '''
         # rows comprising the content
-        self.preferencesPageLayout.addWidget(self.preferencesPageScrollArea, 0, 0, 1, 1)
-        self.preferencesPageLayout.addWidget(self.preferencesPageScrollBar, 0, 1, 1, 1)
-        self.preferencesPageLayout.setRowStretch(0, 1)
-        self.preferencesPageLayout.setColumnStretch(0, 1)
-
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageProfileSelector)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageSaveButton)
         self.preferencesPageProfileSaveRowLayout.addStretch(1)
@@ -1200,8 +1090,27 @@ class MainWindow(QMainWindow):
         self.preferencesPageScrollAreaContentLayout.addSpacing(15)
         for unlockableWidget in self.preferencesPageUnlockableWidgets:
             self.preferencesPageScrollAreaContentLayout.addWidget(unlockableWidget)
-
         self.preferencesPageScrollAreaContentLayout.addStretch(1)
+
+        # assembling it all together
+        self.preferencesPageLayout.addWidget(self.preferencesPageScrollArea, 0, 0, 1, 1)
+        self.preferencesPageLayout.addWidget(self.preferencesPageScrollBar, 0, 1, 1, 1)
+        self.preferencesPageLayout.setRowStretch(0, 1)
+        self.preferencesPageLayout.setColumnStretch(0, 1)
+
+        '''
+        bloodwebPage
+        '''
+        self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunButton)
+        self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunLabel)
+
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageProfileLabel)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageProfileSelector)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageCharacterLabel)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageCharacterSelector)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunRow)
+        self.bloodwebPageLayout.addStretch(1)
+
         self.show()
 
 class Icons:
@@ -1216,6 +1125,7 @@ class Icons:
     preferences = __base + "/icon_preferences.png"
     settings = __base + "/icon_settings.png"
     bloodweb = __base + "/icon_graph.png"
+    help = __base + "/icon_help.png"
     down_arrow = __base + "/icon_down_arrow.png"
     right_arrow = __base + "/icon_right_arrow.png"
 
