@@ -95,6 +95,16 @@ class Config:
         with open("config.json", "w") as output:
             json.dump(self.config, output, indent=4)
 
+    def set_resolution(self, width, height, ui_scale):
+        self.config["resolution"]["width"] = width
+        self.config["resolution"]["height"] = height
+        self.config["resolution"]["ui_scale"] = ui_scale
+        self.commit_changes()
+
+    def set_path(self, path):
+        self.config["path"] = path
+        self.commit_changes()
+
     def set_active_profile(self, active_profile):
         self.config["active_profile"] = active_profile
         self.commit_changes()

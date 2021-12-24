@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QKeySequence
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
-    QCheckBox, QLineEdit, QToolButton
+    QCheckBox, QLineEdit, QToolButton, QFileDialog
 
 from backend.utils.text_util import TextUtil
 from frontend.stylesheets import StyleSheets
@@ -172,6 +172,20 @@ class LeftMenuLabel(QLabel):
         self.setStyleSheet(style_sheet)
         self.move(self.geometry().topLeft() - parent.geometry().topLeft() + QPoint(80, 0))
 
+class HomeRow(QWidget):
+    def __init__(self, parent, object_number, icon, on_click, text):
+        QWidget.__init__(self, parent)
+        self.setObjectName(f"homePageRow{object_number}")
+        self.button = PageButton(self, f"homePageButton{object_number}", icon, on_click)
+        self.label = TextLabel(self, f"homePageLabel{object_number}", text)
+
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addStretch(1)
+        self.layout.addWidget(self.button)
+        self.layout.addWidget(self.label)
+        self.layout.addStretch(1)
+
 class ToggleButton(LeftMenuButton):
     def __init__(self, parent, object_name, icon, main_window, on_click):
         LeftMenuButton.__init__(self, parent, object_name, icon, main_window)
@@ -232,7 +246,7 @@ class CollapsibleBox(QWidget):
         self.toggleButton.setObjectName(object_name)
         self.toggleButton.setCheckable(True)
         self.toggleButton.setChecked(False)
-        self.toggleButton.setFont(Font(11))
+        self.toggleButton.setFont(Font(12))
         self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
         self.toggleButton.setText("Filter Options")
         self.toggleButton.setIcon(QIcon(Icons.right_arrow))
@@ -241,7 +255,7 @@ class CollapsibleBox(QWidget):
         self.toggleButton.pressed.connect(self.on_pressed)
 
         # TODO clear filters button
-        # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier
+        # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
         self.filters = QScrollArea(self)
         self.filters.setMinimumHeight(0)
         self.filters.setMaximumHeight(0)
@@ -554,6 +568,25 @@ class MainWindow(QMainWindow):
             self.bloodwebPageRunButton.setText("Terminate")
             self.bloodwebPageRunButton.setFixedSize(QSize(92, 35))
 
+    def set_path(self):
+        icon_dir = QFileDialog.getExistingDirectory(self, "Select Icon Folder", self.settingsPagePathText.text())
+        if icon_dir != "":
+            self.settingsPagePathText.setText(icon_dir)
+
+    def save_settings(self):
+        self.ignore_signals = True
+        width = self.settingsPageResolutionWidthInput.text()
+        height = self.settingsPageResolutionHeightInput.text()
+        ui_scale = self.settingsPageResolutionUIInput.text()
+        path = self.settingsPagePathText.text()
+
+        # TODO try except for int, also check isdir, maybe do same colour boxes as the tier inputs for invalid inputs
+        #  will also need error message, just as the tiers will need
+        Config().set_resolution(int(width), int(height), int(ui_scale))
+        Config().set_path(path)
+
+        self.ignore_signals = False
+
     def __init__(self):
         QMainWindow.__init__(self)
         # TODO windows up + windows down; resize areas; cursor when hovering over buttons
@@ -744,23 +777,17 @@ class MainWindow(QMainWindow):
         self.homePageIcon.setScaledContents(True)
 
         # TODO make these into custom classes so don't have to set object name separately
-        self.homePageRow1 = QWidget(self.homePage)
-        self.homePageRow1.setObjectName("homePageRow1")
-        self.homePageButton1 = PageButton(self.homePageRow1, "homePageButton1", QIcon(Icons.settings), self.settingsButton.on_click)
-        self.homePageLabel1 = TextLabel(self.homePageRow1, "homePageLabel1",
-                                        "First time here? Recently change your game / display settings? Set up your config.")
+        self.homePageRow1 = HomeRow(self.homePage, 1, QIcon(Icons.settings), self.settingsButton.on_click,
+                                    "First time here? Recently change your game / display settings? Set up your config.")
 
-        self.homePageRow2 = QWidget(self.homePage)
-        self.homePageRow2.setObjectName("homePageRow2")
-        self.homePageButton2 = PageButton(self.homePageRow2, "homePageButton2", QIcon(Icons.preferences), self.preferencesButton.on_click)
-        self.homePageLabel2 = TextLabel(self.homePageRow2, "homePageLabel2",
-                                        "What would you like from the bloodweb? Set up your preferences.")
+        self.homePageRow2 = HomeRow(self.homePage, 2, QIcon(Icons.preferences), self.preferencesButton.on_click,
+                                    "What would you like from the bloodweb? Set up your preferences.")
 
-        self.homePageRow3 = QWidget(self.homePage)
-        self.homePageRow3.setObjectName("homePageRow3")
-        self.homePageButton3 = PageButton(self.homePageRow3, "homePageButton3", QIcon(Icons.bloodweb), self.bloodwebButton.on_click)
-        self.homePageLabel3 = TextLabel(self.homePageRow3, "homePageLabel3",
-                                        "Ready? Start clearing your bloodweb!")
+        self.homePageRow3 = HomeRow(self.homePage, 3, QIcon(Icons.bloodweb), self.bloodwebButton.on_click,
+                                    "Ready? Start clearing your bloodweb!")
+
+        self.homePageRow4 = HomeRow(self.homePage, 4, QIcon(Icons.help), self.helpButton.on_click,
+                                    "Instructions & contact details here.")
 
         # stack: preferencesPage
         self.preferencesPage = QWidget()
@@ -810,7 +837,7 @@ class MainWindow(QMainWindow):
         self.preferencesPageProfileSaveRowLayout.setSpacing(15)
 
         self.preferencesPageProfileLabel = TextLabel(self.preferencesPageScrollAreaContent, "preferencesPageProfileLabel",
-                                                     "Profile", Font(11))
+                                                     "Profile", Font(12))
 
         self.preferencesPageProfileSelector = Selector(self.preferencesPageProfileSaveRow,
                                                        "preferencesPageProfileSelector",
@@ -875,12 +902,12 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.setContentsMargins(25, 25, 25, 25)
         self.bloodwebPageLayout.setSpacing(15)
 
-        self.bloodwebPageProfileLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Profile", Font(11))
+        self.bloodwebPageProfileLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Profile", Font(12))
         self.bloodwebPageProfileSelector = Selector(self.bloodwebPage, "bloodwebPageProfileSelector", QSize(150, 40),
                                                     Config().profile_names(), Config().active_profile_name())
         self.bloodwebPageProfileSelector.currentIndexChanged.connect(self.switch_run_profile)
 
-        self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Character", Font(11))
+        self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Character", Font(12))
         self.bloodwebPageCharacterSelector = Selector(self.bloodwebPage, "bloodwebPageCharacterSelector", QSize(150, 40),
                                                       Data.get_characters(), Config().character())
         self.bloodwebPageCharacterSelector.currentIndexChanged.connect(self.switch_character)
@@ -906,6 +933,90 @@ class MainWindow(QMainWindow):
         self.settingsPage = QWidget()
         self.settingsPage.setObjectName("settingsPage")
         self.settingsButton.setPage(self.settingsPage)
+
+        self.settingsPageLayout = QVBoxLayout(self.settingsPage)
+        self.settingsPageLayout.setObjectName("settingsPageLayout")
+        self.settingsPageLayout.setContentsMargins(25, 25, 25, 25)
+        self.settingsPageLayout.setSpacing(15)
+
+        res = Config().resolution()
+        self.settingsPageResolutionLabel = TextLabel(self.settingsPage, "settingsPageResolutionLabel", "Display Resolution", Font(12))
+        self.settingsPageResolutionUIDescription = TextLabel(self.settingsPage,
+                                                             "settingsPageResolutionUIDescription",
+                                                             "You can find your UI scale in your Dead by Daylight "
+                                                             "settings under Graphics -> UI / HUD -> UI Scale.", Font(10))
+        self.settingsPageResolutionWidthRow = QWidget(self.settingsPage)
+        self.settingsPageResolutionWidthRow.setObjectName("settingsPageResolutionWidthRow")
+
+        self.settingsPageResolutionWidthRowLayout = QHBoxLayout(self.settingsPageResolutionWidthRow)
+        self.settingsPageResolutionWidthRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.settingsPageResolutionWidthRowLayout.setSpacing(15)
+
+        self.settingsPageResolutionWidthLabel = TextLabel(self.settingsPageResolutionWidthRow,
+                                                          "settingsPageResolutionWidthLabel", "Width", Font(10))
+        self.settingsPageResolutionWidthInput = TextInputBox(self.settingsPageResolutionWidthRow,
+                                                             "settingsPageResolutionWidthInput", QSize(65, 40),
+                                                             "Width", str(res.width))
+
+        self.settingsPageResolutionHeightRow = QWidget(self.settingsPage)
+        self.settingsPageResolutionHeightRow.setObjectName("settingsPageResolutionHeightRow")
+        self.settingsPageResolutionHeightRowLayout = QHBoxLayout(self.settingsPageResolutionHeightRow)
+        self.settingsPageResolutionHeightRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.settingsPageResolutionHeightRowLayout.setSpacing(15)
+
+        self.settingsPageResolutionHeightLabel = TextLabel(self.settingsPageResolutionHeightRow,
+                                                          "settingsPageResolutionHeightLabel", "Height", Font(10))
+        self.settingsPageResolutionHeightInput = TextInputBox(self.settingsPageResolutionHeightRow,
+                                                              "settingsPageResolutionHeightInput", QSize(65, 40),
+                                                              "Height", str(res.height))
+
+        self.settingsPageResolutionUIRow = QWidget(self.settingsPage)
+        self.settingsPageResolutionUIRow.setObjectName("settingsPageResolutionUIRow")
+        self.settingsPageResolutionUIRowLayout = QHBoxLayout(self.settingsPageResolutionUIRow)
+        self.settingsPageResolutionUIRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.settingsPageResolutionUIRowLayout.setSpacing(15)
+
+        self.settingsPageResolutionUILabel = TextLabel(self.settingsPageResolutionUIRow,
+                                                       "settingsPageResolutionUILabel", "UI Scale", Font(10))
+        self.settingsPageResolutionUIInput = TextInputBox(self.settingsPageResolutionUIRow,
+                                                          "settingsPageResolutionUIInput", QSize(50, 40),
+                                                          "UI Scale", str(res.ui_scale))
+
+        self.settingsPagePathLabel = TextLabel(self.settingsPage, "settingsPagePathLabel", "Installation Path", Font(12))
+        self.settingsPagePathLabelDefaultLabel = TextLabel(self.settingsPage, "settingsPagePathLabelDefaultLabel",
+                                                           "Default path on Steam is C:/Program Files (x86)"
+                                                           "/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/"
+                                                           "Content/UI/Icons", Font(10))
+
+        self.settingsPagePathRow = QWidget(self.settingsPage)
+        self.settingsPagePathRow.setObjectName("settingsPagePathRow")
+        self.settingsPagePathRowLayout = QHBoxLayout(self.settingsPagePathRow)
+        self.settingsPagePathRowLayout.setObjectName("settingsPagePathRowLayout")
+        self.settingsPagePathRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.settingsPagePathRowLayout.setSpacing(15)
+
+        self.settingsPagePathText = TextInputBox(self.settingsPage, "settingsPagePathText", QSize(600, 40),
+                                                 "Path to Dead by Daylight game icon files", str(Config().path()))
+        self.settingsPagePathButton = Button(self.settingsPage, "settingsPagePathButton", "Set path to game icon files", QSize(180, 35))
+        self.settingsPagePathButton.clicked.connect(self.set_path)
+
+        self.settingsPageSaveButton = Button(self.settingsPage, "settingsPageSaveButton",
+                                             "Save", QSize(60, 35))
+        self.settingsPageSaveButton.clicked.connect(self.save_settings)
+        # TODO reset to last saved settings button
+
+
+
+
+        '''
+        "resolution": {
+            "width": 2560,
+            "height": 1440,
+            "ui_scale": 70
+        },
+        "path"
+        '''
+
 
         # bottom bar
         self.bottomBar = QFrame(self.content)
@@ -1030,33 +1141,11 @@ class MainWindow(QMainWindow):
         homePage
         '''
         self.homePageLayout.addStretch(1)
-
         self.homePageLayout.addWidget(self.homePageIcon, alignment=Qt.AlignHCenter)
-
-        self.homePageRow1Layout = QHBoxLayout(self.homePageRow1)
-        self.homePageRow1Layout.setContentsMargins(0, 0, 0, 0)
-        self.homePageRow1Layout.addStretch(1)
-        self.homePageRow1Layout.addWidget(self.homePageButton1)
-        self.homePageRow1Layout.addWidget(self.homePageLabel1)
-        self.homePageRow1Layout.addStretch(1)
         self.homePageLayout.addWidget(self.homePageRow1)
-
-        self.homePageRow2Layout = QHBoxLayout(self.homePageRow2)
-        self.homePageRow2Layout.setContentsMargins(0, 0, 0, 0)
-        self.homePageRow2Layout.addStretch(1)
-        self.homePageRow2Layout.addWidget(self.homePageButton2)
-        self.homePageRow2Layout.addWidget(self.homePageLabel2)
-        self.homePageRow2Layout.addStretch(1)
         self.homePageLayout.addWidget(self.homePageRow2)
-
-        self.homePageRow3Layout = QHBoxLayout(self.homePageRow3)
-        self.homePageRow3Layout.setContentsMargins(0, 0, 0, 0)
-        self.homePageRow3Layout.addStretch(1)
-        self.homePageRow3Layout.addWidget(self.homePageButton3)
-        self.homePageRow3Layout.addWidget(self.homePageLabel3)
-        self.homePageRow3Layout.addStretch(1)
         self.homePageLayout.addWidget(self.homePageRow3)
-
+        self.homePageLayout.addWidget(self.homePageRow4)
         self.homePageLayout.addStretch(1)
 
         '''
@@ -1110,6 +1199,38 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.addWidget(self.bloodwebPageCharacterSelector)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunRow)
         self.bloodwebPageLayout.addStretch(1)
+
+        '''
+        settingsPage
+        '''
+        self.settingsPageResolutionWidthRowLayout.addWidget(self.settingsPageResolutionWidthLabel)
+        self.settingsPageResolutionWidthRowLayout.addWidget(self.settingsPageResolutionWidthInput)
+        self.settingsPageResolutionWidthRowLayout.addStretch(1)
+
+        self.settingsPageResolutionHeightRowLayout.addWidget(self.settingsPageResolutionHeightLabel)
+        self.settingsPageResolutionHeightRowLayout.addWidget(self.settingsPageResolutionHeightInput)
+        self.settingsPageResolutionHeightRowLayout.addStretch(1)
+
+        self.settingsPageResolutionUIRowLayout.addWidget(self.settingsPageResolutionUILabel)
+        self.settingsPageResolutionUIRowLayout.addWidget(self.settingsPageResolutionUIInput)
+        self.settingsPageResolutionUIRowLayout.addStretch(1)
+
+        self.settingsPagePathRowLayout.addWidget(self.settingsPagePathText)
+        self.settingsPagePathRowLayout.addWidget(self.settingsPagePathButton)
+        self.settingsPagePathRowLayout.addStretch(1)
+
+        self.settingsPageLayout.addWidget(self.settingsPageResolutionLabel)
+        self.settingsPageLayout.addWidget(self.settingsPageResolutionUIDescription)
+        self.settingsPageLayout.addWidget(self.settingsPageResolutionWidthRow)
+        self.settingsPageLayout.addWidget(self.settingsPageResolutionHeightRow)
+        self.settingsPageLayout.addWidget(self.settingsPageResolutionUIRow)
+        self.settingsPageLayout.addWidget(self.settingsPagePathLabel)
+        self.settingsPageLayout.addWidget(self.settingsPagePathLabelDefaultLabel)
+        self.settingsPageLayout.addWidget(self.settingsPagePathRow)
+        self.settingsPageLayout.addWidget(self.settingsPageSaveButton)
+        self.settingsPageLayout.addStretch(1)
+
+
 
         self.show()
 
