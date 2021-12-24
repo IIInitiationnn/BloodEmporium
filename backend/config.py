@@ -43,6 +43,8 @@ class Config:
                 raise ConfigError(f"Missing profile id for profile {num} in config.json")
             if profile["id"] in ids:
                 raise ConfigError(f"Multiple profiles with same id (profile {num}) in config.json")
+            if profile["id"] == "blank":
+                raise ConfigError(f"blank is an invalid profile id for profile {num} in config.json")
 
             ids.append(profile["id"])
             for unique_id, v in profile.items():
@@ -114,6 +116,10 @@ class Config:
         self.commit_changes()
 
     def add_profile(self, new_profile):
+        '''
+        :return: whether the profile existed before already
+        '''
+
         existing_profile = None
         for profile in self.__profiles():
             if profile["id"] == new_profile["id"]:
@@ -124,6 +130,13 @@ class Config:
         else:
             self.set_profile(new_profile)
 
+        self.commit_changes()
+
+        return existing_profile is not None
+
+    def delete_profile(self, profile_id):
+        to_be_removed = [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
+        self.config["profiles"].remove(to_be_removed)
         self.commit_changes()
 
     def set_character(self, character):

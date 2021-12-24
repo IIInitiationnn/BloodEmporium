@@ -2,11 +2,12 @@ import os
 import sys
 from multiprocessing import freeze_support
 
-from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint
+from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QTimer
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QKeySequence
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
-    QCheckBox, QLineEdit, QToolButton, QFileDialog
+    QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip
+
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
@@ -455,11 +456,11 @@ class MainWindow(QMainWindow):
     def update_profiles_from_config(self):
         while self.preferencesPageProfileSelector.count() > 0:
             self.preferencesPageProfileSelector.removeItem(0)
-        self.preferencesPageProfileSelector.addItems(Config().profile_names())
+        self.preferencesPageProfileSelector.addItems(Config().profile_names() + ["blank"])
 
         while self.bloodwebPageProfileSelector.count() > 0:
             self.bloodwebPageProfileSelector.removeItem(0)
-        self.bloodwebPageProfileSelector.addItems(Config().profile_names())
+        self.bloodwebPageProfileSelector.addItems(Config().profile_names() + ["blank"])
 
     def replace_unlockable_widgets(self):
         sort_by = self.preferencesPageSortSelector.currentText()
@@ -493,24 +494,65 @@ class MainWindow(QMainWindow):
             # TODO prompt: unsaved changes (save or discard)
             profile_id = self.preferencesPageProfileSelector.currentText()
 
-            config = Config()
-            for widget in self.preferencesPageUnlockableWidgets:
-                widget.setTiers(*config.preference(widget.unlockable.unique_id, profile_id))
+            if profile_id == "blank":
+                for widget in self.preferencesPageUnlockableWidgets:
+                    widget.setTiers(0, 0)
+            else:
+                config = Config()
+                for widget in self.preferencesPageUnlockableWidgets:
+                    widget.setTiers(*config.preference(widget.unlockable.unique_id, profile_id))
 
     def save_profile(self):
         profile_id = self.preferencesPageProfileSelector.currentText()
+        if profile_id == "blank":
+            self.show_preferences_page_save_fail_text("You cannot save to the blank profile. Use Save As below to create a new profile.")
+        else:
+            updated_profile = Config().get_profile_by_id(profile_id).copy()
 
-        updated_profile = Config().get_profile_by_id(profile_id).copy()
+            for widget in self.preferencesPageUnlockableWidgets:
+                # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
+                tier, subtier = widget.getTiers()
+                if tier != 0 or subtier != 0:
+                    updated_profile[widget.unlockable.unique_id]["tier"] = tier
+                    updated_profile[widget.unlockable.unique_id]["subtier"] = subtier
 
-        for widget in self.preferencesPageUnlockableWidgets:
-            # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
-            tier, subtier = widget.getTiers()
-            if tier != 0 or subtier != 0:
-                updated_profile[widget.unlockable.unique_id]["tier"] = tier
-                updated_profile[widget.unlockable.unique_id]["subtier"] = subtier
+            Config().set_profile(updated_profile)
 
-        Config().set_profile(updated_profile)
-        # TODO green text for 5 seconds: changes saved to X profile
+            self.show_preferences_page_save_success_text(f"Changes saved to profile: {profile_id}")
+            QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
+
+    def delete_profile(self):
+        if not self.ignore_profile_signals:
+            self.ignore_profile_signals = True
+            profile_id = self.preferencesPageProfileSelector.currentText()
+            if profile_id == "blank":
+                self.show_preferences_page_save_fail_text("You cannot delete the blank profile.")
+            else:
+                # TODO "are you sure" for deleting
+                Config().delete_profile(profile_id)
+
+                self.update_profiles_from_config()
+                self.preferencesPageProfileSelector.setCurrentIndex(0)
+                self.ignore_profile_signals = False
+                self.switch_edit_profile()
+
+                self.show_preferences_page_save_success_text(f"Profile deleted: {profile_id}")
+            self.ignore_profile_signals = False
+
+    def show_preferences_page_save_success_text(self, text):
+        self.preferencesPageSaveSuccessText.setText(text)
+        self.preferencesPageSaveSuccessText.setStyleSheet(StyleSheets.pink_text)
+        self.preferencesPageSaveSuccessText.setVisible(True)
+        QTimer.singleShot(10000, self.hide_preferences_page_save_success_text)
+
+    def show_preferences_page_save_fail_text(self, text):
+        self.preferencesPageSaveSuccessText.setText(text)
+        self.preferencesPageSaveSuccessText.setStyleSheet(StyleSheets.purple_text)
+        self.preferencesPageSaveSuccessText.setVisible(True)
+        QTimer.singleShot(10000, self.hide_preferences_page_save_success_text)
+
+    def hide_preferences_page_save_success_text(self):
+        self.preferencesPageSaveSuccessText.setVisible(False)
 
     def save_as_profile(self):
         if not self.ignore_profile_signals:
@@ -518,24 +560,44 @@ class MainWindow(QMainWindow):
 
             profile_id = self.preferencesPageSaveAsInput.text()
             self.preferencesPageSaveAsInput.setText("")
+            if profile_id == "blank":
+                self.show_preferences_page_save_as_fail_text("You cannot save to a profile named \"blank\". Try a different name.")
+            else:
+                # TODO "are you sure" for overwriting existing profile "this will overwrite an existing profile. are you sure you want to save?"
+                new_profile = {"id": profile_id}
 
-            new_profile = {"id": profile_id}
+                for widget in self.preferencesPageUnlockableWidgets:
+                    # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
+                    tier, subtier = widget.getTiers()
+                    if tier != 0 or subtier != 0:
+                        new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
 
-            for widget in self.preferencesPageUnlockableWidgets:
-                # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
-                tier, subtier = widget.getTiers()
-                if tier != 0 or subtier != 0:
-                    new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
+                already_existed = Config().add_profile(new_profile)
 
-            Config().add_profile(new_profile)
+                self.update_profiles_from_config()
+                self.preferencesPageProfileSelector.setCurrentIndex(self.preferencesPageProfileSelector.findText(profile_id))
 
-            self.update_profiles_from_config()
-            self.preferencesPageProfileSelector.setCurrentIndex(self.preferencesPageProfileSelector.findText(profile_id))
+                if already_existed:
+                    self.show_preferences_page_save_as_success_text(f"Existing profile overridden with changes: {profile_id}")
+                else:
+                    self.show_preferences_page_save_as_success_text(f"Changes saved to new profile: {profile_id}")
 
             self.ignore_profile_signals = False
 
+    def show_preferences_page_save_as_success_text(self, text):
+        self.preferencesPageSaveAsSuccessText.setText(text)
+        self.preferencesPageSaveAsSuccessText.setStyleSheet(StyleSheets.pink_text)
+        self.preferencesPageSaveAsSuccessText.setVisible(True)
+        QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
 
-        # TODO green text for 5 seconds: changes saved to X profile
+    def show_preferences_page_save_as_fail_text(self, text):
+        self.preferencesPageSaveAsSuccessText.setText(text)
+        self.preferencesPageSaveAsSuccessText.setStyleSheet(StyleSheets.purple_text)
+        self.preferencesPageSaveAsSuccessText.setVisible(True)
+        QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
+
+    def hide_preferences_page_save_as_success_text(self):
+        self.preferencesPageSaveAsSuccessText.setVisible(False)
 
     def switch_run_profile(self):
         if not self.ignore_profile_signals:
@@ -573,6 +635,9 @@ class MainWindow(QMainWindow):
         Config().set_resolution(int(width), int(height), int(ui_scale))
         Config().set_path(path)
 
+    def top_resize(self):
+        print("hi")
+
     def __init__(self):
         QMainWindow.__init__(self)
         # TODO windows up + windows down; resize areas; cursor when hovering over buttons
@@ -586,13 +651,13 @@ class MainWindow(QMainWindow):
         # self.setWindowFlag(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.resize(1000, 580)
+        self.setBaseSize(1000, 580)
         self.setMinimumSize(800, 500)
         self.setWindowTitle("Blood Emporium")
         self.setWindowIcon(QIcon(Icons.icon))
 
-        self.shortcut = QShortcut(QKeySequence(Qt.Key_Meta), self)
-        self.shortcut.activated.connect(self.maximize)
+        # self.shortcut = QShortcut(QKeySequence(Qt.Key_Meta), self) # TODO
+        # self.shortcut.activated.connect(self.maximize)
 
         # central widget
         self.centralWidget = QWidget(self)
@@ -603,6 +668,12 @@ class MainWindow(QMainWindow):
         self.centralLayout = QGridLayout(self.centralWidget)
         self.centralLayout.setObjectName("centralLayout")
         self.centralLayout.setContentsMargins(10, 10, 10, 10)
+        self.centralLayout.setSpacing(0)
+
+        # self.topResize = QWidget(self.centralWidget)
+        # self.topResize.setCursor(Qt.SizeVerCursor)
+        # # self.topResize.resizeEvent = lambda e: print("hi")
+        # self.centralLayout.addWidget(self.topResize, 0, 0)
 
         # background
         self.background = QFrame(self.centralWidget)
@@ -823,14 +894,20 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageProfileSelector = Selector(self.preferencesPageProfileSaveRow,
                                                        "preferencesPageProfileSelector",
-                                                       QSize(150, 40), Config().profile_names(),
+                                                       QSize(150, 40), Config().profile_names() + ["blank"],
                                                        Config().active_profile_name())
         self.preferencesPageProfileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
-        self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton",
-                                                "Save", QSize(60, 35))
+        self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton", "Save", QSize(60, 35))
         self.preferencesPageSaveButton.clicked.connect(self.save_profile)
-        # TODO delete profile button next to this, rename profile
+
+        self.preferencesPageDeleteButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageDeleteButton", "Delete", QSize(75, 35))
+        self.preferencesPageDeleteButton.clicked.connect(self.delete_profile)
+
+        self.preferencesPageSaveSuccessText = TextLabel(self.preferencesPageProfileSaveRow, "preferencesPageSaveSuccessText", "", Font(10))
+        self.preferencesPageSaveSuccessText.setVisible(False)
+
+        # TODO rename profile
 
         # save as
         self.preferencesPageProfileSaveAsRow = QWidget(self.preferencesPageScrollAreaContent)
@@ -845,6 +922,10 @@ class MainWindow(QMainWindow):
         self.preferencesPageSaveAsButton = Button(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsButton",
                                                   "Save As", QSize(80, 35))
         self.preferencesPageSaveAsButton.clicked.connect(self.save_as_profile)
+
+        self.preferencesPageSaveAsSuccessText = TextLabel(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsSuccessText",
+                                                          "", Font(10))
+        self.preferencesPageSaveAsSuccessText.setVisible(False)
 
         # filters
         self.preferencesPageFiltersBox = CollapsibleBox(self.preferencesPageScrollAreaContent,
@@ -988,19 +1069,6 @@ class MainWindow(QMainWindow):
         self.settingsPageSaveButton.clicked.connect(self.save_settings)
         # TODO reset to last saved settings button
 
-
-
-
-        '''
-        "resolution": {
-            "width": 2560,
-            "height": 1440,
-            "ui_scale": 70
-        },
-        "path"
-        '''
-
-
         # bottom bar
         self.bottomBar = QFrame(self.content)
         self.bottomBar.setObjectName("bottomBar")
@@ -1023,7 +1091,7 @@ class MainWindow(QMainWindow):
             -> background
         '''
 
-        self.centralLayout.addWidget(self.background)
+        self.centralLayout.addWidget(self.background, 1, 1)
 
         '''
         background
@@ -1141,10 +1209,13 @@ class MainWindow(QMainWindow):
         # rows comprising the content
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageProfileSelector)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageSaveButton)
+        self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageDeleteButton)
+        self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageSaveSuccessText)
         self.preferencesPageProfileSaveRowLayout.addStretch(1)
 
         self.preferencesPageProfileSaveAsRowLayout.addWidget(self.preferencesPageSaveAsInput)
         self.preferencesPageProfileSaveAsRowLayout.addWidget(self.preferencesPageSaveAsButton)
+        self.preferencesPageProfileSaveAsRowLayout.addWidget(self.preferencesPageSaveAsSuccessText)
         self.preferencesPageProfileSaveAsRowLayout.addStretch(1)
 
         self.preferencesPageSearchSortRowLayout.addWidget(self.preferencesPageSearchBar)

@@ -1,6 +1,6 @@
 *.html
 compile.json
-main.spec
+*.spec
 temp.py
 cheapskate.py
 
@@ -8,4 +8,10 @@ cheapskate.py
 __pycache__/
 training_data/
 output/
+investigate/
 references/
+
+frontend/base.py
+frontend/test*.py
+frontend/*.ui
+frontend/*.qrc

@@ -9,6 +9,12 @@ class StyleSheets:
     '''
 
     white_text = "color: rgb(255, 255, 255);"
+    pink_text = f"color: {pink};"
+    purple_text = f"color: {purple};"
+
+    @staticmethod
+    def save_text(is_success):
+        return StyleSheets.pink_text if is_success else StyleSheets.purple_text
 
     page_button = '''
         QPushButton {
