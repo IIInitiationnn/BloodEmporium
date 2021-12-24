@@ -1,5 +1,6 @@
 import os
 import sys
+from multiprocessing import freeze_support
 
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QKeySequence
@@ -7,17 +8,15 @@ from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, 
     QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
     QCheckBox, QLineEdit, QToolButton, QFileDialog
 
-from backend.utils.text_util import TextUtil
-from frontend.stylesheets import StyleSheets
-
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 from backend.config import Config
 from backend.data import Data, Unlockable
 from backend.state import State
+from backend.utils.text_util import TextUtil
+from frontend.stylesheets import StyleSheets
 
 # TODO new assets for frontend if using vanilla (so people can see rarity) with the full coloured background
-# TODO whenever changing config, call self.updateconfig(), always within the scope of self.ignore_signal being true
 
 # generic
 class Font(QFont):
@@ -453,7 +452,7 @@ class MainWindow(QMainWindow):
         self.animation.setEasingCurve(QEasingCurve.InOutQuint)
         self.animation.start()
 
-    def update_from_config(self):
+    def update_profiles_from_config(self):
         while self.preferencesPageProfileSelector.count() > 0:
             self.preferencesPageProfileSelector.removeItem(0)
         self.preferencesPageProfileSelector.addItems(Config().profile_names())
@@ -461,8 +460,6 @@ class MainWindow(QMainWindow):
         while self.bloodwebPageProfileSelector.count() > 0:
             self.bloodwebPageProfileSelector.removeItem(0)
         self.bloodwebPageProfileSelector.addItems(Config().profile_names())
-
-        # TODO replace all values with the updated config values
 
     def replace_unlockable_widgets(self):
         sort_by = self.preferencesPageSortSelector.currentText()
@@ -492,7 +489,7 @@ class MainWindow(QMainWindow):
         self.lastSortedBy = sort_by
 
     def switch_edit_profile(self):
-        if not self.ignore_signals:
+        if not self.ignore_profile_signals:
             # TODO prompt: unsaved changes (save or discard)
             profile_id = self.preferencesPageProfileSelector.currentText()
 
@@ -516,8 +513,8 @@ class MainWindow(QMainWindow):
         # TODO green text for 5 seconds: changes saved to X profile
 
     def save_as_profile(self):
-        if not self.ignore_signals:
-            self.ignore_signals = True # saving as new profile; don't trigger
+        if not self.ignore_profile_signals:
+            self.ignore_profile_signals = True # saving as new profile; don't trigger
 
             profile_id = self.preferencesPageSaveAsInput.text()
             self.preferencesPageSaveAsInput.setText("")
@@ -532,30 +529,22 @@ class MainWindow(QMainWindow):
 
             Config().add_profile(new_profile)
 
-            self.update_from_config()
+            self.update_profiles_from_config()
             self.preferencesPageProfileSelector.setCurrentIndex(self.preferencesPageProfileSelector.findText(profile_id))
 
-            self.ignore_signals = False
+            self.ignore_profile_signals = False
 
 
         # TODO green text for 5 seconds: changes saved to X profile
 
     def switch_run_profile(self):
-        self.ignore_signals = True
-        profile_id = self.bloodwebPageProfileSelector.currentText()
-
-        Config().set_active_profile(profile_id)
-        self.update_from_config()
-
-        self.ignore_signals = False
+        if not self.ignore_profile_signals:
+            profile_id = self.bloodwebPageProfileSelector.currentText()
+            Config().set_active_profile(profile_id)
 
     def switch_character(self):
-        self.ignore_signals = True
         character = self.bloodwebPageCharacterSelector.currentText()
-
         Config().set_character(character)
-
-        self.ignore_signals = False
 
     def run_terminate(self):
         if self.state.is_active():
@@ -574,7 +563,6 @@ class MainWindow(QMainWindow):
             self.settingsPagePathText.setText(icon_dir)
 
     def save_settings(self):
-        self.ignore_signals = True
         width = self.settingsPageResolutionWidthInput.text()
         height = self.settingsPageResolutionHeightInput.text()
         ui_scale = self.settingsPageResolutionUIInput.text()
@@ -585,8 +573,6 @@ class MainWindow(QMainWindow):
         Config().set_resolution(int(width), int(height), int(ui_scale))
         Config().set_path(path)
 
-        self.ignore_signals = False
-
     def __init__(self):
         QMainWindow.__init__(self)
         # TODO windows up + windows down; resize areas; cursor when hovering over buttons
@@ -594,8 +580,8 @@ class MainWindow(QMainWindow):
         # TODO a blank profile which cannot be saved to, all 0s
 
         self.is_maximized = False
-        self.ignore_signals = False
-        self.state = State()
+        self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
+        self.state = State(False)
 
         # self.setWindowFlag(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
@@ -768,24 +754,20 @@ class MainWindow(QMainWindow):
         self.homePageLayout = QVBoxLayout(self.homePage)
         self.homePageLayout.setObjectName("homePageLayout")
         self.homePageLayout.setContentsMargins(0, 0, 0, 0)
-        self.homePageLayout.setSpacing(0)
+        self.homePageLayout.setSpacing(5)
 
         self.homePageIcon = QLabel(self.homePage)
         self.homePageIcon.setObjectName("homePageIcon") # TODO large icon with Blood Emporium text like in Github splash
-        self.homePageIcon.setFixedSize(QSize(300, 300))
+        self.homePageIcon.setFixedSize(QSize(200, 200))
         self.homePageIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.icon))
         self.homePageIcon.setScaledContents(True)
 
-        # TODO make these into custom classes so don't have to set object name separately
         self.homePageRow1 = HomeRow(self.homePage, 1, QIcon(Icons.settings), self.settingsButton.on_click,
                                     "First time here? Recently change your game / display settings? Set up your config.")
-
         self.homePageRow2 = HomeRow(self.homePage, 2, QIcon(Icons.preferences), self.preferencesButton.on_click,
                                     "What would you like from the bloodweb? Set up your preferences.")
-
         self.homePageRow3 = HomeRow(self.homePage, 3, QIcon(Icons.bloodweb), self.bloodwebButton.on_click,
                                     "Ready? Start clearing your bloodweb!")
-
         self.homePageRow4 = HomeRow(self.homePage, 4, QIcon(Icons.help), self.helpButton.on_click,
                                     "Instructions & contact details here.")
 
@@ -919,10 +901,11 @@ class MainWindow(QMainWindow):
         self.bloodwebPageRunRowLayout.setContentsMargins(0, 0, 0, 0)
         self.bloodwebPageRunRowLayout.setSpacing(15)
 
-        self.bloodwebPageRunButton = Button(self.bloodwebPageRunRow, "bloodwebPageRunButton", "Run", QSize(60, 35)) # TODO change text
+        self.bloodwebPageRunButton = Button(self.bloodwebPageRunRow, "bloodwebPageRunButton", "Run", QSize(60, 35))
         self.bloodwebPageRunButton.clicked.connect(self.run_terminate)
         self.bloodwebPageRunLabel = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunLabel",
-                                              "Make sure your game is open on your monitor.", Font(10))
+                                              "Make sure your game is open on your monitor, and any shaders "
+                                              "and visual effects are off.", Font(10))
 
         # stack: helpPage
         self.helpPage = QWidget()
@@ -955,7 +938,7 @@ class MainWindow(QMainWindow):
         self.settingsPageResolutionWidthLabel = TextLabel(self.settingsPageResolutionWidthRow,
                                                           "settingsPageResolutionWidthLabel", "Width", Font(10))
         self.settingsPageResolutionWidthInput = TextInputBox(self.settingsPageResolutionWidthRow,
-                                                             "settingsPageResolutionWidthInput", QSize(65, 40),
+                                                             "settingsPageResolutionWidthInput", QSize(60, 40),
                                                              "Width", str(res.width))
 
         self.settingsPageResolutionHeightRow = QWidget(self.settingsPage)
@@ -967,7 +950,7 @@ class MainWindow(QMainWindow):
         self.settingsPageResolutionHeightLabel = TextLabel(self.settingsPageResolutionHeightRow,
                                                           "settingsPageResolutionHeightLabel", "Height", Font(10))
         self.settingsPageResolutionHeightInput = TextInputBox(self.settingsPageResolutionHeightRow,
-                                                              "settingsPageResolutionHeightInput", QSize(65, 40),
+                                                              "settingsPageResolutionHeightInput", QSize(60, 40),
                                                               "Height", str(res.height))
 
         self.settingsPageResolutionUIRow = QWidget(self.settingsPage)
@@ -1251,6 +1234,8 @@ class Icons:
     right_arrow = __base + "/icon_right_arrow.png"
 
 if __name__ == "__main__":
+    freeze_support() # --onedir (for exe)
+
     os.environ["QT_DEVICE_PIXEL_RATIO"] = "0"
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"

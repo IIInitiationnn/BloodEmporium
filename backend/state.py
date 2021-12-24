@@ -1,6 +1,6 @@
 import time
 from datetime import datetime
-from multiprocessing import Process, freeze_support, Event
+from multiprocessing import Process
 
 import networkx as nx
 import pyautogui
@@ -42,10 +42,11 @@ features to add
 class State:
     version = "v0.1.1"
 
-    def __init__(self):
+    def __init__(self, use_hotkeys=True):
         self.thread = None
-        listener = keyboard.Listener(on_press=self.on_press)
-        listener.start()
+        if use_hotkeys:
+            listener = keyboard.Listener(on_press=self.on_press)
+            listener.start()
 
     def is_active(self):
         return self.thread is not None
@@ -182,5 +183,4 @@ class State:
             i += 1
 
 if __name__ == '__main__':
-    freeze_support() # --onedir (for exe)
     State()
