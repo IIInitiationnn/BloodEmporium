@@ -143,3 +143,29 @@ class Data:
             filtered.append((unlockable_widget, True))
 
         return filtered
+
+    @staticmethod
+    def verify_tiers(widgets):
+        non_integer = []
+        for widget in widgets:
+            try:
+                tier, subtier = widget.getTiers()
+                if abs(tier) > 999 or abs(subtier) > 999:
+                    non_integer.append(widget.unlockable.name)
+            except ValueError:
+                non_integer.append(widget.unlockable.name)
+        return non_integer
+
+    @staticmethod
+    def verify_settings_res(width, height, ui_scale):
+        try:
+            int(width)
+            int(height)
+            ui_scale = int(ui_scale)
+            return 70 <= ui_scale <= 100
+        except ValueError:
+            return False
+
+    @staticmethod
+    def verify_path(path):
+        return os.path.isdir(path)

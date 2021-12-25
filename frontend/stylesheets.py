@@ -1,3 +1,6 @@
+import os.path
+
+
 class StyleSheets:
     pink = "rgb(255, 121, 198)" # #ff79c6
     purple = "rgb(189, 147, 249)" # #bd93f9
@@ -104,7 +107,7 @@ class StyleSheets:
             border: 2px solid rgb(47, 52, 61);
         }'''
 
-    tiers_input_invalid = f'''
+    text_box_invalid = f'''
         QLineEdit {{
             background-color: {darker_purple};
             color: rgb(255, 255, 255);
@@ -122,17 +125,40 @@ class StyleSheets:
         try:
             int(tier)
         except ValueError:
-            return StyleSheets.tiers_input_invalid
+            return StyleSheets.text_box_invalid
 
         tier = int(tier)
         if abs(tier) > 999:
-            return StyleSheets.tiers_input_invalid
+            return StyleSheets.text_box_invalid
         elif tier > 0:
             return StyleSheets.tiers_input_positive
         elif tier < 0:
             return StyleSheets.tiers_input_negative
         else:
             return StyleSheets.text_box
+
+    @staticmethod
+    def settings_input(width=None, height=None, ui_scale=None, path=None):
+        if width is not None:
+            try:
+                int(width)
+                return StyleSheets.text_box
+            except ValueError:
+                return StyleSheets.text_box_invalid
+        elif height is not None:
+            try:
+                int(width)
+                return StyleSheets.text_box
+            except ValueError:
+                return StyleSheets.text_box_invalid
+        elif ui_scale is not None:
+            try:
+                ui_scale = int(ui_scale)
+                return StyleSheets.text_box if 70 <= ui_scale <= 100 else StyleSheets.text_box_invalid
+            except ValueError:
+                return StyleSheets.text_box_invalid
+        elif path is not None:
+            return StyleSheets.text_box if os.path.isdir(path) else StyleSheets.text_box_invalid
 
     @staticmethod
     def left_menu_button_inactive(padding):

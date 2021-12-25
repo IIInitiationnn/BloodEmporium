@@ -509,8 +509,13 @@ class MainWindow(QMainWindow):
         else:
             updated_profile = Config().get_profile_by_id(profile_id).copy()
 
+            non_integer = Data.verify_tiers(self.preferencesPageUnlockableWidgets)
+            if len(non_integer) > 0:
+                self.show_preferences_page_save_fail_text(f"There are {len(non_integer)} unlockables with invalid inputs. "
+                                                          f"Inputs must be a number from -999 to 999. Changes not saved.")
+                return
+
             for widget in self.preferencesPageUnlockableWidgets:
-                # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
                 tier, subtier = widget.getTiers()
                 if tier != 0 or subtier != 0:
                     updated_profile[widget.unlockable.unique_id]["tier"] = tier
@@ -566,8 +571,13 @@ class MainWindow(QMainWindow):
                 # TODO "are you sure" for overwriting existing profile "this will overwrite an existing profile. are you sure you want to save?"
                 new_profile = {"id": profile_id}
 
+                non_integer = Data.verify_tiers(self.preferencesPageUnlockableWidgets)
+                if len(non_integer) > 0:
+                    self.show_preferences_page_save_as_fail_text(f"There are {len(non_integer)} unlockables with invalid inputs. "
+                                                                 f"Inputs must be a number from -999 to 999. Changes not saved.")
+                    return
+
                 for widget in self.preferencesPageUnlockableWidgets:
-                    # TODO try catch in getTiers for any non-integer tier / subtier; find all errors and show as message
                     tier, subtier = widget.getTiers()
                     if tier != 0 or subtier != 0:
                         new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
@@ -608,6 +618,7 @@ class MainWindow(QMainWindow):
         character = self.bloodwebPageCharacterSelector.currentText()
         Config().set_character(character)
 
+    # bloodweb
     def run_terminate(self):
         if self.state.is_active():
             self.state.terminate()
@@ -619,21 +630,53 @@ class MainWindow(QMainWindow):
             self.bloodwebPageRunButton.setText("Terminate")
             self.bloodwebPageRunButton.setFixedSize(QSize(92, 35))
 
+    # settings
+    def on_width_update(self):
+        self.settingsPageResolutionWidthInput.setStyleSheet(StyleSheets.settings_input(width=self.settingsPageResolutionWidthInput.text()))
+
+    def on_height_update(self):
+        self.settingsPageResolutionHeightInput.setStyleSheet(StyleSheets.settings_input(height=self.settingsPageResolutionHeightInput.text()))
+
+    def on_ui_scale_update(self):
+        self.settingsPageResolutionUIInput.setStyleSheet(StyleSheets.settings_input(ui_scale=self.settingsPageResolutionUIInput.text()))
+
     def set_path(self):
         icon_dir = QFileDialog.getExistingDirectory(self, "Select Icon Folder", self.settingsPagePathText.text())
         if icon_dir != "":
             self.settingsPagePathText.setText(icon_dir)
 
+    def show_settings_page_save_success_text(self, text):
+        self.settingsPageSaveSuccessText.setText(text)
+        self.settingsPageSaveSuccessText.setStyleSheet(StyleSheets.pink_text)
+        self.settingsPageSaveSuccessText.setVisible(True)
+        QTimer.singleShot(10000, self.hide_settings_page_save_success_text)
+
+    def show_settings_page_save_fail_text(self, text):
+        self.settingsPageSaveSuccessText.setText(text)
+        self.settingsPageSaveSuccessText.setStyleSheet(StyleSheets.purple_text)
+        self.settingsPageSaveSuccessText.setVisible(True)
+        QTimer.singleShot(10000, self.hide_settings_page_save_success_text)
+
+    def hide_settings_page_save_success_text(self):
+        self.settingsPageSaveSuccessText.setVisible(False)
+
     def save_settings(self):
         width = self.settingsPageResolutionWidthInput.text()
         height = self.settingsPageResolutionHeightInput.text()
         ui_scale = self.settingsPageResolutionUIInput.text()
-        path = self.settingsPagePathText.text()
+        if not Data.verify_settings_res(width, height, ui_scale):
+            self.show_settings_page_save_fail_text("Ensure width, height and UI scale are all numbers. "
+                                                   "UI scale must be a number between 70 and 100. Changes not saved.")
+            return
 
-        # TODO try except for int, also check isdir, maybe do same colour boxes as the tier inputs for invalid inputs
-        #  will also need error message, just as the tiers will need
+        path = self.settingsPagePathText.text()
+        if not Data.verify_path(path):
+            self.show_settings_page_save_fail_text("Ensure path is an actual folder. Changes not saved.")
+            return
+
         Config().set_resolution(int(width), int(height), int(ui_scale))
         Config().set_path(path)
+        self.show_settings_page_save_success_text("Settings changed.")
 
     def top_resize(self):
         print("hi")
@@ -1021,6 +1064,7 @@ class MainWindow(QMainWindow):
         self.settingsPageResolutionWidthInput = TextInputBox(self.settingsPageResolutionWidthRow,
                                                              "settingsPageResolutionWidthInput", QSize(60, 40),
                                                              "Width", str(res.width))
+        self.settingsPageResolutionWidthInput.textEdited.connect(self.on_width_update)
 
         self.settingsPageResolutionHeightRow = QWidget(self.settingsPage)
         self.settingsPageResolutionHeightRow.setObjectName("settingsPageResolutionHeightRow")
@@ -1033,6 +1077,7 @@ class MainWindow(QMainWindow):
         self.settingsPageResolutionHeightInput = TextInputBox(self.settingsPageResolutionHeightRow,
                                                               "settingsPageResolutionHeightInput", QSize(60, 40),
                                                               "Height", str(res.height))
+        self.settingsPageResolutionHeightInput.textEdited.connect(self.on_height_update)
 
         self.settingsPageResolutionUIRow = QWidget(self.settingsPage)
         self.settingsPageResolutionUIRow.setObjectName("settingsPageResolutionUIRow")
@@ -1045,6 +1090,7 @@ class MainWindow(QMainWindow):
         self.settingsPageResolutionUIInput = TextInputBox(self.settingsPageResolutionUIRow,
                                                           "settingsPageResolutionUIInput", QSize(50, 40),
                                                           "UI Scale", str(res.ui_scale))
+        self.settingsPageResolutionUIInput.textEdited.connect(self.on_ui_scale_update)
 
         self.settingsPagePathLabel = TextLabel(self.settingsPage, "settingsPagePathLabel", "Installation Path", Font(12))
         self.settingsPagePathLabelDefaultLabel = TextLabel(self.settingsPage, "settingsPagePathLabelDefaultLabel",
@@ -1064,9 +1110,18 @@ class MainWindow(QMainWindow):
         self.settingsPagePathButton = Button(self.settingsPage, "settingsPagePathButton", "Set path to game icon files", QSize(180, 35))
         self.settingsPagePathButton.clicked.connect(self.set_path)
 
-        self.settingsPageSaveButton = Button(self.settingsPage, "settingsPageSaveButton",
-                                             "Save", QSize(60, 35))
+        self.settingsPageSaveRow = QWidget(self.settingsPage)
+        self.settingsPageSaveRow.setObjectName("settingsPageSaveRow")
+        self.settingsPageSaveRowLayout = QHBoxLayout(self.settingsPageSaveRow)
+        self.settingsPageSaveRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.settingsPageSaveRowLayout.setSpacing(15)
+
+        self.settingsPageSaveButton = Button(self.settingsPageSaveRow, "settingsPageSaveButton", "Save", QSize(60, 35))
         self.settingsPageSaveButton.clicked.connect(self.save_settings)
+
+        self.settingsPageSaveSuccessText = TextLabel(self.settingsPageSaveRow, "settingsPageSaveSuccessText", "", Font(10))
+        self.settingsPageSaveSuccessText.setVisible(False)
+
         # TODO reset to last saved settings button
 
         # bottom bar
@@ -1273,6 +1328,10 @@ class MainWindow(QMainWindow):
         self.settingsPagePathRowLayout.addWidget(self.settingsPagePathButton)
         self.settingsPagePathRowLayout.addStretch(1)
 
+        self.settingsPageSaveRowLayout.addWidget(self.settingsPageSaveButton)
+        self.settingsPageSaveRowLayout.addWidget(self.settingsPageSaveSuccessText)
+        self.settingsPageSaveRowLayout.addStretch(1)
+
         self.settingsPageLayout.addWidget(self.settingsPageResolutionLabel)
         self.settingsPageLayout.addWidget(self.settingsPageResolutionUIDescription)
         self.settingsPageLayout.addWidget(self.settingsPageResolutionWidthRow)
@@ -1281,7 +1340,7 @@ class MainWindow(QMainWindow):
         self.settingsPageLayout.addWidget(self.settingsPagePathLabel)
         self.settingsPageLayout.addWidget(self.settingsPagePathLabelDefaultLabel)
         self.settingsPageLayout.addWidget(self.settingsPagePathRow)
-        self.settingsPageLayout.addWidget(self.settingsPageSaveButton)
+        self.settingsPageLayout.addWidget(self.settingsPageSaveRow)
         self.settingsPageLayout.addStretch(1)
 
 
