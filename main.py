@@ -186,6 +186,25 @@ class HomeRow(QWidget):
         self.layout.addWidget(self.label)
         self.layout.addStretch(1)
 
+class HelpRow(QWidget):
+    def __init__(self, parent, object_name, icon_path, text):
+        QWidget.__init__(self, parent)
+        self.setObjectName(object_name)
+
+        self.icon = QLabel(self)
+        self.icon.setObjectName(f"{object_name}Icon")
+        self.icon.setFixedSize(QSize(60, 60))
+        self.icon.setPixmap(QPixmap(icon_path))
+        self.icon.setScaledContents(True)
+
+        self.label = TextLabel(self, f"{object_name}Label", text)
+
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.icon)
+        self.layout.addWidget(self.label)
+        self.layout.addStretch(1)
+
 class ToggleButton(LeftMenuButton):
     def __init__(self, parent, object_name, icon, main_window, on_click):
         LeftMenuButton.__init__(self, parent, object_name, icon, main_window)
@@ -518,9 +537,7 @@ class MainWindow(QMainWindow):
             for widget in self.preferencesPageUnlockableWidgets:
                 tier, subtier = widget.getTiers()
                 if tier != 0 or subtier != 0:
-                    updated_profile[widget.unlockable.unique_id]["tier"] = tier
-                    updated_profile[widget.unlockable.unique_id]["subtier"] = subtier
-
+                    updated_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
             Config().set_profile(updated_profile)
 
             self.show_preferences_page_save_success_text(f"Changes saved to profile: {profile_id}")
@@ -689,13 +706,13 @@ class MainWindow(QMainWindow):
 
         self.is_maximized = False
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
-        self.state = State(False)
+        self.state = State(True)
 
         # self.setWindowFlag(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.setBaseSize(1000, 580)
-        self.setMinimumSize(800, 500)
+        self.setBaseSize(1230, 670)
+        self.setMinimumSize(1100, 600)
         self.setWindowTitle("Blood Emporium")
         self.setWindowIcon(QIcon(Icons.icon))
 
@@ -1036,6 +1053,66 @@ class MainWindow(QMainWindow):
         self.helpPage.setObjectName("helpPage")
         self.helpButton.setPage(self.helpPage)
 
+        self.helpPageLayout = QVBoxLayout(self.helpPage)
+        self.helpPageLayout.setContentsMargins(25, 25, 25, 25)
+        self.helpPageLayout.setSpacing(15)
+
+        self.helpPageInstructionsLabel = TextLabel(self.helpPage, "helpPageInstructionsLabel", "How to Use Blood Emporium", Font(12))
+        self.helpPageInstructionsDescription = TextLabel(self.helpPage, "helpPageInstructionsDescription",
+                                                         "<p style=line-height:125%> First, configure your display resolution and UI scale in the settings page. "
+                                                         "This will ensure that the correct region of your screen is used for the algorithm. "
+                                                         "If you have a non-default Dead by Daylight installation, you will also need "
+                                                         "to find the folder containing the icons, in case you are using a custom icon pack.<br><br>"
+                                                         "You can then set up preferences for what add-ons, items, offerings and perks "
+                                                         "you would like to obtain from the bloodweb. Each set of preferences can be "
+                                                         "stored in a different profile, for convenient switching as required. "
+                                                         "Three preset profiles come with the program: default (meta items), "
+                                                         "initiation (the creator's personal preferences) and cheapskate "
+                                                         "(for levelling up the bloodweb as cheaply as possible). "
+                                                         "You can use these as a starting point for your own profile, or "
+                                                         "create your own from scratch using the blank profile.<br><br>"
+                                                         "Each unlockable you configure will have a tier and a subtier:<br>"
+                                                         "    - the higher the tier (or subtier), the higher your preference for that item<br>"
+                                                         "    - the lower the tier (or subtier), the lower your preference for that item<br>"
+                                                         "    - neutral items will have tier and subtier 0<br>"
+                                                         "    - tiers and subtiers can range from -999 to 999<br>"
+                                                         "    - tier A item + tier B item are equivalent in preference to a tier A + B item<br>"
+                                                         "         - for instance, two tier 1 items is equivalent to a single tier 2 item<br>"
+                                                         "         - you can use these numbers to fine tune exactly how much you want each item<br>"
+                                                         "    - a similar system applies with negative tiers when specifying how much you dislike an item<br>"
+                                                         "    - subtier allows for preference within a tier e.g. a tier 3 subtier 3 is higher priority than tier 3 subtier 2<br><br>"
+                                                         "Then simply select a profile, select the character whose bloodweb you are on, and run! "
+                                                         "Make sure your shaders are off before running, or the program is very likely to perform in unintended ways.",
+                                                         Font(10))
+        self.helpPageInstructionsDescription.setWordWrap(True)
+
+        self.helpPageContactLabel = TextLabel(self.helpPage, "helpPageContactLabel", "Contact Me", Font(12))
+
+        self.helpPageContactDiscordRow = QWidget(self.helpPage)
+        self.helpPageContactDiscordRow.setObjectName("helpPageContactDiscordRow")
+        self.helpPageContactDiscordRowLayout = QHBoxLayout(self.helpPageContactDiscordRow)
+        self.helpPageContactDiscordRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.helpPageContactDiscordIcon = QLabel(self.helpPageContactDiscordRow)
+        self.helpPageContactDiscordIcon.setObjectName("helpPageContactDiscordIcon")
+        self.helpPageContactDiscordIcon.setFixedSize(QSize(20, 20))
+        self.helpPageContactDiscordIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.discord))
+        self.helpPageContactDiscordIcon.setScaledContents(True)
+        self.helpPageContactDiscordLabel = TextLabel(self.helpPageContactDiscordRow, "helpPageContactDiscordLabel", "Initiation#2031")
+
+        self.helpPageContactTwitterRow = QWidget(self.helpPage)
+        self.helpPageContactTwitterRow.setObjectName("helpPageContactTwitterRow")
+        self.helpPageContactTwitterRowLayout = QHBoxLayout(self.helpPageContactTwitterRow)
+        self.helpPageContactTwitterRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.helpPageContactTwitterIcon = QLabel(self.helpPageContactTwitterRow)
+        self.helpPageContactTwitterIcon.setObjectName("helpPageContactTwitterIcon")
+        self.helpPageContactTwitterIcon.setFixedSize(QSize(20, 20))
+        self.helpPageContactTwitterIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.twitter))
+        self.helpPageContactTwitterIcon.setScaledContents(True)
+        self.helpPageContactTwitterLabel = HyperlinkTextLabel(self.helpPageContactTwitterRow, "helpPageContactTwitterLabel",
+                                                              "Twitter", "https://twitter.com/initiationmusic", Font(10))
+
         # stack: settingsPage
         self.settingsPage = QWidget()
         self.settingsPage.setObjectName("settingsPage")
@@ -1310,6 +1387,24 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.addStretch(1)
 
         '''
+        helpPage
+        '''
+        self.helpPageContactDiscordRowLayout.addWidget(self.helpPageContactDiscordIcon)
+        self.helpPageContactDiscordRowLayout.addWidget(self.helpPageContactDiscordLabel)
+        self.helpPageContactDiscordRowLayout.addStretch(1)
+
+        self.helpPageContactTwitterRowLayout.addWidget(self.helpPageContactTwitterIcon)
+        self.helpPageContactTwitterRowLayout.addWidget(self.helpPageContactTwitterLabel)
+        self.helpPageContactTwitterRowLayout.addStretch(1)
+
+        self.helpPageLayout.addWidget(self.helpPageInstructionsLabel)
+        self.helpPageLayout.addWidget(self.helpPageInstructionsDescription)
+        self.helpPageLayout.addWidget(self.helpPageContactLabel)
+        self.helpPageLayout.addWidget(self.helpPageContactDiscordRow)
+        self.helpPageLayout.addWidget(self.helpPageContactTwitterRow)
+        self.helpPageLayout.addStretch(1)
+
+        '''
         settingsPage
         '''
         self.settingsPageResolutionWidthRowLayout.addWidget(self.settingsPageResolutionWidthLabel)
@@ -1362,6 +1457,8 @@ class Icons:
     help = __base + "/icon_help.png"
     down_arrow = __base + "/icon_down_arrow.png"
     right_arrow = __base + "/icon_right_arrow.png"
+    discord = __base + "/icon_discord.png"
+    twitter = __base + "/icon_twitter.png"
 
 if __name__ == "__main__":
     freeze_support() # --onedir (for exe)

@@ -178,6 +178,8 @@ class State:
                     pyautogui.click()
                     time.sleep(0.5) # in case of extra information on early level (eg. lvl 2 or lvl 5)
                     pyautogui.click()
+                    time.sleep(0.5) # in case of yet more extra information on early level (eg. lvl 10)
+                    pyautogui.click()
                     time.sleep(2) # 2 secs to generate
                 j += 1
             i += 1
