@@ -58,12 +58,12 @@ class TextInputBox(QLineEdit):
         self.setStyleSheet(style_sheet)
 
 class CheckBox(QCheckBox):
-    def __init__(self, parent, object_name):
+    def __init__(self, parent, object_name, style_sheet=StyleSheets.check_box):
         QCheckBox.__init__(self, parent)
         if object_name is not None:
             self.setObjectName(object_name)
         self.setAutoFillBackground(False)
-        self.setStyleSheet(StyleSheets.check_box)
+        self.setStyleSheet(style_sheet)
 
 # not so generic
 class TopBar(QFrame):
@@ -250,8 +250,8 @@ class Button(QPushButton):
         self.setStyleSheet(StyleSheets.button)
 
 class CheckBoxWithFunction(CheckBox):
-    def __init__(self, parent, object_name, on_click):
-        CheckBox.__init__(self, parent, object_name)
+    def __init__(self, parent, object_name, on_click, style_sheet=StyleSheets.check_box):
+        CheckBox.__init__(self, parent, object_name, style_sheet)
         self.clicked.connect(on_click)
 
 class CollapsibleBox(QWidget):
@@ -357,7 +357,7 @@ class CollapsibleBox(QWidget):
             self.filters.setMaximumHeight(1100)
 
 class UnlockableWidget(QWidget):
-    def __init__(self, parent, unlockable: Unlockable, tier, subtier):
+    def __init__(self, parent, unlockable: Unlockable, tier, subtier, on_unlockable_select):
         name = TextUtil.camel_case(unlockable.name)
 
         QWidget.__init__(self, parent)
@@ -370,6 +370,7 @@ class UnlockableWidget(QWidget):
 
         self.checkBox = CheckBox(self, f"{name}CheckBox")
         self.checkBox.setFixedSize(25, 25)
+        self.checkBox.clicked.connect(on_unlockable_select)
         self.layout.addWidget(self.checkBox)
 
         self.image = QLabel(self)
@@ -507,6 +508,7 @@ class MainWindow(QMainWindow):
                 widget.setVisible(is_visible)
 
         self.lastSortedBy = sort_by
+        self.on_unlockable_select()
 
     def switch_edit_profile(self):
         if not self.ignore_profile_signals:
@@ -626,6 +628,29 @@ class MainWindow(QMainWindow):
     def hide_preferences_page_save_as_success_text(self):
         self.preferencesPageSaveAsSuccessText.setVisible(False)
 
+    def on_unlockable_select(self):
+        num_selected = sum([1 for widget in self.preferencesPageUnlockableWidgets if widget.checkBox.isChecked()])
+        self.preferencesPageSelectedLabel.setText(f"{num_selected} selected")
+
+        self.preferencesPageAllCheckbox.setChecked(num_selected > 0)
+        self.preferencesPageAllCheckbox.setStyleSheet(StyleSheets.check_box_all
+                                                      if all([widget.checkBox.isChecked() for widget in [widget for widget in self.preferencesPageUnlockableWidgets if widget.isVisible()]])
+                                                      else StyleSheets.check_box_some)
+
+    def on_unlockable_select_all(self):
+        checked = self.preferencesPageAllCheckbox.isChecked() # whether checkbox is select all (True) or deselect all (False)
+
+        if checked:
+            for widget in self.preferencesPageUnlockableWidgets:
+                if widget.isVisible():
+                    widget.checkBox.setChecked(True)
+        else:
+            for widget in self.preferencesPageUnlockableWidgets:
+                widget.checkBox.setChecked(False)
+
+        self.on_unlockable_select()
+
+    # bloodweb
     def switch_run_profile(self):
         if not self.ignore_profile_signals:
             profile_id = self.bloodwebPageProfileSelector.currentText()
@@ -635,7 +660,6 @@ class MainWindow(QMainWindow):
         character = self.bloodwebPageCharacterSelector.currentText()
         Config().set_character(character)
 
-    # bloodweb
     def run_terminate(self):
         if self.state.is_active():
             self.state.terminate()
@@ -909,7 +933,7 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageLayout = QGridLayout(self.preferencesPage)
         self.preferencesPageLayout.setObjectName("preferencesPageLayout")
-        self.preferencesPageLayout.setContentsMargins(25, 25, 25, 25)
+        self.preferencesPageLayout.setContentsMargins(25, 25, 25, 0)
         self.preferencesPageLayout.setSpacing(0)
 
         self.preferencesPageScrollBar = QScrollBar(self.preferencesPage)
@@ -1007,13 +1031,31 @@ class MainWindow(QMainWindow):
         self.preferencesPageSortSelector.currentIndexChanged.connect(self.replace_unlockable_widgets)
         self.lastSortedBy = "default (usually does the job)" # cache of last sort
 
+        # all unlockables
         self.preferencesPageUnlockableWidgets = []
         config = Config()
         for unlockable in Data.get_unlockables():
             if unlockable.category in ["unused", "retired"]:
                 continue
             self.preferencesPageUnlockableWidgets.append(UnlockableWidget(self.preferencesPageScrollAreaContent,
-                                                                          unlockable, *config.preference(unlockable.unique_id)))
+                                                                          unlockable, *config.preference(unlockable.unique_id),
+                                                                          self.on_unlockable_select))
+
+        self.preferencesPagePersistentBar = QWidget(self.preferencesPage)
+        self.preferencesPagePersistentBar.setObjectName("preferencesPagePersistentBar")
+        self.preferencesPagePersistentBar.setStyleSheet('''
+        QWidget#preferencesPagePersistentBar {
+            border-top: 6px solid rgb(47, 52, 61);
+            border-radius: 3px;           
+        }''')
+        self.preferencesPagePersistentBar.setMinimumHeight(80)
+        self.preferencesPagePersistentBarLayout = QHBoxLayout(self.preferencesPagePersistentBar)
+        self.preferencesPagePersistentBarLayout.setContentsMargins(0, 0, 0, 0)
+        self.preferencesPagePersistentBarLayout.setSpacing(15)
+
+        self.preferencesPageAllCheckbox = CheckBoxWithFunction(self.preferencesPagePersistentBar, "preferencesPageAllCheckbox", self.on_unlockable_select_all, style_sheet=StyleSheets.check_box_all)
+        # TODO hover over says select all / deselect all ^
+        self.preferencesPageSelectedLabel = TextLabel(self.preferencesPagePersistentBar, "preferencesPageSelectedLabel", "0 selected")
 
         # stack: bloodwebPage
         self.bloodwebPage = QWidget()
@@ -1367,9 +1409,15 @@ class MainWindow(QMainWindow):
             self.preferencesPageScrollAreaContentLayout.addWidget(unlockableWidget)
         self.preferencesPageScrollAreaContentLayout.addStretch(1)
 
+        # bottom persistent bar
+        self.preferencesPagePersistentBarLayout.addWidget(self.preferencesPageAllCheckbox)
+        self.preferencesPagePersistentBarLayout.addWidget(self.preferencesPageSelectedLabel)
+        self.preferencesPagePersistentBarLayout.addStretch(1)
+
         # assembling it all together
         self.preferencesPageLayout.addWidget(self.preferencesPageScrollArea, 0, 0, 1, 1)
         self.preferencesPageLayout.addWidget(self.preferencesPageScrollBar, 0, 1, 1, 1)
+        self.preferencesPageLayout.addWidget(self.preferencesPagePersistentBar, 1, 0, 1, 1, Qt.AlignBottom)
         self.preferencesPageLayout.setRowStretch(0, 1)
         self.preferencesPageLayout.setColumnStretch(0, 1)
 

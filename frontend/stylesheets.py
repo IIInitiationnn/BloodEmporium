@@ -52,6 +52,40 @@ class StyleSheets:
             background: rgb(94, 104, 122);
         }'''
 
+    check_box_some = '''
+        QCheckBox::indicator {
+            width: 15px;
+            height: 15px;
+            border: 3px solid rgb(94, 104, 122);
+            border-radius: 5px;
+        }
+        
+        QCheckBox::indicator:unchecked:hover {
+            border: 3px solid rgb(139, 158, 194);
+        }
+        
+        QCheckBox::indicator:checked {
+            background: rgb(94, 104, 122);
+            image: url("assets/images/icons/icon_selected_some.png");
+        }'''
+
+    check_box_all = '''
+        QCheckBox::indicator {
+            width: 15px;
+            height: 15px;
+            border: 3px solid rgb(94, 104, 122);
+            border-radius: 5px;
+        }
+        
+        QCheckBox::indicator:unchecked:hover {
+            border: 3px solid rgb(139, 158, 194);
+        }
+        
+        QCheckBox::indicator:checked {
+            background: rgb(94, 104, 122);
+            image: url("assets/images/icons/icon_selected_all.png");
+        }'''
+
     top_bar_button = '''
         QPushButton {
             background-color: transparent;
