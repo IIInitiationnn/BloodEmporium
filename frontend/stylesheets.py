@@ -194,7 +194,7 @@ class StyleSheets:
                 return StyleSheets.text_box_invalid
         elif height is not None:
             try:
-                int(width)
+                int(height)
                 return StyleSheets.text_box
             except ValueError:
                 return StyleSheets.text_box_invalid
