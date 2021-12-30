@@ -42,11 +42,12 @@ features to add
 class State:
     version = "v0.2.0"
 
-    def __init__(self, use_hotkeys=True):
+    def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
         if use_hotkeys:
             listener = keyboard.Listener(on_press=self.on_press)
             listener.start()
+        self.hotkey_callback = hotkey_callback
 
     def is_active(self):
         return self.thread is not None
@@ -55,18 +56,24 @@ class State:
         if not self.is_active():
             self.thread = Process(target=State.main_loop, args=(True, True))
             self.thread.start()
+            if self.hotkey_callback is not None:
+                self.hotkey_callback()
             print("thread started with debugging")
 
     def run_regular_mode(self):
         if not self.is_active():
             self.thread = Process(target=State.main_loop, args=(False, True))
             self.thread.start()
+            if self.hotkey_callback is not None:
+                self.hotkey_callback()
             print("thread started without debugging")
 
     def terminate(self):
         if self.is_active():
             self.thread.terminate()
             self.thread = None
+            if self.hotkey_callback is not None:
+                self.hotkey_callback()
             print("thread terminated")
 
     def on_press(self, key):

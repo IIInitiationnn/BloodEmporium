@@ -728,11 +728,16 @@ class MainWindow(QMainWindow):
     def run_terminate(self):
         if self.state.is_active():
             self.state.terminate()
-            self.bloodwebPageRunButton.setText("Run")
-            self.bloodwebPageRunButton.setFixedSize(QSize(60, 35))
         else:
             # self.minimize()
             self.state.run_regular_mode()
+        self.run_terminate_button()
+
+    def run_terminate_button(self):
+        if not self.state.is_active():
+            self.bloodwebPageRunButton.setText("Run")
+            self.bloodwebPageRunButton.setFixedSize(QSize(60, 35))
+        else:
             self.bloodwebPageRunButton.setText("Terminate")
             self.bloodwebPageRunButton.setFixedSize(QSize(92, 35))
 
@@ -795,7 +800,7 @@ class MainWindow(QMainWindow):
 
         self.is_maximized = False
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
-        self.state = State(True)
+        self.state = State(True, self.run_terminate_button)
 
         # self.setWindowFlag(Qt.FramelessWindowHint)
         # self.setAttribute(Qt.WA_TranslucentBackground)
