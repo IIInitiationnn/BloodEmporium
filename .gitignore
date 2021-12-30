@@ -1,5 +1,6 @@
 *.html
 compile.json
+config.json
 *.spec
 temp.py
 cheapskate.py

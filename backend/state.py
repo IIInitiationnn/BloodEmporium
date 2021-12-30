@@ -40,7 +40,7 @@ features to add
 '''
 
 class State:
-    version = "v0.1.1"
+    version = "v0.2.0"
 
     def __init__(self, use_hotkeys=True):
         self.thread = None

@@ -115,6 +115,19 @@ class StyleSheets:
             border: 2px solid rgb(47, 52, 61);
         }'''
 
+    text_box_read_only = '''
+        QLineEdit {
+            background-color: rgb(33, 37, 43);
+            color: rgb(125, 125, 125);
+            border-radius: 5px;
+            border: 2px solid rgba(0, 0, 0, 0);
+            padding-left: 10px;
+        }
+        
+        QLineEdit:hover {
+            border: 2px solid rgb(47, 52, 61);
+        }'''
+
     tiers_input_positive = '''
         QLineEdit {
             background-color: rgb(37, 41, 48);

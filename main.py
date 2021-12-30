@@ -426,11 +426,13 @@ Type: {TextUtil.title_case(unlockable.type)}''')
     def on_subtier_update(self):
         self.subtierInput.setStyleSheet(StyleSheets.tiers_input(self.subtierInput.text()))
 
-    def setTiers(self, tier, subtier):
-        self.tierInput.setText(str(tier))
-        self.tierInput.setStyleSheet(StyleSheets.tiers_input(tier))
-        self.subtierInput.setText(str(subtier))
-        self.subtierInput.setStyleSheet(StyleSheets.tiers_input(subtier))
+    def setTiers(self, tier=None, subtier=None):
+        if tier is not None:
+            self.tierInput.setText(str(tier))
+            self.tierInput.setStyleSheet(StyleSheets.tiers_input(tier))
+        if subtier is not None:
+            self.subtierInput.setText(str(subtier))
+            self.subtierInput.setStyleSheet(StyleSheets.tiers_input(subtier))
 
     def getTiers(self):
         return int(self.tierInput.text()), int(self.subtierInput.text())
@@ -628,8 +630,11 @@ class MainWindow(QMainWindow):
     def hide_preferences_page_save_as_success_text(self):
         self.preferencesPageSaveAsSuccessText.setVisible(False)
 
+    def selected_widgets(self):
+        return [widget for widget in self.preferencesPageUnlockableWidgets if widget.checkBox.isChecked()]
+
     def on_unlockable_select(self):
-        num_selected = sum([1 for widget in self.preferencesPageUnlockableWidgets if widget.checkBox.isChecked()])
+        num_selected = len(self.selected_widgets())
         self.preferencesPageSelectedLabel.setText(f"{num_selected} selected")
 
         self.preferencesPageAllCheckbox.setChecked(num_selected > 0)
@@ -649,6 +654,66 @@ class MainWindow(QMainWindow):
                 widget.checkBox.setChecked(False)
 
         self.on_unlockable_select()
+
+    def expand_edit(self):
+        new_pos = self.preferencesPageEditDropdownButton.mapTo(self.preferencesPage, self.preferencesPageEditDropdownButton.pos())
+        new_pos.setY(new_pos.y() - 250)
+        # TODO move this new_pos into an event handler: https://stackoverflow.com/questions/15238973/how-do-i-set-a-relative-position-for-a-qt-widget\
+        #  - will work for resizing
+
+        if self.preferencesPageEditDropdownButton.isChecked():
+            self.preferencesPageEditDropdownButton.setStyleSheet(StyleSheets.collapsible_box_active)
+            self.preferencesPageEditDropdownButton.setIcon(QIcon(Icons.right_arrow))
+            self.preferencesPageEditDropdownContent.setMinimumHeight(0)
+            self.preferencesPageEditDropdownContent.setMaximumHeight(0)
+            self.preferencesPageEditDropdownContent.move(new_pos)
+        else:
+            self.preferencesPageEditDropdownButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
+            self.preferencesPageEditDropdownButton.setIcon(QIcon(Icons.up_arrow))
+            self.preferencesPageEditDropdownContent.setMinimumHeight(200)
+            self.preferencesPageEditDropdownContent.setMaximumHeight(200)
+            self.preferencesPageEditDropdownContent.move(new_pos)
+
+    def on_edit_dropdown_tier(self):
+        if self.preferencesPageEditDropdownContentTierCheckBox.isChecked():
+            self.preferencesPageEditDropdownContentTierInput.setReadOnly(False)
+            self.preferencesPageEditDropdownContentTierInput.setStyleSheet(StyleSheets.tiers_input(self.preferencesPageEditDropdownContentTierInput.text()))
+        else:
+            self.preferencesPageEditDropdownContentTierInput.setReadOnly(True)
+            self.preferencesPageEditDropdownContentTierInput.setStyleSheet(StyleSheets.text_box_read_only)
+
+    def on_edit_dropdown_subtier(self):
+        if self.preferencesPageEditDropdownContentSubtierCheckBox.isChecked():
+            self.preferencesPageEditDropdownContentSubtierInput.setReadOnly(False)
+            self.preferencesPageEditDropdownContentSubtierInput.setStyleSheet(StyleSheets.tiers_input(self.preferencesPageEditDropdownContentSubtierInput.text()))
+        else:
+            self.preferencesPageEditDropdownContentSubtierInput.setReadOnly(True)
+            self.preferencesPageEditDropdownContentSubtierInput.setStyleSheet(StyleSheets.text_box_read_only)
+
+    def on_edit_dropdown_tier_input(self):
+        self.preferencesPageEditDropdownContentTierInput.setStyleSheet(StyleSheets.tiers_input(self.preferencesPageEditDropdownContentTierInput.text()))
+
+    def on_edit_dropdown_subtier_input(self):
+        self.preferencesPageEditDropdownContentSubtierInput.setStyleSheet(StyleSheets.tiers_input(self.preferencesPageEditDropdownContentSubtierInput.text()))
+
+    def on_edit_dropdown_apply(self):
+        tier = self.preferencesPageEditDropdownContentTierInput.text()
+        subtier = self.preferencesPageEditDropdownContentSubtierInput.text()
+        for widget in self.selected_widgets():
+            if self.preferencesPageEditDropdownContentTierCheckBox.isChecked():
+                widget.setTiers(tier=tier)
+            if self.preferencesPageEditDropdownContentSubtierCheckBox.isChecked():
+                widget.setTiers(subtier=subtier)
+
+    def on_edit_dropdown_cancel(self):
+        if self.preferencesPageEditDropdownContentTierCheckBox.isChecked():
+            self.preferencesPageEditDropdownContentTierCheckBox.animateClick()
+        if self.preferencesPageEditDropdownContentSubtierCheckBox.isChecked():
+            self.preferencesPageEditDropdownContentSubtierCheckBox.animateClick()
+        self.preferencesPageEditDropdownContentTierInput.setText("0")
+        self.preferencesPageEditDropdownContentSubtierInput.setText("0")
+        self.preferencesPageEditDropdownButton.animateClick()
+        self.expand_edit()
 
     # bloodweb
     def switch_run_profile(self):
@@ -1041,6 +1106,7 @@ class MainWindow(QMainWindow):
                                                                           unlockable, *config.preference(unlockable.unique_id),
                                                                           self.on_unlockable_select))
 
+        # select all bar
         self.preferencesPagePersistentBar = QWidget(self.preferencesPage)
         self.preferencesPagePersistentBar.setObjectName("preferencesPagePersistentBar")
         self.preferencesPagePersistentBar.setStyleSheet('''
@@ -1056,6 +1122,96 @@ class MainWindow(QMainWindow):
         self.preferencesPageAllCheckbox = CheckBoxWithFunction(self.preferencesPagePersistentBar, "preferencesPageAllCheckbox", self.on_unlockable_select_all, style_sheet=StyleSheets.check_box_all)
         # TODO hover over says select all / deselect all ^
         self.preferencesPageSelectedLabel = TextLabel(self.preferencesPagePersistentBar, "preferencesPageSelectedLabel", "0 selected")
+        # TODO to the right, confirmation text like with saving
+
+        # edit dropdown
+        self.preferencesPageEditDropdown = QWidget(self.preferencesPagePersistentBar)
+        self.preferencesPageEditDropdown.setObjectName("preferencesPageEditDropdown")
+
+        self.preferencesPageEditDropdownLayout = QGridLayout(self.preferencesPageEditDropdown)
+        self.preferencesPageEditDropdownLayout.setContentsMargins(0, 0, 0, 0)
+        self.preferencesPageEditDropdownLayout.setSpacing(0)
+
+        self.preferencesPageEditDropdownButton = QToolButton(self.preferencesPageEditDropdown)
+        self.preferencesPageEditDropdownButton.setObjectName("preferencesPageEditDropdownButton")
+        self.preferencesPageEditDropdownButton.setCheckable(True)
+        self.preferencesPageEditDropdownButton.setChecked(False)
+        self.preferencesPageEditDropdownButton.setFont(Font(10))
+        self.preferencesPageEditDropdownButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
+        self.preferencesPageEditDropdownButton.setText("Edit")
+        self.preferencesPageEditDropdownButton.setIcon(QIcon(Icons.right_arrow))
+        self.preferencesPageEditDropdownButton.setIconSize(QSize(20, 20))
+        self.preferencesPageEditDropdownButton.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.preferencesPageEditDropdownButton.pressed.connect(self.expand_edit)
+
+        self.preferencesPageEditDropdownContent = QWidget(self.preferencesPage)
+        self.preferencesPageEditDropdownContent.setObjectName("preferencesPageEditDropdownContent")
+        self.preferencesPageEditDropdownContent.setMinimumHeight(0)
+        self.preferencesPageEditDropdownContent.setMaximumHeight(0)
+        self.preferencesPageEditDropdownContent.setFixedWidth(260)
+        self.preferencesPageEditDropdownContent.setStyleSheet('''
+            QWidget#preferencesPageEditDropdownContent {
+                background-color: rgb(40, 44, 52);
+                border: 3px solid rgb(94, 104, 122);
+                border-radius: 3px;
+            }''')
+
+        self.preferencesPageEditDropdownContentLayout = QVBoxLayout(self.preferencesPageEditDropdownContent)
+        self.preferencesPageEditDropdownContentLayout.setContentsMargins(25, 25, 25, 25)
+        self.preferencesPageEditDropdownContentLayout.setSpacing(15)
+
+        self.preferencesPageEditDropdownContentTierRow = QWidget(self.preferencesPageEditDropdownContent)
+        self.preferencesPageEditDropdownContentTierRow.setObjectName("preferencesPageEditDropdownContentTierRow")
+        self.preferencesPageEditDropdownContentTierRowLayout = QHBoxLayout(self.preferencesPageEditDropdownContentTierRow)
+        self.preferencesPageEditDropdownContentTierRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.preferencesPageEditDropdownContentTierRowLayout.setSpacing(15)
+
+        self.preferencesPageEditDropdownContentTierCheckBox = CheckBoxWithFunction(self.preferencesPageEditDropdownContentTierRow,
+                                                                                   "preferencesPageEditDropdownContentTierCheckBox",
+                                                                                   self.on_edit_dropdown_tier)
+        self.preferencesPageEditDropdownContentTierLabel = TextLabel(self.preferencesPageEditDropdownContentTierRow,
+                                                                     "preferencesPageEditDropdownContentTierLabel", "Tier")
+        self.preferencesPageEditDropdownContentTierInput = TextInputBox(self.preferencesPageEditDropdownContentTierRow,
+                                                                        "preferencesPageEditDropdownContentTierInput",
+                                                                        QSize(110, 40), "Enter tier", "0",
+                                                                        style_sheet=StyleSheets.text_box_read_only)
+        self.preferencesPageEditDropdownContentTierInput.textEdited.connect(self.on_edit_dropdown_tier_input)
+        self.preferencesPageEditDropdownContentTierInput.setReadOnly(True)
+
+        self.preferencesPageEditDropdownContentSubtierRow = QWidget(self.preferencesPageEditDropdownContent)
+        self.preferencesPageEditDropdownContentSubtierRow.setObjectName("preferencesPageEditDropdownContentSubtierRow")
+        self.preferencesPageEditDropdownContentSubtierRowLayout = QHBoxLayout(self.preferencesPageEditDropdownContentSubtierRow)
+        self.preferencesPageEditDropdownContentSubtierRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.preferencesPageEditDropdownContentSubtierRowLayout.setSpacing(15)
+
+        self.preferencesPageEditDropdownContentSubtierCheckBox = CheckBoxWithFunction(self.preferencesPageEditDropdownContentSubtierRow,
+                                                                                      "preferencesPageEditDropdownContentSubtierCheckBox",
+                                                                                      self.on_edit_dropdown_subtier)
+        self.preferencesPageEditDropdownContentSubtierLabel = TextLabel(self.preferencesPageEditDropdownContentSubtierRow,
+                                                                        "preferencesPageEditDropdownContentSubtierLabel",
+                                                                        "Subtier")
+        self.preferencesPageEditDropdownContentSubtierInput = TextInputBox(self.preferencesPageEditDropdownContentSubtierRow,
+                                                                           "preferencesPageEditDropdownContentSubtierInput",
+                                                                           QSize(110, 40), "Enter subtier", "0",
+                                                                           style_sheet=StyleSheets.text_box_read_only)
+        self.preferencesPageEditDropdownContentSubtierInput.textEdited.connect(self.on_edit_dropdown_subtier_input)
+        self.preferencesPageEditDropdownContentSubtierInput.setReadOnly(True)
+
+        self.preferencesPageEditDropdownContentApplyRow = QWidget(self.preferencesPageEditDropdownContent)
+        self.preferencesPageEditDropdownContentApplyRow.setObjectName("preferencesPageEditDropdownContentApplyRow")
+        self.preferencesPageEditDropdownContentApplyRowLayout = QHBoxLayout(self.preferencesPageEditDropdownContentApplyRow)
+        self.preferencesPageEditDropdownContentApplyRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.preferencesPageEditDropdownContentApplyRowLayout.setSpacing(15)
+
+        self.preferencesPageEditDropdownContentApplyButton = Button(self.preferencesPageEditDropdownContentApplyRow,
+                                                                    "preferencesPageEditDropdownContentApplyButton",
+                                                                    "Apply", QSize(70, 35))
+        self.preferencesPageEditDropdownContentApplyButton.clicked.connect(self.on_edit_dropdown_apply)
+
+        self.preferencesPageEditDropdownContentCancelButton = Button(self.preferencesPageEditDropdownContentApplyRow,
+                                                                    "preferencesPageEditDropdownContentCancelButton",
+                                                                    "Cancel", QSize(70, 35))
+        self.preferencesPageEditDropdownContentCancelButton.clicked.connect(self.on_edit_dropdown_cancel)
 
         # stack: bloodwebPage
         self.bloodwebPage = QWidget()
@@ -1410,8 +1566,29 @@ class MainWindow(QMainWindow):
         self.preferencesPageScrollAreaContentLayout.addStretch(1)
 
         # bottom persistent bar
+        self.preferencesPageEditDropdownContentTierRowLayout.addWidget(self.preferencesPageEditDropdownContentTierCheckBox)
+        self.preferencesPageEditDropdownContentTierRowLayout.addWidget(self.preferencesPageEditDropdownContentTierLabel)
+        self.preferencesPageEditDropdownContentTierRowLayout.addStretch(1)
+        self.preferencesPageEditDropdownContentTierRowLayout.addWidget(self.preferencesPageEditDropdownContentTierInput)
+
+        self.preferencesPageEditDropdownContentSubtierRowLayout.addWidget(self.preferencesPageEditDropdownContentSubtierCheckBox)
+        self.preferencesPageEditDropdownContentSubtierRowLayout.addWidget(self.preferencesPageEditDropdownContentSubtierLabel)
+        self.preferencesPageEditDropdownContentSubtierRowLayout.addStretch(1)
+        self.preferencesPageEditDropdownContentSubtierRowLayout.addWidget(self.preferencesPageEditDropdownContentSubtierInput)
+
+        self.preferencesPageEditDropdownContentApplyRowLayout.addStretch(1)
+        self.preferencesPageEditDropdownContentApplyRowLayout.addWidget(self.preferencesPageEditDropdownContentApplyButton)
+        self.preferencesPageEditDropdownContentApplyRowLayout.addWidget(self.preferencesPageEditDropdownContentCancelButton)
+
+        self.preferencesPageEditDropdownContentLayout.addWidget(self.preferencesPageEditDropdownContentTierRow)
+        self.preferencesPageEditDropdownContentLayout.addWidget(self.preferencesPageEditDropdownContentSubtierRow)
+        self.preferencesPageEditDropdownContentLayout.addWidget(self.preferencesPageEditDropdownContentApplyRow)
+
+        self.preferencesPageEditDropdownLayout.addWidget(self.preferencesPageEditDropdownButton, 0, 0, 1, 1)
+
         self.preferencesPagePersistentBarLayout.addWidget(self.preferencesPageAllCheckbox)
         self.preferencesPagePersistentBarLayout.addWidget(self.preferencesPageSelectedLabel)
+        self.preferencesPagePersistentBarLayout.addWidget(self.preferencesPageEditDropdown)
         self.preferencesPagePersistentBarLayout.addStretch(1)
 
         # assembling it all together
@@ -1505,6 +1682,7 @@ class Icons:
     help = __base + "/icon_help.png"
     down_arrow = __base + "/icon_down_arrow.png"
     right_arrow = __base + "/icon_right_arrow.png"
+    up_arrow = __base + "/icon_up_arrow.png"
     discord = __base + "/icon_discord.png"
     twitter = __base + "/icon_twitter.png"
 
