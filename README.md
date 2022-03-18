@@ -7,7 +7,6 @@ A program to automatically level the Bloodweb in the game Dead by Daylight.
 - Automatically selects optimal nodes on the Bloodweb based on user-configured preferences.
 - Uses game icon files to identify nodes on the Bloodweb.
 - Should not be bannable since there are no interactions with the game's memory or process.
-    - Use at your own risk! (we reached out to the devs, and are awaiting a response)
 
 ### Configuration
 - You will be able to set your preferences and dislikes for certain addons, items, offerings and perks.
