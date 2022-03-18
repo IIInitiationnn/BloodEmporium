@@ -19,6 +19,7 @@ from resolution import Resolution
 
 '''
 immediate priorities
+    - new timings??
     - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
         - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
             - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
@@ -26,6 +27,7 @@ immediate priorities
     - tweak hough line parameters
         - if lines are invalidated from not being in the majority of images, print which nodes it connects
             - can determine whether it's hough or some other kind of invalidation
+        - AI for hough parameters using target data
 
 features to add
     - frontend with GUI
@@ -37,10 +39,35 @@ features to add
         - options for each prestige to continue unlocking in the bloodweb
     - spend certain amount of bloodpoints (add cost to unlockable class)
     - prioritise perk option (will always path to perks first and ignore perk config)
+    - toggle option for gui: show default (coloured) icons
+        - default on, applicable when user has no custom icons; when off use custom icons
+        - will naturally revert to default (colourless) icons from assets when no custom icons
+    - when clicking run, show prompt for turning shaders off
+    - status in run page showing reason for stopping if it does; can also show bp progress if there is a bp cap
+    - output log somewhere - maybe in the debug mode
+    - ability to auto-update software
+        - maybe ability to update default config presets as well? may not be desired by people who have overridden
+    - import / export profile as string to share with others
+
+timeline
+    - above TODOs incl new features
+    - josh feedback
+    - optimisation and accuracy guarantees
+    - remove output folder and finalise -> 1.0.0
+
+update checklist
+    - update state version
+new content checklist
+    - add assets for new killer + survivor perks, killer addons
+    - add into database
+        - new killer in killer table
+        - new addons in unlockables table
+        - new offerings in unlockables table
+        - new perks in unlockables table
 '''
 
 class State:
-    version = "v0.2.0"
+    version = "v0.2.2"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
