@@ -6,8 +6,7 @@ from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QR
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QKeySequence
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
-    QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip
-
+    QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip, QMessageBox
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
@@ -437,6 +436,40 @@ Type: {TextUtil.title_case(unlockable.type)}''')
     def getTiers(self):
         return int(self.tierInput.text()), int(self.subtierInput.text())
 
+class PromptWindow(QMainWindow):
+    def __init__(self, parent, title, object_name):
+        QMainWindow.__init__(self, parent)
+
+        # self.setWindowFlag(Qt.FramelessWindowHint)
+        self.setFixedSize(300, 200)
+        self.setWindowTitle(title)
+
+        self.centralWidget = QWidget(self)
+        self.centralWidget.setObjectName(f"{object_name}CentralWidget")
+        self.centralWidget.setAutoFillBackground(False)
+        self.setCentralWidget(self.centralWidget)
+
+        # TODO fix background
+        # TODO add top bar
+        # TODO maybe swap to message popup
+        self.background = QFrame(self.centralWidget)
+        self.background.setObjectName(f"{object_name}Background")
+        self.background.setStyleSheet(f'''
+            QFrame#{object_name}Background {{
+                background-color: rgb(40, 44, 52);
+                border-width: 1;
+                border-style: solid;
+                border-color: rgb(58, 64, 76);
+            }}''')
+        self.shadow = QGraphicsDropShadowEffect(self)
+        self.shadow.setBlurRadius(10)
+        self.shadow.setOffset(0, 0)
+        self.shadow.setColor(QColor(0, 0, 0, 200))
+        self.background.setGraphicsEffect(self.shadow)
+
+    def add_button(self, name, dimensions, on_click):
+        pass # TODO
+
 class MainWindow(QMainWindow):
     def minimize(self):
         self.showMinimized()
@@ -542,10 +575,16 @@ class MainWindow(QMainWindow):
                 tier, subtier = widget.getTiers()
                 if tier != 0 or subtier != 0:
                     updated_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
+                else:
+                    updated_profile.pop(widget.unlockable.unique_id, None)
             Config().set_profile(updated_profile)
 
             self.show_preferences_page_save_success_text(f"Changes saved to profile: {profile_id}")
             QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
+
+    def rename_profile(self):
+        rename_prompt = PromptWindow(self, "Rename", "renamePrompt")
+        rename_prompt.show()
 
     def delete_profile(self):
         if not self.ignore_profile_signals:
@@ -784,6 +823,7 @@ class MainWindow(QMainWindow):
         if not Data.verify_path(path):
             self.show_settings_page_save_fail_text("Ensure path is an actual folder. Changes not saved.")
             return
+
 
         Config().set_resolution(int(width), int(height), int(ui_scale))
         Config().set_path(path)
@@ -1036,7 +1076,7 @@ class MainWindow(QMainWindow):
         self.preferencesPageScrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
         self.preferencesPageScrollAreaContentLayout.setSpacing(15)
 
-        # save
+        # save, rename, delete
         self.preferencesPageProfileSaveRow = QWidget(self.preferencesPageScrollAreaContent)
         self.preferencesPageProfileSaveRow.setObjectName("preferencesPageProfileSaveRow")
         self.preferencesPageProfileSaveRowLayout = QHBoxLayout(self.preferencesPageProfileSaveRow)
@@ -1055,13 +1095,14 @@ class MainWindow(QMainWindow):
         self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton", "Save", QSize(60, 35))
         self.preferencesPageSaveButton.clicked.connect(self.save_profile)
 
+        self.preferencesPageRenameButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageRenameButton", "Rename", QSize(75, 35))
+        self.preferencesPageRenameButton.clicked.connect(self.rename_profile)
+
         self.preferencesPageDeleteButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageDeleteButton", "Delete", QSize(75, 35))
         self.preferencesPageDeleteButton.clicked.connect(self.delete_profile)
 
         self.preferencesPageSaveSuccessText = TextLabel(self.preferencesPageProfileSaveRow, "preferencesPageSaveSuccessText", "", Font(10))
         self.preferencesPageSaveSuccessText.setVisible(False)
-
-        # TODO rename profile
 
         # save as
         self.preferencesPageProfileSaveAsRow = QWidget(self.preferencesPageScrollAreaContent)
@@ -1543,6 +1584,7 @@ class MainWindow(QMainWindow):
         # rows comprising the content
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageProfileSelector)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageSaveButton)
+        self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageRenameButton)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageDeleteButton)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageSaveSuccessText)
         self.preferencesPageProfileSaveRowLayout.addStretch(1)

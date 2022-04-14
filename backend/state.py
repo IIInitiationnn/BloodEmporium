@@ -20,6 +20,8 @@ from resolution import Resolution
 '''
 immediate priorities
     - new timings??
+    - bug where tier and subtier have same colour for positive / negative when one is negative and one is positive?
+    - sort by type by default, get rid of "default usually does the job"
     - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
         - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
             - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
