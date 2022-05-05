@@ -3,6 +3,10 @@
 
 A program to automatically level the Bloodweb in the game Dead by Daylight.
 
+## Developer Notes
+Development on this program has been discontinued. Assets for icon recognition are outdated as of Dead by Daylight
+Patch 5.7.0, and any new addons, items, offerings, and perks will not be recognised from this update onwards.
+
 ### Overview
 - Automatically selects optimal nodes on the Bloodweb based on user-configured preferences.
 - Uses game icon files to identify nodes on the Bloodweb.

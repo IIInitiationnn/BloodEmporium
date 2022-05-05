@@ -436,7 +436,7 @@ Type: {TextUtil.title_case(unlockable.type)}''')
     def getTiers(self):
         return int(self.tierInput.text()), int(self.subtierInput.text())
 
-class PromptWindow(QMainWindow):
+"""class PromptWindow(QMainWindow):
     def __init__(self, parent, title, object_name):
         QMainWindow.__init__(self, parent)
 
@@ -468,7 +468,7 @@ class PromptWindow(QMainWindow):
         self.background.setGraphicsEffect(self.shadow)
 
     def add_button(self, name, dimensions, on_click):
-        pass # TODO
+        pass # TODO"""
 
 class MainWindow(QMainWindow):
     def minimize(self):
@@ -582,9 +582,9 @@ class MainWindow(QMainWindow):
             self.show_preferences_page_save_success_text(f"Changes saved to profile: {profile_id}")
             QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
 
-    def rename_profile(self):
-        rename_prompt = PromptWindow(self, "Rename", "renamePrompt")
-        rename_prompt.show()
+    # def rename_profile(self):
+    #     rename_prompt = PromptWindow(self, "Rename", "renamePrompt")
+    #     rename_prompt.show()
 
     def delete_profile(self):
         if not self.ignore_profile_signals:
@@ -1095,8 +1095,8 @@ class MainWindow(QMainWindow):
         self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton", "Save", QSize(60, 35))
         self.preferencesPageSaveButton.clicked.connect(self.save_profile)
 
-        self.preferencesPageRenameButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageRenameButton", "Rename", QSize(75, 35))
-        self.preferencesPageRenameButton.clicked.connect(self.rename_profile)
+        # self.preferencesPageRenameButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageRenameButton", "Rename", QSize(75, 35))
+        # self.preferencesPageRenameButton.clicked.connect(self.rename_profile)
 
         self.preferencesPageDeleteButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageDeleteButton", "Delete", QSize(75, 35))
         self.preferencesPageDeleteButton.clicked.connect(self.delete_profile)
@@ -1584,7 +1584,7 @@ class MainWindow(QMainWindow):
         # rows comprising the content
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageProfileSelector)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageSaveButton)
-        self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageRenameButton)
+        # self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageRenameButton)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageDeleteButton)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageSaveSuccessText)
         self.preferencesPageProfileSaveRowLayout.addStretch(1)

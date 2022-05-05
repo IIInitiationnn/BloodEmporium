@@ -69,7 +69,7 @@ new content checklist
 '''
 
 class State:
-    version = "v0.2.2"
+    version = "v0.2.3"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
@@ -83,7 +83,7 @@ class State:
 
     def run_debug_mode(self):
         if not self.is_active():
-            self.thread = Process(target=State.main_loop, args=(True, True))
+            self.thread = Process(target=State.main_loop, args=(True, False))
             self.thread.start()
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
@@ -91,7 +91,7 @@ class State:
 
     def run_regular_mode(self):
         if not self.is_active():
-            self.thread = Process(target=State.main_loop, args=(False, True))
+            self.thread = Process(target=State.main_loop, args=(False, False))
             self.thread.start()
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
