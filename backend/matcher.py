@@ -2,7 +2,6 @@ import math
 import os.path
 
 import cv2
-import cv2.cv2
 import numpy as np
 
 from images import Images
