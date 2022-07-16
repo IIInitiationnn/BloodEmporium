@@ -130,14 +130,15 @@ class Resolution:
         return self.width / Resolution.__width * self.ui_scale / Resolution.__ui_scale
 
     # screenshot dimensions and points
+    # https://www.desmos.com/calculator/4psfavvzoz
     def top_left(self):
         return self.top_left_x(), self.top_left_y()
 
     def top_left_x(self):
-        return round(22 + 0.129 * self.width * self.ui_scale / 100)
+        return round(3 + 0.13 * self.width * self.ui_scale / 100)
 
     def top_left_y(self):
-        return round(56 + 0.08155 * self.ui_scale + 0.498 * self.height - 0.224 * self.width * self.ui_scale / 100)
+        return round(-32 + 0.45 * self.ui_scale + 0.544 * self.height - 0.257 * self.width * self.ui_scale / 100)
 
     def cap_dim(self):
         return round(10 + 0.441 * self.width * self.ui_scale / 100)
