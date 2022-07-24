@@ -1,0 +1,4 @@
+powershell: autopytoexe.exe
+icon -> inspo1.ico
+settings -> import config from json file -> compile.json
+IF PRODUCTION: remove additional files: blank -> output

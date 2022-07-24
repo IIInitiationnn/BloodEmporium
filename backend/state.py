@@ -69,7 +69,7 @@ new content checklist
 '''
 
 class State:
-    version = "v0.2.4"
+    version = "v0.2.5"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
