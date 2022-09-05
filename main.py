@@ -1341,7 +1341,8 @@ class MainWindow(QMainWindow):
         self.helpPageContactDiscordIcon.setFixedSize(QSize(20, 20))
         self.helpPageContactDiscordIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.discord))
         self.helpPageContactDiscordIcon.setScaledContents(True)
-        self.helpPageContactDiscordLabel = TextLabel(self.helpPageContactDiscordRow, "helpPageContactDiscordLabel", "Initiation#2031")
+        self.helpPageContactDiscordLabel = HyperlinkTextLabel(self.helpPageContactDiscordRow, "helpPageContactDiscordLabel",
+                                                              "Discord Server", "https://discord.gg/bGdJTnF2hr", Font(10))
 
         self.helpPageContactTwitterRow = QWidget(self.helpPage)
         self.helpPageContactTwitterRow.setObjectName("helpPageContactTwitterRow")
