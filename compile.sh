@@ -1,11 +1,11 @@
-pyinstaller --noconfirm --onedir --windowed --name "Blood Emporium" --icon "E:/Coding Projects/Blood Emporium/references/inspo1.ico" --add-data "E:/Coding Projects/Blood Emporium/assets;assets/" --paths "E:/Coding Projects/Blood Emporium/backend" --distpath "E:\Coding Projects\Blood Emporium Output" "E:/Coding Projects/Blood Emporium/main.py"
-mkdir "..\Blood Emporium Output\Blood Emporium\logs"
+pyinstaller --noconfirm --onedir --windowed --name "Blood Emporium ${1}" --icon "references/inspo1.ico" --add-data "assets;assets/" --paths "backend" --distpath "../Blood Emporium Output" "main.py"
+mkdir "../Blood Emporium Output/Blood Emporium ${1}/logs"
 
 if [ "$2" == "dev" ]; then
-    mkdir "..\Blood Emporium Output\Blood Emporium\output"
+    mkdir "../Blood Emporium Output/Blood Emporium ${1}/output"
 fi
 
 rm -r build
-mv "E:\Coding Projects\Blood Emporium Output\Blood Emporium" "E:\Coding Projects\Blood Emporium Output\Blood Emporium ${1}"
 
+echo "Press any button to continue..."
 read -n1

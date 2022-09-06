@@ -1,4 +1,3 @@
-import logging
 import os
 import sqlite3
 
@@ -25,9 +24,9 @@ class Data:
     __connection = None
     try:
         __connection = sqlite3.connect(Path.assets_database)
-        logging.debug("connected to database")
+        print("connected to database")
     except:
-        logging.debug(f"error")
+        print(f"error")
 
     __cursor = __connection.cursor()
     __cursor.execute("SELECT * FROM unlockables")
@@ -65,7 +64,7 @@ class Data:
                 if os.path.isfile(asset_path):
                     u_image_path = os.path.normpath(os.path.abspath(asset_path))
                 else:
-                    logging.debug(f"no source found for desired unlockable: {u_id} under category: {u_category}")
+                    print(f"no source found for desired unlockable: {u_id} under category: {u_category}")
                     continue
 
             unlockables.append(Unlockable(u_id, u_name, u_category, u_rarity, u_notes, u_type, u_image_path))
@@ -98,10 +97,10 @@ class Data:
 
     @staticmethod
     def __get_default_ordering(widgets):
-        logging.debug(len(widgets))
+        print(len(widgets))
         h = [widget for widget in widgets for u_id, u_name, u_category, _, _, _ in Data.__unlockables_rows
              if Unlockable.generate_unique_id(u_id, u_category) == widget.unlockable.unique_id]
-        logging.debug(len(h))
+        print(len(h))
         return h
 
     @staticmethod

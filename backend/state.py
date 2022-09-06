@@ -1,4 +1,5 @@
 import logging
+import sys
 import time
 from datetime import datetime
 from multiprocessing import Process
@@ -69,21 +70,26 @@ new content checklist
         - new perks in unlockables table
 '''
 
-logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger().handlers = []
+# from https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python
+class LoggerWriter(object):
+    def __init__(self, writer):
+        self._writer = writer
+        self._msg = ""
 
-streamHandler = logging.StreamHandler()
-streamHandler.setLevel(logging.DEBUG)
-streamHandler.setFormatter(logging.Formatter("%(message)s"))
-logging.getLogger().addHandler(streamHandler)
+    def write(self, message):
+        self._msg = self._msg + message
+        while "\n" in self._msg:
+            pos = self._msg.find("\n")
+            self._writer(self._msg[:pos])
+            self._msg = self._msg[pos + 1:]
 
-fileHandler = logging.FileHandler(f"logs/debug-{datetime.now().strftime('%y-%m-%d %H-%M-%S')}.log")
-fileHandler.setLevel(logging.DEBUG)
-fileHandler.setFormatter(logging.Formatter("%(message)s"))
-logging.getLogger().addHandler(fileHandler)
+    def flush(self):
+        if self._msg != "":
+            self._writer(self._msg)
+            self._msg = ""
 
 class State:
-    version = "v0.2.6"
+    version = "v0.2.7"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
@@ -101,7 +107,7 @@ class State:
             self.thread.start()
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
-            logging.debug("thread started with debugging")
+            print("thread started with debugging")
 
     def run_regular_mode(self):
         if not self.is_active():
@@ -109,7 +115,7 @@ class State:
             self.thread.start()
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
-            logging.debug("thread started without debugging")
+            print("thread started without debugging")
 
     def terminate(self):
         if self.is_active():
@@ -117,7 +123,7 @@ class State:
             self.thread = None
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
-            logging.debug("thread terminated")
+            print("thread terminated")
 
     def on_press(self, key):
         pass
@@ -131,6 +137,23 @@ class State:
 
     @staticmethod
     def main_loop(debug, write_to_output):
+        log = logging.getLogger()
+        log.setLevel(logging.DEBUG)
+        log.handlers = []
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.DEBUG)
+        stream_handler.setFormatter(logging.Formatter("%(message)s"))
+        log.addHandler(stream_handler)
+
+        file_handler = logging.FileHandler(f"logs/debug-{datetime.now().strftime('%y-%m-%d %H-%M-%S')}.log")
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(logging.Formatter("%(message)s"))
+        log.addHandler(file_handler)
+
+        sys.stdout = LoggerWriter(log.debug)
+        sys.stderr = LoggerWriter(log.warning)
+
         pyautogui.FAILSAFE = False
 
         base_res = resolution = Config().resolution()
@@ -142,7 +165,7 @@ class State:
             resolution = Resolution(1920, 1080, 100)
 
         # initialisation: merged base for template matching
-        logging.debug("initialisation, merging")
+        print("initialisation, merging")
         merged_base = MergedBase(resolution, Config().character())
         pyautogui.moveTo(0, 0)
 
@@ -150,7 +173,7 @@ class State:
         timestamp = datetime.now()
         while True:
             # screen capture
-            logging.debug("capturing screen")
+            print("capturing screen")
             cv_images = Capturer(base_res, ratio, 3).output
             debugger = Debugger(cv_images, timestamp, i, write_to_output).set_merger(merged_base)
 
@@ -158,15 +181,15 @@ class State:
             origin = matcher.match_origin()
 
             # vectors: detect circles and match to unlockables
-            logging.debug("vector: circles and match to unlockables")
+            print("vector: circles and match to unlockables")
             circles = matcher.vector_circles(origin, merged_base)
 
             # hough transform: detect lines
-            logging.debug("hough transform: lines")
+            print("hough transform: lines")
             connections = matcher.match_lines(circles)
 
             # create networkx graph of nodes
-            logging.debug("creating networkx graph")
+            print("creating networkx graph")
             grapher = Grapher(debugger, circles, connections) # all 9999
             base_bloodweb = grapher.create()
             debugger.set_base_bloodweb(base_bloodweb)
@@ -178,11 +201,11 @@ class State:
             run = True
             while run:
                 # run through optimiser
-                logging.debug("optimiser")
+                print("optimiser")
                 optimiser = Optimiser(base_bloodweb)
                 optimiser.run()
                 optimal_unlockable = optimiser.select_best()
-                logging.debug(optimal_unlockable.node_id)
+                print(optimal_unlockable.node_id)
                 debugger.set_dijkstra(optimiser.dijkstra_graph, j)
 
                 optimal_unlockable.set_user_claimed(True)
@@ -199,7 +222,7 @@ class State:
 
                 # mystery box: click
                 if optimal_unlockable.name == "iconHelp_mysteryBox_universal":
-                    logging.debug("mystery box selected")
+                    print("mystery box selected")
                     time.sleep(0.9)
                     pyautogui.click()
                     time.sleep(0.2)
@@ -211,7 +234,7 @@ class State:
                 time.sleep(0.3)
 
                 # take new picture and update colours
-                logging.debug("updating bloodweb")
+                print("updating bloodweb")
                 updated_images = Capturer(base_res, ratio, 1).output[0]
                 Grapher.update(base_bloodweb, updated_images, resolution)
                 debugger.add_updated_image(updated_images.get_bgr(), j)
@@ -223,7 +246,7 @@ class State:
                 num_left = sum([1 for data in base_bloodweb.nodes.values() if not data["is_user_claimed"]])
                 if optimal_test.node_id == "ORIGIN" or num_left == 0:
                     # TODO verify that .node_id == "ORIGIN" will still happen if >1 item gets chomped by entity on last click
-                    logging.debug("level cleared")
+                    print("level cleared")
                     run = False
                     time.sleep(2) # 2 sec to clear out until new level screen
                     pyautogui.click()

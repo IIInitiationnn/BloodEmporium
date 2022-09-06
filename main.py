@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 from multiprocessing import freeze_support
@@ -966,7 +965,7 @@ class MainWindow(QMainWindow):
         # top right
         self.corner_grips[1].setGeometry(QRect(out_rect.topRight(), in_rect.topRight()).normalized())
         # bottom right
-        self.corner_grips[2].setGeometry(QRect(out_rect.bottomRight(), in_rect.bottomRight()))
+        self.corner_grips[2].setGeometry(QRect(in_rect.bottomRight(), out_rect.bottomRight()))
         # bottom left
         self.corner_grips[3].setGeometry(QRect(out_rect.bottomLeft(), in_rect.bottomLeft()).normalized())
 
