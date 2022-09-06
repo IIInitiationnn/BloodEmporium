@@ -1029,17 +1029,6 @@ class MainWindow(QMainWindow):
         self.centralLayout.setContentsMargins(10, 10, 10, 10)
         self.centralLayout.setSpacing(0)
 
-        # self.topResize = QWidget(self.centralWidget)
-        # self.topResize.setFixedSize(300, 100)
-        # self.topResize.setStyleSheet('''
-        #     QWidget {
-        #         border: 1px solid rgb(58, 64, 76);
-        #     }
-        # ''')
-        # self.topResize.setCursor(Qt.SizeVerCursor)
-        # self.topResize.resizeEvent = self.top_resize
-        # self.centralLayout.addWidget(self.topResize, 0, 1)
-
         # background
         self.background = QFrame(self.centralWidget)
         self.background.setObjectName("background")

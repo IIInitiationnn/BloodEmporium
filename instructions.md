@@ -1,15 +1,23 @@
 # Compilation (Powershell)
 - pipreqs . --force
-- Set-ExecutionPolicy RemoteSigned
+- Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 - .\venv\Scripts\activate
-- autopytoexe.exe
+- ~~autopytoexe.exe~~ use alternate command
 - deactivate
-- Set-ExecutionPolicy Restricted
+- Set-ExecutionPolicy Restricted -Scope CurrentUser
 
 
 - icon -> inspo1.ico
 - settings -> import config from json file -> compile.json
-- IF PRODUCTION: remove additional files: blank -> output
+- output directory: E:\Coding Projects\Blood Emporium Output
+
+
+- add empty logs\ folder
+- IF DEV: add empty output\ folder
+
+alternatively (use this):
+pyinstaller --noconfirm --onedir --windowed --name "Blood Emporium" --icon "E:/Coding Projects/Blood Emporium/references/inspo1.ico" --add-data "E:/Coding Projects/Blood Emporium/assets;assets/" --paths "E:/Coding Projects/Blood Emporium/backend" --distpath "E:\Coding Projects\Blood Emporium Output" "E:/Coding Projects/Blood Emporium/main.py"
+mkdir "..\Blood Emporium Output\Blood Emporium\output"
 
 # New Content
 - add to killers in db

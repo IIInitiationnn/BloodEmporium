@@ -3,9 +3,9 @@ import json
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
+from backend.data import Data
 
-from data import Data
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
 
 if __name__ == "__main__":
     with open("config.json" if len(sys.argv) == 1 else sys.argv[1]) as f:
