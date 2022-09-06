@@ -8,6 +8,7 @@ cheapskate.py
 .idea/
 __pycache__/
 training_data/
+logs/
 output/
 investigate/
 references/

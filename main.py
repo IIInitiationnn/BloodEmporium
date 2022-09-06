@@ -1,12 +1,14 @@
+import logging
 import os
 import sys
 from multiprocessing import freeze_support
 
-from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QTimer
-from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QKeySequence
+from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QTextStream, QObject, pyqtSignal, \
+    QRect
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QTextCursor, QKeySequence
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QHBoxLayout, QGraphicsDropShadowEffect, QShortcut, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
-    QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip, QMessageBox
+    QHBoxLayout, QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
+    QCheckBox, QLineEdit, QToolButton, QFileDialog, QTextEdit, QPlainTextEdit, QSizeGrip, QShortcut
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
@@ -254,7 +256,7 @@ class CheckBoxWithFunction(CheckBox):
         self.clicked.connect(on_click)
 
 class CollapsibleBox(QWidget):
-    def __init__(self, parent, object_name, on_click):
+    def __init__(self, parent, object_name, text):
         QWidget.__init__(self, parent)
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -266,11 +268,20 @@ class CollapsibleBox(QWidget):
         self.toggleButton.setChecked(False)
         self.toggleButton.setFont(Font(12))
         self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
-        self.toggleButton.setText("Filter Options")
+        self.toggleButton.setText(text)
         self.toggleButton.setIcon(QIcon(Icons.right_arrow))
         self.toggleButton.setIconSize(QSize(20, 20))
         self.toggleButton.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toggleButton.pressed.connect(self.on_pressed)
+
+        self.layout.addWidget(self.toggleButton, alignment=Qt.AlignTop)
+
+    def on_pressed(self):
+        pass
+
+class FilterOptionsCollapsibleBox(CollapsibleBox):
+    def __init__(self, parent, object_name, on_click):
+        CollapsibleBox.__init__(self, parent, object_name, "Filter Options")
 
         # TODO clear filters button
         # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
@@ -331,7 +342,6 @@ class CollapsibleBox(QWidget):
 
         self.filtersLayout.setColumnStretch(999, 1)
 
-        self.layout.addWidget(self.toggleButton, alignment=Qt.AlignTop)
         self.layout.addWidget(self.filters, alignment=Qt.AlignTop)
 
     def get_character_filters(self):
@@ -352,8 +362,59 @@ class CollapsibleBox(QWidget):
         else:
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
             self.toggleButton.setIcon(QIcon(Icons.down_arrow))
-            self.filters.setMinimumHeight(1100)
-            self.filters.setMaximumHeight(1100)
+            self.filters.setMinimumHeight(1200)
+            self.filters.setMaximumHeight(1200)
+
+"""class DebugLogger(logging.Handler, QObject):
+    appendPlainText = pyqtSignal(str)
+
+    def __init__(self, parent):
+        super().__init__()
+        QObject.__init__(self)
+        self.widget = QPlainTextEdit(parent)
+        self.widget.setMinimumHeight(0)
+        self.widget.setMaximumHeight(0)
+        self.widget.setFont(Font(10))
+        self.widget.setReadOnly(True)
+        self.widget.setStyleSheet('''
+            QPlainTextEdit {
+                background: rgba(0, 0, 0, 0);
+                border: 3px solid rgb(94, 104, 122);
+                border-radius: 5px;
+                color: rgb(125, 125, 125);
+                padding: 10px 10px 10px 10px;
+            }''')
+        self.appendPlainText.connect(self.widget.appendPlainText)
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.widget.appendPlainText(msg)
+
+class DebugLogCollapsibleBox(CollapsibleBox):
+    def __init__(self, parent, object_name):
+        CollapsibleBox.__init__(self, parent, object_name, "Debug Log")
+
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger().handlers = []
+
+        self.log = DebugLogger(self)
+        self.log.setLevel(logging.DEBUG)
+        self.log.setFormatter(logging.Formatter("%(message)s"))
+        logging.getLogger().addHandler(self.log)
+
+        self.layout.addWidget(self.log.widget)
+
+    def on_pressed(self):
+        if self.toggleButton.isChecked():
+            self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_active)
+            self.toggleButton.setIcon(QIcon(Icons.right_arrow))
+            self.log.widget.setMinimumHeight(0)
+            self.log.widget.setMaximumHeight(0)
+        else:
+            self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
+            self.toggleButton.setIcon(QIcon(Icons.down_arrow))
+            self.log.widget.setMinimumHeight(400)
+            self.log.widget.setMaximumHeight(400)"""
 
 class UnlockableWidget(QWidget):
     def __init__(self, parent, unlockable: Unlockable, tier, subtier, on_unlockable_select):
@@ -470,6 +531,60 @@ Type: {TextUtil.title_case(unlockable.type)}''')
     def add_button(self, name, dimensions, on_click):
         pass # TODO"""
 
+# https://stackoverflow.com/questions/62807295/how-to-resize-a-window-from-the-edges-after-adding-the-property-qtcore-qt-framel
+class SideGrip(QWidget):
+    def __init__(self, parent, edge):
+        QWidget.__init__(self, parent)
+        if edge == Qt.LeftEdge:
+            self.setCursor(Qt.SizeHorCursor)
+            self.resizeFunc = self.resizeLeft
+        elif edge == Qt.TopEdge:
+            self.setCursor(Qt.SizeVerCursor)
+            self.resizeFunc = self.resizeTop
+        elif edge == Qt.RightEdge:
+            self.setCursor(Qt.SizeHorCursor)
+            self.resizeFunc = self.resizeRight
+        else:
+            self.setCursor(Qt.SizeVerCursor)
+            self.resizeFunc = self.resizeBottom
+        self.mousePos = None
+
+    def resizeLeft(self, delta):
+        w = self.window()
+        width = max(w.minimumWidth(), w.width() - delta.x())
+        geo = w.geometry()
+        geo.setLeft(geo.right() - width)
+        w.setGeometry(geo)
+
+    def resizeTop(self, delta):
+        w = self.window()
+        height = max(w.minimumHeight(), w.height() - delta.y())
+        geo = w.geometry()
+        geo.setTop(geo.bottom() - height)
+        w.setGeometry(geo)
+
+    def resizeRight(self, delta):
+        w = self.window()
+        width = max(w.minimumWidth(), w.width() + delta.x())
+        w.resize(width, w.height())
+
+    def resizeBottom(self, delta):
+        w = self.window()
+        height = max(w.minimumHeight(), w.height() + delta.y())
+        w.resize(w.width(), height)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.mousePos = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.mousePos is not None:
+            delta = event.pos() - self.mousePos
+            self.resizeFunc(delta)
+
+    def mouseReleaseEvent(self, event):
+        self.mousePos = None
+
 class MainWindow(QMainWindow):
     def minimize(self):
         self.showMinimized()
@@ -479,12 +594,14 @@ class MainWindow(QMainWindow):
         self.is_maximized = False
         self.maximizeButton.setIcon(QIcon(Icons.maximize))
         self.centralLayout.setContentsMargins(10, 10, 10, 10)
+        self.set_grip_size(10)
 
     def maximize(self):
         self.showMaximized()
         self.is_maximized = True
         self.maximizeButton.setIcon(QIcon(Icons.restore))
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
+        self.set_grip_size(0)
 
     def maximize_restore(self):
         if self.is_maximized:
@@ -829,8 +946,45 @@ class MainWindow(QMainWindow):
         Config().set_path(path)
         self.show_settings_page_save_success_text("Settings changed.")
 
-    def top_resize(self):
-        print("hi")
+    @property
+    def grip_size(self):
+        return self.__grip_size
+
+    def set_grip_size(self, grip_size):
+        self.__grip_size = grip_size
+        self.update_grips()
+
+    def update_grips(self):
+        self.setContentsMargins(*[self.grip_size] * 4)
+
+        out_rect = self.rect()
+        out_rect = out_rect.adjusted(10, 10, -10, -10)
+        in_rect = out_rect.adjusted(self.grip_size, self.grip_size, -self.grip_size, -self.grip_size)
+
+        # top left
+        self.corner_grips[0].setGeometry(QRect(out_rect.topLeft(), in_rect.topLeft()))
+        # top right
+        self.corner_grips[1].setGeometry(QRect(out_rect.topRight(), in_rect.topRight()).normalized())
+        # bottom right
+        self.corner_grips[2].setGeometry(QRect(out_rect.bottomRight(), in_rect.bottomRight()))
+        # bottom left
+        self.corner_grips[3].setGeometry(QRect(out_rect.bottomLeft(), in_rect.bottomLeft()).normalized())
+
+        # left edge
+        self.side_grips[0].setGeometry(out_rect.left(), in_rect.top(), self.grip_size, in_rect.height())
+        # top edge
+        self.side_grips[1].setGeometry(in_rect.left(), out_rect.top(), in_rect.width(), self.grip_size)
+        # right edge
+        self.side_grips[2].setGeometry(in_rect.left() + in_rect.width(), in_rect.top(), self.grip_size, in_rect.height())
+        # bottom edge
+        self.side_grips[3].setGeometry(self.grip_size, in_rect.top() + in_rect.height(), in_rect.width(), self.grip_size)
+
+        [grip.raise_() for grip in self.side_grips]
+        [grip.raise_() for grip in self.corner_grips]
+
+    def resizeEvent(self, event):
+        QMainWindow.resizeEvent(self, event)
+        self.update_grips()
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -842,15 +996,26 @@ class MainWindow(QMainWindow):
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
         self.state = State(True, self.run_terminate_button)
 
-        # self.setWindowFlag(Qt.FramelessWindowHint)
-        # self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowFlag(Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
 
         self.setBaseSize(1230, 670)
         self.setMinimumSize(1100, 600)
         self.setWindowTitle("Blood Emporium")
         self.setWindowIcon(QIcon(Icons.icon))
 
-        # self.shortcut = QShortcut(QKeySequence(Qt.Key_Meta), self) # TODO
+        self.__grip_size = 10
+        self.side_grips = [
+            SideGrip(self, Qt.LeftEdge),
+            SideGrip(self, Qt.TopEdge),
+            SideGrip(self, Qt.RightEdge),
+            SideGrip(self, Qt.BottomEdge),
+        ]
+        self.corner_grips = [QSizeGrip(self) for i in range(4)]
+        for corner_grip in self.corner_grips:
+            corner_grip.setStyleSheet("background-color: transparent;")
+
+        # self.shortcut = QShortcut(QKeySequence(Qt.Key_Meta + Qt.Key_Up), self) # TODO
         # self.shortcut.activated.connect(self.maximize)
 
         # central widget
@@ -865,9 +1030,15 @@ class MainWindow(QMainWindow):
         self.centralLayout.setSpacing(0)
 
         # self.topResize = QWidget(self.centralWidget)
+        # self.topResize.setFixedSize(300, 100)
+        # self.topResize.setStyleSheet('''
+        #     QWidget {
+        #         border: 1px solid rgb(58, 64, 76);
+        #     }
+        # ''')
         # self.topResize.setCursor(Qt.SizeVerCursor)
-        # # self.topResize.resizeEvent = lambda e: print("hi")
-        # self.centralLayout.addWidget(self.topResize, 0, 0)
+        # self.topResize.resizeEvent = self.top_resize
+        # self.centralLayout.addWidget(self.topResize, 0, 1)
 
         # background
         self.background = QFrame(self.centralWidget)
@@ -1123,8 +1294,9 @@ class MainWindow(QMainWindow):
         self.preferencesPageSaveAsSuccessText.setVisible(False)
 
         # filters
-        self.preferencesPageFiltersBox = CollapsibleBox(self.preferencesPageScrollAreaContent,
-                                                        "preferencesPageScrollAreaContent", self.replace_unlockable_widgets)
+        self.preferencesPageFiltersBox = FilterOptionsCollapsibleBox(self.preferencesPageScrollAreaContent,
+                                                                     "preferencesPageFiltersBox",
+                                                                     self.replace_unlockable_widgets)
 
         # search bar & sort
         self.preferencesPageSearchSortRow = QWidget(self.preferencesPageScrollAreaContent)
@@ -1291,6 +1463,8 @@ class MainWindow(QMainWindow):
         self.bloodwebPageRunLabel = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunLabel",
                                               "Make sure your game is open on your monitor, and any shaders "
                                               "and visual effects are off.", Font(10))
+
+        # self.bloodwebPageDebugLog = DebugLogCollapsibleBox(self.bloodwebPage, "bloodwebPageDebugLog")
 
         # stack: helpPage
         self.helpPage = QWidget()
@@ -1657,6 +1831,7 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.addWidget(self.bloodwebPageCharacterSelector)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunRow)
         self.bloodwebPageLayout.addStretch(1)
+        # self.bloodwebPageLayout.addWidget(self.bloodwebPageDebugLog)
 
         '''
         helpPage
@@ -1709,8 +1884,6 @@ class MainWindow(QMainWindow):
         self.settingsPageLayout.addWidget(self.settingsPagePathRow)
         self.settingsPageLayout.addWidget(self.settingsPageSaveRow)
         self.settingsPageLayout.addStretch(1)
-
-
 
         self.show()
 

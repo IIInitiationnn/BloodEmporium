@@ -1,3 +1,4 @@
+import logging
 import time
 from datetime import datetime
 from multiprocessing import Process
@@ -68,6 +69,19 @@ new content checklist
         - new perks in unlockables table
 '''
 
+logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().handlers = []
+
+streamHandler = logging.StreamHandler()
+streamHandler.setLevel(logging.DEBUG)
+streamHandler.setFormatter(logging.Formatter("%(message)s"))
+logging.getLogger().addHandler(streamHandler)
+
+fileHandler = logging.FileHandler(f"logs/debug-{datetime.now().strftime('%y-%m-%d %H-%M-%S')}.log")
+fileHandler.setLevel(logging.DEBUG)
+fileHandler.setFormatter(logging.Formatter("%(message)s"))
+logging.getLogger().addHandler(fileHandler)
+
 class State:
     version = "v0.2.6"
 
@@ -87,7 +101,7 @@ class State:
             self.thread.start()
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
-            print("thread started with debugging")
+            logging.debug("thread started with debugging")
 
     def run_regular_mode(self):
         if not self.is_active():
@@ -95,7 +109,7 @@ class State:
             self.thread.start()
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
-            print("thread started without debugging")
+            logging.debug("thread started without debugging")
 
     def terminate(self):
         if self.is_active():
@@ -103,7 +117,7 @@ class State:
             self.thread = None
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
-            print("thread terminated")
+            logging.debug("thread terminated")
 
     def on_press(self, key):
         pass
@@ -128,7 +142,7 @@ class State:
             resolution = Resolution(1920, 1080, 100)
 
         # initialisation: merged base for template matching
-        print("initialisation, merging")
+        logging.debug("initialisation, merging")
         merged_base = MergedBase(resolution, Config().character())
         pyautogui.moveTo(0, 0)
 
@@ -136,7 +150,7 @@ class State:
         timestamp = datetime.now()
         while True:
             # screen capture
-            print("capturing screen")
+            logging.debug("capturing screen")
             cv_images = Capturer(base_res, ratio, 3).output
             debugger = Debugger(cv_images, timestamp, i, write_to_output).set_merger(merged_base)
 
@@ -144,15 +158,15 @@ class State:
             origin = matcher.match_origin()
 
             # vectors: detect circles and match to unlockables
-            print("vector: circles and match to unlockables")
+            logging.debug("vector: circles and match to unlockables")
             circles = matcher.vector_circles(origin, merged_base)
 
             # hough transform: detect lines
-            print("hough transform: lines")
+            logging.debug("hough transform: lines")
             connections = matcher.match_lines(circles)
 
             # create networkx graph of nodes
-            print("creating networkx graph")
+            logging.debug("creating networkx graph")
             grapher = Grapher(debugger, circles, connections) # all 9999
             base_bloodweb = grapher.create()
             debugger.set_base_bloodweb(base_bloodweb)
@@ -164,11 +178,11 @@ class State:
             run = True
             while run:
                 # run through optimiser
-                print("optimiser")
+                logging.debug("optimiser")
                 optimiser = Optimiser(base_bloodweb)
                 optimiser.run()
                 optimal_unlockable = optimiser.select_best()
-                print(optimal_unlockable.node_id)
+                logging.debug(optimal_unlockable.node_id)
                 debugger.set_dijkstra(optimiser.dijkstra_graph, j)
 
                 optimal_unlockable.set_user_claimed(True)
@@ -185,7 +199,7 @@ class State:
 
                 # mystery box: click
                 if optimal_unlockable.name == "iconHelp_mysteryBox_universal":
-                    print("mystery box selected")
+                    logging.debug("mystery box selected")
                     time.sleep(0.9)
                     pyautogui.click()
                     time.sleep(0.2)
@@ -197,7 +211,7 @@ class State:
                 time.sleep(0.3)
 
                 # take new picture and update colours
-                print("updating bloodweb")
+                logging.debug("updating bloodweb")
                 updated_images = Capturer(base_res, ratio, 1).output[0]
                 Grapher.update(base_bloodweb, updated_images, resolution)
                 debugger.add_updated_image(updated_images.get_bgr(), j)
@@ -209,7 +223,7 @@ class State:
                 num_left = sum([1 for data in base_bloodweb.nodes.values() if not data["is_user_claimed"]])
                 if optimal_test.node_id == "ORIGIN" or num_left == 0:
                     # TODO verify that .node_id == "ORIGIN" will still happen if >1 item gets chomped by entity on last click
-                    print("level cleared")
+                    logging.debug("level cleared")
                     run = False
                     time.sleep(2) # 2 sec to clear out until new level screen
                     pyautogui.click()

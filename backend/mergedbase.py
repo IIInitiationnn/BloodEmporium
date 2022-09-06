@@ -1,13 +1,11 @@
+import logging
 import math
-import os
 
 import cv2
 import numpy as np
 
 from data import Data
-from config import Config
 from images import Images
-from paths import Path
 
 
 class MergedBase:
@@ -53,7 +51,7 @@ class MergedBase:
             if os.path.isfile(asset_path):
                 image_paths.append(os.path.abspath(asset_path))
             else:
-                print(f"no source found for desired unlockable: {unlockable} under category: {category}")'''
+                logging.debug(f"no source found for desired unlockable: {unlockable} under category: {category}")'''
 
         valid_names, valid_images = self.__get_valid_images(image_paths)
 
@@ -75,7 +73,7 @@ class MergedBase:
             elif "Addon" in image_name or "Items" in image_name:
                 dim = self.res.items_addons()
             else:
-                print(f"error merging base with {image_path}")
+                logging.debug(f"error merging base with {image_path}")
                 continue
 
             template = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
