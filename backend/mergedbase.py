@@ -76,7 +76,8 @@ class MergedBase:
                 continue
 
             template = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
-            template_alpha = template[:, :, 3] / 255.0
+            # no alpha channel (rgb instead of rgba) - note: alpha=0 denotes full transparency
+            template_alpha = template[:, :, 3] / 255.0 if template.shape[2] == 4 else 1 - template[:, :, 0] * 0
             bg_alpha = 1 - template_alpha
 
             gray_bg = np.zeros((256, 256, 3), np.uint8)

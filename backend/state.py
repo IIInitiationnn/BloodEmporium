@@ -89,7 +89,7 @@ class LoggerWriter(object):
             self._msg = ""
 
 class State:
-    version = "v0.2.7"
+    version = "v0.2.8"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
@@ -127,13 +127,13 @@ class State:
 
     def on_press(self, key):
         pass
-        '''k = str(format(key))
+        k = str(format(key))
         if k == "'8'":
             self.run_debug_mode()
         elif k == "'9'":
             self.run_regular_mode()
         elif k == "'0'":
-            self.terminate()'''
+            self.terminate()
 
     @staticmethod
     def main_loop(debug, write_to_output):
