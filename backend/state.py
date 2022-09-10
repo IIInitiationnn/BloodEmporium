@@ -178,11 +178,30 @@ class State:
             debugger = Debugger(cv_images, timestamp, i, write_to_output).set_merger(merged_base)
 
             matcher = Matcher(debugger, cv_images, resolution)
-            origin = matcher.match_origin()
+            origin, origin_type = matcher.match_origin()
 
             # vectors: detect circles and match to unlockables
             print("vector: circles and match to unlockables")
             circles = matcher.vector_circles(origin, merged_base)
+
+            # prestige level: proceed to next level
+            if origin_type == "origin_prestige.png":
+                print("prestige level: selecting")
+                if debug:
+                    debugger.show_images()
+
+                pyautogui.moveTo(x + round(origin.x() * ratio), y + round(origin.y() * ratio))
+                pyautogui.mouseDown()
+                time.sleep(0.5)
+                pyautogui.moveTo(0, 0)
+                time.sleep(1)
+                pyautogui.mouseUp()
+                time.sleep(4) # 4 sec to clear out until new level screen
+                pyautogui.click()
+                time.sleep(0.5) # prestige 1-3 => teachables
+                pyautogui.click()
+                time.sleep(1) # 1 sec to generate
+                continue
 
             # hough transform: detect lines
             print("hough transform: lines")
@@ -212,12 +231,12 @@ class State:
                 optimal_unlockable.set_value(9999)
                 nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
 
-                # select perk: hold on the perk for 0.5s
+                # select perk: hold on the perk for 0.3s
                 pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
                 pyautogui.mouseDown()
-                time.sleep(0.25)
+                time.sleep(0.15)
                 pyautogui.moveTo(0, 0)
-                time.sleep(0.25)
+                time.sleep(0.15)
                 pyautogui.mouseUp()
 
                 # mystery box: click
@@ -248,7 +267,7 @@ class State:
                     # TODO verify that .node_id == "ORIGIN" will still happen if >1 item gets chomped by entity on last click
                     print("level cleared")
                     run = False
-                    time.sleep(2) # 2 sec to clear out until new level screen
+                    time.sleep(0.5) # 2 sec to clear out until new level screen
                     pyautogui.click()
                     time.sleep(0.5) # in case of extra information on early level (eg. lvl 2 or lvl 5)
                     pyautogui.click()

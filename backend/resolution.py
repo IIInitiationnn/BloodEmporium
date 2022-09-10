@@ -22,6 +22,7 @@ class Resolution:
 
     # origin
     __origin_dim = 96
+    __origin_prestige_dim = 265
 
     # vector circles (relative to origin
     __circles_old = {
@@ -196,8 +197,9 @@ class Resolution:
         return round(Resolution.__max_radius * self.ratio())
 
     # origin
-    def origin_dim(self):
-        return round(Resolution.__origin_dim * self.ratio())
+    def origin_dim(self, file):
+        return round((Resolution.__origin_prestige_dim if file == "origin_prestige.png" else Resolution.__origin_dim) *
+                     self.ratio())
 
     # hough lines
     def gaussian_l(self):

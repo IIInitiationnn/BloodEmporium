@@ -19,6 +19,8 @@ class Debugger:
         self.edge_images = []
         self.all_lines = {}
 
+        self.connections = []
+
         if self.write_to_output:
             if not os.path.isdir(f"output/{self.time}"):
                 os.mkdir(f"output/{self.time}")
@@ -100,15 +102,17 @@ class Debugger:
                 r = circle.radius
                 cv2.circle(raw_output, (x, y), r, 255, 2)
                 cv2.rectangle(raw_output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
-            for line in self.all_lines[i]:
-                x1, y1, x2, y2 = line.positions()
-                cv2.line(raw_output, (x1, y1), (x2, y2), 255, 2)
+            if i in self.all_lines:
+                for line in self.all_lines[i]:
+                    x1, y1, x2, y2 = line.positions()
+                    cv2.line(raw_output, (x1, y1), (x2, y2), 255, 2)
 
             if self.write_to_output:
                 cv2.imwrite(f"output/{self.time}/{self.i}/raw_output_{i}.png", raw_output)
 
             cv2.imshow("unfiltered raw output (r-adjusted)", raw_output)
-            cv2.imshow("edges for matching lines", self.edge_images[i])
+            if len(self.edge_images) > i:
+                cv2.imshow("edges for matching lines", self.edge_images[i])
             cv2.waitKey(0)
 
         validated_output = self.cv_images[0].get_gray().copy()

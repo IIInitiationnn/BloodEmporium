@@ -34,32 +34,33 @@ class Matcher:
         image = self.cv_images[0].get_red()
 
         height, width = image.shape
-        crop_ratio = 2.3
+        crop_ratio = 2.6 # the higher the larger, the closer to 2 the smaller
         cropped = image[round(height / crop_ratio):round((crop_ratio - 1) * height / crop_ratio),
                         round(width / crop_ratio):round((crop_ratio - 1) * width / crop_ratio)]
         self.debugger.set_cropped(cropped)
 
-        dim = self.res.origin_dim()
-        radius = round(dim / 2)
         for subdir, dirs, files in os.walk(Path.assets_origins):
             for file in files:
+                print(file)
+                dim = self.res.origin_dim(file)
+                radius = round(dim / 2)
                 origin = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))
                 template = cv2.resize(origin[2], (dim, dim), interpolation=Images.interpolation)
                 template_alpha = cv2.resize(origin[3], (dim, dim), interpolation=Images.interpolation) # for masking
                 result = cv2.matchTemplate(cropped, template, cv2.TM_CCOEFF_NORMED, mask=template_alpha)
 
                 min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-                matches.append((file, min_val, max_val, min_loc, max_loc))
+                matches.append((file, min_val, max_val, min_loc, max_loc, radius))
 
-        origin_type, _, _, _, top_left = max(matches, key=lambda match: match[2])
+        origin_type, _, _, _, top_left, radius = max(matches, key=lambda match: match[2])
         self.debugger.set_origin_type(origin_type)
 
         centre = Position(round(top_left[0] + radius + width / crop_ratio),
-                  round(top_left[1] + radius + height / crop_ratio))
+                          round(top_left[1] + radius + height / crop_ratio))
 
         origin = Circle(centre, radius, "red", "ORIGIN", is_origin=True)
         self.debugger.set_origin(origin)
-        return origin
+        return origin, origin_type
 
     def vector_circles(self, origin, merged_base):
         """
