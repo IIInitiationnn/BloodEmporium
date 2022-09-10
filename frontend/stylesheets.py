@@ -2,12 +2,17 @@ import os.path
 
 
 class StyleSheets:
-    pink = "rgb(255, 121, 198)" # #ff79c6
-    purple = "rgb(189, 147, 249)" # #bd93f9
+    pink = "#ff79c6"
+    purple = "#bd93f9"
     darker_purple = "rgb(90, 75, 125)"
+    background = "#282a36"
+    passive = "#383a50"
+    selection = "#44475a"
+    navy = "#6272a4"
+    light_selection = "rgb(139, 158, 194)"
 
-    debug = '''
-        background-color: rgb(40, 44, 52);
+    debug = f'''
+        background-color: {passive};
         border: 5px solid black;
     '''
 
@@ -19,140 +24,140 @@ class StyleSheets:
     def save_text(is_success):
         return StyleSheets.pink_text if is_success else StyleSheets.purple_text
 
-    page_button = '''
-        QPushButton {
+    page_button = f'''
+        QPushButton {{
             background-color: transparent;
             border: none;
             border-radius: 5;
-        }
-        QPushButton:hover {
-            background-color: rgb(33, 37, 43);
+        }}
+        QPushButton:hover {{
+            background-color: {background};
             border: none;
             border-radius: 5;
-        }
-        QPushButton:pressed {
-            background-color: rgb(255, 121, 198);
+        }}
+        QPushButton:pressed {{
+            background-color: {pink};
             border: none;
             border-radius: 5;
-        }'''
+        }}'''
 
-    check_box = '''
-        QCheckBox::indicator {
+    check_box = f'''
+        QCheckBox::indicator {{
             width: 15px;
             height: 15px;
-            border: 3px solid rgb(94, 104, 122);
+            border: 3px solid {navy};
             border-radius: 5px;
-        }
+        }}
         
-        QCheckBox::indicator:unchecked:hover {
-            border: 3px solid rgb(139, 158, 194);
-        }
+        QCheckBox::indicator:unchecked:hover {{
+            border: 3px solid {light_selection};
+        }}
         
-        QCheckBox::indicator:checked {
-            background: rgb(94, 104, 122);
-        }'''
+        QCheckBox::indicator:checked {{
+            background: {navy};
+        }}'''
 
-    check_box_some = '''
-        QCheckBox::indicator {
+    check_box_some = f'''
+        QCheckBox::indicator {{
             width: 15px;
             height: 15px;
-            border: 3px solid rgb(94, 104, 122);
+            border: 3px solid {navy};
             border-radius: 5px;
-        }
+        }}
         
-        QCheckBox::indicator:unchecked:hover {
-            border: 3px solid rgb(139, 158, 194);
-        }
+        QCheckBox::indicator:unchecked:hover {{
+            border: 3px solid {light_selection};
+        }}
         
-        QCheckBox::indicator:checked {
-            background: rgb(94, 104, 122);
+        QCheckBox::indicator:checked {{
+            background: {navy};
             image: url("assets/images/icons/icon_selected_some.png");
-        }'''
+        }}'''
 
-    check_box_all = '''
-        QCheckBox::indicator {
+    check_box_all = f'''
+        QCheckBox::indicator {{
             width: 15px;
             height: 15px;
-            border: 3px solid rgb(94, 104, 122);
+            border: 3px solid {navy};
             border-radius: 5px;
-        }
+        }}
         
-        QCheckBox::indicator:unchecked:hover {
-            border: 3px solid rgb(139, 158, 194);
-        }
+        QCheckBox::indicator:unchecked:hover {{
+            border: 3px solid {light_selection};
+        }}
         
-        QCheckBox::indicator:checked {
-            background: rgb(94, 104, 122);
+        QCheckBox::indicator:checked {{
+            background: {navy};
             image: url("assets/images/icons/icon_selected_all.png");
-        }'''
+        }}'''
 
-    top_bar_button = '''
-        QPushButton {
+    top_bar_button = f'''
+        QPushButton {{
             background-color: transparent;
             border-radius: 5;
-        }
-        QPushButton:hover {
-            background-color: rgb(40, 44, 52);
+        }}
+        QPushButton:hover {{
+            background-color: {passive};
             border: none;
             border-radius: 5;
-        }
-        QPushButton:pressed {
-            background-color: rgb(255, 121, 198);
+        }}
+        QPushButton:pressed {{
+            background-color: {pink};
             border: none;
             border-radius: 5;
-        }'''
+        }}'''
 
-    text_box = '''
-        QLineEdit {
-            background-color: rgb(33, 37, 43);
+    text_box = f'''
+        QLineEdit {{
+            background-color: {background};
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding-left: 10px;
-        }
+        }}
         
-        QLineEdit:hover {
-            border: 2px solid rgb(47, 52, 61);
-        }'''
+        QLineEdit:hover {{
+            border: 2px solid {selection};
+        }}'''
 
-    text_box_read_only = '''
-        QLineEdit {
-            background-color: rgb(33, 37, 43);
+    text_box_read_only = f'''
+        QLineEdit {{
+            background-color: {background};
             color: rgb(125, 125, 125);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding-left: 10px;
-        }
+        }}
         
-        QLineEdit:hover {
-            border: 2px solid rgb(47, 52, 61);
-        }'''
+        QLineEdit:hover {{
+            border: 2px solid {selection};
+        }}'''
 
-    tiers_input_positive = '''
-        QLineEdit {
-            background-color: rgb(37, 41, 48);
+    tiers_input_positive = f'''
+        QLineEdit {{
+            background-color: #323543;
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding-left: 10px;
-        }
+        }}
         
-        QLineEdit:hover {
-            border: 2px solid rgb(47, 52, 61);
-        }'''
+        QLineEdit:hover {{
+            border: 2px solid {selection};
+        }}'''
 
-    tiers_input_negative = '''
-        QLineEdit {
-            background-color: rgb(27, 30, 35);
+    tiers_input_negative = f'''
+        QLineEdit {{
+            background-color: #1e1f29;
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding-left: 10px;
-        }
+        }}
         
-        QLineEdit:hover {
-            border: 2px solid rgb(47, 52, 61);
-        }'''
+        QLineEdit:hover {{
+            border: 2px solid {selection};
+        }}'''
 
     text_box_invalid = f'''
         QLineEdit {{
@@ -216,11 +221,11 @@ class StyleSheets:
             border: none;
         }}
         QPushButton:hover {{
-            background-color: rgb(40, 44, 52);
+            background-color: {StyleSheets.passive};
             border: none;
         }}
         QPushButton:pressed {{
-            background-color: rgb(189, 147, 249);
+            background-color: {StyleSheets.purple};
             border: none;
         }}'''
 
@@ -228,7 +233,7 @@ class StyleSheets:
     def left_menu_button_active(padding):
         return f'''
         QPushButton {{
-            background-color: rgb(40, 44, 52);
+            background-color: {StyleSheets.passive};
             padding: 0 {padding} 0 -{padding};
             border: none;
         }}
@@ -262,15 +267,15 @@ class StyleSheets:
 
     selector = f'''
         QComboBox {{
-            background-color: rgb(33, 37, 43);
+            background-color: {background};
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
-            padding-left: 10px;
+            padding: 0 10px 0 10px;
         }}
         
         QComboBox:hover {{
-            border: 2px solid rgb(47, 52, 61);
+            border: 2px solid {selection};
         }}
         
         QComboBox::drop-down {{
@@ -286,9 +291,9 @@ class StyleSheets:
         
         QComboBox QAbstractItemView {{
             outline: 0px;
-            color: rgb(189, 147, 249);
-            background-color: rgb(33, 37, 43);
-            padding: 10px 0px 10px 10px;
+            color: {purple};
+            background-color: {background};
+            padding: 10px 10px 10px 10px;
         }}
         
         QComboBox QAbstractItemView::item {{
@@ -297,11 +302,11 @@ class StyleSheets:
         
         QListView::item:selected {{
             color: rgb(255, 255, 255);
-            background-color: rgb(39, 44, 54);
+            background-color: {selection};
         }}
 
         QScrollBar:vertical {{
-            background: rgb(52, 59, 72);
+            background: {selection};
             width: 8px;
             border: 0px solid white;
             border-radius: 4px;
@@ -321,25 +326,25 @@ class StyleSheets:
             border: none;
         }}'''
 
-    button = '''
-        QPushButton {
+    button = f'''
+        QPushButton {{
             color: rgb(255, 255, 255);
-            background-color: rgb(56, 62, 73);
+            background-color: {background};
             border: none;
             border-radius: 5px;
-        }
-        QPushButton:hover {
-            background-color: rgb(94, 104, 122);
+        }}
+        QPushButton:hover {{
+            background-color: {selection};
             border: none;
-        }
-        QPushButton:pressed {
-            background-color: rgb(139, 158, 194);
+        }}
+        QPushButton:pressed {{
+            background-color: {light_selection};
             border: none;
-        }'''
+        }}'''
 
     scroll_bar = f'''
         QScrollBar:vertical {{
-            background: rgb(52, 59, 72);
+            background: {selection};
             width: 8px;
             border: 0px solid white;
             border-radius: 4px;

@@ -71,7 +71,7 @@ class TopBar(QFrame):
         QFrame.__init__(self, parent)
         self.setObjectName("topBar")
         self.setMinimumSize(QSize(300, 60))
-        self.setStyleSheet("QFrame#topBar {background-color: rgb(33, 37, 43);}")
+        self.setStyleSheet(f"QFrame#topBar {{background-color: {StyleSheets.background};}}")
 
 class TopBarButton(QPushButton):
     def __init__(self, parent, object_name, icon, on_click, style_sheet=StyleSheets.top_bar_button):
@@ -378,7 +378,7 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         self.widget.setStyleSheet('''
             QPlainTextEdit {
                 background: rgba(0, 0, 0, 0);
-                border: 3px solid rgb(94, 104, 122);
+                border: 3px solid {StyleSheets.selection};
                 border-radius: 5px;
                 color: rgb(125, 125, 125);
                 padding: 10px 10px 10px 10px;
@@ -516,7 +516,7 @@ Type: {TextUtil.title_case(unlockable.type)}''')
         self.background.setObjectName(f"{object_name}Background")
         self.background.setStyleSheet(f'''
             QFrame#{object_name}Background {{
-                background-color: rgb(40, 44, 52);
+                background-color: {StyleSheets.passive};
                 border-width: 1;
                 border-style: solid;
                 border-color: rgb(58, 64, 76);
@@ -1031,13 +1031,13 @@ class MainWindow(QMainWindow):
         # background
         self.background = QFrame(self.centralWidget)
         self.background.setObjectName("background")
-        self.background.setStyleSheet('''
-            QFrame#background {
-                background-color: rgb(40, 44, 52);
+        self.background.setStyleSheet(f'''
+            QFrame#background {{
+                background-color: {StyleSheets.passive};
                 border-width: 1;
                 border-style: solid;
                 border-color: rgb(58, 64, 76);
-            }''')
+            }}''')
         self.shadow = QGraphicsDropShadowEffect(self)
         self.shadow.setBlurRadius(10)
         self.shadow.setOffset(0, 0)
@@ -1105,10 +1105,10 @@ class MainWindow(QMainWindow):
         self.leftMenu.setObjectName("leftMenu")
         self.leftMenu.setMinimumWidth(LeftMenuButton.min_width)
         self.leftMenu.setMaximumWidth(LeftMenuButton.min_width)
-        self.leftMenu.setStyleSheet('''
-            QFrame#leftMenu {
-                background-color: rgb(33, 37, 43);
-            }''')
+        self.leftMenu.setStyleSheet(f'''
+            QFrame#leftMenu {{
+                background-color: {StyleSheets.background};
+            }}''')
 
         self.leftMenuLayout = QVBoxLayout(self.leftMenu)
         self.leftMenuLayout.setObjectName("leftMenuLayout")
@@ -1125,7 +1125,7 @@ class MainWindow(QMainWindow):
         self.menuColumnLayout.setSpacing(0)
 
         self.toggleButton = ToggleButton(self.leftMenu, "toggleButton", QIcon(Icons.menu), self, self.animate)
-        self.toggleLabel = LeftMenuLabel(self.toggleButton, "toggleLabel", "Hide", "color: rgb(150, 150, 150);")
+        self.toggleLabel = LeftMenuLabel(self.toggleButton, "toggleLabel", "Hide", f"color: {StyleSheets.purple};")
 
         self.homeButton = LeftMenuButton(self.leftMenu, "homeButton", QIcon(Icons.home), self, True)
         self.homeLabel = LeftMenuLabel(self.homeButton, "homeLabel", "Home")
@@ -1315,11 +1315,11 @@ class MainWindow(QMainWindow):
         # select all bar
         self.preferencesPagePersistentBar = QWidget(self.preferencesPage)
         self.preferencesPagePersistentBar.setObjectName("preferencesPagePersistentBar")
-        self.preferencesPagePersistentBar.setStyleSheet('''
-        QWidget#preferencesPagePersistentBar {
-            border-top: 6px solid rgb(47, 52, 61);
+        self.preferencesPagePersistentBar.setStyleSheet(f'''
+        QWidget#preferencesPagePersistentBar {{
+            border-top: 6px solid {StyleSheets.selection};
             border-radius: 3px;           
-        }''')
+        }}''')
         self.preferencesPagePersistentBar.setMinimumHeight(80)
         self.preferencesPagePersistentBarLayout = QHBoxLayout(self.preferencesPagePersistentBar)
         self.preferencesPagePersistentBarLayout.setContentsMargins(0, 0, 0, 0)
@@ -1355,12 +1355,12 @@ class MainWindow(QMainWindow):
         self.preferencesPageEditDropdownContent.setMinimumHeight(0)
         self.preferencesPageEditDropdownContent.setMaximumHeight(0)
         self.preferencesPageEditDropdownContent.setFixedWidth(260)
-        self.preferencesPageEditDropdownContent.setStyleSheet('''
-            QWidget#preferencesPageEditDropdownContent {
-                background-color: rgb(40, 44, 52);
-                border: 3px solid rgb(94, 104, 122);
+        self.preferencesPageEditDropdownContent.setStyleSheet(f'''
+            QWidget#preferencesPageEditDropdownContent {{
+                background-color: {StyleSheets.passive};
+                border: 3px solid {StyleSheets.selection};
                 border-radius: 3px;
-            }''')
+            }}''')
 
         self.preferencesPageEditDropdownContentLayout = QVBoxLayout(self.preferencesPageEditDropdownContent)
         self.preferencesPageEditDropdownContentLayout.setContentsMargins(25, 25, 25, 25)
@@ -1611,10 +1611,10 @@ class MainWindow(QMainWindow):
         self.bottomBar = QFrame(self.content)
         self.bottomBar.setObjectName("bottomBar")
         self.bottomBar.setMinimumSize(QSize(0, 25))
-        self.bottomBar.setStyleSheet('''
-            QFrame#bottomBar {
-                background-color: rgb(47, 52, 61);
-            }''')
+        self.bottomBar.setStyleSheet(f'''
+            QFrame#bottomBar {{
+                background-color: {StyleSheets.selection};
+            }}''')
 
         self.bottomBarLayout = QHBoxLayout(self.bottomBar)
         self.bottomBarLayout.setObjectName("bottomBarLayout")
