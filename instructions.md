@@ -8,7 +8,7 @@
   - ~~output directory: E:\Coding Projects\Blood Emporium Output~~
   - ~~add empty logs\ folder~~
   - ~~IF DEV: add empty output\ folder~~
-- .\compile.sh \<version> <optional: "dev">
+- .\compile.sh \<version> <optional: "dev"> OR .\compile-onefile.sh \<version> <optional: "dev">
 - deactivate
 - Set-ExecutionPolicy Restricted -Scope CurrentUser
 
