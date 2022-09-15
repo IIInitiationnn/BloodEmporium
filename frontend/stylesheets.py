@@ -307,7 +307,7 @@ class StyleSheets:
 
         QScrollBar:vertical {{
             background: {selection};
-            width: 8px;
+            width: 4px;
             border: 0px solid white;
             border-radius: 4px;
         }}
@@ -315,7 +315,7 @@ class StyleSheets:
         QScrollBar::handle:vertical {{
             background: {purple};
             min-height: 25px;
-            border-radius: 4px;
+            border-radius: 2px;
         }}
         
         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{

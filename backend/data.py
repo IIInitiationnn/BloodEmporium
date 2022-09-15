@@ -93,7 +93,7 @@ class Data:
 
     @staticmethod
     def get_sorts():
-        return ["default (usually does the job)", "name", "character", "rarity", "type"]
+        return ["name", "character", "rarity", "type"]
 
     @staticmethod
     def __get_default_ordering(widgets):
@@ -109,9 +109,7 @@ class Data:
 
         # sorted_widgets = Data.__get_default_ordering(unlockable_widgets) # technically not needed since unlockable_widgets never changes order
         sorted_widgets = unlockable_widgets
-        if sort_by == "default (usually does the job)":
-            pass # do nothing, or equivalently call __get_default_ordering
-        elif sort_by == "name":
+        if sort_by == "name":
             sorted_widgets = sorted(sorted_widgets, key=lambda unlockable_widget: unlockable_widget.unlockable.name)
         elif sort_by == "character":
             sorted_widgets = sorted(sorted_widgets, key=lambda unlockable_widget: unlockable_widget.unlockable.category)

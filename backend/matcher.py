@@ -41,7 +41,6 @@ class Matcher:
 
         for subdir, dirs, files in os.walk(Path.assets_origins):
             for file in files:
-                print(file)
                 dim = self.res.origin_dim(file)
                 radius = round(dim / 2)
                 origin = cv2.split(cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED))

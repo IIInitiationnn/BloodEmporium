@@ -1034,9 +1034,6 @@ class MainWindow(QMainWindow):
         self.background.setStyleSheet(f'''
             QFrame#background {{
                 background-color: {StyleSheets.passive};
-                border-width: 1;
-                border-style: solid;
-                border-color: rgb(58, 64, 76);
             }}''')
         self.shadow = QGraphicsDropShadowEffect(self)
         self.shadow.setBlurRadius(10)
@@ -1300,7 +1297,7 @@ class MainWindow(QMainWindow):
         self.preferencesPageSortSelector = Selector(self.preferencesPageSearchSortRow, "preferencesPageSortSelector",
                                                     QSize(225, 40), Data.get_sorts())
         self.preferencesPageSortSelector.currentIndexChanged.connect(self.replace_unlockable_widgets)
-        self.lastSortedBy = "default (usually does the job)" # cache of last sort
+        self.lastSortedBy = "name" # cache of last sort
 
         # all unlockables
         self.preferencesPageUnlockableWidgets = []
@@ -1873,6 +1870,7 @@ class MainWindow(QMainWindow):
         self.settingsPageLayout.addWidget(self.settingsPageSaveRow)
         self.settingsPageLayout.addStretch(1)
 
+        self.preferencesPageSortSelector.setCurrentIndex(1) # self.lastSortedBy becomes "character"
         self.show()
 
 class Icons:

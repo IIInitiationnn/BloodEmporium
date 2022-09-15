@@ -23,7 +23,6 @@ from resolution import Resolution
 immediate priorities
     - new timings??
     - bug where tier and subtier have same colour for positive / negative when one is negative and one is positive?
-    - sort by type by default, get rid of "default usually does the job"
     - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
         - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
             - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
@@ -89,7 +88,7 @@ class LoggerWriter(object):
             self._msg = ""
 
 class State:
-    version = "v0.2.8"
+    version = "v0.2.9"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
@@ -127,13 +126,13 @@ class State:
 
     def on_press(self, key):
         pass
-        k = str(format(key))
+        '''k = str(format(key))
         if k == "'8'":
             self.run_debug_mode()
         elif k == "'9'":
             self.run_regular_mode()
         elif k == "'0'":
-            self.terminate()
+            self.terminate()'''
 
     @staticmethod
     def main_loop(debug, write_to_output):
@@ -179,6 +178,8 @@ class State:
 
             matcher = Matcher(debugger, cv_images, resolution)
             origin, origin_type = matcher.match_origin()
+
+            print(f"matched origin: {origin_type}")
 
             # vectors: detect circles and match to unlockables
             print("vector: circles and match to unlockables")
