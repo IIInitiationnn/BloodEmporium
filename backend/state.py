@@ -88,7 +88,7 @@ class LoggerWriter(object):
             self._msg = ""
 
 class State:
-    version = "v0.2.10-alpha.0"
+    version = "v0.2.10"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
@@ -102,7 +102,7 @@ class State:
 
     def run_debug_mode(self):
         if not self.is_active():
-            self.thread = Process(target=State.main_loop, args=(True, False))
+            self.thread = Process(target=State.main_loop, args=(True, True))
             self.thread.start()
             if self.hotkey_callback is not None:
                 self.hotkey_callback()
@@ -159,9 +159,9 @@ class State:
         x, y = base_res.top_left()
 
         ratio = 1
-        if base_res.width != 1920 or base_res.ui_scale != 100:
-            ratio = base_res.width / 1920 * base_res.ui_scale / 100
-            resolution = Resolution(1920, 1080, 100)
+        if base_res.height != 1080 or base_res.ui_scale != 100:
+            ratio = base_res.height / 1080 * base_res.ui_scale / 100
+            resolution = Resolution(1080 * base_res.width / base_res.height, 1080, 100)
 
         # initialisation: merged base for template matching
         print("initialisation, merging")
@@ -186,7 +186,7 @@ class State:
             circles = matcher.vector_circles(origin, merged_base)
 
             # prestige level: proceed to next level
-            if origin_type == "origin_prestige.png":
+            if origin_type == "origin_prestige.png" or origin_type == "origin_prestige_small.png":
                 print("prestige level: selecting")
                 if debug:
                     debugger.show_images()

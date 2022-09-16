@@ -129,7 +129,7 @@ class Resolution:
         print(f"{self.width}x{self.height} @ {self.ui_scale}% UI Scale")
 
     def ratio(self):
-        return self.width / Resolution.__width * self.ui_scale / Resolution.__ui_scale
+        return self.height / Resolution.__height * self.ui_scale / Resolution.__ui_scale
 
     # screenshot dimensions and points
     # https://www.desmos.com/calculator/4psfavvzoz
