@@ -88,7 +88,7 @@ class LoggerWriter(object):
             self._msg = ""
 
 class State:
-    version = "v0.2.9"
+    version = "v0.2.10-alpha.0"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None

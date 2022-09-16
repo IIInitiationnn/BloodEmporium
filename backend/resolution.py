@@ -134,17 +134,22 @@ class Resolution:
     # screenshot dimensions and points
     # https://www.desmos.com/calculator/4psfavvzoz
     # https://www.desmos.com/calculator/hcxllwtp44 6.1.0
+    # https://www.desmos.com/calculator/p3bqkbaiod widescreen support
     def top_left(self):
         return self.top_left_x(), self.top_left_y()
 
     def top_left_x(self):
-        return round(7 + 0.13 * self.width * self.ui_scale / 100)
+        return round(0.000139595 * self.width * self.ui_scale +
+                     0.00205159 * self.height * self.ui_scale +
+                     7.8899)
 
     def top_left_y(self):
-        return round(29 - 0.345 * self.ui_scale + 0.485 * self.height - 0.188 * self.width * self.ui_scale / 100)
+        return round(0.000116994 * self.width * self.ui_scale -
+                     0.00377624 * self.height * self.ui_scale +
+                     0.504239 * self.height)
 
     def cap_dim(self):
-        return round(10 + 0.441 * self.width * self.ui_scale / 100)
+        return round(0.00788788 * self.height * self.ui_scale)
 
     # node sizes
     @staticmethod
