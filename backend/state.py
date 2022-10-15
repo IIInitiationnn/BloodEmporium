@@ -88,7 +88,7 @@ class LoggerWriter(object):
             self._msg = ""
 
 class State:
-    version = "v0.2.10"
+    version = "v0.2.11"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
@@ -241,7 +241,7 @@ class State:
                 pyautogui.mouseUp()
 
                 # mystery box: click
-                if optimal_unlockable.name == "iconHelp_mysteryBox_universal":
+                if "mysteryBox" in optimal_unlockable.name:
                     print("mystery box selected")
                     time.sleep(0.9)
                     pyautogui.click()

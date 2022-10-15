@@ -4,10 +4,12 @@
 A program to automatically level the Bloodweb in the game Dead by Daylight.
 
 ## Developer Notes
-Assets for icon recognition are up-to-date as of Dead by Daylight Patch 6.2.0 (Resident Evil: PROJECT W).\
+Assets for icon recognition are up-to-date as of Dead by Daylight Patch 6.3.0 (Haunted by Daylight).\
 To contact me about this project, or if you have any inquiries, please join the [Discord](https://discord.gg/bGdJTnF2hr).
 Any bug reports, requests for technical support, or suggestions can be submitted through either this server or
-[GitHub issues](https://github.com/IIInitiationnn/BloodEmporium/issues).
+[GitHub issues](https://github.com/IIInitiationnn/BloodEmporium/issues).\
+This project is free and open-source. Any [donations](https://www.paypal.me/IIInitiationnn) are appreciated,
+but absolutely not necessary. Please consider your own financial situation before donating!
 
 ### Overview
 - Automatically selects optimal nodes on the Bloodweb based on user-configured preferences.
@@ -39,8 +41,8 @@ Any bug reports, requests for technical support, or suggestions can be submitted
 - Shaders must be disabled while using this program, as colour changes interfere with object and colour recognition.
 
 ### Roadmap & Future Developments
-- GUI
 - Bloodpoint spend limit
+- Improved speed
 - Configuration for:
   - Hotkeys
   - Pausing the program when a player can prestige (reaching level 50)
