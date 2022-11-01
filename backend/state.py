@@ -20,53 +20,54 @@ from resolution import Resolution
 # TODO try catch for threads and terminate if error
 
 '''
+2.0.12:
+- [DONE] filter options collapse / expand
+- [DONE, pending feedback] update cheapskate, with and without perks
+- run certain number of prestige levels
+- [DONE] print nodes and edges in logs
+- hotkeys
+- bloodpoint spend limit
+
+'''
+
+'''
 immediate priorities
-    - new timings??
-    - bug where tier and subtier have same colour for positive / negative when one is negative and one is positive?
-    - find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
-        - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
-            - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
-            - type of unlockable in db: item, perk etc
-    - tweak hough line parameters
-        - if lines are invalidated from not being in the majority of images, print which nodes it connects
-            - can determine whether it's hough or some other kind of invalidation
-        - AI for hough parameters using target data
+- bug where tier and subtier have same colour for positive / negative when one is negative and one is positive?
+- find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
+    - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
+        - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
+        - type of unlockable in db: item, perk etc
+- tweak hough line parameters
+    - if lines are invalidated from not being in the majority of images, print which nodes it connects
+        - can determine whether it's hough or some other kind of invalidation
+    - AI for hough parameters using target data
+- try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
-    - frontend with GUI
-        - debug mode using pyvis showing matched unlockables, paths and selected nodes
-        - create config from user input
-        - sort / filter unlockables by rarity, cost, search by name etc
-    - icon with entity hand (like EGC) grasping a glowing shard
-    - if p1, p2 or p3, stop processing (config option to ignore prestige)
-        - options for each prestige to continue unlocking in the bloodweb
-    - spend certain amount of bloodpoints (add cost to unlockable class)
-    - prioritise perk option (will always path to perks first and ignore perk config)
-    - toggle option for gui: show default (coloured) icons
-        - default on, applicable when user has no custom icons; when off use custom icons
-        - will naturally revert to default (colourless) icons from assets when no custom icons
-    - when clicking run, show prompt for turning shaders off
-    - status in run page showing reason for stopping if it does; can also show bp progress if there is a bp cap
-    - output log somewhere - maybe in the debug mode
-    - ability to auto-update software
-        - maybe ability to update default config presets as well? may not be desired by people who have overridden
-    - import / export profile as string to share with others
+- frontend with GUI
+    - debug mode using pyvis showing matched unlockables, paths and selected nodes
+    - create config from user input
+    - sort / filter unlockables by rarity, cost, search by name etc
+- icon with entity hand (like EGC) grasping a glowing shard
+- if p1, p2 or p3, stop processing (config option to ignore prestige)
+    - options for each prestige to continue unlocking in the bloodweb
+- spend certain amount of bloodpoints (add cost to unlockable class)
+- prioritise perk option (will always path to perks first and ignore perk config)
+- toggle option for gui: show default (coloured) icons
+    - default on, applicable when user has no custom icons; when off use custom icons
+    - will naturally revert to default (colourless) icons from assets when no custom icons
+- when clicking run, show prompt for turning shaders off
+- status in run page showing reason for stopping if it does; can also show bp progress if there is a bp cap
+- output log somewhere - maybe in the debug mode
+- ability to auto-update software
+    - maybe ability to update default config presets as well? may not be desired by people who have overridden
+- import / export profile as string to share with others
 
 timeline
-    - above TODOs incl new features
-    - josh feedback
-    - optimisation and accuracy guarantees
-    - remove output folder and finalise -> 1.0.0
-
-update checklist
-    - update state version
-new content checklist
-    - add assets for new killer + survivor perks, killer addons
-    - add into database
-        - new killer in killer table
-        - new addons in unlockables table
-        - new offerings in unlockables table
-        - new perks in unlockables table
+- above TODOs incl new features
+- josh feedback
+- optimisation and accuracy guarantees
+- remove output folder and finalise -> 1.0.0
 '''
 
 # from https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python
@@ -88,7 +89,7 @@ class LoggerWriter(object):
             self._msg = ""
 
 class State:
-    version = "v0.2.11"
+    version = "v0.2.12"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
@@ -213,6 +214,13 @@ class State:
             grapher = Grapher(debugger, circles, connections) # all 9999
             base_bloodweb = grapher.create()
             debugger.set_base_bloodweb(base_bloodweb)
+            print("NODES")
+            for node in base_bloodweb.nodes:
+                print(f"    {node}")
+            print("EDGES")
+            max_len = max([str_len for edge in base_bloodweb.edges for str_len in [len(edge[0]), len(edge[1])]])
+            for edge in base_bloodweb.edges:
+                print(f"    {str(edge[0]).ljust(max_len, ' ')} {edge[1]}")
 
             if debug:
                 debugger.show_images()

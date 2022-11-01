@@ -73,6 +73,8 @@ class Config:
         return self.config["profiles"]
 
     def active_profile(self):
+        if self.config["active_profile"] not in [profile["id"] for profile in self.__profiles()]:
+            self.set_active_profile(self.__profiles()[0]["id"])
         for profile in self.__profiles():
             if profile["id"] == self.config["active_profile"]:
                 return profile
@@ -135,6 +137,8 @@ class Config:
         return existing_profile is not None
 
     def delete_profile(self, profile_id):
+        if profile_id == self.active_profile_name():
+            self.set_active_profile(self.__profiles()[0]["id"])
         to_be_removed = [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
         self.config["profiles"].remove(to_be_removed)
         self.commit_changes()

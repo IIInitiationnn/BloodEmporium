@@ -1,4 +1,8 @@
+If you are a user reading this file, you are in the wrong place!
+Please download the non-source code archive from https://github.com/IIInitiationnn/BloodEmporium/releases
+
 # Compilation (Powershell)
+(Update state version)
 - pipreqs . --force
 - Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 - .\venv\Scripts\activate

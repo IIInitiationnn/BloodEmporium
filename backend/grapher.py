@@ -45,8 +45,9 @@ class Grapher:
         image_filtered = updated_images.get_gray()
         image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.4, beta=0)
         image_filtered = cv2.fastNlMeansDenoising(image_filtered, None, 3, 7, 21)
-        #image_filtered = cv2.GaussianBlur(image_filtered, (self.res.gaussian_c(), self.res.gaussian_c()), sigmaX=0, sigmaY=0)
-        #image_filtered = cv2.bilateralFilter(image_filtered, self.res.bilateral_c(), 200, 200)
+        # image_filtered = cv2.GaussianBlur(image_filtered, (self.res.gaussian_c(),
+        #                                   self.res.gaussian_c()), sigmaX=0, sigmaY=0)
+        # image_filtered = cv2.bilateralFilter(image_filtered, self.res.bilateral_c(), 200, 200)
 
         to_remove = []
         for node_id, data in base_bloodweb.nodes.items():

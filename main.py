@@ -2,12 +2,11 @@ import os
 import sys
 from multiprocessing import freeze_support
 
-from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QTextStream, QObject, pyqtSignal, \
-    QRect
-from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QTextCursor, QKeySequence
+from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QHBoxLayout, QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
-    QCheckBox, QLineEdit, QToolButton, QFileDialog, QTextEdit, QPlainTextEdit, QSizeGrip, QShortcut
+    QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip, QProxyStyle, QStyle
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
@@ -254,6 +253,15 @@ class CheckBoxWithFunction(CheckBox):
         CheckBox.__init__(self, parent, object_name, style_sheet)
         self.clicked.connect(on_click)
 
+# from https://forum.qt.io/topic/15068/prevent-flat-qtoolbutton-from-moving-when-clicked/8
+class NoShiftStyle(QProxyStyle):
+    def pixelMetric(self, metric, option, widget):
+        if metric == QStyle.PM_ButtonShiftHorizontal or metric == QStyle.PM_ButtonShiftVertical:
+            ret = 0
+        else:
+            ret = QProxyStyle.pixelMetric(self, metric, option, widget)
+        return ret
+
 class CollapsibleBox(QWidget):
     def __init__(self, parent, object_name, text):
         QWidget.__init__(self, parent)
@@ -272,6 +280,7 @@ class CollapsibleBox(QWidget):
         self.toggleButton.setIconSize(QSize(20, 20))
         self.toggleButton.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toggleButton.pressed.connect(self.on_pressed)
+        self.toggleButton.setStyle(NoShiftStyle())
 
         self.layout.addWidget(self.toggleButton, alignment=Qt.AlignTop)
 
@@ -280,7 +289,7 @@ class CollapsibleBox(QWidget):
 
 class FilterOptionsCollapsibleBox(CollapsibleBox):
     def __init__(self, parent, object_name, on_click):
-        CollapsibleBox.__init__(self, parent, object_name, "Filter Options")
+        CollapsibleBox.__init__(self, parent, object_name, "Filter Options (Click to Expand)")
 
         # TODO clear filters button
         # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
@@ -352,15 +361,18 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
     def get_type_filters(self):
         return [name for name, checkbox in self.typeCheckBoxes.items() if checkbox.isChecked()]
 
+    # TODO auto resize rather than fixed number
     def on_pressed(self):
         if self.toggleButton.isChecked():
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_active)
             self.toggleButton.setIcon(QIcon(Icons.right_arrow))
+            self.toggleButton.setText("Filter Options (Click to Expand)")
             self.filters.setMinimumHeight(0)
             self.filters.setMaximumHeight(0)
         else:
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
             self.toggleButton.setIcon(QIcon(Icons.down_arrow))
+            self.toggleButton.setText("Filter Options (Click to Collapse)")
             self.filters.setMinimumHeight(1200)
             self.filters.setMaximumHeight(1200)
 
@@ -637,7 +649,7 @@ class MainWindow(QMainWindow):
         sort_by = self.preferencesPageSortSelector.currentText()
 
         if self.lastSortedBy == sort_by:
-            # if there was no change in ordering, we don't pass in sort_by; the resulting visible list has arbitrary order
+            # if there was no change in ordering, don't pass in sort_by; the resulting visible list has arbitrary order
             for widget, is_visible in Data.filter(self.preferencesPageUnlockableWidgets,
                                                   self.preferencesPageSearchBar.text(),
                                                   self.preferencesPageFiltersBox.get_character_filters(),
@@ -811,9 +823,11 @@ class MainWindow(QMainWindow):
         self.on_unlockable_select()
 
     def expand_edit(self):
-        new_pos = self.preferencesPageEditDropdownButton.mapTo(self.preferencesPage, self.preferencesPageEditDropdownButton.pos())
+        new_pos = self.preferencesPageEditDropdownButton.mapTo(self.preferencesPage,
+                                                               self.preferencesPageEditDropdownButton.pos())
         new_pos.setY(new_pos.y() - 250)
-        # TODO move this new_pos into an event handler: https://stackoverflow.com/questions/15238973/how-do-i-set-a-relative-position-for-a-qt-widget\
+        # TODO move this new_pos into an event handler
+        #  (https://stackoverflow.com/questions/15238973/how-do-i-set-a-relative-position-for-a-qt-widget)
         #  - will work for resizing
 
         if self.preferencesPageEditDropdownButton.isChecked():
@@ -859,8 +873,9 @@ class MainWindow(QMainWindow):
                 widget.setTiers(tier=tier)
             if self.preferencesPageEditDropdownContentSubtierCheckBox.isChecked():
                 widget.setTiers(subtier=subtier)
+        self.on_edit_dropdown_minimise()
 
-    def on_edit_dropdown_cancel(self):
+    def on_edit_dropdown_minimise(self):
         if self.preferencesPageEditDropdownContentTierCheckBox.isChecked():
             self.preferencesPageEditDropdownContentTierCheckBox.animateClick()
         if self.preferencesPageEditDropdownContentSubtierCheckBox.isChecked():
@@ -1345,6 +1360,7 @@ class MainWindow(QMainWindow):
         self.preferencesPageEditDropdownButton.setIcon(QIcon(Icons.right_arrow))
         self.preferencesPageEditDropdownButton.setIconSize(QSize(20, 20))
         self.preferencesPageEditDropdownButton.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.preferencesPageEditDropdownButton.setStyle(NoShiftStyle())
         self.preferencesPageEditDropdownButton.pressed.connect(self.expand_edit)
 
         self.preferencesPageEditDropdownContent = QWidget(self.preferencesPage)
@@ -1412,9 +1428,9 @@ class MainWindow(QMainWindow):
         self.preferencesPageEditDropdownContentApplyButton.clicked.connect(self.on_edit_dropdown_apply)
 
         self.preferencesPageEditDropdownContentCancelButton = Button(self.preferencesPageEditDropdownContentApplyRow,
-                                                                    "preferencesPageEditDropdownContentCancelButton",
-                                                                    "Cancel", QSize(70, 35))
-        self.preferencesPageEditDropdownContentCancelButton.clicked.connect(self.on_edit_dropdown_cancel)
+                                                                     "preferencesPageEditDropdownContentCancelButton",
+                                                                     "Cancel", QSize(70, 35))
+        self.preferencesPageEditDropdownContentCancelButton.clicked.connect(self.on_edit_dropdown_minimise)
 
         # stack: bloodwebPage
         self.bloodwebPage = QWidget()
