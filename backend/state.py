@@ -20,23 +20,18 @@ from resolution import Resolution
 # TODO try catch for threads and terminate if error
 
 '''
-2.0.12:
+0.3.0:
 - [DONE] filter options collapse / expand
 - [DONE, pending feedback] update cheapskate, with and without perks
 - run certain number of prestige levels
 - [DONE] print nodes and edges in logs
 - hotkeys
 - bloodpoint spend limit
-
+- add missing properties to config from default_config
 '''
 
 '''
 immediate priorities
-- bug where tier and subtier have same colour for positive / negative when one is negative and one is positive?
-- find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
-    - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
-        - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
-        - type of unlockable in db: item, perk etc
 - tweak hough line parameters
     - if lines are invalidated from not being in the majority of images, print which nodes it connects
         - can determine whether it's hough or some other kind of invalidation
@@ -44,24 +39,20 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
+- "you have unsaved changes" next to save button - profiles, settings
 - frontend with GUI
-    - debug mode using pyvis showing matched unlockables, paths and selected nodes
-    - create config from user input
-    - sort / filter unlockables by rarity, cost, search by name etc
-- icon with entity hand (like EGC) grasping a glowing shard
-- if p1, p2 or p3, stop processing (config option to ignore prestige)
-    - options for each prestige to continue unlocking in the bloodweb
-- spend certain amount of bloodpoints (add cost to unlockable class)
-- prioritise perk option (will always path to perks first and ignore perk config)
-- toggle option for gui: show default (coloured) icons
-    - default on, applicable when user has no custom icons; when off use custom icons
-    - will naturally revert to default (colourless) icons from assets when no custom icons
-- when clicking run, show prompt for turning shaders off
-- status in run page showing reason for stopping if it does; can also show bp progress if there is a bp cap
-- output log somewhere - maybe in the debug mode
+    - show debug text irrespective of the below debug mode in a collapsible box (the same as the logs)
+    - debug mode using pyvis showing matched unlockables, paths and selected nodes in some box under the run button
+- runtime options (text stating that if both options are selected, it will stop at the earlier of the conditions)
+    - number of prestiges before stopping: int > 1 (also show progress e.g. 2/10)
+    - bloodpoint limit: int > 1 (also show progress e.g. 100,000 / 150,000) 
 - ability to auto-update software
     - maybe ability to update default config presets as well? may not be desired by people who have overridden
 - import / export profile as string to share with others
+- find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
+    - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
+        - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
+        - type of unlockable in db: item, perk etc
 
 timeline
 - above TODOs incl new features
@@ -89,7 +80,7 @@ class LoggerWriter(object):
             self._msg = ""
 
 class State:
-    version = "v0.2.12"
+    version = "v0.3.0"
 
     def __init__(self, use_hotkeys=True, hotkey_callback=None):
         self.thread = None
