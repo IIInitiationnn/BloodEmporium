@@ -173,18 +173,27 @@ class StyleSheets:
         }}'''
 
     @staticmethod
-    def prestige_input(prestige):
+    def prestige_input(prestige_limit):
         try:
-            prestige = int(prestige)
+            prestige_limit = int(prestige_limit)
         except ValueError:
             return StyleSheets.text_box_invalid
 
-        if prestige > 100:
+        if prestige_limit > 100:
             return StyleSheets.text_box_invalid
-        elif prestige > 0:
+        elif prestige_limit > 0:
             return StyleSheets.text_box
         else:
             return StyleSheets.text_box_invalid
+
+    @staticmethod
+    def bloodpoint_input(bloodpoint_limit):
+        try:
+            bloodpoint_limit = int(bloodpoint_limit)
+        except ValueError:
+            return StyleSheets.text_box_invalid
+
+        return StyleSheets.text_box_invalid if bloodpoint_limit <= 0 else StyleSheets.text_box
 
     @staticmethod
     def tiers_input(tier):

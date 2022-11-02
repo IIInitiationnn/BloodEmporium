@@ -7,6 +7,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
     QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip, QProxyStyle, QStyle
+from pynput import keyboard
 
 from frontend.layouts import RowLayout
 
@@ -694,16 +695,16 @@ class MainWindow(QMainWindow):
     def save_profile(self):
         profile_id = self.preferencesPageProfileSelector.currentText()
         if profile_id == "blank":
-            self.show_preferences_page_save_fail_text("You cannot save to the blank profile. "
-                                                      "Use Save As below to create a new profile.")
+            self.show_preferences_page_save_error("You cannot save to the blank profile. "
+                                                  "Use Save As below to create a new profile.")
         else:
             updated_profile = Config().get_profile_by_id(profile_id).copy()
 
             non_integer = Data.verify_tiers(self.preferencesPageUnlockableWidgets)
             if len(non_integer) > 0:
-                self.show_preferences_page_save_fail_text(f"There are {len(non_integer)} unlockables with invalid "
-                                                          "inputs. Inputs must be a number from -999 to 999. Changes "
-                                                          "not saved.")
+                self.show_preferences_page_save_error(f"There are {len(non_integer)} unlockables with invalid "
+                                                      "inputs. Inputs must be a number from -999 to 999. Changes "
+                                                      "not saved.")
                 return
 
             for widget in self.preferencesPageUnlockableWidgets:
@@ -714,7 +715,7 @@ class MainWindow(QMainWindow):
                     updated_profile.pop(widget.unlockable.unique_id, None)
             Config().set_profile(updated_profile)
 
-            self.show_preferences_page_save_success_text(f"Changes saved to profile: {profile_id}")
+            self.show_preferences_page_save_success(f"Changes saved to profile: {profile_id}")
             QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
 
     # def rename_profile(self):
@@ -726,7 +727,7 @@ class MainWindow(QMainWindow):
             self.ignore_profile_signals = True
             profile_id = self.preferencesPageProfileSelector.currentText()
             if profile_id == "blank":
-                self.show_preferences_page_save_fail_text("You cannot delete the blank profile.")
+                self.show_preferences_page_save_error("You cannot delete the blank profile.")
             else:
                 # TODO "are you sure" for deleting
                 Config().delete_profile(profile_id)
@@ -736,22 +737,22 @@ class MainWindow(QMainWindow):
                 self.ignore_profile_signals = False
                 self.switch_edit_profile()
 
-                self.show_preferences_page_save_success_text(f"Profile deleted: {profile_id}")
+                self.show_preferences_page_save_success(f"Profile deleted: {profile_id}")
             self.ignore_profile_signals = False
 
-    def show_preferences_page_save_success_text(self, text):
+    def show_preferences_page_save_success(self, text):
         self.preferencesPageSaveSuccessText.setText(text)
         self.preferencesPageSaveSuccessText.setStyleSheet(StyleSheets.pink_text)
         self.preferencesPageSaveSuccessText.setVisible(True)
-        QTimer.singleShot(10000, self.hide_preferences_page_save_success_text)
+        QTimer.singleShot(10000, self.hide_preferences_page_save_text)
 
-    def show_preferences_page_save_fail_text(self, text):
+    def show_preferences_page_save_error(self, text):
         self.preferencesPageSaveSuccessText.setText(text)
         self.preferencesPageSaveSuccessText.setStyleSheet(StyleSheets.purple_text)
         self.preferencesPageSaveSuccessText.setVisible(True)
-        QTimer.singleShot(10000, self.hide_preferences_page_save_success_text)
+        QTimer.singleShot(10000, self.hide_preferences_page_save_text)
 
-    def hide_preferences_page_save_success_text(self):
+    def hide_preferences_page_save_text(self):
         self.preferencesPageSaveSuccessText.setVisible(False)
 
     def save_as_profile(self):
@@ -920,6 +921,9 @@ class MainWindow(QMainWindow):
         character = self.bloodwebPageCharacterSelector.currentText()
         Config().set_character(character)
 
+    def get_runtime_prestige(self) -> str or None:
+        return self.bloodwebPagePrestigeInput.text() if self.bloodwebPagePrestigeCheckBox.isChecked() else None
+
     def on_toggle_prestige(self):
         if self.bloodwebPagePrestigeCheckBox.isChecked():
             self.bloodwebPagePrestigeInput.setReadOnly(False)
@@ -930,17 +934,61 @@ class MainWindow(QMainWindow):
             self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.text_box_read_only)
 
     def on_edit_prestige_input(self):
-        self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.prestige_input(self.bloodwebPagePrestigeInput.text()))
+        text = self.bloodwebPagePrestigeInput.text()
+        self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.prestige_input(text))
 
-    def run_terminate(self):
-        if self.state.is_active():
-            self.state.terminate()
+    def on_toggle_bloodpoint(self):
+        if self.bloodwebPageBloodpointCheckBox.isChecked():
+            self.bloodwebPageBloodpointInput.setReadOnly(False)
+            text = self.bloodwebPageBloodpointInput.text()
+            self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.bloodpoint_input(text))
         else:
-            # self.minimize()
-            self.state.run_regular_mode()
-        self.run_terminate_button()
+            self.bloodwebPageBloodpointInput.setReadOnly(True)
+            self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.text_box_read_only)
 
-    def run_terminate_button(self):
+    def on_edit_bloodpoint_input(self):
+        text = self.bloodwebPageBloodpointInput.text()
+        self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.bloodpoint_input(text))
+
+    def show_run_success(self, text):
+        self.bloodwebPageRunErrorText.setText(text)
+        self.bloodwebPageRunErrorText.setStyleSheet(StyleSheets.pink_text)
+        self.bloodwebPageRunErrorText.setVisible(True)
+        QTimer.singleShot(10000, self.hide_run_text)
+
+    def show_run_error(self, text="Prestige level must be a number from 1 to 100."):
+        self.bloodwebPageRunErrorText.setText(text)
+        self.bloodwebPageRunErrorText.setStyleSheet(StyleSheets.purple_text)
+        self.bloodwebPageRunErrorText.setVisible(True)
+        QTimer.singleShot(10000, self.hide_run_text)
+
+    def hide_run_text(self):
+        self.bloodwebPageRunErrorText.setVisible(False)
+
+    def run_terminate(self, debug=False, write_to_output=False):
+        if not self.state.is_active(): # run
+            # check prestige limit
+            prestige_limit = self.get_runtime_prestige()
+            if prestige_limit is not None:
+                try:
+                    prestige_limit = int(prestige_limit)
+                except:
+                    return self.show_run_error()
+                if not (1 <= prestige_limit <= 100):
+                    return self.show_run_error()
+
+            # TODO check bloodpoint limit
+            bp_limit = 10000
+
+            self.hide_run_text()
+            self.state.run(debug, write_to_output, prestige_limit, bp_limit)
+            self.toggle_run_terminate_text()
+        else: # terminate
+            self.hide_run_text()
+            self.state.terminate()
+            self.toggle_run_terminate_text()
+
+    def toggle_run_terminate_text(self):
         if not self.state.is_active():
             self.bloodwebPageRunButton.setText("Run")
             self.bloodwebPageRunButton.setFixedSize(QSize(60, 35))
@@ -1042,15 +1090,28 @@ class MainWindow(QMainWindow):
         QMainWindow.resizeEvent(self, event)
         self.update_grips()
 
+    def on_press(self, key): # TODO
+        print(key)
+        '''k = str(format(key))
+        if k == "'8'":
+            self.run_terminate(True, True)
+        elif k == "'9'":
+            self.run_terminate(False, False)
+        elif k == "'0'":
+            self.run_terminate()'''
+
     def __init__(self):
         QMainWindow.__init__(self)
         # TODO windows up + windows down; resize areas; cursor when hovering over buttons
         # TODO resize areas
         # TODO a blank profile which cannot be saved to, all 0s
 
+        self.listener = keyboard.Listener(on_press=self.on_press)
+        self.listener.start()
+
         self.is_maximized = False
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
-        self.state = State(True, self)
+        self.state = State()
 
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -1507,13 +1568,12 @@ class MainWindow(QMainWindow):
 
         self.bloodwebPageLimitsDescription = TextLabel(self.bloodwebPage, "bloodwebPageLimitsDescription",
                                                        "If multiple of the following limits are selected, the program "
-                                                       "will terminate when any is reached.")
+                                                       "will terminate when any limit is reached.")
 
         self.bloodwebPagePrestigeRow = QWidget(self.bloodwebPage)
         self.bloodwebPagePrestigeRow.setObjectName("bloodwebPagePrestigeRow")
         self.bloodwebPagePrestigeRowLayout = RowLayout(self.bloodwebPagePrestigeRow, "bloodwebPagePrestigeRowLayout")
 
-        # TODO prevent from running if prestige and/or bloodweb inputs invalid
         self.bloodwebPagePrestigeCheckBox = CheckBoxWithFunction(self.bloodwebPagePrestigeRow,
                                                                  "bloodwebPagePrestigeCheckBox",
                                                                  self.on_toggle_prestige)
@@ -1521,14 +1581,35 @@ class MainWindow(QMainWindow):
                                                    "bloodwebPagePrestigeLabel", "Prestige Limit")
         self.bloodwebPagePrestigeInput = TextInputBox(self.bloodwebPagePrestigeRow,
                                                       "bloodwebPagePrestigeInput",
-                                                      QSize(90, 40), "Enter levels", "1",
+                                                      QSize(94, 40), "Enter levels", "1",
                                                       style_sheet=StyleSheets.text_box_read_only)
         self.bloodwebPagePrestigeInput.textEdited.connect(self.on_edit_prestige_input)
         self.bloodwebPagePrestigeInput.setReadOnly(True)
         self.bloodwebPagePrestigeDescription = TextLabel(self.bloodwebPagePrestigeRow,
                                                          "bloodwebPagePrestigeDescription",
-                                                         "The number of prestige levels to complete before stopping "
+                                                         "The number of prestige levels to complete before terminating "
                                                          "(any number from 1 to 100).", Font(10))
+
+        self.bloodwebPageBloodpointRow = QWidget(self.bloodwebPage)
+        self.bloodwebPageBloodpointRow.setObjectName("bloodwebPageBloodpointRow")
+        self.bloodwebPageBloodpointRowLayout = RowLayout(self.bloodwebPageBloodpointRow,
+                                                         "bloodwebPageBloodpointRowLayout")
+
+        self.bloodwebPageBloodpointCheckBox = CheckBoxWithFunction(self.bloodwebPagePrestigeRow,
+                                                                   "bloodwebPageBloodpointCheckBox",
+                                                                   self.on_toggle_bloodpoint)
+        self.bloodwebPageBloodpointLabel = TextLabel(self.bloodwebPagePrestigeRow,
+                                                     "bloodwebPageBloodpointLabel", "Bloodpoint Limit")
+        self.bloodwebPageBloodpointInput = TextInputBox(self.bloodwebPagePrestigeRow,
+                                                        "bloodwebPageBloodpointInput",
+                                                        QSize(132, 40), "Enter bloodpoints", "69420",
+                                                        style_sheet=StyleSheets.text_box_read_only)
+        self.bloodwebPageBloodpointInput.textEdited.connect(self.on_edit_bloodpoint_input)
+        self.bloodwebPageBloodpointInput.setReadOnly(True)
+        self.bloodwebPageBloodpointDescription = TextLabel(self.bloodwebPagePrestigeRow,
+                                                           "bloodwebPageBloodpointDescription",
+                                                           "The number of bloodpoints to spend before terminating.",
+                                                           Font(10))
 
         # TODO hhh move to bottom
         self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeCheckBox)
@@ -1536,6 +1617,12 @@ class MainWindow(QMainWindow):
         self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeInput)
         self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeDescription)
         self.bloodwebPagePrestigeRowLayout.addStretch(1)
+
+        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointCheckBox)
+        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointLabel)
+        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointInput)
+        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointDescription)
+        self.bloodwebPageBloodpointRowLayout.addStretch(1)
 
         # self.bloodwebPageProfileRow = QWidget(self.settingsPage)
         # self.bloodwebPageProfileRow.setObjectName("settingsPageResolutionWidthRow")
@@ -1555,16 +1642,19 @@ class MainWindow(QMainWindow):
         #                                               QSize(150, 40), "Enter profile name")
         # self.bloodwebPageCharacterSelector.currentIndexChanged.connect(self.switch_character)
 
+        self.bloodwebPageRunLabel = TextLabel(self.bloodwebPage, "bloodwebPageRunLabel", "Run", Font(12))
+        self.bloodwebPageRunDescription = TextLabel(self.bloodwebPage, "bloodwebPageRunLabel",
+                                                    "Make sure your game is open on your monitor, and any shaders "
+                                                    "and visual effects are off.", Font(10))
+
         self.bloodwebPageRunRow = QWidget(self.bloodwebPage)
         self.bloodwebPageRunRow.setObjectName("bloodwebPageRunRow")
         self.bloodwebPageRunRowLayout = RowLayout(self.bloodwebPageRunRow, "bloodwebPageRunRowLayout")
 
         self.bloodwebPageRunButton = Button(self.bloodwebPageRunRow, "bloodwebPageRunButton", "Run", QSize(60, 35))
         self.bloodwebPageRunButton.clicked.connect(self.run_terminate)
-        self.bloodwebPageRunDescription = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunLabel",
-                                                    "Make sure your game is open on your monitor, and any shaders "
-                                                    "and visual effects are off.", Font(10))
-
+        self.bloodwebPageRunErrorText = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunErrorText", "", Font(10))
+        self.bloodwebPageRunErrorText.setVisible(False)
         # self.bloodwebPageDebugLog = DebugLogCollapsibleBox(self.bloodwebPage, "bloodwebPageDebugLog")
 
         # stack: helpPage
@@ -1922,7 +2012,8 @@ class MainWindow(QMainWindow):
         bloodwebPage
         '''
         self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunButton)
-        self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunDescription)
+        self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunErrorText)
+        self.bloodwebPageRunRowLayout.addStretch(1)
 
         self.bloodwebPageLayout.addWidget(self.bloodwebPageProfileLabel)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageProfileSelector)
@@ -1931,6 +2022,9 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.addWidget(self.bloodwebPageLimitsLabel)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageLimitsDescription)
         self.bloodwebPageLayout.addWidget(self.bloodwebPagePrestigeRow)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageBloodpointRow)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunLabel)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunDescription)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunRow)
         self.bloodwebPageLayout.addStretch(1)
         # self.bloodwebPageLayout.addWidget(self.bloodwebPageDebugLog)

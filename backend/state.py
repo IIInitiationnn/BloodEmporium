@@ -6,7 +6,6 @@ from multiprocessing import Process
 
 import networkx as nx
 import pyautogui
-from pynput import keyboard
 
 from capturer import Capturer
 from config import Config
@@ -27,7 +26,7 @@ from resolution import Resolution
 - [DONE] print nodes and edges in logs
 - hotkeys
 - bloodpoint spend limit
-- add missing properties to config from default_config
+- add missing properties to config from default_config; remove extraneous properties
 '''
 
 '''
@@ -86,52 +85,26 @@ class LoggerWriter(object):
 class State:
     version = "v0.3.0"
 
-    def __init__(self, use_hotkeys=True, main_window=None):
-        self.thread = None
-        if use_hotkeys:
-            listener = keyboard.Listener(on_press=self.on_press)
-            listener.start()
-        self.hotkey_callback = main_window.run_terminate_button if main_window is not None else None
+    def __init__(self):
+        self.process = None
 
     def is_active(self):
-        return self.thread is not None
+        return self.process is not None
 
-    def run_debug_mode(self):
+    def run(self, debug, write_to_output, prestige_limit, bp_limit):
         if not self.is_active():
-            self.thread = Process(target=State.main_loop, args=(True, True))
-            self.thread.start()
-            if self.hotkey_callback is not None:
-                self.hotkey_callback()
-            print("thread started with debugging")
-
-    def run_regular_mode(self):
-        if not self.is_active():
-            self.thread = Process(target=State.main_loop, args=(False, False))
-            self.thread.start()
-            if self.hotkey_callback is not None:
-                self.hotkey_callback()
-            print("thread started without debugging")
+            self.process = Process(target=State.main_loop, args=(debug, write_to_output, prestige_limit, bp_limit))
+            self.process.start()
+            print("process started without debugging")
 
     def terminate(self):
         if self.is_active():
-            self.thread.terminate()
-            self.thread = None
-            if self.hotkey_callback is not None:
-                self.hotkey_callback()
-            print("thread terminated")
-
-    def on_press(self, key):
-        pass
-        '''k = str(format(key))
-        if k == "'8'":
-            self.run_debug_mode()
-        elif k == "'9'":
-            self.run_regular_mode()
-        elif k == "'0'":
-            self.terminate()'''
+            self.process.terminate()
+            self.process = None
+            print("process terminated")
 
     @staticmethod
-    def main_loop(debug, write_to_output):
+    def main_loop(debug, write_to_output, prestige_limit, bp_limit):
         log = logging.getLogger()
         log.setLevel(logging.DEBUG)
         log.handlers = []
