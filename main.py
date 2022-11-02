@@ -5,8 +5,10 @@ from multiprocessing import freeze_support
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QHBoxLayout, QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
+    QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
     QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip, QProxyStyle, QStyle
+
+from frontend.layouts import RowLayout
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
@@ -46,7 +48,8 @@ class HyperlinkTextLabel(QLabel):
         self.setOpenExternalLinks(True)
 
 class TextInputBox(QLineEdit):
-    def __init__(self, parent, object_name, size, placeholder_text, text=None, font=Font(10), style_sheet=StyleSheets.text_box):
+    def __init__(self, parent, object_name, size, placeholder_text, text=None, font=Font(10),
+                 style_sheet=StyleSheets.text_box):
         QLineEdit.__init__(self, parent)
         self.setObjectName(object_name)
         self.setFixedSize(size)
@@ -178,8 +181,7 @@ class HomeRow(QWidget):
         self.button = PageButton(self, f"homePageButton{object_number}", icon, on_click)
         self.label = TextLabel(self, f"homePageLabel{object_number}", text)
 
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout = RowLayout(self, "homePageLayout", spacing=0)
         self.layout.addStretch(1)
         self.layout.addWidget(self.button)
         self.layout.addWidget(self.label)
@@ -198,8 +200,7 @@ class HelpRow(QWidget):
 
         self.label = TextLabel(self, f"{object_name}Label", text)
 
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout = RowLayout(self, f"{object_name}Layout", spacing=0)
         self.layout.addWidget(self.icon)
         self.layout.addWidget(self.label)
         self.layout.addStretch(1)
@@ -312,12 +313,14 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
 
         self.characterCheckBoxes = {}
         for i, character in enumerate(Data.get_categories(), 1):
-            checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterCheckBox", on_click)
+            checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterCheckBox",
+                                            on_click)
             checkbox.setFixedSize(25, 25)
             self.characterCheckBoxes[character] = checkbox
             self.filtersLayout.addWidget(checkbox, i, 0, 1, 1)
 
-            label = TextLabel(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterLabel", TextUtil.title_case(character))
+            label = TextLabel(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterLabel",
+                              TextUtil.title_case(character))
             self.filtersLayout.addWidget(label, i, 1, 1, 1)
 
         # rarity
@@ -326,12 +329,14 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
 
         self.rarityCheckBoxes = {}
         for i, rarity in enumerate(Data.get_rarities(), 1):
-            checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(rarity)}RarityFilterCheckBox", on_click)
+            checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(rarity)}RarityFilterCheckBox",
+                                            on_click)
             checkbox.setFixedSize(25, 25)
             self.rarityCheckBoxes[rarity] = checkbox
             self.filtersLayout.addWidget(checkbox, i, 2, 1, 1)
 
-            label = TextLabel(self.filters, f"{TextUtil.camel_case(rarity)}RarityFilterLabel", TextUtil.title_case(rarity))
+            label = TextLabel(self.filters, f"{TextUtil.camel_case(rarity)}RarityFilterLabel",
+                              TextUtil.title_case(rarity))
             self.filtersLayout.addWidget(label, i, 3, 1, 1)
 
         # type
@@ -340,12 +345,14 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
 
         self.typeCheckBoxes = {}
         for i, unlockable_type in enumerate(Data.get_types(), 1):
-            checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(unlockable_type)}TypeFilterCheckBox", on_click)
+            checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(unlockable_type)}TypeFilterCheckBox",
+                                            on_click)
             checkbox.setFixedSize(25, 25)
             self.typeCheckBoxes[unlockable_type] = checkbox
             self.filtersLayout.addWidget(checkbox, i, 4, 1, 1)
 
-            label = TextLabel(self.filters, f"{TextUtil.camel_case(unlockable_type)}TypeFilterLabel", TextUtil.title_case(unlockable_type))
+            label = TextLabel(self.filters, f"{TextUtil.camel_case(unlockable_type)}TypeFilterLabel",
+                              TextUtil.title_case(unlockable_type))
             self.filtersLayout.addWidget(label, i, 5, 1, 1)
 
         self.filtersLayout.setColumnStretch(999, 1)
@@ -434,10 +441,7 @@ class UnlockableWidget(QWidget):
         QWidget.__init__(self, parent)
         self.setObjectName(f"{name}Widget")
 
-        self.layout = QHBoxLayout(self)
-        self.layout.setObjectName(f"{name}Layout")
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(15)
+        self.layout = RowLayout(self, f"{name}Layout")
 
         self.checkBox = CheckBox(self, f"{name}CheckBox")
         self.checkBox.setFixedSize(25, 25)
@@ -667,7 +671,8 @@ class MainWindow(QMainWindow):
                                                   self.preferencesPageFiltersBox.get_rarity_filters(),
                                                   self.preferencesPageFiltersBox.get_type_filters(),
                                                   sort_by):
-                self.preferencesPageScrollAreaContentLayout.insertWidget(self.preferencesPageScrollAreaContentLayout.count() - 1, widget)
+                count = self.preferencesPageScrollAreaContentLayout.count()
+                self.preferencesPageScrollAreaContentLayout.insertWidget(count - 1, widget)
                 widget.setVisible(is_visible)
 
         self.lastSortedBy = sort_by
@@ -689,14 +694,16 @@ class MainWindow(QMainWindow):
     def save_profile(self):
         profile_id = self.preferencesPageProfileSelector.currentText()
         if profile_id == "blank":
-            self.show_preferences_page_save_fail_text("You cannot save to the blank profile. Use Save As below to create a new profile.")
+            self.show_preferences_page_save_fail_text("You cannot save to the blank profile. "
+                                                      "Use Save As below to create a new profile.")
         else:
             updated_profile = Config().get_profile_by_id(profile_id).copy()
 
             non_integer = Data.verify_tiers(self.preferencesPageUnlockableWidgets)
             if len(non_integer) > 0:
-                self.show_preferences_page_save_fail_text(f"There are {len(non_integer)} unlockables with invalid inputs. "
-                                                          f"Inputs must be a number from -999 to 999. Changes not saved.")
+                self.show_preferences_page_save_fail_text(f"There are {len(non_integer)} unlockables with invalid "
+                                                          "inputs. Inputs must be a number from -999 to 999. Changes "
+                                                          "not saved.")
                 return
 
             for widget in self.preferencesPageUnlockableWidgets:
@@ -754,15 +761,18 @@ class MainWindow(QMainWindow):
             profile_id = self.preferencesPageSaveAsInput.text()
             self.preferencesPageSaveAsInput.setText("")
             if profile_id == "blank":
-                self.show_preferences_page_save_as_fail_text("You cannot save to a profile named \"blank\". Try a different name.")
+                self.show_preferences_page_save_as_fail_text("You cannot save to a profile named \"blank\". "
+                                                             "Try a different name.")
             else:
-                # TODO "are you sure" for overwriting existing profile "this will overwrite an existing profile. are you sure you want to save?"
+                # TODO "are you sure" for overwriting existing profile "this will overwrite an existing profile.
+                #  are you sure you want to save?"
                 new_profile = {"id": profile_id}
 
                 non_integer = Data.verify_tiers(self.preferencesPageUnlockableWidgets)
                 if len(non_integer) > 0:
-                    self.show_preferences_page_save_as_fail_text(f"There are {len(non_integer)} unlockables with invalid inputs. "
-                                                                 f"Inputs must be a number from -999 to 999. Changes not saved.")
+                    self.show_preferences_page_save_as_fail_text(f"There are {len(non_integer)} unlockables with "
+                                                                 "invalid inputs. Inputs must be a number from -999 to "
+                                                                 "999. Changes not saved.")
                     return
 
                 for widget in self.preferencesPageUnlockableWidgets:
@@ -773,10 +783,12 @@ class MainWindow(QMainWindow):
                 already_existed = Config().add_profile(new_profile)
 
                 self.update_profiles_from_config()
-                self.preferencesPageProfileSelector.setCurrentIndex(self.preferencesPageProfileSelector.findText(profile_id))
+                index = self.preferencesPageProfileSelector.findText(profile_id)
+                self.preferencesPageProfileSelector.setCurrentIndex(index)
 
                 if already_existed:
-                    self.show_preferences_page_save_as_success_text(f"Existing profile overridden with changes: {profile_id}")
+                    self.show_preferences_page_save_as_success_text("Existing profile overridden with changes: "
+                                                                    f"{profile_id}")
                 else:
                     self.show_preferences_page_save_as_success_text(f"Changes saved to new profile: {profile_id}")
 
@@ -806,11 +818,14 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageAllCheckbox.setChecked(num_selected > 0)
         self.preferencesPageAllCheckbox.setStyleSheet(StyleSheets.check_box_all
-                                                      if all([widget.checkBox.isChecked() for widget in [widget for widget in self.preferencesPageUnlockableWidgets if widget.isVisible()]])
+                                                      if all([widget.checkBox.isChecked() for widget in
+                                                              [widget for widget in
+                                                               self.preferencesPageUnlockableWidgets
+                                                               if widget.isVisible()]])
                                                       else StyleSheets.check_box_some)
 
     def on_unlockable_select_all(self):
-        checked = self.preferencesPageAllCheckbox.isChecked() # whether checkbox is select all (True) or deselect all (False)
+        checked = self.preferencesPageAllCheckbox.isChecked() # whether checkbox is select all (T) or deselect all (F)
 
         if checked:
             for widget in self.preferencesPageUnlockableWidgets:
@@ -846,7 +861,8 @@ class MainWindow(QMainWindow):
     def on_edit_dropdown_tier(self):
         if self.preferencesPageEditDropdownContentTierCheckBox.isChecked():
             self.preferencesPageEditDropdownContentTierInput.setReadOnly(False)
-            self.preferencesPageEditDropdownContentTierInput.setStyleSheet(StyleSheets.tiers_input(self.preferencesPageEditDropdownContentTierInput.text()))
+            text = self.preferencesPageEditDropdownContentTierInput.text()
+            self.preferencesPageEditDropdownContentTierInput.setStyleSheet(StyleSheets.tiers_input(text))
         else:
             self.preferencesPageEditDropdownContentTierInput.setReadOnly(True)
             self.preferencesPageEditDropdownContentTierInput.setStyleSheet(StyleSheets.text_box_read_only)
@@ -854,16 +870,19 @@ class MainWindow(QMainWindow):
     def on_edit_dropdown_subtier(self):
         if self.preferencesPageEditDropdownContentSubtierCheckBox.isChecked():
             self.preferencesPageEditDropdownContentSubtierInput.setReadOnly(False)
-            self.preferencesPageEditDropdownContentSubtierInput.setStyleSheet(StyleSheets.tiers_input(self.preferencesPageEditDropdownContentSubtierInput.text()))
+            text = self.preferencesPageEditDropdownContentSubtierInput.text()
+            self.preferencesPageEditDropdownContentSubtierInput.setStyleSheet(StyleSheets.tiers_input(text))
         else:
             self.preferencesPageEditDropdownContentSubtierInput.setReadOnly(True)
             self.preferencesPageEditDropdownContentSubtierInput.setStyleSheet(StyleSheets.text_box_read_only)
 
     def on_edit_dropdown_tier_input(self):
-        self.preferencesPageEditDropdownContentTierInput.setStyleSheet(StyleSheets.tiers_input(self.preferencesPageEditDropdownContentTierInput.text()))
+        text = self.preferencesPageEditDropdownContentTierInput.text()
+        self.preferencesPageEditDropdownContentTierInput.setStyleSheet(StyleSheets.tiers_input(text))
 
     def on_edit_dropdown_subtier_input(self):
-        self.preferencesPageEditDropdownContentSubtierInput.setStyleSheet(StyleSheets.tiers_input(self.preferencesPageEditDropdownContentSubtierInput.text()))
+        text = self.preferencesPageEditDropdownContentSubtierInput.text()
+        self.preferencesPageEditDropdownContentSubtierInput.setStyleSheet(StyleSheets.tiers_input(text))
 
     def on_edit_dropdown_apply(self):
         tier = self.preferencesPageEditDropdownContentTierInput.text()
@@ -886,14 +905,32 @@ class MainWindow(QMainWindow):
         self.expand_edit()
 
     # bloodweb
+    def get_runtime_profile(self):
+        return self.bloodwebPageProfileSelector.currentText()
+
     def switch_run_profile(self):
         if not self.ignore_profile_signals:
             profile_id = self.bloodwebPageProfileSelector.currentText()
             Config().set_active_profile(profile_id)
 
+    def get_runtime_character(self):
+        return self.bloodwebPageCharacterSelector.currentText()
+
     def switch_character(self):
         character = self.bloodwebPageCharacterSelector.currentText()
         Config().set_character(character)
+
+    def on_toggle_prestige(self):
+        if self.bloodwebPagePrestigeCheckBox.isChecked():
+            self.bloodwebPagePrestigeInput.setReadOnly(False)
+            text = self.bloodwebPagePrestigeInput.text()
+            self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.prestige_input(text))
+        else:
+            self.bloodwebPagePrestigeInput.setReadOnly(True)
+            self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.text_box_read_only)
+
+    def on_edit_prestige_input(self):
+        self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.prestige_input(self.bloodwebPagePrestigeInput.text()))
 
     def run_terminate(self):
         if self.state.is_active():
@@ -913,13 +950,16 @@ class MainWindow(QMainWindow):
 
     # settings
     def on_width_update(self):
-        self.settingsPageResolutionWidthInput.setStyleSheet(StyleSheets.settings_input(width=self.settingsPageResolutionWidthInput.text()))
+        text = self.settingsPageResolutionWidthInput.text()
+        self.settingsPageResolutionWidthInput.setStyleSheet(StyleSheets.settings_input(width=text))
 
     def on_height_update(self):
-        self.settingsPageResolutionHeightInput.setStyleSheet(StyleSheets.settings_input(height=self.settingsPageResolutionHeightInput.text()))
+        text = self.settingsPageResolutionHeightInput.text()
+        self.settingsPageResolutionHeightInput.setStyleSheet(StyleSheets.settings_input(height=text))
 
     def on_ui_scale_update(self):
-        self.settingsPageResolutionUIInput.setStyleSheet(StyleSheets.settings_input(ui_scale=self.settingsPageResolutionUIInput.text()))
+        text = self.settingsPageResolutionUIInput.text()
+        self.settingsPageResolutionUIInput.setStyleSheet(StyleSheets.settings_input(ui_scale=text))
 
     def set_path(self):
         icon_dir = QFileDialog.getExistingDirectory(self, "Select Icon Folder", self.settingsPagePathText.text())
@@ -989,9 +1029,11 @@ class MainWindow(QMainWindow):
         # top edge
         self.side_grips[1].setGeometry(in_rect.left(), out_rect.top(), in_rect.width(), self.grip_size)
         # right edge
-        self.side_grips[2].setGeometry(in_rect.left() + in_rect.width(), in_rect.top(), self.grip_size, in_rect.height())
+        self.side_grips[2].setGeometry(in_rect.left() + in_rect.width(), in_rect.top(), self.grip_size,
+                                       in_rect.height())
         # bottom edge
-        self.side_grips[3].setGeometry(self.grip_size, in_rect.top() + in_rect.height(), in_rect.width(), self.grip_size)
+        self.side_grips[3].setGeometry(self.grip_size, in_rect.top() + in_rect.height(), in_rect.width(),
+                                       self.grip_size)
 
         [grip.raise_() for grip in self.side_grips]
         [grip.raise_() for grip in self.corner_grips]
@@ -1008,7 +1050,7 @@ class MainWindow(QMainWindow):
 
         self.is_maximized = False
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
-        self.state = State(True, self.run_terminate_button)
+        self.state = State(True, self)
 
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -1025,7 +1067,7 @@ class MainWindow(QMainWindow):
             SideGrip(self, Qt.RightEdge),
             SideGrip(self, Qt.BottomEdge),
         ]
-        self.corner_grips = [QSizeGrip(self) for i in range(4)]
+        self.corner_grips = [QSizeGrip(self) for _ in range(4)]
         for corner_grip in self.corner_grips:
             corner_grip.setStyleSheet("background-color: transparent;")
 
@@ -1166,7 +1208,8 @@ class MainWindow(QMainWindow):
         self.settingsBar = LeftMenuBar(self.settingsButton, "settingsBar")
         self.settingsButton.setBar(self.settingsBar)
 
-        self.buttons = [self.homeButton, self.preferencesButton, self.bloodwebButton, self.helpButton, self.settingsButton]
+        self.buttons = [self.homeButton, self.preferencesButton, self.bloodwebButton, self.helpButton,
+                        self.settingsButton]
 
         # content pages
         self.contentPages = QFrame(self.content)
@@ -1199,11 +1242,12 @@ class MainWindow(QMainWindow):
         self.homePageIcon.setScaledContents(True)
 
         self.homePageRow1 = HomeRow(self.homePage, 1, QIcon(Icons.settings), self.settingsButton.on_click,
-                                    "First time here? Recently change your game / display settings? Set up your config.")
+                                    "First time here? Recently change your game / display settings? "
+                                    "Set up your config.")
         self.homePageRow2 = HomeRow(self.homePage, 2, QIcon(Icons.preferences), self.preferencesButton.on_click,
                                     "What would you like from the bloodweb? Set up your preferences.")
         self.homePageRow3 = HomeRow(self.homePage, 3, QIcon(Icons.bloodweb), self.bloodwebButton.on_click,
-                                    "Ready? Start clearing your bloodweb!")
+                                    "Ready? Start clearing your bloodweb (with optional spending limits)!")
         self.homePageRow4 = HomeRow(self.homePage, 4, QIcon(Icons.help), self.helpButton.on_click,
                                     "Instructions & contact details here.")
 
@@ -1250,12 +1294,11 @@ class MainWindow(QMainWindow):
         # save, rename, delete
         self.preferencesPageProfileSaveRow = QWidget(self.preferencesPageScrollAreaContent)
         self.preferencesPageProfileSaveRow.setObjectName("preferencesPageProfileSaveRow")
-        self.preferencesPageProfileSaveRowLayout = QHBoxLayout(self.preferencesPageProfileSaveRow)
-        self.preferencesPageProfileSaveRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.preferencesPageProfileSaveRowLayout.setSpacing(15)
+        self.preferencesPageProfileSaveRowLayout = RowLayout(self.preferencesPageProfileSaveRow,
+                                                             "preferencesPageProfileSaveRowLayout")
 
-        self.preferencesPageProfileLabel = TextLabel(self.preferencesPageScrollAreaContent, "preferencesPageProfileLabel",
-                                                     "Profile", Font(12))
+        self.preferencesPageProfileLabel = TextLabel(self.preferencesPageScrollAreaContent,
+                                                     "preferencesPageProfileLabel", "Profile", Font(12))
 
         self.preferencesPageProfileSelector = Selector(self.preferencesPageProfileSaveRow,
                                                        "preferencesPageProfileSelector",
@@ -1263,33 +1306,38 @@ class MainWindow(QMainWindow):
                                                        Config().active_profile_name())
         self.preferencesPageProfileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
-        self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton", "Save", QSize(60, 35))
+        self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton",
+                                                "Save", QSize(60, 35))
         self.preferencesPageSaveButton.clicked.connect(self.save_profile)
 
-        # self.preferencesPageRenameButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageRenameButton", "Rename", QSize(75, 35))
+        # self.preferencesPageRenameButton = Button(self.preferencesPageProfileSaveRow,
+        #                                           "preferencesPageRenameButton", "Rename", QSize(75, 35))
         # self.preferencesPageRenameButton.clicked.connect(self.rename_profile)
 
-        self.preferencesPageDeleteButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageDeleteButton", "Delete", QSize(75, 35))
+        self.preferencesPageDeleteButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageDeleteButton",
+                                                  "Delete", QSize(75, 35))
         self.preferencesPageDeleteButton.clicked.connect(self.delete_profile)
 
-        self.preferencesPageSaveSuccessText = TextLabel(self.preferencesPageProfileSaveRow, "preferencesPageSaveSuccessText", "", Font(10))
+        self.preferencesPageSaveSuccessText = TextLabel(self.preferencesPageProfileSaveRow,
+                                                        "preferencesPageSaveSuccessText", "", Font(10))
         self.preferencesPageSaveSuccessText.setVisible(False)
 
         # save as
         self.preferencesPageProfileSaveAsRow = QWidget(self.preferencesPageScrollAreaContent)
         self.preferencesPageProfileSaveAsRow.setObjectName("preferencesPageProfileSaveAsRow")
-        self.preferencesPageProfileSaveAsRowLayout = QHBoxLayout(self.preferencesPageProfileSaveAsRow)
-        self.preferencesPageProfileSaveAsRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.preferencesPageProfileSaveAsRowLayout.setSpacing(15)
+        self.preferencesPageProfileSaveAsRowLayout = RowLayout(self.preferencesPageProfileSaveAsRow,
+                                                               "preferencesPageProfileSaveAsRowLayout")
 
-        self.preferencesPageSaveAsInput = TextInputBox(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsInput",
+        self.preferencesPageSaveAsInput = TextInputBox(self.preferencesPageProfileSaveAsRow,
+                                                       "preferencesPageSaveAsInput",
                                                        QSize(150, 40), "Enter profile name")
 
         self.preferencesPageSaveAsButton = Button(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsButton",
                                                   "Save As", QSize(80, 35))
         self.preferencesPageSaveAsButton.clicked.connect(self.save_as_profile)
 
-        self.preferencesPageSaveAsSuccessText = TextLabel(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsSuccessText",
+        self.preferencesPageSaveAsSuccessText = TextLabel(self.preferencesPageProfileSaveAsRow,
+                                                          "preferencesPageSaveAsSuccessText",
                                                           "", Font(10))
         self.preferencesPageSaveAsSuccessText.setVisible(False)
 
@@ -1301,14 +1349,14 @@ class MainWindow(QMainWindow):
         # search bar & sort
         self.preferencesPageSearchSortRow = QWidget(self.preferencesPageScrollAreaContent)
         self.preferencesPageSearchSortRow.setObjectName("preferencesPageSearchSortRow")
-        self.preferencesPageSearchSortRowLayout = QHBoxLayout(self.preferencesPageSearchSortRow)
-        self.preferencesPageSearchSortRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.preferencesPageSearchSortRowLayout.setSpacing(15)
+        self.preferencesPageSearchSortRowLayout = RowLayout(self.preferencesPageSearchSortRow,
+                                                            "preferencesPageSearchSortRowLayout")
 
         self.preferencesPageSearchBar = TextInputBox(self.preferencesPageSearchSortRow, "preferencesPageSearchBar",
                                                      QSize(200, 40), "Search by name")
         self.preferencesPageSearchBar.textEdited.connect(self.replace_unlockable_widgets)
-        self.preferencesPageSortLabel = TextLabel(self.preferencesPageSearchSortRow, "preferencesPageSortLabel", "Sort by")
+        self.preferencesPageSortLabel = TextLabel(self.preferencesPageSearchSortRow, "preferencesPageSortLabel",
+                                                  "Sort by")
         self.preferencesPageSortSelector = Selector(self.preferencesPageSearchSortRow, "preferencesPageSortSelector",
                                                     QSize(225, 40), Data.get_sorts())
         self.preferencesPageSortSelector.currentIndexChanged.connect(self.replace_unlockable_widgets)
@@ -1321,7 +1369,8 @@ class MainWindow(QMainWindow):
             if unlockable.category in ["unused", "retired"]:
                 continue
             self.preferencesPageUnlockableWidgets.append(UnlockableWidget(self.preferencesPageScrollAreaContent,
-                                                                          unlockable, *config.preference(unlockable.unique_id),
+                                                                          unlockable,
+                                                                          *config.preference(unlockable.unique_id),
                                                                           self.on_unlockable_select))
 
         # select all bar
@@ -1333,13 +1382,16 @@ class MainWindow(QMainWindow):
             border-radius: 3px;           
         }}''')
         self.preferencesPagePersistentBar.setMinimumHeight(80)
-        self.preferencesPagePersistentBarLayout = QHBoxLayout(self.preferencesPagePersistentBar)
-        self.preferencesPagePersistentBarLayout.setContentsMargins(0, 0, 0, 0)
-        self.preferencesPagePersistentBarLayout.setSpacing(15)
+        self.preferencesPagePersistentBarLayout = RowLayout(self.preferencesPagePersistentBar,
+                                                            "preferencesPagePersistentBarLayout")
 
-        self.preferencesPageAllCheckbox = CheckBoxWithFunction(self.preferencesPagePersistentBar, "preferencesPageAllCheckbox", self.on_unlockable_select_all, style_sheet=StyleSheets.check_box_all)
+        self.preferencesPageAllCheckbox = CheckBoxWithFunction(self.preferencesPagePersistentBar,
+                                                               "preferencesPageAllCheckbox",
+                                                               self.on_unlockable_select_all,
+                                                               style_sheet=StyleSheets.check_box_all)
         # TODO hover over says select all / deselect all ^
-        self.preferencesPageSelectedLabel = TextLabel(self.preferencesPagePersistentBar, "preferencesPageSelectedLabel", "0 selected")
+        self.preferencesPageSelectedLabel = TextLabel(self.preferencesPagePersistentBar,
+                                                      "preferencesPageSelectedLabel", "0 selected")
         # TODO to the right, confirmation text like with saving
 
         # edit dropdown
@@ -1381,15 +1433,15 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageEditDropdownContentTierRow = QWidget(self.preferencesPageEditDropdownContent)
         self.preferencesPageEditDropdownContentTierRow.setObjectName("preferencesPageEditDropdownContentTierRow")
-        self.preferencesPageEditDropdownContentTierRowLayout = QHBoxLayout(self.preferencesPageEditDropdownContentTierRow)
-        self.preferencesPageEditDropdownContentTierRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.preferencesPageEditDropdownContentTierRowLayout.setSpacing(15)
+        self.preferencesPageEditDropdownContentTierRowLayout = RowLayout(self.preferencesPageEditDropdownContentTierRow,
+                                                                         "preferencesPageEditDropdownContentTierRowLayout")
 
         self.preferencesPageEditDropdownContentTierCheckBox = CheckBoxWithFunction(self.preferencesPageEditDropdownContentTierRow,
                                                                                    "preferencesPageEditDropdownContentTierCheckBox",
                                                                                    self.on_edit_dropdown_tier)
         self.preferencesPageEditDropdownContentTierLabel = TextLabel(self.preferencesPageEditDropdownContentTierRow,
-                                                                     "preferencesPageEditDropdownContentTierLabel", "Tier")
+                                                                     "preferencesPageEditDropdownContentTierLabel",
+                                                                     "Tier")
         self.preferencesPageEditDropdownContentTierInput = TextInputBox(self.preferencesPageEditDropdownContentTierRow,
                                                                         "preferencesPageEditDropdownContentTierInput",
                                                                         QSize(110, 40), "Enter tier", "0",
@@ -1399,9 +1451,8 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageEditDropdownContentSubtierRow = QWidget(self.preferencesPageEditDropdownContent)
         self.preferencesPageEditDropdownContentSubtierRow.setObjectName("preferencesPageEditDropdownContentSubtierRow")
-        self.preferencesPageEditDropdownContentSubtierRowLayout = QHBoxLayout(self.preferencesPageEditDropdownContentSubtierRow)
-        self.preferencesPageEditDropdownContentSubtierRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.preferencesPageEditDropdownContentSubtierRowLayout.setSpacing(15)
+        self.preferencesPageEditDropdownContentSubtierRowLayout = RowLayout(self.preferencesPageEditDropdownContentSubtierRow,
+                                                                            "preferencesPageEditDropdownContentSubtierRowLayout")
 
         self.preferencesPageEditDropdownContentSubtierCheckBox = CheckBoxWithFunction(self.preferencesPageEditDropdownContentSubtierRow,
                                                                                       "preferencesPageEditDropdownContentSubtierCheckBox",
@@ -1418,9 +1469,8 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageEditDropdownContentApplyRow = QWidget(self.preferencesPageEditDropdownContent)
         self.preferencesPageEditDropdownContentApplyRow.setObjectName("preferencesPageEditDropdownContentApplyRow")
-        self.preferencesPageEditDropdownContentApplyRowLayout = QHBoxLayout(self.preferencesPageEditDropdownContentApplyRow)
-        self.preferencesPageEditDropdownContentApplyRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.preferencesPageEditDropdownContentApplyRowLayout.setSpacing(15)
+        self.preferencesPageEditDropdownContentApplyRowLayout = RowLayout(self.preferencesPageEditDropdownContentApplyRow,
+                                                                          "preferencesPageEditDropdownContentApplyRowLayout")
 
         self.preferencesPageEditDropdownContentApplyButton = Button(self.preferencesPageEditDropdownContentApplyRow,
                                                                     "preferencesPageEditDropdownContentApplyButton",
@@ -1447,23 +1497,73 @@ class MainWindow(QMainWindow):
                                                     Config().profile_names(), Config().active_profile_name())
         self.bloodwebPageProfileSelector.currentIndexChanged.connect(self.switch_run_profile)
 
-        self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Character", Font(12))
-        self.bloodwebPageCharacterSelector = Selector(self.bloodwebPage, "bloodwebPageCharacterSelector", QSize(150, 40),
-                                                      Data.get_characters(), Config().character())
+        self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageCharacterLabel", "Character",
+                                                    Font(12))
+        self.bloodwebPageCharacterSelector = Selector(self.bloodwebPage, "bloodwebPageCharacterSelector",
+                                                      QSize(150, 40), Data.get_characters(), Config().character())
         self.bloodwebPageCharacterSelector.currentIndexChanged.connect(self.switch_character)
+
+        self.bloodwebPageLimitsLabel = TextLabel(self.bloodwebPage, "bloodwebPageLimitsLabel", "Limits", Font(12))
+
+        self.bloodwebPageLimitsDescription = TextLabel(self.bloodwebPage, "bloodwebPageLimitsDescription",
+                                                       "If multiple of the following limits are selected, the program "
+                                                       "will terminate when any is reached.")
+
+        self.bloodwebPagePrestigeRow = QWidget(self.bloodwebPage)
+        self.bloodwebPagePrestigeRow.setObjectName("bloodwebPagePrestigeRow")
+        self.bloodwebPagePrestigeRowLayout = RowLayout(self.bloodwebPagePrestigeRow, "bloodwebPagePrestigeRowLayout")
+
+        # TODO prevent from running if prestige and/or bloodweb inputs invalid
+        self.bloodwebPagePrestigeCheckBox = CheckBoxWithFunction(self.bloodwebPagePrestigeRow,
+                                                                 "bloodwebPagePrestigeCheckBox",
+                                                                 self.on_toggle_prestige)
+        self.bloodwebPagePrestigeLabel = TextLabel(self.bloodwebPagePrestigeRow,
+                                                   "bloodwebPagePrestigeLabel", "Prestige Limit")
+        self.bloodwebPagePrestigeInput = TextInputBox(self.bloodwebPagePrestigeRow,
+                                                      "bloodwebPagePrestigeInput",
+                                                      QSize(90, 40), "Enter levels", "1",
+                                                      style_sheet=StyleSheets.text_box_read_only)
+        self.bloodwebPagePrestigeInput.textEdited.connect(self.on_edit_prestige_input)
+        self.bloodwebPagePrestigeInput.setReadOnly(True)
+        self.bloodwebPagePrestigeDescription = TextLabel(self.bloodwebPagePrestigeRow,
+                                                         "bloodwebPagePrestigeDescription",
+                                                         "The number of prestige levels to complete before stopping "
+                                                         "(any number from 1 to 100).", Font(10))
+
+        # TODO hhh move to bottom
+        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeCheckBox)
+        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeLabel)
+        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeInput)
+        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeDescription)
+        self.bloodwebPagePrestigeRowLayout.addStretch(1)
+
+        # self.bloodwebPageProfileRow = QWidget(self.settingsPage)
+        # self.bloodwebPageProfileRow.setObjectName("settingsPageResolutionWidthRow")
+
+        # self.settingsPageResolutionWidthRowLayout = QHBoxLayout(self.settingsPageResolutionWidthRow)
+        # self.settingsPageResolutionWidthRowLayout.setContentsMargins(0, 0, 0, 0)
+        # self.settingsPageResolutionWidthRowLayout.setSpacing(15)
+
+        # self.settingsPageResolutionWidthLabel = TextLabel(self.settingsPageResolutionWidthRow,
+        #                                                   "settingsPageResolutionWidthLabel", "Width", Font(10))
+        # self.settingsPageResolutionWidthInput = TextInputBox(self.settingsPageResolutionWidthRow,
+        #                                                      "settingsPageResolutionWidthInput", QSize(60, 40),
+        #                                                      "Width", str(res.width))
+        # self.settingsPageResolutionWidthInput.textEdited.connect(self.on_width_update)
+
+        # self.bloodwebPagePrestigeInput = TextInputBox(self.bloodwebPage, "bloodwebPagePrestigeInput",
+        #                                               QSize(150, 40), "Enter profile name")
+        # self.bloodwebPageCharacterSelector.currentIndexChanged.connect(self.switch_character)
 
         self.bloodwebPageRunRow = QWidget(self.bloodwebPage)
         self.bloodwebPageRunRow.setObjectName("bloodwebPageRunRow")
-        self.bloodwebPageRunRowLayout = QHBoxLayout(self.bloodwebPageRunRow)
-        self.bloodwebPageRunRowLayout.setObjectName("bloodwebPageRunRowLayout")
-        self.bloodwebPageRunRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.bloodwebPageRunRowLayout.setSpacing(15)
+        self.bloodwebPageRunRowLayout = RowLayout(self.bloodwebPageRunRow, "bloodwebPageRunRowLayout")
 
         self.bloodwebPageRunButton = Button(self.bloodwebPageRunRow, "bloodwebPageRunButton", "Run", QSize(60, 35))
         self.bloodwebPageRunButton.clicked.connect(self.run_terminate)
-        self.bloodwebPageRunLabel = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunLabel",
-                                              "Make sure your game is open on your monitor, and any shaders "
-                                              "and visual effects are off.", Font(10))
+        self.bloodwebPageRunDescription = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunLabel",
+                                                    "Make sure your game is open on your monitor, and any shaders "
+                                                    "and visual effects are off.", Font(10))
 
         # self.bloodwebPageDebugLog = DebugLogCollapsibleBox(self.bloodwebPage, "bloodwebPageDebugLog")
 
@@ -1508,29 +1608,31 @@ class MainWindow(QMainWindow):
 
         self.helpPageContactDiscordRow = QWidget(self.helpPage)
         self.helpPageContactDiscordRow.setObjectName("helpPageContactDiscordRow")
-        self.helpPageContactDiscordRowLayout = QHBoxLayout(self.helpPageContactDiscordRow)
-        self.helpPageContactDiscordRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.helpPageContactDiscordRowLayout = RowLayout(self.helpPageContactDiscordRow,
+                                                         "helpPageContactDiscordRowLayout")
 
         self.helpPageContactDiscordIcon = QLabel(self.helpPageContactDiscordRow)
         self.helpPageContactDiscordIcon.setObjectName("helpPageContactDiscordIcon")
         self.helpPageContactDiscordIcon.setFixedSize(QSize(20, 20))
         self.helpPageContactDiscordIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.discord))
         self.helpPageContactDiscordIcon.setScaledContents(True)
-        self.helpPageContactDiscordLabel = HyperlinkTextLabel(self.helpPageContactDiscordRow, "helpPageContactDiscordLabel",
-                                                              "Discord Server", "https://discord.gg/bGdJTnF2hr", Font(10))
+        self.helpPageContactDiscordLabel = HyperlinkTextLabel(self.helpPageContactDiscordRow,
+                                                              "helpPageContactDiscordLabel",
+                                                              "Discord", "https://discord.gg/bGdJTnF2hr", Font(10))
 
         self.helpPageContactTwitterRow = QWidget(self.helpPage)
         self.helpPageContactTwitterRow.setObjectName("helpPageContactTwitterRow")
-        self.helpPageContactTwitterRowLayout = QHBoxLayout(self.helpPageContactTwitterRow)
-        self.helpPageContactTwitterRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.helpPageContactTwitterRowLayout = RowLayout(self.helpPageContactTwitterRow,
+                                                         "helpPageContactTwitterRowLayout")
 
         self.helpPageContactTwitterIcon = QLabel(self.helpPageContactTwitterRow)
         self.helpPageContactTwitterIcon.setObjectName("helpPageContactTwitterIcon")
         self.helpPageContactTwitterIcon.setFixedSize(QSize(20, 20))
         self.helpPageContactTwitterIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.twitter))
         self.helpPageContactTwitterIcon.setScaledContents(True)
-        self.helpPageContactTwitterLabel = HyperlinkTextLabel(self.helpPageContactTwitterRow, "helpPageContactTwitterLabel",
-                                                              "Twitter", "https://twitter.com/initiationmusic", Font(10))
+        self.helpPageContactTwitterLabel = HyperlinkTextLabel(self.helpPageContactTwitterRow,
+                                                              "helpPageContactTwitterLabel", "Twitter",
+                                                              "https://twitter.com/initiationmusic", Font(10))
 
         # stack: settingsPage
         self.settingsPage = QWidget()
@@ -1543,17 +1645,18 @@ class MainWindow(QMainWindow):
         self.settingsPageLayout.setSpacing(15)
 
         res = Config().resolution()
-        self.settingsPageResolutionLabel = TextLabel(self.settingsPage, "settingsPageResolutionLabel", "Display Resolution", Font(12))
+        self.settingsPageResolutionLabel = TextLabel(self.settingsPage, "settingsPageResolutionLabel",
+                                                     "Display Resolution", Font(12))
         self.settingsPageResolutionUIDescription = TextLabel(self.settingsPage,
                                                              "settingsPageResolutionUIDescription",
                                                              "You can find your UI scale in your Dead by Daylight "
-                                                             "settings under Graphics -> UI / HUD -> UI Scale.", Font(10))
+                                                             "settings under Graphics -> UI / HUD -> UI Scale.",
+                                                             Font(10))
         self.settingsPageResolutionWidthRow = QWidget(self.settingsPage)
         self.settingsPageResolutionWidthRow.setObjectName("settingsPageResolutionWidthRow")
 
-        self.settingsPageResolutionWidthRowLayout = QHBoxLayout(self.settingsPageResolutionWidthRow)
-        self.settingsPageResolutionWidthRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.settingsPageResolutionWidthRowLayout.setSpacing(15)
+        self.settingsPageResolutionWidthRowLayout = RowLayout(self.settingsPageResolutionWidthRow,
+                                                              "settingsPageResolutionWidthRowLayout")
 
         self.settingsPageResolutionWidthLabel = TextLabel(self.settingsPageResolutionWidthRow,
                                                           "settingsPageResolutionWidthLabel", "Width", Font(10))
@@ -1564,12 +1667,11 @@ class MainWindow(QMainWindow):
 
         self.settingsPageResolutionHeightRow = QWidget(self.settingsPage)
         self.settingsPageResolutionHeightRow.setObjectName("settingsPageResolutionHeightRow")
-        self.settingsPageResolutionHeightRowLayout = QHBoxLayout(self.settingsPageResolutionHeightRow)
-        self.settingsPageResolutionHeightRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.settingsPageResolutionHeightRowLayout.setSpacing(15)
+        self.settingsPageResolutionHeightRowLayout = RowLayout(self.settingsPageResolutionHeightRow,
+                                                               "settingsPageResolutionHeightRowLayout")
 
         self.settingsPageResolutionHeightLabel = TextLabel(self.settingsPageResolutionHeightRow,
-                                                          "settingsPageResolutionHeightLabel", "Height", Font(10))
+                                                           "settingsPageResolutionHeightLabel", "Height", Font(10))
         self.settingsPageResolutionHeightInput = TextInputBox(self.settingsPageResolutionHeightRow,
                                                               "settingsPageResolutionHeightInput", QSize(60, 40),
                                                               "Height", str(res.height))
@@ -1577,9 +1679,8 @@ class MainWindow(QMainWindow):
 
         self.settingsPageResolutionUIRow = QWidget(self.settingsPage)
         self.settingsPageResolutionUIRow.setObjectName("settingsPageResolutionUIRow")
-        self.settingsPageResolutionUIRowLayout = QHBoxLayout(self.settingsPageResolutionUIRow)
-        self.settingsPageResolutionUIRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.settingsPageResolutionUIRowLayout.setSpacing(15)
+        self.settingsPageResolutionUIRowLayout = RowLayout(self.settingsPageResolutionUIRow,
+                                                           "settingsPageResolutionUIRowLayout")
 
         self.settingsPageResolutionUILabel = TextLabel(self.settingsPageResolutionUIRow,
                                                        "settingsPageResolutionUILabel", "UI Scale", Font(10))
@@ -1588,7 +1689,8 @@ class MainWindow(QMainWindow):
                                                           "UI Scale", str(res.ui_scale))
         self.settingsPageResolutionUIInput.textEdited.connect(self.on_ui_scale_update)
 
-        self.settingsPagePathLabel = TextLabel(self.settingsPage, "settingsPagePathLabel", "Installation Path", Font(12))
+        self.settingsPagePathLabel = TextLabel(self.settingsPage, "settingsPagePathLabel", "Installation Path",
+                                               Font(12))
         self.settingsPagePathLabelDefaultLabel = TextLabel(self.settingsPage, "settingsPagePathLabelDefaultLabel",
                                                            "Default path on Steam is C:/Program Files (x86)"
                                                            "/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/"
@@ -1596,26 +1698,23 @@ class MainWindow(QMainWindow):
 
         self.settingsPagePathRow = QWidget(self.settingsPage)
         self.settingsPagePathRow.setObjectName("settingsPagePathRow")
-        self.settingsPagePathRowLayout = QHBoxLayout(self.settingsPagePathRow)
-        self.settingsPagePathRowLayout.setObjectName("settingsPagePathRowLayout")
-        self.settingsPagePathRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.settingsPagePathRowLayout.setSpacing(15)
+        self.settingsPagePathRowLayout = RowLayout(self.settingsPagePathRow, "settingsPagePathRowLayout")
 
         self.settingsPagePathText = TextInputBox(self.settingsPage, "settingsPagePathText", QSize(600, 40),
                                                  "Path to Dead by Daylight game icon files", str(Config().path()))
-        self.settingsPagePathButton = Button(self.settingsPage, "settingsPagePathButton", "Set path to game icon files", QSize(180, 35))
+        self.settingsPagePathButton = Button(self.settingsPage, "settingsPagePathButton", "Set path to game icon files",
+                                             QSize(180, 35))
         self.settingsPagePathButton.clicked.connect(self.set_path)
 
         self.settingsPageSaveRow = QWidget(self.settingsPage)
         self.settingsPageSaveRow.setObjectName("settingsPageSaveRow")
-        self.settingsPageSaveRowLayout = QHBoxLayout(self.settingsPageSaveRow)
-        self.settingsPageSaveRowLayout.setContentsMargins(0, 0, 0, 0)
-        self.settingsPageSaveRowLayout.setSpacing(15)
+        self.settingsPageSaveRowLayout = RowLayout(self.settingsPageSaveRow, "settingsPageSaveRowLayout")
 
         self.settingsPageSaveButton = Button(self.settingsPageSaveRow, "settingsPageSaveButton", "Save", QSize(60, 35))
         self.settingsPageSaveButton.clicked.connect(self.save_settings)
 
-        self.settingsPageSaveSuccessText = TextLabel(self.settingsPageSaveRow, "settingsPageSaveSuccessText", "", Font(10))
+        self.settingsPageSaveSuccessText = TextLabel(self.settingsPageSaveRow, "settingsPageSaveSuccessText", "",
+                                                     Font(10))
         self.settingsPageSaveSuccessText.setVisible(False)
 
         # TODO reset to last saved settings button
@@ -1629,8 +1728,7 @@ class MainWindow(QMainWindow):
                 background-color: {StyleSheets.selection};
             }}''')
 
-        self.bottomBarLayout = QHBoxLayout(self.bottomBar)
-        self.bottomBarLayout.setObjectName("bottomBarLayout")
+        self.bottomBarLayout = RowLayout(self.bottomBar, "bottomBarLayout")
         self.bottomBarLayout.setContentsMargins(10, 0, 10, 0)
 
         self.authorLabel = HyperlinkTextLabel(self.bottomBar, "authorLabel", "Made by IIInitiationnn",
@@ -1686,7 +1784,7 @@ class MainWindow(QMainWindow):
         self.contentLayout.addWidget(self.leftMenu, 0, 0, 2, 1)
         self.contentLayout.addWidget(self.contentPages, 0, 1, 1, 1)
         self.contentLayout.addWidget(self.bottomBar, 1, 1, 1, 1)
-        self.contentLayout.setRowStretch(0, 1) # stretch contentPages down as much as possible (pushing down on bottomBar)
+        self.contentLayout.setRowStretch(0, 1) # maximally stretch contentPages down (pushing down on bottomBar)
         # self.contentLayout.setColumnStretch(1, 1) # stretch contentPages and bottomBar on the leftMenu
 
         '''
@@ -1824,12 +1922,15 @@ class MainWindow(QMainWindow):
         bloodwebPage
         '''
         self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunButton)
-        self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunLabel)
+        self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunDescription)
 
         self.bloodwebPageLayout.addWidget(self.bloodwebPageProfileLabel)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageProfileSelector)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageCharacterLabel)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageCharacterSelector)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageLimitsLabel)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageLimitsDescription)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPagePrestigeRow)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunRow)
         self.bloodwebPageLayout.addStretch(1)
         # self.bloodwebPageLayout.addWidget(self.bloodwebPageDebugLog)

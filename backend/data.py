@@ -92,6 +92,18 @@ class Data:
         return ["common", "uncommon", "rare", "very_rare", "ultra_rare", "event", "varies"]
 
     @staticmethod
+    def get_cost(rarity):
+        return {
+            "common": 2000,
+            "uncommon": 2500,
+            "rare": 3250,
+            "very_rare": 4000,
+            "ultra_rare": 5000,
+            "event": 2000,
+            "varies": 5000, # assume worst case
+        }[rarity]
+
+    @staticmethod
     def get_sorts():
         return ["name", "character", "rarity", "type"]
 
@@ -144,6 +156,7 @@ class Data:
 
         return filtered
 
+    # TODO move following to config class
     @staticmethod
     def verify_tiers(widgets):
         non_integer = []

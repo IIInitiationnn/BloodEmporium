@@ -173,13 +173,26 @@ class StyleSheets:
         }}'''
 
     @staticmethod
-    def tiers_input(tier):
+    def prestige_input(prestige):
         try:
-            int(tier)
+            prestige = int(prestige)
         except ValueError:
             return StyleSheets.text_box_invalid
 
-        tier = int(tier)
+        if prestige > 100:
+            return StyleSheets.text_box_invalid
+        elif prestige > 0:
+            return StyleSheets.text_box
+        else:
+            return StyleSheets.text_box_invalid
+
+    @staticmethod
+    def tiers_input(tier):
+        try:
+            tier = int(tier)
+        except ValueError:
+            return StyleSheets.text_box_invalid
+
         if abs(tier) > 999:
             return StyleSheets.text_box_invalid
         elif tier > 0:

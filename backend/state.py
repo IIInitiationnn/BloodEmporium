@@ -39,13 +39,17 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
+- remove active_profile => should be runtime only, same with character
 - "you have unsaved changes" next to save button - profiles, settings
 - frontend with GUI
     - show debug text irrespective of the below debug mode in a collapsible box (the same as the logs)
     - debug mode using pyvis showing matched unlockables, paths and selected nodes in some box under the run button
 - runtime options (text stating that if both options are selected, it will stop at the earlier of the conditions)
-    - number of prestiges before stopping: int > 1 (also show progress e.g. 2/10)
-    - bloodpoint limit: int > 1 (also show progress e.g. 100,000 / 150,000) 
+    - number of prestiges before stopping: int >= 1 (also show progress e.g. 2/10)
+        - increment BEFORE prestiging, stop if current number of prestiges == target number
+        - 1: get to nearest prestige
+        - 2: prestige once, then go to nearest prestige (eg. 4.35 => 4.50 => prestige => 5.1 => 5.50)
+    - bloodpoint limit: int > 1 (also show progress e.g. 100,000 / 150,000) - remember prestiging costs 20k
 - ability to auto-update software
     - maybe ability to update default config presets as well? may not be desired by people who have overridden
 - import / export profile as string to share with others
@@ -82,12 +86,12 @@ class LoggerWriter(object):
 class State:
     version = "v0.3.0"
 
-    def __init__(self, use_hotkeys=True, hotkey_callback=None):
+    def __init__(self, use_hotkeys=True, main_window=None):
         self.thread = None
         if use_hotkeys:
             listener = keyboard.Listener(on_press=self.on_press)
             listener.start()
-        self.hotkey_callback = hotkey_callback
+        self.hotkey_callback = main_window.run_terminate_button if main_window is not None else None
 
     def is_active(self):
         return self.thread is not None
