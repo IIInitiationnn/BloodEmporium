@@ -1,4 +1,5 @@
-# Blood Emporium
+[![Blood Emporium](assets/images/splash.png)](https://github.com/IIInitiationnn/BloodEmporium/releases)
+
 [Releases](https://github.com/IIInitiationnn/BloodEmporium/releases)
 
 A program to automatically level the Bloodweb in the game Dead by Daylight.
@@ -11,12 +12,12 @@ Any bug reports, requests for technical support, or suggestions can be submitted
 This project is free and open-source. Any [donations](https://www.paypal.me/IIInitiationnn) are appreciated,
 but absolutely not necessary. Please consider your own financial situation before donating!
 
-### Overview
+## Overview
 - Automatically selects optimal nodes on the Bloodweb based on user-configured preferences.
 - Uses game icon files to identify nodes on the Bloodweb.
 - Should not be bannable since there are no interactions with the game's memory or process.
 
-### Configuration
+## Configuration
 - You will be able to set your preferences and dislikes for certain addons, items, offerings and perks.
   - Each unlockable you configure will have a tier and subtier:
     - The higher the tier (or subtier), the higher your preference for that item.
@@ -30,24 +31,24 @@ but absolutely not necessary. Please consider your own financial situation befor
     (basic maths)
 - Each profile can store a different set of preferences, for easy switching when required.
 
-### Features
+## Features
 - Uses a cost algorithm to determine optimally how to select maximal preferred unlockables and minimal undesirable ones.
 - Allows user to configure which unlockables are preferred or undesirable.
 - Completely automatic and hands-free.
 
-### Issues
+## Issues
 - Icon packs with similar-looking icons are more likely to cause incorrect object recognition, which may result in
   incorrect or suboptimal selection.
 - Shaders must be disabled while using this program, as colour changes interfere with object and colour recognition.
 
-### Roadmap & Future Developments
+## Roadmap & Future Developments
 - Bloodpoint spend limit
 - Improved speed
 - Configuration for:
   - Hotkeys
   - Pausing the program when a player can prestige (reaching level 50)
 
-### Credits
+## Credits
 - Icons taken from [The Noun Project](https://thenounproject.com/).
 - Inspiration for GUI from a variety of [Wanderson's](https://www.youtube.com/WandersonIsMe) projects.
 - Thank you to the beta testers for providing feedback, suggestions, and bug reports.

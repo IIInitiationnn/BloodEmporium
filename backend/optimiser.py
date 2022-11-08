@@ -59,14 +59,14 @@ class Optimiser:
 
         return Node.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
 
-    def run(self):
+    def run(self, profile_id):
         config = Config()
         graphs = []
         for node_id, data in self.base_graph.nodes.items():
             if data["is_user_claimed"]: # claimed
                 pass
             else:
-                tier, subtier = config.preference(data["name"])
+                tier, subtier = config.preference(data["name"], profile_id)
                 if tier > 0: # desirable and unclaimed
                     graphs.append(self.dijkstra(node_id, tier, subtier))
                 elif tier < 0: # temp: undesirable and unclaimed

@@ -28,12 +28,6 @@ class Config:
         if "path" not in self.config.keys():
             raise ConfigError("Missing path in config.json")
 
-        if "character" not in self.config.keys():
-            raise ConfigError("Missing character in config.json")
-
-        if "active_profile" not in self.config.keys():
-            raise ConfigError("Missing active profile in config.json")
-
         if "profiles" not in self.config.keys():
             raise ConfigError("Missing profiles in config.json")
 
@@ -66,30 +60,16 @@ class Config:
     def path(self):
         return self.config["path"]
 
-    def character(self):
-        return self.config["character"]
-
     def __profiles(self):
         return self.config["profiles"]
-
-    def active_profile(self):
-        if self.config["active_profile"] not in [profile["id"] for profile in self.__profiles()]:
-            self.set_active_profile(self.__profiles()[0]["id"])
-        for profile in self.__profiles():
-            if profile["id"] == self.config["active_profile"]:
-                return profile
 
     def get_profile_by_id(self, profile_id):
         return [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
 
-    def active_profile_name(self):
-        return self.active_profile()["id"]
-
-    def preference(self, unlockable_id, profile_id=None):
-        if profile_id is None:
-            p = self.active_profile().get(unlockable_id, {})
-        else:
-            p = self.get_profile_by_id(profile_id).get(unlockable_id, {})
+    def preference(self, unlockable_id, profile_id):
+        if profile_id == "blank":
+            return 0, 0
+        p = self.get_profile_by_id(profile_id).get(unlockable_id, {})
         return p.get("tier", 0), p.get("subtier", 0)
 
     def profile_names(self):
@@ -107,10 +87,6 @@ class Config:
 
     def set_path(self, path):
         self.config["path"] = path
-        self.commit_changes()
-
-    def set_active_profile(self, active_profile):
-        self.config["active_profile"] = active_profile
         self.commit_changes()
 
     def set_profile(self, updated_profile):
@@ -137,12 +113,6 @@ class Config:
         return existing_profile is not None
 
     def delete_profile(self, profile_id):
-        if profile_id == self.active_profile_name():
-            self.set_active_profile(self.__profiles()[0]["id"])
         to_be_removed = [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
         self.config["profiles"].remove(to_be_removed)
-        self.commit_changes()
-
-    def set_character(self, character):
-        self.config["character"] = character
         self.commit_changes()

@@ -26,8 +26,8 @@ from resolution import Resolution
 - run certain number of prestige levels
 - [DONE] print nodes and edges in logs
 - hotkeys
-- bloodpoint spend limit (always show regardless of whether user has limit selected, just show a instead of a / b)
-- add missing properties to config from default_config; remove extraneous properties
+- [DONE] bloodpoint spend limit (always show regardless of whether user has limit selected, show a instead of a / b)
+- add missing properties (hotkeys) to config from default_config
 - instant claim for early levels
 '''
 
@@ -40,7 +40,6 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
-- remove active_profile => should be runtime only, same with character
 - "you have unsaved changes" next to save button - profiles, settings
 - frontend with GUI
     - show debug text irrespective of the below debug mode in a collapsible box (the same as the logs)
@@ -96,7 +95,7 @@ class StateProcess(Process):
 
     # TODO if error, send signal that termination has occurred
     def run(self):
-        debug, write_to_output, prestige_limit, bp_limit = self.args
+        debug, write_to_output, profile_id, character, prestige_limit, bp_limit = self.args
         log = logging.getLogger()
         log.setLevel(logging.DEBUG)
         log.handlers = []
@@ -118,7 +117,6 @@ class StateProcess(Process):
 
         prestige_total = 0 # TODO hhhhh update prestige total and perform check
         bp_total = 0
-        print(prestige_limit, bp_limit)
         self.emit("prestige", (prestige_total, prestige_limit))
         self.emit("bloodpoint", (bp_total, bp_limit))
 
@@ -133,7 +131,7 @@ class StateProcess(Process):
         # initialisation: merged base for template matching
         print("initialisation, merging")
         unlockables = Data.get_unlockables()
-        merged_base = MergedBase(resolution, Config().character())
+        merged_base = MergedBase(resolution, character)
         pyautogui.moveTo(0, 0)
 
         i = 0
@@ -203,7 +201,7 @@ class StateProcess(Process):
                 # run through optimiser
                 print("optimiser")
                 optimiser = Optimiser(base_bloodweb)
-                optimiser.run()
+                optimiser.run(profile_id)
                 optimal_unlockable = optimiser.select_best()
                 selected_unlockable = [u for u in unlockables if u.unique_id == optimal_unlockable.name][0]
                 bp_total += Data.get_cost(selected_unlockable.rarity)
@@ -247,7 +245,7 @@ class StateProcess(Process):
 
                 # new level
                 optimiser_test = Optimiser(base_bloodweb)
-                optimiser_test.run()
+                optimiser_test.run(profile_id)
                 optimal_test = optimiser_test.select_best()
                 num_left = sum([1 for data in base_bloodweb.nodes.values() if not data["is_user_claimed"]])
                 if optimal_test.node_id == "ORIGIN" or num_left == 0:
@@ -274,9 +272,9 @@ class State:
     def is_active(self):
         return self.process is not None
 
-    def run(self, debug, write_to_output, prestige_limit, bp_limit):
+    def run(self, args):
         if not self.is_active():
-            self.process = StateProcess(self.pipe, (debug, write_to_output, prestige_limit, bp_limit))
+            self.process = StateProcess(self.pipe, args)
             self.process.start()
             print("process started without debugging")
 

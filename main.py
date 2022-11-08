@@ -643,6 +643,9 @@ class MainWindow(QMainWindow):
         self.animation.setEasingCurve(QEasingCurve.InOutQuint)
         self.animation.start()
 
+    def get_edit_profile(self):
+        return self.preferencesPageProfileSelector.currentText()
+
     def update_profiles_from_config(self):
         while self.preferencesPageProfileSelector.count() > 0:
             self.preferencesPageProfileSelector.removeItem(0)
@@ -684,7 +687,7 @@ class MainWindow(QMainWindow):
     def switch_edit_profile(self):
         if not self.ignore_profile_signals:
             # TODO prompt: unsaved changes (save or discard)
-            profile_id = self.preferencesPageProfileSelector.currentText()
+            profile_id = self.get_edit_profile()
 
             if profile_id == "blank":
                 for widget in self.preferencesPageUnlockableWidgets:
@@ -695,7 +698,7 @@ class MainWindow(QMainWindow):
                     widget.setTiers(*config.preference(widget.unlockable.unique_id, profile_id))
 
     def save_profile(self):
-        profile_id = self.preferencesPageProfileSelector.currentText()
+        profile_id = self.get_edit_profile()
         if profile_id == "blank":
             self.show_preferences_page_save_error("You cannot save to the blank profile. "
                                                   "Use Save As below to create a new profile.")
@@ -727,7 +730,7 @@ class MainWindow(QMainWindow):
     def delete_profile(self):
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True
-            profile_id = self.preferencesPageProfileSelector.currentText()
+            profile_id = self.get_edit_profile()
             if profile_id == "blank":
                 self.show_preferences_page_save_error("You cannot delete the blank profile.")
             else:
@@ -911,17 +914,8 @@ class MainWindow(QMainWindow):
     def get_runtime_profile(self):
         return self.bloodwebPageProfileSelector.currentText()
 
-    def switch_run_profile(self):
-        if not self.ignore_profile_signals:
-            profile_id = self.bloodwebPageProfileSelector.currentText()
-            Config().set_active_profile(profile_id)
-
     def get_runtime_character(self):
         return self.bloodwebPageCharacterSelector.currentText()
-
-    def switch_character(self):
-        character = self.bloodwebPageCharacterSelector.currentText()
-        Config().set_character(character)
 
     def get_runtime_prestige_limit(self) -> str or None:
         return self.bloodwebPagePrestigeInput.text() if self.bloodwebPagePrestigeCheckBox.isChecked() else None
@@ -1001,7 +995,8 @@ class MainWindow(QMainWindow):
                     return self.show_run_error()
 
             self.hide_run_text()
-            self.state.run(debug, write_to_output, prestige_limit, bp_limit)
+            self.state.run((debug, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
+                            prestige_limit, bp_limit))
             self.toggle_run_terminate_text()
         else: # terminate
             self.hide_run_text()
@@ -1386,8 +1381,7 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageProfileSelector = Selector(self.preferencesPageProfileSaveRow,
                                                        "preferencesPageProfileSelector",
-                                                       QSize(150, 40), Config().profile_names() + ["blank"],
-                                                       Config().active_profile_name())
+                                                       QSize(150, 40), Config().profile_names() + ["blank"])
         self.preferencesPageProfileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
         self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton",
@@ -1454,7 +1448,8 @@ class MainWindow(QMainWindow):
                 continue
             self.preferencesPageUnlockableWidgets.append(UnlockableWidget(self.preferencesPageScrollAreaContent,
                                                                           unlockable,
-                                                                          *config.preference(unlockable.unique_id),
+                                                                          *config.preference(unlockable.unique_id,
+                                                                                             self.get_edit_profile()),
                                                                           self.on_unlockable_select))
 
         # select all bar
@@ -1578,14 +1573,12 @@ class MainWindow(QMainWindow):
 
         self.bloodwebPageProfileLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Profile", Font(12))
         self.bloodwebPageProfileSelector = Selector(self.bloodwebPage, "bloodwebPageProfileSelector", QSize(150, 40),
-                                                    Config().profile_names(), Config().active_profile_name())
-        self.bloodwebPageProfileSelector.currentIndexChanged.connect(self.switch_run_profile)
+                                                    Config().profile_names() + ["blank"])
 
         self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageCharacterLabel", "Character",
                                                     Font(12))
         self.bloodwebPageCharacterSelector = Selector(self.bloodwebPage, "bloodwebPageCharacterSelector",
-                                                      QSize(150, 40), Data.get_characters(), Config().character())
-        self.bloodwebPageCharacterSelector.currentIndexChanged.connect(self.switch_character)
+                                                      QSize(150, 40), Data.get_characters())
 
         self.bloodwebPageLimitsLabel = TextLabel(self.bloodwebPage, "bloodwebPageLimitsLabel", "Limits", Font(12))
 
