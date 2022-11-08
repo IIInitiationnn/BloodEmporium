@@ -5,8 +5,8 @@ from utils.color_util import ColorUtil
 
 class Node:
     def __init__(self, node_id, name, value, position, is_accessible, is_user_claimed):
-        self.node_id = node_id
-        self.name = name.replace(".png", "")
+        self.node_id = node_id # aka (circle_number bloodweb position thing)_(unique_id)
+        self.name = name.replace(".png", "") # aka unique_id # TODO does this need to replace .png?
         self.value = value
         self.x, self.y = position
         self.is_accessible = is_accessible
@@ -15,16 +15,17 @@ class Node:
     @staticmethod
     def from_dict(data, **kwargs):
         position = (int(data["x"]), int(data["y"]))
-        node = Node(data['node_id'], data['name'], data['value'], position, data['is_accessible'], data['is_user_claimed'])
+        node = Node(data["node_id"], data["name"], data["value"], position, data["is_accessible"],
+                    data["is_user_claimed"])
         for attribute, val in kwargs.items():
             node.__setattr__(attribute, val)
         return node
 
     @staticmethod
     def state_from_color(color):
-        '''
+        """
         :return: (is_accessible, is_user_claimed)
-        '''
+        """
         if color == "taupe":
             return True, False
         elif color == "red":

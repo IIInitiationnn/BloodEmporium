@@ -75,7 +75,8 @@ class Matcher:
 
         for circle_num, rel_position in self.res.circles().items():
             abs_position = origin.position.sum(rel_position)
-            r, color, match_unique_id = Matcher.get_circle_properties(self.debugger, image_gray, self.cv_images[0].get_bgr(),
+            r, color, match_unique_id = Matcher.get_circle_properties(self.debugger, image_gray,
+                                                                      self.cv_images[0].get_bgr(),
                                                                       image_filtered, merged_base, abs_position,
                                                                       self.res)
 

@@ -2,11 +2,12 @@ import logging
 import sys
 import time
 from datetime import datetime
-from multiprocessing import Process
+from multiprocessing import Process, Pipe
 
 import networkx as nx
 import pyautogui
 
+from backend.data import Data
 from capturer import Capturer
 from config import Config
 from debugger import Debugger
@@ -16,7 +17,7 @@ from mergedbase import MergedBase
 from optimiser import Optimiser
 from resolution import Resolution
 
-# TODO try catch for threads and terminate if error
+# TODO try catch for threads and terminate + send signal if error
 
 '''
 0.3.0:
@@ -25,8 +26,9 @@ from resolution import Resolution
 - run certain number of prestige levels
 - [DONE] print nodes and edges in logs
 - hotkeys
-- bloodpoint spend limit
+- bloodpoint spend limit (always show regardless of whether user has limit selected, just show a instead of a / b)
 - add missing properties to config from default_config; remove extraneous properties
+- instant claim for early levels
 '''
 
 '''
@@ -64,7 +66,7 @@ timeline
 - remove output folder and finalise -> 1.0.0
 '''
 
-# from https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python
+# https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python
 class LoggerWriter(object):
     def __init__(self, writer):
         self._writer = writer
@@ -82,29 +84,19 @@ class LoggerWriter(object):
             self._writer(self._msg)
             self._msg = ""
 
-class State:
-    version = "v0.3.0"
+class StateProcess(Process):
+    def __init__(self, pipe: Pipe, args):
+        Process.__init__(self)
+        self.pipe = pipe
+        self.args = args
 
-    def __init__(self):
-        self.process = None
+    # send data to main process via pipe
+    def emit(self, signal_name, payload):
+        self.pipe.send((signal_name, payload))
 
-    def is_active(self):
-        return self.process is not None
-
-    def run(self, debug, write_to_output, prestige_limit, bp_limit):
-        if not self.is_active():
-            self.process = Process(target=State.main_loop, args=(debug, write_to_output, prestige_limit, bp_limit))
-            self.process.start()
-            print("process started without debugging")
-
-    def terminate(self):
-        if self.is_active():
-            self.process.terminate()
-            self.process = None
-            print("process terminated")
-
-    @staticmethod
-    def main_loop(debug, write_to_output, prestige_limit, bp_limit):
+    # TODO if error, send signal that termination has occurred
+    def run(self):
+        debug, write_to_output, prestige_limit, bp_limit = self.args
         log = logging.getLogger()
         log.setLevel(logging.DEBUG)
         log.handlers = []
@@ -124,6 +116,12 @@ class State:
 
         pyautogui.FAILSAFE = False
 
+        prestige_total = 0 # TODO hhhhh update prestige total and perform check
+        bp_total = 0
+        print(prestige_limit, bp_limit)
+        self.emit("prestige", (prestige_total, prestige_limit))
+        self.emit("bloodpoint", (bp_total, bp_limit))
+
         base_res = resolution = Config().resolution()
         x, y = base_res.top_left()
 
@@ -134,6 +132,7 @@ class State:
 
         # initialisation: merged base for template matching
         print("initialisation, merging")
+        unlockables = Data.get_unlockables()
         merged_base = MergedBase(resolution, Config().character())
         pyautogui.moveTo(0, 0)
 
@@ -156,10 +155,15 @@ class State:
 
             # prestige level: proceed to next level
             if origin_type == "origin_prestige.png" or origin_type == "origin_prestige_small.png":
-                print("prestige level: selecting")
                 if debug:
                     debugger.show_images()
+                bp_total += 20000
+                if bp_limit is not None and bp_total > bp_limit:
+                    print("prestige level: reached bloodpoint limit. terminating")
+                    return # TODO hhhhh send signal to terminate from main, and also to note that termination has occurred
 
+                print("prestige level: selecting")
+                self.emit("bloodpoint", (bp_total, bp_limit))
                 pyautogui.moveTo(x + round(origin.x() * ratio), y + round(origin.y() * ratio))
                 pyautogui.mouseDown()
                 time.sleep(0.5)
@@ -201,9 +205,15 @@ class State:
                 optimiser = Optimiser(base_bloodweb)
                 optimiser.run()
                 optimal_unlockable = optimiser.select_best()
+                selected_unlockable = [u for u in unlockables if u.unique_id == optimal_unlockable.name][0]
+                bp_total += Data.get_cost(selected_unlockable.rarity)
+                if bp_limit is not None and bp_total > bp_limit:
+                    print(f"{optimal_unlockable.node_id}: reached bloodpoint limit. terminating")
+                    return # TODO hhhhh send signal to terminate from main, and also to note that termination has occurred
+
                 print(optimal_unlockable.node_id)
                 debugger.set_dijkstra(optimiser.dijkstra_graph, j)
-
+                self.emit("bloodpoint", (bp_total, bp_limit))
                 optimal_unlockable.set_user_claimed(True)
                 optimal_unlockable.set_value(9999)
                 nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
@@ -254,5 +264,24 @@ class State:
                 j += 1
             i += 1
 
-if __name__ == '__main__':
-    State()
+class State:
+    version = "v0.3.0"
+
+    def __init__(self, pipe):
+        self.process = None
+        self.pipe = pipe
+
+    def is_active(self):
+        return self.process is not None
+
+    def run(self, debug, write_to_output, prestige_limit, bp_limit):
+        if not self.is_active():
+            self.process = StateProcess(self.pipe, (debug, write_to_output, prestige_limit, bp_limit))
+            self.process.start()
+            print("process started without debugging")
+
+    def terminate(self):
+        if self.is_active():
+            self.process.terminate()
+            self.process = None
+            print("process terminated")

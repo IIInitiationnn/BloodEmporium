@@ -1,8 +1,10 @@
 import os
 import sys
-from multiprocessing import freeze_support
+from multiprocessing import freeze_support, Pipe
+from threading import Thread
 
-from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect
+from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect, QObject, pyqtSignal, \
+    QVariant
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
@@ -255,7 +257,7 @@ class CheckBoxWithFunction(CheckBox):
         CheckBox.__init__(self, parent, object_name, style_sheet)
         self.clicked.connect(on_click)
 
-# from https://forum.qt.io/topic/15068/prevent-flat-qtoolbutton-from-moving-when-clicked/8
+# https://forum.qt.io/topic/15068/prevent-flat-qtoolbutton-from-moving-when-clicked/8
 class NoShiftStyle(QProxyStyle):
     def pixelMetric(self, metric, option, widget):
         if metric == QStyle.PM_ButtonShiftHorizontal or metric == QStyle.PM_ButtonShiftVertical:
@@ -921,10 +923,10 @@ class MainWindow(QMainWindow):
         character = self.bloodwebPageCharacterSelector.currentText()
         Config().set_character(character)
 
-    def get_runtime_prestige(self) -> str or None:
+    def get_runtime_prestige_limit(self) -> str or None:
         return self.bloodwebPagePrestigeInput.text() if self.bloodwebPagePrestigeCheckBox.isChecked() else None
 
-    def on_toggle_prestige(self):
+    def on_toggle_prestige_limit(self):
         if self.bloodwebPagePrestigeCheckBox.isChecked():
             self.bloodwebPagePrestigeInput.setReadOnly(False)
             text = self.bloodwebPagePrestigeInput.text()
@@ -933,11 +935,14 @@ class MainWindow(QMainWindow):
             self.bloodwebPagePrestigeInput.setReadOnly(True)
             self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.text_box_read_only)
 
-    def on_edit_prestige_input(self):
+    def on_edit_prestige_limit_input(self):
         text = self.bloodwebPagePrestigeInput.text()
         self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.prestige_input(text))
 
-    def on_toggle_bloodpoint(self):
+    def get_runtime_bloodpoint_limit(self) -> str or None:
+        return self.bloodwebPageBloodpointInput.text() if self.bloodwebPageBloodpointCheckBox.isChecked() else None
+
+    def on_toggle_bloodpoint_limit(self):
         if self.bloodwebPageBloodpointCheckBox.isChecked():
             self.bloodwebPageBloodpointInput.setReadOnly(False)
             text = self.bloodwebPageBloodpointInput.text()
@@ -946,7 +951,7 @@ class MainWindow(QMainWindow):
             self.bloodwebPageBloodpointInput.setReadOnly(True)
             self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.text_box_read_only)
 
-    def on_edit_bloodpoint_input(self):
+    def on_edit_bloodpoint_limit_input(self):
         text = self.bloodwebPageBloodpointInput.text()
         self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.bloodpoint_input(text))
 
@@ -965,10 +970,18 @@ class MainWindow(QMainWindow):
     def hide_run_text(self):
         self.bloodwebPageRunErrorText.setVisible(False)
 
+    def on_prestige_signal(self, prestige_total, prestige_limit):
+        self.bloodwebPageRunPrestigeProgress.setText(f"Prestige levels reached: {prestige_total}" +
+                                                     (f" / {prestige_limit}" if prestige_limit is not None else ""))
+
+    def on_bloodpoint_signal(self, bp_total, bp_limit):
+        self.bloodwebPageRunBloodpointProgress.setText(f"Bloodpoints spent: {bp_total:,}" +
+                                                       (f" / {bp_limit:,}" if bp_limit is not None else ""))
+
     def run_terminate(self, debug=False, write_to_output=False):
         if not self.state.is_active(): # run
             # check prestige limit
-            prestige_limit = self.get_runtime_prestige()
+            prestige_limit = self.get_runtime_prestige_limit()
             if prestige_limit is not None:
                 try:
                     prestige_limit = int(prestige_limit)
@@ -978,7 +991,14 @@ class MainWindow(QMainWindow):
                     return self.show_run_error()
 
             # TODO check bloodpoint limit
-            bp_limit = 10000
+            bp_limit = self.get_runtime_bloodpoint_limit()
+            if bp_limit is not None:
+                try:
+                    bp_limit = int(bp_limit)
+                except:
+                    return self.show_run_error()
+                if not (1 <= bp_limit):
+                    return self.show_run_error()
 
             self.hide_run_text()
             self.state.run(debug, write_to_output, prestige_limit, bp_limit)
@@ -988,6 +1008,7 @@ class MainWindow(QMainWindow):
             self.state.terminate()
             self.toggle_run_terminate_text()
 
+    # TODO hhhhh replace with signal on run or on terminate
     def toggle_run_terminate_text(self):
         if not self.state.is_active():
             self.bloodwebPageRunButton.setText("Run")
@@ -1100,18 +1121,20 @@ class MainWindow(QMainWindow):
         elif k == "'0'":
             self.run_terminate()'''
 
-    def __init__(self):
+    def __init__(self, state_pipe_, emitter):
         QMainWindow.__init__(self)
-        # TODO windows up + windows down; resize areas; cursor when hovering over buttons
-        # TODO resize areas
-        # TODO a blank profile which cannot be saved to, all 0s
+        self.emitter = emitter
+        self.emitter.start() # start the thread, calling Emitter.run()
+        self.emitter.prestige.connect(self.on_prestige_signal)
+        self.emitter.bloodpoint.connect(self.on_bloodpoint_signal)
+        # TODO windows up + windows down; cursor when hovering over buttons
 
         self.listener = keyboard.Listener(on_press=self.on_press)
         self.listener.start()
 
         self.is_maximized = False
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
-        self.state = State()
+        self.state = State(state_pipe_)
 
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -1576,18 +1599,18 @@ class MainWindow(QMainWindow):
 
         self.bloodwebPagePrestigeCheckBox = CheckBoxWithFunction(self.bloodwebPagePrestigeRow,
                                                                  "bloodwebPagePrestigeCheckBox",
-                                                                 self.on_toggle_prestige)
+                                                                 self.on_toggle_prestige_limit)
         self.bloodwebPagePrestigeLabel = TextLabel(self.bloodwebPagePrestigeRow,
                                                    "bloodwebPagePrestigeLabel", "Prestige Limit")
         self.bloodwebPagePrestigeInput = TextInputBox(self.bloodwebPagePrestigeRow,
                                                       "bloodwebPagePrestigeInput",
                                                       QSize(94, 40), "Enter levels", "1",
                                                       style_sheet=StyleSheets.text_box_read_only)
-        self.bloodwebPagePrestigeInput.textEdited.connect(self.on_edit_prestige_input)
+        self.bloodwebPagePrestigeInput.textEdited.connect(self.on_edit_prestige_limit_input)
         self.bloodwebPagePrestigeInput.setReadOnly(True)
         self.bloodwebPagePrestigeDescription = TextLabel(self.bloodwebPagePrestigeRow,
                                                          "bloodwebPagePrestigeDescription",
-                                                         "The number of prestige levels to complete before terminating "
+                                                         "The number of prestige levels to reach before terminating "
                                                          "(any number from 1 to 100).", Font(10))
 
         self.bloodwebPageBloodpointRow = QWidget(self.bloodwebPage)
@@ -1597,14 +1620,14 @@ class MainWindow(QMainWindow):
 
         self.bloodwebPageBloodpointCheckBox = CheckBoxWithFunction(self.bloodwebPagePrestigeRow,
                                                                    "bloodwebPageBloodpointCheckBox",
-                                                                   self.on_toggle_bloodpoint)
+                                                                   self.on_toggle_bloodpoint_limit)
         self.bloodwebPageBloodpointLabel = TextLabel(self.bloodwebPagePrestigeRow,
                                                      "bloodwebPageBloodpointLabel", "Bloodpoint Limit")
         self.bloodwebPageBloodpointInput = TextInputBox(self.bloodwebPagePrestigeRow,
                                                         "bloodwebPageBloodpointInput",
                                                         QSize(132, 40), "Enter bloodpoints", "69420",
                                                         style_sheet=StyleSheets.text_box_read_only)
-        self.bloodwebPageBloodpointInput.textEdited.connect(self.on_edit_bloodpoint_input)
+        self.bloodwebPageBloodpointInput.textEdited.connect(self.on_edit_bloodpoint_limit_input)
         self.bloodwebPageBloodpointInput.setReadOnly(True)
         self.bloodwebPageBloodpointDescription = TextLabel(self.bloodwebPagePrestigeRow,
                                                            "bloodwebPageBloodpointDescription",
@@ -1655,6 +1678,11 @@ class MainWindow(QMainWindow):
         self.bloodwebPageRunButton.clicked.connect(self.run_terminate)
         self.bloodwebPageRunErrorText = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunErrorText", "", Font(10))
         self.bloodwebPageRunErrorText.setVisible(False)
+
+        self.bloodwebPageRunPrestigeProgress = TextLabel(self.bloodwebPage, "bloodwebPageRunPrestigeProgress", "",
+                                                         Font(10))
+        self.bloodwebPageRunBloodpointProgress = TextLabel(self.bloodwebPage, "bloodwebPageRunBloodpointProgress", "",
+                                                           Font(10))
         # self.bloodwebPageDebugLog = DebugLogCollapsibleBox(self.bloodwebPage, "bloodwebPageDebugLog")
 
         # stack: helpPage
@@ -2026,6 +2054,8 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunLabel)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunDescription)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunRow)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunPrestigeProgress)
+        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunBloodpointProgress)
         self.bloodwebPageLayout.addStretch(1)
         # self.bloodwebPageLayout.addWidget(self.bloodwebPageDebugLog)
 
@@ -2103,6 +2133,34 @@ class Icons:
     discord = __base + "/icon_discord.png"
     twitter = __base + "/icon_twitter.png"
 
+# https://stackoverflow.com/questions/26746379/how-to-signal-slots-in-a-gui-from-a-different-process
+# https://stackoverflow.com/questions/34525750/mainwindow-object-has-no-attribute-connect
+# receives data from state process via pipe, then emits to main window in this process
+class Emitter(QObject, Thread):
+    bloodpoint = pyqtSignal(int, object)
+    prestige = pyqtSignal(int, object)
+
+    def __init__(self, pipe):
+        QObject.__init__(self)
+        Thread.__init__(self)
+        self.daemon = True # shut down when main window is closed
+        self.pipe = pipe
+
+    def emit(self, signature, args):
+        {
+            "bloodpoint": lambda: self.bloodpoint.emit(*args),
+            "prestige": lambda: self.prestige.emit(*args),
+        }[signature]()
+
+    def run(self):
+        while True:
+            try:
+                data = self.pipe.recv()
+            except EOFError:
+                break
+            else:
+                self.emit(*data)
+
 if __name__ == "__main__":
     freeze_support() # --onedir (for exe)
 
@@ -2111,6 +2169,9 @@ if __name__ == "__main__":
     os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
     os.environ["QT_SCALE_FACTOR"] = "1"
 
+    main_pipe, state_pipe = Pipe() # emit from state pipe to main pipe. main can receive, state can send
+    main_emitter = Emitter(main_pipe)
+
     app = QApplication([])
-    window = MainWindow()
+    window = MainWindow(state_pipe, main_emitter)
     sys.exit(app.exec_())
