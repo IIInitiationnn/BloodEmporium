@@ -687,15 +687,9 @@ class MainWindow(QMainWindow):
     def switch_edit_profile(self):
         if not self.ignore_profile_signals:
             # TODO prompt: unsaved changes (save or discard)
-            profile_id = self.get_edit_profile()
-
-            if profile_id == "blank":
-                for widget in self.preferencesPageUnlockableWidgets:
-                    widget.setTiers(0, 0)
-            else:
-                config = Config()
-                for widget in self.preferencesPageUnlockableWidgets:
-                    widget.setTiers(*config.preference(widget.unlockable.unique_id, profile_id))
+            config = Config()
+            for widget in self.preferencesPageUnlockableWidgets:
+                widget.setTiers(*config.preference(widget.unlockable.unique_id, self.get_edit_profile()))
 
     def save_profile(self):
         profile_id = self.get_edit_profile()
@@ -949,23 +943,25 @@ class MainWindow(QMainWindow):
         text = self.bloodwebPageBloodpointInput.text()
         self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.bloodpoint_input(text))
 
-    def show_run_success(self, text):
+    def show_run_success(self, text, hide):
         self.bloodwebPageRunErrorText.setText(text)
         self.bloodwebPageRunErrorText.setStyleSheet(StyleSheets.pink_text)
         self.bloodwebPageRunErrorText.setVisible(True)
-        QTimer.singleShot(10000, self.hide_run_text)
+        if hide:
+            QTimer.singleShot(10000, self.hide_run_text)
 
-    def show_run_error(self, text="Prestige level must be a number from 1 to 100."):
+    def show_run_error(self, text, hide):
         self.bloodwebPageRunErrorText.setText(text)
         self.bloodwebPageRunErrorText.setStyleSheet(StyleSheets.purple_text)
         self.bloodwebPageRunErrorText.setVisible(True)
-        QTimer.singleShot(10000, self.hide_run_text)
+        if hide:
+            QTimer.singleShot(10000, self.hide_run_text)
 
     def hide_run_text(self):
         self.bloodwebPageRunErrorText.setVisible(False)
 
     def on_prestige_signal(self, prestige_total, prestige_limit):
-        self.bloodwebPageRunPrestigeProgress.setText(f"Prestige levels reached: {prestige_total}" +
+        self.bloodwebPageRunPrestigeProgress.setText(f"Prestige levels completed: {prestige_total}" +
                                                      (f" / {prestige_limit}" if prestige_limit is not None else ""))
 
     def on_bloodpoint_signal(self, bp_total, bp_limit):
@@ -980,9 +976,9 @@ class MainWindow(QMainWindow):
                 try:
                     prestige_limit = int(prestige_limit)
                 except:
-                    return self.show_run_error()
+                    return self.show_run_error("Prestige level must be an integer from 1 to 100.", True)
                 if not (1 <= prestige_limit <= 100):
-                    return self.show_run_error()
+                    return self.show_run_error("Prestige level must be an integer from 1 to 100.", True)
 
             # TODO check bloodpoint limit
             bp_limit = self.get_runtime_bloodpoint_limit()
@@ -990,27 +986,30 @@ class MainWindow(QMainWindow):
                 try:
                     bp_limit = int(bp_limit)
                 except:
-                    return self.show_run_error()
+                    return self.show_run_error("Bloodpoint limit must be a positive integer.", True)
                 if not (1 <= bp_limit):
-                    return self.show_run_error()
+                    return self.show_run_error("Bloodpoint limit must be a positive integer.", True)
 
-            self.hide_run_text()
             self.state.run((debug, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
                             prestige_limit, bp_limit))
-            self.toggle_run_terminate_text()
+            self.toggle_run_terminate_text("Starting...", False, True)
         else: # terminate
-            self.hide_run_text()
             self.state.terminate()
-            self.toggle_run_terminate_text()
+            self.toggle_run_terminate_text("Manually terminated.", False, True)
 
-    # TODO hhhhh replace with signal on run or on terminate
-    def toggle_run_terminate_text(self):
+    def toggle_run_terminate_text(self, text, is_error, hide):
+        self.hide_run_text()
         if not self.state.is_active():
             self.bloodwebPageRunButton.setText("Run")
             self.bloodwebPageRunButton.setFixedSize(QSize(60, 35))
         else:
             self.bloodwebPageRunButton.setText("Terminate")
             self.bloodwebPageRunButton.setFixedSize(QSize(92, 35))
+
+        if is_error:
+            self.show_run_error(text, hide)
+        else:
+            self.show_run_success(text, hide)
 
     # settings
     def on_width_update(self):
@@ -1051,7 +1050,7 @@ class MainWindow(QMainWindow):
         ui_scale = self.settingsPageResolutionUIInput.text()
         if not Data.verify_settings_res(width, height, ui_scale):
             self.show_settings_page_save_fail_text("Ensure width, height and UI scale are all numbers. "
-                                                   "UI scale must be a number between 70 and 100. Changes not saved.")
+                                                   "UI scale must be an integer between 70 and 100. Changes not saved.")
             return
 
         path = self.settingsPagePathText.text()
@@ -1118,10 +1117,6 @@ class MainWindow(QMainWindow):
 
     def __init__(self, state_pipe_, emitter):
         QMainWindow.__init__(self)
-        self.emitter = emitter
-        self.emitter.start() # start the thread, calling Emitter.run()
-        self.emitter.prestige.connect(self.on_prestige_signal)
-        self.emitter.bloodpoint.connect(self.on_bloodpoint_signal)
         # TODO windows up + windows down; cursor when hovering over buttons
 
         self.listener = keyboard.Listener(on_press=self.on_press)
@@ -1130,6 +1125,13 @@ class MainWindow(QMainWindow):
         self.is_maximized = False
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
         self.state = State(state_pipe_)
+
+        self.emitter = emitter
+        self.emitter.start() # start the thread, calling Emitter.run()
+        self.emitter.prestige.connect(self.on_prestige_signal)
+        self.emitter.bloodpoint.connect(self.on_bloodpoint_signal)
+        self.emitter.terminate.connect(self.state.terminate)
+        self.emitter.toggle_text.connect(self.toggle_run_terminate_text)
 
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -1573,7 +1575,7 @@ class MainWindow(QMainWindow):
 
         self.bloodwebPageProfileLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Profile", Font(12))
         self.bloodwebPageProfileSelector = Selector(self.bloodwebPage, "bloodwebPageProfileSelector", QSize(150, 40),
-                                                    Config().profile_names() + ["blank"])
+                                                    Config().profile_names())
 
         self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageCharacterLabel", "Character",
                                                     Font(12))
@@ -1603,8 +1605,8 @@ class MainWindow(QMainWindow):
         self.bloodwebPagePrestigeInput.setReadOnly(True)
         self.bloodwebPagePrestigeDescription = TextLabel(self.bloodwebPagePrestigeRow,
                                                          "bloodwebPagePrestigeDescription",
-                                                         "The number of prestige levels to reach before terminating "
-                                                         "(any number from 1 to 100).", Font(10))
+                                                         "The number of prestige levels to complete before terminating "
+                                                         "(any integer from 1 to 100).", Font(10))
 
         self.bloodwebPageBloodpointRow = QWidget(self.bloodwebPage)
         self.bloodwebPageBloodpointRow.setObjectName("bloodwebPageBloodpointRow")
@@ -2130,8 +2132,10 @@ class Icons:
 # https://stackoverflow.com/questions/34525750/mainwindow-object-has-no-attribute-connect
 # receives data from state process via pipe, then emits to main window in this process
 class Emitter(QObject, Thread):
-    bloodpoint = pyqtSignal(int, object)
-    prestige = pyqtSignal(int, object)
+    prestige = pyqtSignal(int, object) # total, limit
+    bloodpoint = pyqtSignal(int, object) # total, limit
+    terminate = pyqtSignal()
+    toggle_text = pyqtSignal(str, bool, bool) # message, is error, hide
 
     def __init__(self, pipe):
         QObject.__init__(self)
@@ -2141,8 +2145,10 @@ class Emitter(QObject, Thread):
 
     def emit(self, signature, args):
         {
-            "bloodpoint": lambda: self.bloodpoint.emit(*args),
             "prestige": lambda: self.prestige.emit(*args),
+            "bloodpoint": lambda: self.bloodpoint.emit(*args),
+            "terminate": lambda: self.terminate.emit(*args),
+            "toggle_text": lambda: self.toggle_text.emit(*args),
         }[signature]()
 
     def run(self):

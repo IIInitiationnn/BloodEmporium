@@ -47,6 +47,7 @@ but absolutely not necessary. Please consider your own financial situation befor
 - Configuration for:
   - Hotkeys
   - Pausing the program when a player can prestige (reaching level 50)
+- Blind mode (selects random nodes blindly - a very fast alternative for those who don't care about what items they get)
 
 ## Credits
 - Icons taken from [The Noun Project](https://thenounproject.com/).

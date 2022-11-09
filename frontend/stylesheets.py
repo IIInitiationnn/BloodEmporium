@@ -322,6 +322,10 @@ class StyleSheets:
             min-height: 25px;
         }}
         
+        QListView::item {{
+            background-color: {background};
+        }}
+        
         QListView::item:selected {{
             color: rgb(255, 255, 255);
             background-color: {selection};
