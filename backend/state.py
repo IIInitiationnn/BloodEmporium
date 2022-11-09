@@ -39,15 +39,6 @@ immediate priorities
 
 features to add
 - "you have unsaved changes" next to save button - profiles, settings
-- frontend with GUI
-    - show debug text irrespective of the below debug mode in a collapsible box (the same as the logs)
-    - debug mode using pyvis showing matched unlockables, paths and selected nodes in some box under the run button
-- runtime options (text stating that if both options are selected, it will stop at the earlier of the conditions)
-    - number of prestiges before stopping: int >= 1 (also show progress e.g. 2/10)
-        - increment BEFORE prestiging, stop if current number of prestiges == target number
-        - 1: get to nearest prestige
-        - 2: prestige once, then go to nearest prestige (eg. 4.35 => 4.50 => prestige => 5.1 => 5.50)
-    - bloodpoint limit: int > 1 (also show progress e.g. 100,000 / 150,000) - remember prestiging costs 20k
 - ability to auto-update software
     - maybe ability to update default config presets as well? may not be desired by people who have overridden
 - import / export profile as string to share with others
@@ -57,10 +48,10 @@ features to add
         - type of unlockable in db: item, perk etc
 
 timeline
-- above TODOs incl new features
+- above new features and TODOs
 - josh feedback
 - optimisation and accuracy guarantees
-- remove output folder and finalise -> 1.0.0
+- finalise -> 1.0.0
 '''
 
 # https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python
@@ -91,7 +82,6 @@ class StateProcess(Process):
     def emit(self, signal_name, payload=()):
         self.pipe.send((signal_name, payload))
 
-    # TODO if error, send signal that termination has occurred
     def run(self):
         timestamp = datetime.now()
         try:
@@ -136,7 +126,7 @@ class StateProcess(Process):
 
             i = 0
             while True:
-                if prestige_limit is not None and prestige_total > prestige_limit:
+                if prestige_limit is not None and prestige_total == prestige_limit:
                     print("reached prestige limit. terminating")
                     self.emit("terminate")
                     self.emit("toggle_text", ("Prestige limit reached.", False, False))
@@ -160,8 +150,8 @@ class StateProcess(Process):
                 if origin_type == "origin_prestige.png" or origin_type == "origin_prestige_small.png":
                     if debug:
                         debugger.show_images()
-                    bp_total += 20000
                     prestige_total += 1
+                    bp_total += 20000
                     if bp_limit is not None and bp_total > bp_limit:
                         print("prestige level: reached bloodpoint limit. terminating")
                         self.emit("terminate")
@@ -169,6 +159,7 @@ class StateProcess(Process):
                         return
 
                     print("prestige level: selecting")
+                    self.emit("prestige", (prestige_total, prestige_limit))
                     self.emit("bloodpoint", (bp_total, bp_limit))
                     pyautogui.moveTo(x + round(origin.x() * ratio), y + round(origin.y() * ratio))
                     pyautogui.mouseDown()

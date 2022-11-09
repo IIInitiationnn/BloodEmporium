@@ -3,8 +3,7 @@ import sys
 from multiprocessing import freeze_support, Pipe
 from threading import Thread
 
-from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect, QObject, pyqtSignal, \
-    QVariant
+from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
@@ -385,57 +384,6 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
             self.toggleButton.setText("Filter Options (Click to Collapse)")
             self.filters.setMinimumHeight(1200)
             self.filters.setMaximumHeight(1200)
-
-"""class DebugLogger(logging.Handler, QObject):
-    appendPlainText = pyqtSignal(str)
-
-    def __init__(self, parent):
-        super().__init__()
-        QObject.__init__(self)
-        self.widget = QPlainTextEdit(parent)
-        self.widget.setMinimumHeight(0)
-        self.widget.setMaximumHeight(0)
-        self.widget.setFont(Font(10))
-        self.widget.setReadOnly(True)
-        self.widget.setStyleSheet('''
-            QPlainTextEdit {
-                background: rgba(0, 0, 0, 0);
-                border: 3px solid {StyleSheets.selection};
-                border-radius: 5px;
-                color: rgb(125, 125, 125);
-                padding: 10px 10px 10px 10px;
-            }''')
-        self.appendPlainText.connect(self.widget.appendPlainText)
-
-    def emit(self, record):
-        msg = self.format(record)
-        self.widget.appendPlainText(msg)
-
-class DebugLogCollapsibleBox(CollapsibleBox):
-    def __init__(self, parent, object_name):
-        CollapsibleBox.__init__(self, parent, object_name, "Debug Log")
-
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.getLogger().handlers = []
-
-        self.log = DebugLogger(self)
-        self.log.setLevel(logging.DEBUG)
-        self.log.setFormatter(logging.Formatter("%(message)s"))
-        logging.getLogger().addHandler(self.log)
-
-        self.layout.addWidget(self.log.widget)
-
-    def on_pressed(self):
-        if self.toggleButton.isChecked():
-            self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_active)
-            self.toggleButton.setIcon(QIcon(Icons.right_arrow))
-            self.log.widget.setMinimumHeight(0)
-            self.log.widget.setMaximumHeight(0)
-        else:
-            self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
-            self.toggleButton.setIcon(QIcon(Icons.down_arrow))
-            self.log.widget.setMinimumHeight(400)
-            self.log.widget.setMaximumHeight(400)"""
 
 class UnlockableWidget(QWidget):
     def __init__(self, parent, unlockable: Unlockable, tier, subtier, on_unlockable_select):
@@ -980,7 +928,6 @@ class MainWindow(QMainWindow):
                 if not (1 <= prestige_limit <= 100):
                     return self.show_run_error("Prestige level must be an integer from 1 to 100.", True)
 
-            # TODO check bloodpoint limit
             bp_limit = self.get_runtime_bloodpoint_limit()
             if bp_limit is not None:
                 try:
@@ -1317,7 +1264,7 @@ class MainWindow(QMainWindow):
         self.homePageLayout.setSpacing(5)
 
         self.homePageIcon = QLabel(self.homePage)
-        self.homePageIcon.setObjectName("homePageIcon") # TODO large icon with Blood Emporium text like in Github splash
+        self.homePageIcon.setObjectName("homePageIcon")
         self.homePageIcon.setFixedSize(QSize(200, 200))
         self.homePageIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.icon))
         self.homePageIcon.setScaledContents(True)
@@ -1629,37 +1576,6 @@ class MainWindow(QMainWindow):
                                                            "The number of bloodpoints to spend before terminating.",
                                                            Font(10))
 
-        # TODO hhh move to bottom
-        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeCheckBox)
-        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeLabel)
-        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeInput)
-        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeDescription)
-        self.bloodwebPagePrestigeRowLayout.addStretch(1)
-
-        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointCheckBox)
-        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointLabel)
-        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointInput)
-        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointDescription)
-        self.bloodwebPageBloodpointRowLayout.addStretch(1)
-
-        # self.bloodwebPageProfileRow = QWidget(self.settingsPage)
-        # self.bloodwebPageProfileRow.setObjectName("settingsPageResolutionWidthRow")
-
-        # self.settingsPageResolutionWidthRowLayout = QHBoxLayout(self.settingsPageResolutionWidthRow)
-        # self.settingsPageResolutionWidthRowLayout.setContentsMargins(0, 0, 0, 0)
-        # self.settingsPageResolutionWidthRowLayout.setSpacing(15)
-
-        # self.settingsPageResolutionWidthLabel = TextLabel(self.settingsPageResolutionWidthRow,
-        #                                                   "settingsPageResolutionWidthLabel", "Width", Font(10))
-        # self.settingsPageResolutionWidthInput = TextInputBox(self.settingsPageResolutionWidthRow,
-        #                                                      "settingsPageResolutionWidthInput", QSize(60, 40),
-        #                                                      "Width", str(res.width))
-        # self.settingsPageResolutionWidthInput.textEdited.connect(self.on_width_update)
-
-        # self.bloodwebPagePrestigeInput = TextInputBox(self.bloodwebPage, "bloodwebPagePrestigeInput",
-        #                                               QSize(150, 40), "Enter profile name")
-        # self.bloodwebPageCharacterSelector.currentIndexChanged.connect(self.switch_character)
-
         self.bloodwebPageRunLabel = TextLabel(self.bloodwebPage, "bloodwebPageRunLabel", "Run", Font(12))
         self.bloodwebPageRunDescription = TextLabel(self.bloodwebPage, "bloodwebPageRunLabel",
                                                     "Make sure your game is open on your monitor, and any shaders "
@@ -1678,7 +1594,6 @@ class MainWindow(QMainWindow):
                                                          Font(10))
         self.bloodwebPageRunBloodpointProgress = TextLabel(self.bloodwebPage, "bloodwebPageRunBloodpointProgress", "",
                                                            Font(10))
-        # self.bloodwebPageDebugLog = DebugLogCollapsibleBox(self.bloodwebPage, "bloodwebPageDebugLog")
 
         # stack: helpPage
         self.helpPage = QWidget()
@@ -2034,6 +1949,18 @@ class MainWindow(QMainWindow):
         '''
         bloodwebPage
         '''
+        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeCheckBox)
+        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeLabel)
+        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeInput)
+        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeDescription)
+        self.bloodwebPagePrestigeRowLayout.addStretch(1)
+
+        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointCheckBox)
+        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointLabel)
+        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointInput)
+        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointDescription)
+        self.bloodwebPageBloodpointRowLayout.addStretch(1)
+
         self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunButton)
         self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunErrorText)
         self.bloodwebPageRunRowLayout.addStretch(1)
@@ -2052,7 +1979,6 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunPrestigeProgress)
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunBloodpointProgress)
         self.bloodwebPageLayout.addStretch(1)
-        # self.bloodwebPageLayout.addWidget(self.bloodwebPageDebugLog)
 
         '''
         helpPage
@@ -2112,6 +2038,7 @@ class MainWindow(QMainWindow):
 class Icons:
     __base = "assets/images/icons"
     icon = "assets/images/inspo1.png"
+    splash = "assets/images/splash.png"
     minimize = __base + "/icon_minimize.png"
     restore = __base + "/icon_restore.png"
     maximize = __base + "/icon_maximize.png"
