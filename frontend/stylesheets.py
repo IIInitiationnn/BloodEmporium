@@ -113,7 +113,7 @@ class StyleSheets:
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
-            padding-left: 10px;
+            padding: 0 10px 0 10px;
         }}
         
         QLineEdit:hover {{
@@ -126,7 +126,7 @@ class StyleSheets:
             color: rgb(125, 125, 125);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
-            padding-left: 10px;
+            padding: 0 10px 0 10px;
         }}
         
         QLineEdit:hover {{
@@ -139,7 +139,7 @@ class StyleSheets:
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
-            padding-left: 10px;
+            padding: 0 10px 0 10px;
         }}
         
         QLineEdit:hover {{
@@ -152,7 +152,7 @@ class StyleSheets:
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
-            padding-left: 10px;
+            padding: 0 10px 0 10px;
         }}
         
         QLineEdit:hover {{
@@ -165,7 +165,7 @@ class StyleSheets:
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
-            padding-left: 10px;
+            padding: 0 10px 0 10px;
         }}
         
         QLineEdit:hover {{
@@ -356,6 +356,22 @@ class StyleSheets:
         QPushButton {{
             color: rgb(255, 255, 255);
             background-color: {background};
+            border: none;
+            border-radius: 5px;
+        }}
+        QPushButton:hover {{
+            background-color: {selection};
+            border: none;
+        }}
+        QPushButton:pressed {{
+            background-color: {light_selection};
+            border: none;
+        }}"""
+
+    button_recording = f"""
+        QPushButton {{
+            color: {purple};
+            background-color: {darker_purple};
             border: none;
             border-radius: 5px;
         }}

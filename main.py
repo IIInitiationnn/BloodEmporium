@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QT
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
-    QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip, QProxyStyle, QStyle
+    QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip, QProxyStyle, QStyle, QKeySequenceEdit
 from pynput import keyboard
 
 from frontend.layouts import RowLayout
@@ -563,6 +563,51 @@ class SideGrip(QWidget):
     def mouseReleaseEvent(self, event):
         self.mousePos = None
 
+class HotkeyInput(QPushButton):
+    def __init__(self, parent, object_name, size, on_activate, on_deactivate):
+        super().__init__(parent)
+        self.on_activate = on_activate # on activating THIS button
+        self.on_deactivate = on_deactivate # on deactivating THIS button
+        self.pressed_keys = []
+        self.setObjectName(object_name)
+        self.setFixedSize(size)
+        self.setStyleSheet(StyleSheets.button)
+        self.pressed_keys = Config().hotkey()
+        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
+        self.setFont(Font(10))
+        self.clicked.connect(self.on_click)
+        self.active = False
+
+    def on_click(self):
+        if not self.active:
+            self.pressed_keys = []
+            self.setStyleSheet(StyleSheets.button_recording)
+            self.setText("Recording keystrokes...")
+            self.on_activate()
+            self.start_keyboard_listener()
+            self.active = True
+
+    def start_keyboard_listener(self):
+        self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
+        self.listener.start()
+
+    def stop_keyboard_listener(self):
+        self.listener.stop()
+        self.listener = None
+
+    def on_key_down(self, key):
+        key = TextUtil.pynput_to_key_string(self.listener, key)
+        self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
+        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
+
+    def on_key_up(self, key):
+        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
+
+        self.active = False
+        self.stop_keyboard_listener()
+        self.on_deactivate()
+        self.setStyleSheet(StyleSheets.button)
+
 class MainWindow(QMainWindow):
     def minimize(self):
         self.showMinimized()
@@ -1017,9 +1062,11 @@ class MainWindow(QMainWindow):
             self.show_settings_page_save_fail_text("Ensure path is an actual folder. Changes not saved.")
             return
 
+        hotkey = self.settingsPageHotkeyInput.pressed_keys
 
         Config().set_resolution(int(width), int(height), int(ui_scale))
         Config().set_path(path)
+        Config().set_hotkey(hotkey)
         self.show_settings_page_save_success_text("Settings changed.")
 
     @property
@@ -1074,7 +1121,7 @@ class MainWindow(QMainWindow):
 
     def on_key_down(self, key):
         key = TextUtil.pynput_to_key_string(self.listener, key)
-        self.pressed_keys.add(key)
+        self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
         if self.pressed_keys == Config().hotkey():
             self.run_terminate()
 
@@ -1082,7 +1129,7 @@ class MainWindow(QMainWindow):
         key = TextUtil.pynput_to_key_string(self.listener, key)
         try:
             self.pressed_keys.remove(key)
-        except KeyError:
+        except ValueError:
             pass
 
     def __init__(self, state_pipe_, emitter):
@@ -1091,7 +1138,7 @@ class MainWindow(QMainWindow):
 
         TextInputBox.on_focus_in_callback = self.stop_keyboard_listener
         TextInputBox.on_focus_out_callback = self.start_keyboard_listener
-        self.pressed_keys = set()
+        self.pressed_keys = []
         self.start_keyboard_listener()
 
         self.is_maximized = False
@@ -1714,7 +1761,7 @@ class MainWindow(QMainWindow):
         self.settingsPageResolutionWidthLabel = TextLabel(self.settingsPageResolutionWidthRow,
                                                           "settingsPageResolutionWidthLabel", "Width", Font(10))
         self.settingsPageResolutionWidthInput = TextInputBox(self.settingsPageResolutionWidthRow,
-                                                             "settingsPageResolutionWidthInput", QSize(60, 40),
+                                                             "settingsPageResolutionWidthInput", QSize(70, 40),
                                                              "Width", str(res.width))
         self.settingsPageResolutionWidthInput.textEdited.connect(self.on_width_update)
 
@@ -1726,7 +1773,7 @@ class MainWindow(QMainWindow):
         self.settingsPageResolutionHeightLabel = TextLabel(self.settingsPageResolutionHeightRow,
                                                            "settingsPageResolutionHeightLabel", "Height", Font(10))
         self.settingsPageResolutionHeightInput = TextInputBox(self.settingsPageResolutionHeightRow,
-                                                              "settingsPageResolutionHeightInput", QSize(60, 40),
+                                                              "settingsPageResolutionHeightInput", QSize(70, 40),
                                                               "Height", str(res.height))
         self.settingsPageResolutionHeightInput.textEdited.connect(self.on_height_update)
 
@@ -1738,7 +1785,7 @@ class MainWindow(QMainWindow):
         self.settingsPageResolutionUILabel = TextLabel(self.settingsPageResolutionUIRow,
                                                        "settingsPageResolutionUILabel", "UI Scale", Font(10))
         self.settingsPageResolutionUIInput = TextInputBox(self.settingsPageResolutionUIRow,
-                                                          "settingsPageResolutionUIInput", QSize(50, 40),
+                                                          "settingsPageResolutionUIInput", QSize(70, 40),
                                                           "UI Scale", str(res.ui_scale))
         self.settingsPageResolutionUIInput.textEdited.connect(self.on_ui_scale_update)
 
@@ -1753,11 +1800,20 @@ class MainWindow(QMainWindow):
         self.settingsPagePathRow.setObjectName("settingsPagePathRow")
         self.settingsPagePathRowLayout = RowLayout(self.settingsPagePathRow, "settingsPagePathRowLayout")
 
-        self.settingsPagePathText = TextInputBox(self.settingsPage, "settingsPagePathText", QSize(600, 40),
+        self.settingsPagePathText = TextInputBox(self.settingsPage, "settingsPagePathText", QSize(550, 40),
                                                  "Path to Dead by Daylight game icon files", str(Config().path()))
         self.settingsPagePathButton = Button(self.settingsPage, "settingsPagePathButton", "Set path to game icon files",
                                              QSize(180, 35))
         self.settingsPagePathButton.clicked.connect(self.set_path)
+
+        self.settingsPageHotkeyLabel = TextLabel(self.settingsPage, "settingsPageHotkeyLabel", "Hotkey",
+                                                 Font(12))
+        self.settingsPageHotkeyDescription = TextLabel(self.settingsPage, "settingsPageHotkeyDescription",
+                                                       "Shortcut to run or terminate the automatic bloodweb process.",
+                                                       Font(10))
+
+        self.settingsPageHotkeyInput = HotkeyInput(self.settingsPage, "settingsPageHotkeyInput", QSize(300, 40),
+                                                   self.stop_keyboard_listener, self.start_keyboard_listener)
 
         self.settingsPageSaveRow = QWidget(self.settingsPage)
         self.settingsPageSaveRow.setObjectName("settingsPageSaveRow")
@@ -2054,6 +2110,9 @@ class MainWindow(QMainWindow):
         self.settingsPageLayout.addWidget(self.settingsPagePathLabel)
         self.settingsPageLayout.addWidget(self.settingsPagePathLabelDefaultLabel)
         self.settingsPageLayout.addWidget(self.settingsPagePathRow)
+        self.settingsPageLayout.addWidget(self.settingsPageHotkeyLabel)
+        self.settingsPageLayout.addWidget(self.settingsPageHotkeyDescription)
+        self.settingsPageLayout.addWidget(self.settingsPageHotkeyInput)
         self.settingsPageLayout.addWidget(self.settingsPageSaveRow)
         self.settingsPageLayout.addStretch(1)
 

@@ -69,7 +69,7 @@ class Config:
         return self.config["path"]
 
     def hotkey(self):
-        return set(self.config["hotkey"].split(" "))
+        return self.config["hotkey"].split(" ")
 
     def __profiles(self):
         return self.config["profiles"]
@@ -103,6 +103,10 @@ class Config:
 
     def set_path(self, path):
         self.config["path"] = path
+        self.commit_changes()
+
+    def set_hotkey(self, hotkey):
+        self.config["hotkey"] = " ".join(hotkey)
         self.commit_changes()
 
     def set_profile(self, updated_profile):

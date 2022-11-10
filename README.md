@@ -35,7 +35,7 @@ but absolutely not necessary. Please consider your own financial situation befor
 ## Features
 - Allows user to configure which unlockables are preferred or undesirable.
 - Bloodpoint spend limit / prestige level limit
-- Hotkey to run / stop the program (Ctrl + Alt + 9)
+- Hotkey to run / stop the program (default: Ctrl + Alt + 9)
 - Completely automatic and hands-free.
 
 ## Issues

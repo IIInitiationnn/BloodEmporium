@@ -20,18 +20,6 @@ from optimiser import Optimiser
 from resolution import Resolution
 
 """
-0.3.0:
-- [DONE] filter options collapse / expand
-- [DONE, pending feedback] update cheapskate, with and without perks
-- [DONE] run certain number of prestige levels
-- [DONE] bloodpoint spend limit (always show regardless of whether user has limit selected, show a instead of a / b)
-- [DONE] print nodes and edges in logs
-- hotkeys
-- [DONE] add any missing properties (hotkeys) to config from default_config instead of raising error
-- [DONE] instant claim for early levels
-"""
-
-"""
 immediate priorities
 - tweak hough line parameters
     - if lines are invalidated from not being in the majority of images, print which nodes it connects
