@@ -17,23 +17,20 @@ class Config:
 
         # ensure all parameters are legal
         if "resolution" not in self.config.keys():
-            raise ConfigError("Missing resolution in config.json")
-        if "width" not in self.config["resolution"].keys():
-            raise ConfigError("Missing resolution width in config.json")
-        if "height" not in self.config["resolution"].keys():
-            raise ConfigError("Missing resolution height in config.json")
-        if "ui_scale" not in self.config["resolution"].keys():
-            raise ConfigError("Missing resolution UI scale in config.json")
+            self.copy_from_default("resolution")
+        if any([prop not in self.config["resolution"].keys() for prop in ["width", "height", "ui_scale"]]):
+            self.copy_from_default("resolution")
 
         if "path" not in self.config.keys():
-            raise ConfigError("Missing path in config.json")
+            self.copy_from_default("path")
 
         if "hotkey" not in self.config.keys():
-            raise ConfigError("Missing hotkey in config.json")
+            self.copy_from_default("hotkey")
 
         if "profiles" not in self.config.keys():
-            raise ConfigError("Missing profiles in config.json")
+            self.copy_from_default("profiles")
 
+        # TODO set the value instead of raising error
         ids = []
         for num, profile in enumerate(self.config["profiles"], 1):
             if "id" not in profile.keys():
@@ -48,9 +45,17 @@ class Config:
                 # TODO validate that unique_id is a valid unlockable id
                 if unique_id != "id":
                     if "tier" not in v:
-                        raise ConfigError(f"Missing tier for unlockable {unique_id} under profile {profile['id']} in config.json")
+                        raise ConfigError(f"Missing tier for unlockable {unique_id} under profile {profile['id']}"
+                                          f"in config.json")
                     if "subtier" not in v:
-                        raise ConfigError(f"Missing subtier for unlockable {unique_id} under profile {profile['id']} in config.json")
+                        raise ConfigError(f"Missing subtier for unlockable {unique_id} under profile {profile['id']}"
+                                          f"in config.json")
+
+    def copy_from_default(self, prop):
+        with open("assets/default_config.json") as f:
+            default_config = dict(json.load(f))
+        self.config[prop] = default_config[prop]
+        self.commit_changes()
 
     def resolution(self):
         return Resolution(self.config["resolution"]["width"],
@@ -83,7 +88,12 @@ class Config:
 
     def commit_changes(self):
         with open("config.json", "w") as output:
-            json.dump(self.config, output, indent=4)
+            json.dump({
+                "resolution": self.config["resolution"],
+                "path": self.config["path"],
+                "hotkey": self.config["hotkey"],
+                "profiles": self.config["profiles"],
+            }, output, indent=4)
 
     def set_resolution(self, width, height, ui_scale):
         self.config["resolution"]["width"] = width

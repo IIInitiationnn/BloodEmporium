@@ -25,7 +25,7 @@ from resolution import Resolution
 - [DONE] bloodpoint spend limit (always show regardless of whether user has limit selected, show a instead of a / b)
 - [DONE] print nodes and edges in logs
 - hotkeys
-- add any missing properties (hotkeys) to config from default_config instead of raising error
+- [DONE] add any missing properties (hotkeys) to config from default_config instead of raising error
 - instant claim for early levels
 """
 
