@@ -1,6 +1,7 @@
 import logging
 import sys
 import time
+import traceback
 from datetime import datetime
 from multiprocessing import Process, Pipe
 
@@ -8,6 +9,7 @@ import networkx as nx
 import pyautogui
 
 from backend.data import Data
+from backend.node import Node
 from capturer import Capturer
 from config import Config
 from debugger import Debugger
@@ -194,6 +196,10 @@ class StateProcess(Process):
                 if debug:
                     debugger.show_images()
 
+                # fast forward levels with <= 6 nodes (excl. origin) and none yet claimed
+                fast = len(base_bloodweb.nodes) <= 7 and all([not data["is_user_claimed"]
+                                                              for node_id, data in base_bloodweb.nodes.items()
+                                                              if node_id != "ORIGIN"])
                 j = 1
                 run = True
                 while run:
@@ -217,6 +223,12 @@ class StateProcess(Process):
                     optimal_unlockable.set_value(9999)
                     nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
 
+                    # correct reachable nodes
+                    for node_id, data in base_bloodweb.nodes.items():
+                        if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
+                                base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
+                            nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+
                     # select perk: hold on the perk for 0.3s
                     pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
                     pyautogui.mouseDown()
@@ -235,14 +247,15 @@ class StateProcess(Process):
                     # move mouse again in case it didn't the first time
                     pyautogui.moveTo(0, 0)
 
-                    # time for bloodweb to update
-                    time.sleep(0.3)
+                    if not fast:
+                        # time for bloodweb to update
+                        time.sleep(0.3)
 
-                    # take new picture and update colours
-                    print("updating bloodweb")
-                    updated_images = Capturer(base_res, ratio, 1).output[0]
-                    Grapher.update(base_bloodweb, updated_images, resolution)
-                    debugger.add_updated_image(updated_images.get_bgr(), j)
+                        # take new picture and update colours
+                        print("updating bloodweb")
+                        updated_images = Capturer(base_res, ratio, 1).output[0]
+                        Grapher.update(base_bloodweb, updated_images, resolution)
+                        debugger.add_updated_image(updated_images.get_bgr(), j)
 
                     # new level
                     optimiser_test = Optimiser(base_bloodweb)
@@ -263,6 +276,7 @@ class StateProcess(Process):
                     j += 1
                 i += 1
         except:
+            traceback.print_exc()
             self.emit("terminate")
             self.emit("toggle_text", (f"An error occurred. Please check "
                                       f"debug-{timestamp.strftime('%y-%m-%d %H-%M-%S')}.log for additional details.",

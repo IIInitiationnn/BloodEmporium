@@ -326,7 +326,7 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         self.filtersLayout.addWidget(self.characterHeading, 0, 0, 1, 2)
 
         self.characterCheckBoxes = {}
-        for i, character in enumerate(Data.get_categories(), 1):
+        for i, character in enumerate(Data.get_categories(True), 1):
             checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterCheckBox",
                                             on_click)
             checkbox.setFixedSize(25, 25)
@@ -951,7 +951,7 @@ class MainWindow(QMainWindow):
 
             self.state.run((debug, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
                             prestige_limit, bp_limit))
-            self.toggle_run_terminate_text("Starting...", False, True)
+            self.toggle_run_terminate_text("Running...", False, True)
         else: # terminate
             self.state.terminate()
             self.toggle_run_terminate_text("Manually terminated.", False, True)
@@ -1552,7 +1552,7 @@ class MainWindow(QMainWindow):
         self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageCharacterLabel", "Character",
                                                     Font(12))
         self.bloodwebPageCharacterSelector = Selector(self.bloodwebPage, "bloodwebPageCharacterSelector",
-                                                      QSize(150, 40), Data.get_characters())
+                                                      QSize(150, 40), Data.get_characters(True))
 
         self.bloodwebPageLimitsLabel = TextLabel(self.bloodwebPage, "bloodwebPageLimitsLabel", "Limits", Font(12))
 

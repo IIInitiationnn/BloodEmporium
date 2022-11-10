@@ -72,16 +72,17 @@ class Data:
         return unlockables
 
     @staticmethod
-    def get_killers():
-        return [killer for killer, in Data.__killers_rows]
+    def get_killers(sort):
+        killers = [killer for killer, in Data.__killers_rows]
+        return sorted(killers) if sort else killers
 
     @staticmethod
-    def get_categories():
-        return ["universal", "survivor", "killer"] + Data.get_killers()
+    def get_categories(sort):
+        return ["universal", "survivor", "killer"] + Data.get_killers(sort)
 
     @staticmethod
-    def get_characters():
-        return ["survivor"] + Data.get_killers()
+    def get_characters(sort):
+        return ["survivor"] + Data.get_killers(sort)
 
     @staticmethod
     def get_types():

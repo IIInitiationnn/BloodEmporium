@@ -50,8 +50,8 @@ class Simulation:
         while run:
             # correct reachable nodes
             for node_id, data in base_bloodweb.nodes.items():
-                if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in base_bloodweb.neighbors(node_id)]) \
-                        and not data["is_accessible"]:
+                if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
+                        base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
                     nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
 
             # run through optimiser

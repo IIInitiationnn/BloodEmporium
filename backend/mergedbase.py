@@ -9,13 +9,13 @@ from images import Images
 
 class MergedBase:
     def __init__(self, res, category=None, retired=False):
-        '''
+        """
         :param category: can be used to reduce the number of valid images needed to be drawn from
                          is one of Categories.killers or "survivor"
-        '''
+        """
 
         categories = ["universal"]
-        if category in Data.get_killers():
+        if category in Data.get_killers(False):
             # particular killer
             categories.append("killer")
             categories.append(category)
@@ -32,7 +32,7 @@ class MergedBase:
         image_paths = [(unlockable.image_path, unlockable.unique_id) for unlockable in Data.get_unlockables()
                        if unlockable.category in categories]
 
-        '''all_files = [(subdir, file) for subdir, dirs, files in os.walk(path) for file in files]
+        """all_files = [(subdir, file) for subdir, dirs, files in os.walk(path) for file in files]
         image_paths = []
         for category, unlockable in Data.categories_as_tuples(categories):
             # search in user's folder
@@ -50,7 +50,7 @@ class MergedBase:
             if os.path.isfile(asset_path):
                 image_paths.append(os.path.abspath(asset_path))
             else:
-                print(f"no source found for desired unlockable: {unlockable} under category: {category}")'''
+                print(f"no source found for desired unlockable: {unlockable} under category: {category}")"""
 
         valid_names, valid_images = self.__get_valid_images(image_paths)
 

@@ -4,11 +4,11 @@ from shapes import Position
 
 
 class Resolution:
-    '''
+    """
     the following constants scale from this resolution
     - 3840x2160 (4k)
     - UI scale 100
-    '''
+    """
     __width = 3840
     __height = 2160
     __ui_scale = 100

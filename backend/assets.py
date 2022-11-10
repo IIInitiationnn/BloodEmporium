@@ -4,7 +4,7 @@ import shutil
 from data import Data
 from paths import Path
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     all_files = [(subdir, file) for subdir, dirs, files in os.walk(Path.vanilla_image) for file in files]
 
     for unlockable in Data.get_unlockables():
