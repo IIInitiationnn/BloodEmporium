@@ -17,7 +17,7 @@ from mergedbase import MergedBase
 from optimiser import Optimiser
 from resolution import Resolution
 
-'''
+"""
 0.3.0:
 - [DONE] filter options collapse / expand
 - [DONE, pending feedback] update cheapskate, with and without perks
@@ -27,9 +27,9 @@ from resolution import Resolution
 - hotkeys
 - add any missing properties (hotkeys) to config from default_config instead of raising error
 - instant claim for early levels
-'''
+"""
 
-'''
+"""
 immediate priorities
 - tweak hough line parameters
     - if lines are invalidated from not being in the majority of images, print which nodes it connects
@@ -52,7 +52,7 @@ timeline
 - josh feedback
 - optimisation and accuracy guarantees
 - finalise -> 1.0.0
-'''
+"""
 
 # https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python
 class LoggerWriter(object):

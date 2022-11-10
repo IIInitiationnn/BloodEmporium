@@ -28,6 +28,9 @@ class Config:
         if "path" not in self.config.keys():
             raise ConfigError("Missing path in config.json")
 
+        if "hotkey" not in self.config.keys():
+            raise ConfigError("Missing hotkey in config.json")
+
         if "profiles" not in self.config.keys():
             raise ConfigError("Missing profiles in config.json")
 
@@ -59,6 +62,9 @@ class Config:
 
     def path(self):
         return self.config["path"]
+
+    def hotkey(self):
+        return set(self.config["hotkey"].split(" "))
 
     def __profiles(self):
         return self.config["profiles"]
@@ -94,9 +100,9 @@ class Config:
         self.commit_changes()
 
     def add_profile(self, new_profile):
-        '''
+        """
         :return: whether the profile existed before already
-        '''
+        """
 
         existing_profile = None
         for profile in self.__profiles():

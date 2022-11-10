@@ -7,3 +7,12 @@ class TextUtil:
     @staticmethod
     def title_case(text: str):
         return text.replace("_", " ").title()
+
+    @staticmethod
+    def pynput_to_key_string(listener, key):
+        key_string = listener.canonical(key)
+        try:
+            key_string = key_string.char
+        except AttributeError:
+            key_string = str(key_string).replace("Key.", "")
+        return key_string

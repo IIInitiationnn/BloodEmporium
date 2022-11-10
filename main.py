@@ -3,6 +3,7 @@ import sys
 from multiprocessing import freeze_support, Pipe
 from threading import Thread
 
+from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
@@ -25,13 +26,13 @@ from frontend.stylesheets import StyleSheets
 # generic
 class Font(QFont):
     def __init__(self, font_size):
-        QFont.__init__(self)
+        super().__init__()
         self.setFamily("Segoe UI")
         self.setPointSize(font_size)
 
 class TextLabel(QLabel):
     def __init__(self, parent, object_name, text, font=Font(10), style_sheet=StyleSheets.white_text):
-        QLabel.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
         self.setText(text)
         self.setFont(font)
@@ -40,7 +41,7 @@ class TextLabel(QLabel):
 
 class HyperlinkTextLabel(QLabel):
     def __init__(self, parent, object_name, text, link, font):
-        QLabel.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
         self.setFont(font)
         self.setText(f"<a style=\"color: white; text-decoration:none;\" href=\"{link}\">{text}</a>")
@@ -50,6 +51,9 @@ class HyperlinkTextLabel(QLabel):
         self.setOpenExternalLinks(True)
 
 class TextInputBox(QLineEdit):
+    on_focus_in_callback = lambda: None
+    on_focus_out_callback = lambda: None
+
     def __init__(self, parent, object_name, size, placeholder_text, text=None, font=Font(10),
                  style_sheet=StyleSheets.text_box):
         QLineEdit.__init__(self, parent)
@@ -61,9 +65,17 @@ class TextInputBox(QLineEdit):
         self.setFont(font)
         self.setStyleSheet(style_sheet)
 
+    def focusInEvent(self, event: QtGui.QFocusEvent) -> None:
+        super().focusInEvent(event)
+        TextInputBox.on_focus_in_callback()
+
+    def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
+        super().focusOutEvent(event)
+        TextInputBox.on_focus_out_callback()
+
 class CheckBox(QCheckBox):
     def __init__(self, parent, object_name, style_sheet=StyleSheets.check_box):
-        QCheckBox.__init__(self, parent)
+        super().__init__(parent)
         if object_name is not None:
             self.setObjectName(object_name)
         self.setAutoFillBackground(False)
@@ -72,14 +84,14 @@ class CheckBox(QCheckBox):
 # not so generic
 class TopBar(QFrame):
     def __init__(self, parent):
-        QFrame.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName("topBar")
         self.setMinimumSize(QSize(300, 60))
         self.setStyleSheet(f"QFrame#topBar {{background-color: {StyleSheets.background};}}")
 
 class TopBarButton(QPushButton):
     def __init__(self, parent, object_name, icon, on_click, style_sheet=StyleSheets.top_bar_button):
-        QPushButton.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
         self.setFixedSize(QSize(35, 35))
         self.setStyleSheet(style_sheet)
@@ -92,7 +104,7 @@ class TopBarButton(QPushButton):
 
 class TitleBar(QWidget):
     def __init__(self, parent, on_double_click, on_drag):
-        QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName("titleBar")
         self.setMinimumHeight(60)
         self.onDoubleClick = on_double_click
@@ -115,7 +127,7 @@ class LeftMenuButton(QPushButton):
     padding = (max_width - min_width) / 2
 
     def __init__(self, parent, object_name, icon, main_window, is_active=False):
-        QPushButton.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
         self.setMinimumSize(QSize(LeftMenuButton.max_width, 60))
         self.setMaximumSize(QSize(LeftMenuButton.max_width, 60))
@@ -154,7 +166,7 @@ class LeftMenuButton(QPushButton):
 
 class LeftMenuBar(QFrame):
     def __init__(self, parent, object_name, visible=False):
-        QFrame.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
         self.setFixedSize(3, 60)
         self.setStyleSheet(f"QFrame#{object_name} {{background-color: {StyleSheets.purple};}}")
@@ -168,7 +180,7 @@ class LeftMenuBar(QFrame):
 
 class LeftMenuLabel(QLabel):
     def __init__(self, parent, object_name, text, style_sheet=StyleSheets.white_text):
-        QLabel.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
         self.setFont(Font(8))
         self.setFixedHeight(60)
@@ -178,7 +190,7 @@ class LeftMenuLabel(QLabel):
 
 class HomeRow(QWidget):
     def __init__(self, parent, object_number, icon, on_click, text):
-        QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(f"homePageRow{object_number}")
         self.button = PageButton(self, f"homePageButton{object_number}", icon, on_click)
         self.label = TextLabel(self, f"homePageLabel{object_number}", text)
@@ -191,7 +203,7 @@ class HomeRow(QWidget):
 
 class HelpRow(QWidget):
     def __init__(self, parent, object_name, icon_path, text):
-        QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
 
         self.icon = QLabel(self)
@@ -209,7 +221,7 @@ class HelpRow(QWidget):
 
 class ToggleButton(LeftMenuButton):
     def __init__(self, parent, object_name, icon, main_window, on_click):
-        LeftMenuButton.__init__(self, parent, object_name, icon, main_window)
+        super().__init__(parent, object_name, icon, main_window)
         self.clicked.connect(on_click)
 
     def on_click(self):
@@ -217,7 +229,7 @@ class ToggleButton(LeftMenuButton):
 
 class PageButton(QPushButton):
     def __init__(self, parent, object_name, icon, on_click):
-        QPushButton.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
         self.setFixedSize(QSize(30, 30))
         self.setIconSize(QSize(30, 30))
@@ -229,7 +241,7 @@ class PageButton(QPushButton):
 
 class Selector(QComboBox):
     def __init__(self, parent, object_name, size, items, active_item=None):
-        QComboBox.__init__(self, parent)
+        super().__init__(parent)
         self.view = QListView()
         self.view.setFont(Font(8))
 
@@ -244,7 +256,7 @@ class Selector(QComboBox):
 
 class Button(QPushButton):
     def __init__(self, parent, object_name, text, size: QSize):
-        QPushButton.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(object_name)
         self.setFixedSize(size)
         self.setFont(Font(10))
@@ -253,7 +265,7 @@ class Button(QPushButton):
 
 class CheckBoxWithFunction(CheckBox):
     def __init__(self, parent, object_name, on_click, style_sheet=StyleSheets.check_box):
-        CheckBox.__init__(self, parent, object_name, style_sheet)
+        super().__init__(parent, object_name, style_sheet)
         self.clicked.connect(on_click)
 
 # https://forum.qt.io/topic/15068/prevent-flat-qtoolbutton-from-moving-when-clicked/8
@@ -267,7 +279,7 @@ class NoShiftStyle(QProxyStyle):
 
 class CollapsibleBox(QWidget):
     def __init__(self, parent, object_name, text):
-        QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(15)
@@ -292,18 +304,18 @@ class CollapsibleBox(QWidget):
 
 class FilterOptionsCollapsibleBox(CollapsibleBox):
     def __init__(self, parent, object_name, on_click):
-        CollapsibleBox.__init__(self, parent, object_name, "Filter Options (Click to Expand)")
+        super().__init__(parent, object_name, "Filter Options (Click to Expand)")
 
         # TODO clear filters button
         # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
         self.filters = QScrollArea(self)
         self.filters.setMinimumHeight(0)
         self.filters.setMaximumHeight(0)
-        self.filters.setStyleSheet('''
+        self.filters.setStyleSheet("""
             QScrollArea {
                 background: rgba(0, 0, 0, 0);
                 border: 0px solid rgba(0, 0, 0, 0);
-            }''')
+            }""")
 
         self.filtersLayout = QGridLayout(self.filters)
         self.filtersLayout.setContentsMargins(0, 0, 0, 0)
@@ -389,7 +401,7 @@ class UnlockableWidget(QWidget):
     def __init__(self, parent, unlockable: Unlockable, tier, subtier, on_unlockable_select):
         name = TextUtil.camel_case(unlockable.name)
 
-        QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName(f"{name}Widget")
 
         self.layout = RowLayout(self, f"{name}Layout")
@@ -404,9 +416,9 @@ class UnlockableWidget(QWidget):
         self.image.setFixedSize(QSize(75, 75))
         self.image.setPixmap(QPixmap(unlockable.image_path))
         self.image.setScaledContents(True)
-        self.image.setToolTip(f'''Character: {TextUtil.title_case(unlockable.category)}
+        self.image.setToolTip(f"""Character: {TextUtil.title_case(unlockable.category)}
 Rarity: {TextUtil.title_case(unlockable.rarity)}
-Type: {TextUtil.title_case(unlockable.type)}''')
+Type: {TextUtil.title_case(unlockable.type)}""")
         self.layout.addWidget(self.image)
 
         self.label = QLabel(self)
@@ -463,9 +475,9 @@ Type: {TextUtil.title_case(unlockable.type)}''')
     def getTiers(self):
         return int(self.tierInput.text()), int(self.subtierInput.text())
 
-"""class PromptWindow(QMainWindow):
+'''class PromptWindow(QMainWindow):
     def __init__(self, parent, title, object_name):
-        QMainWindow.__init__(self, parent)
+        super().__init__(parent)
 
         # self.setWindowFlag(Qt.FramelessWindowHint)
         self.setFixedSize(300, 200)
@@ -481,13 +493,13 @@ Type: {TextUtil.title_case(unlockable.type)}''')
         # TODO maybe swap to message popup
         self.background = QFrame(self.centralWidget)
         self.background.setObjectName(f"{object_name}Background")
-        self.background.setStyleSheet(f'''
+        self.background.setStyleSheet(f"""
             QFrame#{object_name}Background {{
                 background-color: {StyleSheets.passive};
                 border-width: 1;
                 border-style: solid;
                 border-color: rgb(58, 64, 76);
-            }}''')
+            }}""")
         self.shadow = QGraphicsDropShadowEffect(self)
         self.shadow.setBlurRadius(10)
         self.shadow.setOffset(0, 0)
@@ -495,12 +507,12 @@ Type: {TextUtil.title_case(unlockable.type)}''')
         self.background.setGraphicsEffect(self.shadow)
 
     def add_button(self, name, dimensions, on_click):
-        pass # TODO"""
+        pass # TODO'''
 
 # https://stackoverflow.com/questions/62807295/how-to-resize-a-window-from-the-edges-after-adding-the-property-qtcore-qt-framel
 class SideGrip(QWidget):
     def __init__(self, parent, edge):
-        QWidget.__init__(self, parent)
+        super().__init__(parent)
         if edge == Qt.LeftEdge:
             self.setCursor(Qt.SizeHorCursor)
             self.resizeFunc = self.resizeLeft
@@ -1052,22 +1064,35 @@ class MainWindow(QMainWindow):
         QMainWindow.resizeEvent(self, event)
         self.update_grips()
 
-    def on_press(self, key): # TODO
-        print(key)
-        '''k = str(format(key))
-        if k == "'8'":
-            self.run_terminate(True, True)
-        elif k == "'9'":
-            self.run_terminate(False, False)
-        elif k == "'0'":
-            self.run_terminate()'''
+    def start_keyboard_listener(self):
+        self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
+        self.listener.start()
+
+    def stop_keyboard_listener(self):
+        self.listener.stop()
+        self.listener = None
+
+    def on_key_down(self, key):
+        key = TextUtil.pynput_to_key_string(self.listener, key)
+        self.pressed_keys.add(key)
+        if self.pressed_keys == Config().hotkey():
+            self.run_terminate()
+
+    def on_key_up(self, key):
+        key = TextUtil.pynput_to_key_string(self.listener, key)
+        try:
+            self.pressed_keys.remove(key)
+        except KeyError:
+            pass
 
     def __init__(self, state_pipe_, emitter):
-        QMainWindow.__init__(self)
+        super().__init__()
         # TODO windows up + windows down; cursor when hovering over buttons
 
-        self.listener = keyboard.Listener(on_press=self.on_press)
-        self.listener.start()
+        TextInputBox.on_focus_in_callback = self.stop_keyboard_listener
+        TextInputBox.on_focus_out_callback = self.start_keyboard_listener
+        self.pressed_keys = set()
+        self.start_keyboard_listener()
 
         self.is_maximized = False
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
@@ -1116,10 +1141,10 @@ class MainWindow(QMainWindow):
         # background
         self.background = QFrame(self.centralWidget)
         self.background.setObjectName("background")
-        self.background.setStyleSheet(f'''
+        self.background.setStyleSheet(f"""
             QFrame#background {{
                 background-color: {StyleSheets.passive};
-            }}''')
+            }}""")
         self.shadow = QGraphicsDropShadowEffect(self)
         self.shadow.setBlurRadius(10)
         self.shadow.setOffset(0, 0)
@@ -1187,10 +1212,10 @@ class MainWindow(QMainWindow):
         self.leftMenu.setObjectName("leftMenu")
         self.leftMenu.setMinimumWidth(LeftMenuButton.min_width)
         self.leftMenu.setMaximumWidth(LeftMenuButton.min_width)
-        self.leftMenu.setStyleSheet(f'''
+        self.leftMenu.setStyleSheet(f"""
             QFrame#leftMenu {{
                 background-color: {StyleSheets.background};
-            }}''')
+            }}""")
 
         self.leftMenuLayout = QVBoxLayout(self.leftMenu)
         self.leftMenuLayout.setObjectName("leftMenuLayout")
@@ -1300,18 +1325,18 @@ class MainWindow(QMainWindow):
         self.preferencesPageScrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.preferencesPageScrollArea.setVerticalScrollBar(self.preferencesPageScrollBar)
         self.preferencesPageScrollArea.setWidgetResizable(True)
-        self.preferencesPageScrollArea.setStyleSheet('''
+        self.preferencesPageScrollArea.setStyleSheet("""
             QScrollArea#preferencesPageScrollArea {
                 background: transparent;
                 border: 0px;
-            }''')
+            }""")
 
         self.preferencesPageScrollAreaContent = QWidget(self.preferencesPageScrollArea)
         self.preferencesPageScrollAreaContent.setObjectName("preferencesPageScrollAreaContent")
-        self.preferencesPageScrollAreaContent.setStyleSheet('''
+        self.preferencesPageScrollAreaContent.setStyleSheet("""
             QWidget#preferencesPageScrollAreaContent {
                 background: transparent;
-            }''')
+            }""")
         self.preferencesPageScrollArea.setWidget(self.preferencesPageScrollAreaContent)
 
         self.preferencesPageScrollAreaContentLayout = QVBoxLayout(self.preferencesPageScrollAreaContent)
@@ -1404,11 +1429,11 @@ class MainWindow(QMainWindow):
         # select all bar
         self.preferencesPagePersistentBar = QWidget(self.preferencesPage)
         self.preferencesPagePersistentBar.setObjectName("preferencesPagePersistentBar")
-        self.preferencesPagePersistentBar.setStyleSheet(f'''
+        self.preferencesPagePersistentBar.setStyleSheet(f"""
         QWidget#preferencesPagePersistentBar {{
             border-top: 6px solid {StyleSheets.selection};
             border-radius: 3px;           
-        }}''')
+        }}""")
         self.preferencesPagePersistentBar.setMinimumHeight(80)
         self.preferencesPagePersistentBarLayout = RowLayout(self.preferencesPagePersistentBar,
                                                             "preferencesPagePersistentBarLayout")
@@ -1448,12 +1473,12 @@ class MainWindow(QMainWindow):
         self.preferencesPageEditDropdownContent.setMinimumHeight(0)
         self.preferencesPageEditDropdownContent.setMaximumHeight(0)
         self.preferencesPageEditDropdownContent.setFixedWidth(260)
-        self.preferencesPageEditDropdownContent.setStyleSheet(f'''
+        self.preferencesPageEditDropdownContent.setStyleSheet(f"""
             QWidget#preferencesPageEditDropdownContent {{
                 background-color: {StyleSheets.passive};
                 border: 3px solid {StyleSheets.selection};
                 border-radius: 3px;
-            }}''')
+            }}""")
 
         self.preferencesPageEditDropdownContentLayout = QVBoxLayout(self.preferencesPageEditDropdownContent)
         self.preferencesPageEditDropdownContentLayout.setContentsMargins(25, 25, 25, 25)
@@ -1751,10 +1776,10 @@ class MainWindow(QMainWindow):
         self.bottomBar = QFrame(self.content)
         self.bottomBar.setObjectName("bottomBar")
         self.bottomBar.setMinimumSize(QSize(0, 25))
-        self.bottomBar.setStyleSheet(f'''
+        self.bottomBar.setStyleSheet(f"""
             QFrame#bottomBar {{
                 background-color: {StyleSheets.selection};
-            }}''')
+            }}""")
 
         self.bottomBarLayout = RowLayout(self.bottomBar, "bottomBarLayout")
         self.bottomBarLayout.setContentsMargins(10, 0, 10, 0)
@@ -1763,101 +1788,101 @@ class MainWindow(QMainWindow):
                                               "https://github.com/IIInitiationnn/BloodEmporium", Font(8))
         self.versionLabel = TextLabel(self.bottomBar, "versionLabel", State.version, Font(8))
 
-        '''
+        """
         central
             -> background
-        '''
+        """
 
         self.centralLayout.addWidget(self.background, 1, 1)
 
-        '''
+        """
         background
             -> topBar
             -> content
-        '''
+        """
         self.backgroundLayout.addWidget(self.topBar, 0, 0, 1, 1)
         self.backgroundLayout.addWidget(self.content, 1, 0, 1, 1)
         self.backgroundLayout.setRowStretch(1, 1) # content fill out as much of background as possible
 
-        '''
+        """
         topBar
            -> icon
            -> titleBar
            -> windowButtons
-        '''
+        """
         self.topBarLayout.addWidget(self.icon, 0, 0, 1, 1, Qt.AlignVCenter)
         self.topBarLayout.addWidget(self.titleBar, 0, 1, 1, 1, Qt.AlignVCenter)
         self.topBarLayout.addWidget(self.windowButtons, 0, 2, 1, 1, Qt.AlignVCenter)
 
-        '''
+        """
         titleBar
             -> titleLabel
-        '''
+        """
         self.titleBarLayout.addWidget(self.titleLabel, 0, 0, 1, 1, Qt.AlignVCenter)
 
-        '''
+        """
         windowButtons
             -> 3 buttons
-        '''
+        """
         self.windowButtonsLayout.addWidget(self.minimizeButton, 0, 0, 1, 1, Qt.AlignVCenter)
         self.windowButtonsLayout.addWidget(self.maximizeButton, 0, 1, 1, 1, Qt.AlignVCenter)
         self.windowButtonsLayout.addWidget(self.closeButton, 0, 2, 1, 1, Qt.AlignVCenter)
 
-        '''
+        """
         content
             -> leftMenu
             -> contentPage
             -> bottomBar
-        '''
+        """
         self.contentLayout.addWidget(self.leftMenu, 0, 0, 2, 1)
         self.contentLayout.addWidget(self.contentPages, 0, 1, 1, 1)
         self.contentLayout.addWidget(self.bottomBar, 1, 1, 1, 1)
         self.contentLayout.setRowStretch(0, 1) # maximally stretch contentPages down (pushing down on bottomBar)
         # self.contentLayout.setColumnStretch(1, 1) # stretch contentPages and bottomBar on the leftMenu
 
-        '''
+        """
         leftMenu
             -> menuColumn
             -> helpButton
             -> settingsButton
-        '''
+        """
         self.leftMenuLayout.addWidget(self.menuColumn, 0, Qt.AlignTop)
         self.leftMenuLayout.addWidget(self.helpButton)
         self.leftMenuLayout.addWidget(self.settingsButton)
 
-        '''
+        """
         menuColumn
             -> 4 buttons
-        '''
+        """
         self.menuColumnLayout.addWidget(self.toggleButton)
         self.menuColumnLayout.addWidget(self.homeButton)
         self.menuColumnLayout.addWidget(self.preferencesButton)
         self.menuColumnLayout.addWidget(self.bloodwebButton)
 
-        '''
+        """
         bottomBar
             -> authorLabel
             -> versionLabel
-        '''
+        """
         self.bottomBarLayout.addWidget(self.authorLabel)
         self.bottomBarLayout.addWidget(self.versionLabel)
         self.bottomBarLayout.setStretch(0, 1)
 
-        '''
+        """
         contentPage
             -> stack
                 
-        '''
+        """
         self.contentPagesLayout.addWidget(self.stack, 0, 0, 1, 1)
 
-        '''
+        """
         stack
             -> homePage
             -> preferencesPage
             -> bloodwebPage
             -> helpPage
             -> settingsPage
-        '''
+        """
         self.stack.addWidget(self.homePage)
         self.stack.addWidget(self.preferencesPage)
         self.stack.addWidget(self.bloodwebPage)
@@ -1865,9 +1890,9 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.settingsPage)
         self.stack.setCurrentWidget(self.homePage)
 
-        '''
+        """
         homePage
-        '''
+        """
         self.homePageLayout.addStretch(1)
         self.homePageLayout.addWidget(self.homePageIcon, alignment=Qt.AlignHCenter)
         self.homePageLayout.addWidget(self.homePageRow1)
@@ -1876,13 +1901,13 @@ class MainWindow(QMainWindow):
         self.homePageLayout.addWidget(self.homePageRow4)
         self.homePageLayout.addStretch(1)
 
-        '''
+        """
         preferencesPage
             -> scrollArea
                 -> scrollAreaContent (widget)
                     -> labels, combobox, everything
             -> scrollBar
-        '''
+        """
         # rows comprising the content
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageProfileSelector)
         self.preferencesPageProfileSaveRowLayout.addWidget(self.preferencesPageSaveButton)
@@ -1946,9 +1971,9 @@ class MainWindow(QMainWindow):
         self.preferencesPageLayout.setRowStretch(0, 1)
         self.preferencesPageLayout.setColumnStretch(0, 1)
 
-        '''
+        """
         bloodwebPage
-        '''
+        """
         self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeCheckBox)
         self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeLabel)
         self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeInput)
@@ -1980,9 +2005,9 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.addWidget(self.bloodwebPageRunBloodpointProgress)
         self.bloodwebPageLayout.addStretch(1)
 
-        '''
+        """
         helpPage
-        '''
+        """
         self.helpPageContactDiscordRowLayout.addWidget(self.helpPageContactDiscordIcon)
         self.helpPageContactDiscordRowLayout.addWidget(self.helpPageContactDiscordLabel)
         self.helpPageContactDiscordRowLayout.addStretch(1)
@@ -1998,9 +2023,9 @@ class MainWindow(QMainWindow):
         self.helpPageLayout.addWidget(self.helpPageContactTwitterRow)
         self.helpPageLayout.addStretch(1)
 
-        '''
+        """
         settingsPage
-        '''
+        """
         self.settingsPageResolutionWidthRowLayout.addWidget(self.settingsPageResolutionWidthLabel)
         self.settingsPageResolutionWidthRowLayout.addWidget(self.settingsPageResolutionWidthInput)
         self.settingsPageResolutionWidthRowLayout.addStretch(1)

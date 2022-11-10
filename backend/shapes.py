@@ -23,9 +23,9 @@ class Position:
 
     @staticmethod
     def points_are_close(position1, position2, res):
-        '''
+        """
         used for proximity between two points
-        '''
+        """
         max_dist = res.ratio() * 30
         return abs(position1.x - position2.x) < max_dist and abs(position1.y - position2.y) < max_dist
 
@@ -64,9 +64,9 @@ class Line:
         return self.position1.x, self.position1.y, self.position2.x, self.position2.y
 
     def close_to_circle(self, circle, res, which):
-        '''
+        """
         used for line endpoint proximity to centre of circle
-        '''
+        """
         if which == 1:
             position = self.position1
         else:

@@ -10,18 +10,18 @@ from resolution import Resolution
 from shapes import Position, Circle, Line, Connection
 from utils.image_util import ImageUtil
 
-'''
+"""
 Offerings | Killer + Survivor | Hexagon | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/Favors
 Addons    | Killer + Survivor | Square  | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/ItemAddons
 Items     | Survivor          | Square  | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/Items
 Perks     | Killer + Survivor | Diamond | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/Perks
-'''
+"""
 
-'''
+"""
 cv2.IMREAD_COLOR
 cv2.IMREAD_GRAYSCALE
 cv2.IMREAD_UNCHANGED
-'''
+"""
 
 class Matcher:
     def __init__(self, debugger, cv_images, res):

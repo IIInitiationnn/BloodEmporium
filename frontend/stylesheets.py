@@ -11,10 +11,10 @@ class StyleSheets:
     navy = "#6272a4"
     light_selection = "rgb(139, 158, 194)"
 
-    debug = f'''
+    debug = f"""
         background-color: {passive};
         border: 5px solid black;
-    '''
+    """
 
     white_text = "color: rgb(255, 255, 255);"
     pink_text = f"color: {pink};"
@@ -24,7 +24,7 @@ class StyleSheets:
     def save_text(is_success):
         return StyleSheets.pink_text if is_success else StyleSheets.purple_text
 
-    page_button = f'''
+    page_button = f"""
         QPushButton {{
             background-color: transparent;
             border: none;
@@ -39,9 +39,9 @@ class StyleSheets:
             background-color: {pink};
             border: none;
             border-radius: 5;
-        }}'''
+        }}"""
 
-    check_box = f'''
+    check_box = f"""
         QCheckBox::indicator {{
             width: 15px;
             height: 15px;
@@ -55,9 +55,9 @@ class StyleSheets:
         
         QCheckBox::indicator:checked {{
             background: {navy};
-        }}'''
+        }}"""
 
-    check_box_some = f'''
+    check_box_some = f"""
         QCheckBox::indicator {{
             width: 15px;
             height: 15px;
@@ -72,9 +72,9 @@ class StyleSheets:
         QCheckBox::indicator:checked {{
             background: {navy};
             image: url("assets/images/icons/icon_selected_some.png");
-        }}'''
+        }}"""
 
-    check_box_all = f'''
+    check_box_all = f"""
         QCheckBox::indicator {{
             width: 15px;
             height: 15px;
@@ -89,9 +89,9 @@ class StyleSheets:
         QCheckBox::indicator:checked {{
             background: {navy};
             image: url("assets/images/icons/icon_selected_all.png");
-        }}'''
+        }}"""
 
-    top_bar_button = f'''
+    top_bar_button = f"""
         QPushButton {{
             background-color: transparent;
             border-radius: 5;
@@ -105,9 +105,9 @@ class StyleSheets:
             background-color: {pink};
             border: none;
             border-radius: 5;
-        }}'''
+        }}"""
 
-    text_box = f'''
+    text_box = f"""
         QLineEdit {{
             background-color: {background};
             color: rgb(255, 255, 255);
@@ -118,9 +118,9 @@ class StyleSheets:
         
         QLineEdit:hover {{
             border: 2px solid {selection};
-        }}'''
+        }}"""
 
-    text_box_read_only = f'''
+    text_box_read_only = f"""
         QLineEdit {{
             background-color: {background};
             color: rgb(125, 125, 125);
@@ -131,9 +131,9 @@ class StyleSheets:
         
         QLineEdit:hover {{
             border: 2px solid {selection};
-        }}'''
+        }}"""
 
-    tiers_input_positive = f'''
+    tiers_input_positive = f"""
         QLineEdit {{
             background-color: #323543;
             color: rgb(255, 255, 255);
@@ -144,9 +144,9 @@ class StyleSheets:
         
         QLineEdit:hover {{
             border: 2px solid {selection};
-        }}'''
+        }}"""
 
-    tiers_input_negative = f'''
+    tiers_input_negative = f"""
         QLineEdit {{
             background-color: #1e1f29;
             color: rgb(255, 255, 255);
@@ -157,9 +157,9 @@ class StyleSheets:
         
         QLineEdit:hover {{
             border: 2px solid {selection};
-        }}'''
+        }}"""
 
-    text_box_invalid = f'''
+    text_box_invalid = f"""
         QLineEdit {{
             background-color: {darker_purple};
             color: rgb(255, 255, 255);
@@ -170,7 +170,7 @@ class StyleSheets:
         
         QLineEdit:hover {{
             border: 2px solid {purple};
-        }}'''
+        }}"""
 
     @staticmethod
     def prestige_input(prestige_limit):
@@ -236,7 +236,7 @@ class StyleSheets:
 
     @staticmethod
     def left_menu_button_inactive(padding):
-        return f'''
+        return f"""
         QPushButton {{
             background-color: transparent;
             padding: 0 {padding} 0 -{padding};
@@ -249,11 +249,11 @@ class StyleSheets:
         QPushButton:pressed {{
             background-color: {StyleSheets.purple};
             border: none;
-        }}'''
+        }}"""
 
     @staticmethod
     def left_menu_button_active(padding):
-        return f'''
+        return f"""
         QPushButton {{
             background-color: {StyleSheets.passive};
             padding: 0 {padding} 0 -{padding};
@@ -264,7 +264,7 @@ class StyleSheets:
         }}
         QPushButton:pressed {{
             border: none;
-        }}'''
+        }}"""
 
     @staticmethod
     def left_menu_button(padding, is_active):
@@ -273,21 +273,21 @@ class StyleSheets:
         else:
             return StyleSheets.left_menu_button_inactive(padding)
 
-    collapsible_box_inactive = '''
+    collapsible_box_inactive = """
         QToolButton {
             border: none;
             color: rgb(255, 255, 255);
             background: url("assets/images/icons/icon_down_arrow.png");
-        }'''
+        }"""
 
-    collapsible_box_active = '''
+    collapsible_box_active = """
         QToolButton {
             border: none;
             color: rgb(255, 255, 255);
             background: url("assets/images/icons/icon_right_arrow.png");
-        }'''
+        }"""
 
-    selector = f'''
+    selector = f"""
         QComboBox {{
             background-color: {background};
             color: rgb(255, 255, 255);
@@ -350,9 +350,9 @@ class StyleSheets:
         
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
             border: none;
-        }}'''
+        }}"""
 
-    button = f'''
+    button = f"""
         QPushButton {{
             color: rgb(255, 255, 255);
             background-color: {background};
@@ -366,9 +366,9 @@ class StyleSheets:
         QPushButton:pressed {{
             background-color: {light_selection};
             border: none;
-        }}'''
+        }}"""
 
-    scroll_bar = f'''
+    scroll_bar = f"""
         QScrollBar:vertical {{
             background: {selection};
             width: 8px;
@@ -388,4 +388,4 @@ class StyleSheets:
         
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
             border: none;
-        }}'''
+        }}"""
