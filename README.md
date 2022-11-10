@@ -14,6 +14,7 @@ but absolutely not necessary. Please consider your own financial situation befor
 
 ## Overview
 - Automatically selects optimal nodes on the Bloodweb based on user-configured preferences.
+- Uses a cost algorithm to determine optimally how to select maximal preferred unlockables and minimal undesirable ones.
 - Uses game icon files to identify nodes on the Bloodweb.
 - Should not be bannable since there are no interactions with the game's memory or process.
 
@@ -32,8 +33,9 @@ but absolutely not necessary. Please consider your own financial situation befor
 - Each profile can store a different set of preferences, for easy switching when required.
 
 ## Features
-- Uses a cost algorithm to determine optimally how to select maximal preferred unlockables and minimal undesirable ones.
 - Allows user to configure which unlockables are preferred or undesirable.
+- Bloodpoint spend limit / prestige level limit
+- Hotkey to run / stop the program (Ctrl + Alt + 9)
 - Completely automatic and hands-free.
 
 ## Issues
@@ -42,11 +44,7 @@ but absolutely not necessary. Please consider your own financial situation befor
 - Shaders must be disabled while using this program, as colour changes interfere with object and colour recognition.
 
 ## Roadmap & Future Developments
-- Bloodpoint spend limit
 - Improved speed
-- Configuration for:
-  - Hotkeys
-  - Pausing the program when a player can prestige (reaching level 50)
 - Blind mode (selects random nodes blindly - a very fast alternative for those who don't care about what items they get)
 
 ## Credits

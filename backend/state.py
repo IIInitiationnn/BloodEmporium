@@ -28,7 +28,7 @@ from resolution import Resolution
 - [DONE] print nodes and edges in logs
 - hotkeys
 - [DONE] add any missing properties (hotkeys) to config from default_config instead of raising error
-- instant claim for early levels
+- [DONE] instant claim for early levels
 """
 
 """

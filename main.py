@@ -428,7 +428,7 @@ Type: {TextUtil.title_case(unlockable.type)}""")
         self.label.setText(unlockable.name)
         self.layout.addWidget(self.label)
 
-        self.layout.addSpacing(200 - self.label.fontMetrics().boundingRect(self.label.text()).width())
+        self.layout.addSpacing(250 - self.label.fontMetrics().boundingRect(self.label.text()).width())
 
         self.tierLabel = QLabel(self)
         self.tierLabel.setObjectName(f"{name}TierLabel")
@@ -1355,7 +1355,7 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageProfileSelector = Selector(self.preferencesPageProfileSaveRow,
                                                        "preferencesPageProfileSelector",
-                                                       QSize(150, 40), Config().profile_names() + ["blank"])
+                                                       QSize(200, 40), Config().profile_names() + ["blank"])
         self.preferencesPageProfileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
         self.preferencesPageSaveButton = Button(self.preferencesPageProfileSaveRow, "preferencesPageSaveButton",
@@ -1382,7 +1382,7 @@ class MainWindow(QMainWindow):
 
         self.preferencesPageSaveAsInput = TextInputBox(self.preferencesPageProfileSaveAsRow,
                                                        "preferencesPageSaveAsInput",
-                                                       QSize(150, 40), "Enter profile name")
+                                                       QSize(200, 40), "Enter profile name")
 
         self.preferencesPageSaveAsButton = Button(self.preferencesPageProfileSaveAsRow, "preferencesPageSaveAsButton",
                                                   "Save As", QSize(80, 35))
@@ -1410,7 +1410,7 @@ class MainWindow(QMainWindow):
         self.preferencesPageSortLabel = TextLabel(self.preferencesPageSearchSortRow, "preferencesPageSortLabel",
                                                   "Sort by")
         self.preferencesPageSortSelector = Selector(self.preferencesPageSearchSortRow, "preferencesPageSortSelector",
-                                                    QSize(225, 40), Data.get_sorts())
+                                                    QSize(150, 40), Data.get_sorts())
         self.preferencesPageSortSelector.currentIndexChanged.connect(self.replace_unlockable_widgets)
         self.lastSortedBy = "name" # cache of last sort
 
@@ -1546,13 +1546,13 @@ class MainWindow(QMainWindow):
         self.bloodwebPageLayout.setSpacing(15)
 
         self.bloodwebPageProfileLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Profile", Font(12))
-        self.bloodwebPageProfileSelector = Selector(self.bloodwebPage, "bloodwebPageProfileSelector", QSize(150, 40),
+        self.bloodwebPageProfileSelector = Selector(self.bloodwebPage, "bloodwebPageProfileSelector", QSize(200, 40),
                                                     Config().profile_names())
 
         self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageCharacterLabel", "Character",
                                                     Font(12))
         self.bloodwebPageCharacterSelector = Selector(self.bloodwebPage, "bloodwebPageCharacterSelector",
-                                                      QSize(150, 40), Data.get_characters(True))
+                                                      QSize(200, 40), Data.get_characters(True))
 
         self.bloodwebPageLimitsLabel = TextLabel(self.bloodwebPage, "bloodwebPageLimitsLabel", "Limits", Font(12))
 
@@ -1638,9 +1638,9 @@ class MainWindow(QMainWindow):
                                                          "You can then set up preferences for what add-ons, items, offerings and perks "
                                                          "you would like to obtain from the bloodweb. Each set of preferences can be "
                                                          "stored in a different profile, for convenient switching as required. "
-                                                         "Two preset profiles come with the program: default (meta items), "
-                                                         "and cheapskate (for levelling up the bloodweb as cheaply as possible). "
-                                                         "You can use these as a starting point for your own profile, or "
+                                                         "One preset profile comes with the program: cheapskate (for levelling up the bloodweb as cheaply as possible). "
+                                                         "It comes in two variants, one which prioritises perks, and one which ignores them. "
+                                                         "You can use this preset as a starting point for your own profile, or "
                                                          "create your own from scratch using the blank profile.<br><br>"
                                                          "Each unlockable you configure will have a tier and a subtier:<br>"
                                                          "    - the higher the tier (or subtier), the higher your preference for that item<br>"
@@ -1652,7 +1652,7 @@ class MainWindow(QMainWindow):
                                                          "         - you can use these numbers to fine tune exactly how much you want each item<br>"
                                                          "    - a similar system applies with negative tiers when specifying how much you dislike an item<br>"
                                                          "    - subtier allows for preference within a tier e.g. a tier 3 subtier 3 is higher priority than tier 3 subtier 2<br><br>"
-                                                         "Then simply select a profile, select the character whose bloodweb you are on, and run! "
+                                                         "Then simply select a profile, select the character whose bloodweb you are on, set any limits you want, and run! "
                                                          "Make sure your shaders are off before running, or the program is very likely to perform in unintended ways.",
                                                          Font(10))
         self.helpPageInstructionsDescription.setWordWrap(True)
