@@ -184,17 +184,32 @@ class StateProcess(Process):
                 if debug:
                     debugger.show_images()
 
-                # fast forward levels with <= 6 nodes (excl. origin) and none yet claimed
+                # fast-forward levels with <= 6 nodes (excl. origin) and none yet claimed
                 fast = len(base_bloodweb.nodes) <= 7 and all([not data["is_user_claimed"]
                                                               for node_id, data in base_bloodweb.nodes.items()
                                                               if node_id != "ORIGIN"])
                 j = 1
                 run = True
                 while run:
+                    # correct reachable nodes
+                    print("pre-correction")
+                    for node_id, data in base_bloodweb.nodes.items():
+                        if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
+                                base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
+                            print(f"    corrected {node_id}")
+                            nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+
                     # run through optimiser
                     print("optimiser")
                     optimiser = Optimiser(base_bloodweb)
                     optimiser.run(profile_id)
+                    print("    updated nodes")
+                    for node_id, data in optimiser.dijkstra_graph.nodes.items():
+                        print(f"        {node_id.ljust(max_len, ' ')} "
+                              f"value {str(data['value']).ljust(10, ' ')} "
+                              f"accessible {str(data['is_accessible']).ljust(5, ' ')} "
+                              f"claimed {data['is_user_claimed']}")
+
                     optimal_unlockable = optimiser.select_best()
                     selected_unlockable = [u for u in unlockables if u.unique_id == optimal_unlockable.name][0]
                     bp_total += Data.get_cost(selected_unlockable.rarity)
@@ -210,12 +225,6 @@ class StateProcess(Process):
                     optimal_unlockable.set_user_claimed(True)
                     optimal_unlockable.set_value(9999)
                     nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
-
-                    # correct reachable nodes
-                    for node_id, data in base_bloodweb.nodes.items():
-                        if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
-                                base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
-                            nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
 
                     # select perk: hold on the perk for 0.3s
                     pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
@@ -235,7 +244,15 @@ class StateProcess(Process):
                     # move mouse again in case it didn't the first time
                     pyautogui.moveTo(0, 0)
 
-                    if not fast:
+                    if fast:
+                        # correct reachable nodes
+                        print("post-correction")
+                        for node_id, data in base_bloodweb.nodes.items():
+                            if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
+                                    base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
+                                print(f"    corrected {node_id}")
+                                nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+                    else:
                         # time for bloodweb to update
                         time.sleep(0.3)
 
@@ -271,7 +288,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v0.3.0"
+    version = "v0.3.1-alpha.0"
 
     def __init__(self, pipe):
         self.process = None
