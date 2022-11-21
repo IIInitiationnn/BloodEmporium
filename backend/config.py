@@ -93,7 +93,7 @@ class Config:
                 "path": self.config["path"],
                 "hotkey": self.config["hotkey"],
                 "profiles": self.config["profiles"],
-            }, output, indent=4)
+            }, output, indent=4) # to preserve order
 
     def set_resolution(self, width, height, ui_scale):
         self.config["resolution"]["width"] = width

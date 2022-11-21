@@ -86,7 +86,7 @@ class Data:
 
     @staticmethod
     def get_types():
-        return ["add-on", "item", "offering", "perk", "universal"]
+        return ["add-on", "item", "offering", "perk", "universal"] # universal = mystery box
 
     @staticmethod
     def get_rarities():

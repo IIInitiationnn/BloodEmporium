@@ -21,8 +21,6 @@ from backend.state import State
 from backend.utils.text_util import TextUtil
 from frontend.stylesheets import StyleSheets
 
-# TODO new assets for frontend if using vanilla (so people can see rarity) with the full coloured background
-
 # generic
 class Font(QFont):
     def __init__(self, font_size):
@@ -994,7 +992,7 @@ class MainWindow(QMainWindow):
                 if not (1 <= bp_limit):
                     return self.show_run_error("Bloodpoint limit must be a positive integer.", True)
 
-            self.state.run((debug, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
+            self.state.run((True, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
                             prestige_limit, bp_limit))
             self.toggle_run_terminate_text("Running...", False, True)
         else: # terminate

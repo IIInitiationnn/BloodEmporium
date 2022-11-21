@@ -20,7 +20,12 @@ from optimiser import Optimiser
 from resolution import Resolution
 
 """
+bugs to fix
+- prestige may sometimes not claim cosmetics / perks, causing termination
+
 immediate priorities
+- add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
+- new update (soon)
 - tweak hough line parameters
     - if lines are invalidated from not being in the majority of images, print which nodes it connects
         - can determine whether it's hough or some other kind of invalidation
@@ -28,14 +33,14 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
+- delete oldest logs once there are more than 100 (allowing retention for greater detail)
 - "you have unsaved changes" next to save button - profiles, settings
 - ability to auto-update software
     - maybe ability to update default config presets as well? may not be desired by people who have overridden
 - import / export profile as string to share with others
-- find rarity of items with varying rarity (colour for mystery boxes, template match number of ticks for perks)
-    - configure rarity of different tiers of mystery boxes and perks (1, 2, 3, teachable)
-        - configure 5 mystery box tiers for preferences, but not 3 tiers for perks
-        - type of unlockable in db: item, perk etc
+- find rarity of items with varying rarity (colour for mystery boxes)
+    - configure rarity of different tiers of mystery boxes
+        - configure 5 mystery box tiers for preferences
 
 timeline
 - above new features and TODOs
@@ -85,6 +90,7 @@ class StateProcess(Process):
             stream_handler.setFormatter(logging.Formatter("%(message)s"))
             log.addHandler(stream_handler)
 
+            # TODO >= 100 logs, kill until 99
             file_handler = logging.FileHandler(f"logs/debug-{timestamp.strftime('%y-%m-%d %H-%M-%S')}.log")
             file_handler.setLevel(logging.DEBUG)
             file_handler.setFormatter(logging.Formatter("%(message)s"))
