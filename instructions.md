@@ -26,3 +26,5 @@ Please download the non-source code archive from https://github.com/IIInitiation
 - add perks to assets/killer and assets/survivor
 OTHERS
 - new maps (offerings), generic perks etc to look out for
+
+- update preference profiles

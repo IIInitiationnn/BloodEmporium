@@ -3156,6 +3156,94 @@
             "iconAddon_goldenEgg_mastermind": {
                 "tier": -1,
                 "subtier": 0
+            },
+            "iconAddon_TatteredTabard_knight": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_PillagedMead_knight": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_MapoftheRealms_knight": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_GrittyLump_knight": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_TownWatctTorch_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_IronworkerTongs_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_GrimIronMask_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_ChainmailFragment_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_BrokenHilt_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_LightweightGreaves_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_HealingPoultice_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_FlintandSteel_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_BlacksmithHammer_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_KnightContract_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_IridescentCompanyBanner_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconPerks_NowhereToHide_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_HexFaceTheDarkness_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_Hubris_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_PotentialEnergy_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_Fogwise_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_VittoriosGambit_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconFavors_BeefTallowMixture_universal": {
+                "tier": -1,
+                "subtier": 0
             }
         },
         {
@@ -6474,6 +6562,98 @@
             },
             "iconAddon_bullhorn_mastermind": {
                 "tier": -1,
+                "subtier": 0
+            },
+            "iconFavors_BeefTallowMixture_universal": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_TreatedBlade_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_DriedHorsemeat_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_ColdSteelManacles_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_CallToArms_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_BattleaxeHead_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_TownWatctTorch_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_IronworkerTongs_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_GrimIronMask_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_ChainmailFragment_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_BrokenHilt_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_LightweightGreaves_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_HealingPoultice_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_FlintandSteel_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_BlacksmithHammer_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_KnightContract_knight": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconAddon_IridescentCompanyBanner_knight": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconPerks_NowhereToHide_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_HexFaceTheDarkness_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_Hubris_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_PotentialEnergy_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_Fogwise_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_VittoriosGambit_survivor": {
+                "tier": 15,
                 "subtier": 0
             }
         }
