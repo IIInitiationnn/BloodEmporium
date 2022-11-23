@@ -992,7 +992,7 @@ class MainWindow(QMainWindow):
                 if not (1 <= bp_limit):
                     return self.show_run_error("Bloodpoint limit must be a positive integer.", True)
 
-            self.state.run((True, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
+            self.state.run((debug, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
                             prestige_limit, bp_limit))
             self.toggle_run_terminate_text("Running...", False, True)
         else: # terminate
