@@ -1,18 +1,22 @@
 import cv2
 import numpy as np
 
-from resolution import Resolution
-from utils.color_util import ColorUtil
+from backend.resolution import Resolution
+from backend.utils.color_util import ColorUtil
 
 
 class ImageUtil:
     @staticmethod
     def cut_circle(image, centre, radius):
         """
-        :param image: 3 layer bgr image
-        :param centre:
-        :param radius:
-        :return: BGR image
+
+        Args:
+            image: 3 layer bgr image
+            centre:
+            radius:
+
+        Returns: BGR image
+
         """
         height, width, _ = image.shape
         masked_data = image.copy()
@@ -78,7 +82,7 @@ class ImageUtil:
         neutral_delta = ColorUtil.diff(ColorUtil.neutral_rgb, color)
         black_delta = ColorUtil.diff(ColorUtil.black_rgb, color)
 
-        # didnt match any
+        # didn't match any
         if min(taupe_delta, red_delta, neutral_delta, black_delta) > 50000:
             return None
 

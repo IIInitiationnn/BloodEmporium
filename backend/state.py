@@ -10,11 +10,10 @@ import pyautogui
 
 from backend.data import Data
 from backend.node import Node
-from capturer import Capturer
+from functions import screen_capture, match_origin, vector_circles, match_lines
 from config import Config
 from debugger import Debugger
 from grapher import Grapher
-from matcher import Matcher
 from mergedbase import MergedBase
 from optimiser import Optimiser
 from resolution import Resolution
@@ -22,10 +21,11 @@ from resolution import Resolution
 """
 bugs to fix
 - prestige may sometimes not claim cosmetics / perks, causing termination
+- squarescreen support
 
 immediate priorities
+- print location of origin detected (improve origin detection by reducing region for detection - test on multiple res)
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
-- new update (soon)
 - tweak hough line parameters
     - if lines are invalidated from not being in the majority of images, print which nodes it connects
         - can determine whether it's hough or some other kind of invalidation
@@ -33,6 +33,7 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
+- blind mode
 - delete oldest logs once there are more than 100 (allowing retention for greater detail)
 - "you have unsaved changes" next to save button - profiles, settings
 - ability to auto-update software
@@ -108,6 +109,7 @@ class StateProcess(Process):
 
             base_res = resolution = Config().resolution()
             x, y = base_res.top_left()
+            cap_dim = base_res.cap_dim()
 
             ratio = 1
             if base_res.height != 1080 or base_res.ui_scale != 100:
@@ -115,7 +117,8 @@ class StateProcess(Process):
                 resolution = Resolution(1080 * base_res.width / base_res.height, 1080, 100)
 
             # initialisation: merged base for template matching
-            print("initialisation, merging")
+            print(f"initialisation at {base_res.width} x {base_res.height} @ {base_res.ui_scale}; merging")
+            print(f"region: ({x}, {y}) to ({x + cap_dim}, {y + cap_dim})")
             unlockables = Data.get_unlockables()
             merged_base = MergedBase(resolution, character)
             pyautogui.moveTo(0, 0)
@@ -130,17 +133,21 @@ class StateProcess(Process):
 
                 # screen capture
                 print("capturing screen")
-                cv_images = Capturer(base_res, ratio, 3).output
-                debugger = Debugger(cv_images, timestamp, i, write_to_output).set_merger(merged_base)
+                cv_images = screen_capture(base_res, ratio)
+                debugger = Debugger(cv_images, timestamp, i, write_to_output)
+                debugger.set_merger(merged_base)
 
-                matcher = Matcher(debugger, cv_images, resolution)
-                origin, origin_type = matcher.match_origin()
-
-                print(f"matched origin: {origin_type}")
+                print("matching origin")
+                origin, origin_type, cropped = match_origin(cv_images[0], resolution)
+                debugger.set_origin(origin)
+                debugger.set_origin_type(origin_type)
+                debugger.set_cropped(cropped)
+                print(f"matched origin: {origin_type} ({x + origin.x() * ratio}, {y + origin.y() * ratio})")
 
                 # vectors: detect circles and match to unlockables
                 print("vector: circles and match to unlockables")
-                circles = matcher.vector_circles(origin, merged_base)
+                circles = vector_circles(cv_images[0], resolution, origin, merged_base, debugger)
+                debugger.set_valid_circles(circles)
 
                 # prestige level: proceed to next level
                 if origin_type == "origin_prestige.png" or origin_type == "origin_prestige_small.png":
@@ -159,24 +166,27 @@ class StateProcess(Process):
                     self.emit("bloodpoint", (bp_total, bp_limit))
                     pyautogui.moveTo(x + round(origin.x() * ratio), y + round(origin.y() * ratio))
                     pyautogui.mouseDown()
-                    time.sleep(0.5)
-                    pyautogui.moveTo(0, 0)
-                    time.sleep(1)
+                    time.sleep(1.5)
                     pyautogui.mouseUp()
                     time.sleep(4) # 4 sec to clear out until new level screen
                     pyautogui.click()
-                    time.sleep(0.5) # prestige 1-3 => teachables
+                    time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
                     pyautogui.click()
-                    time.sleep(1) # 1 sec to generate
+                    time.sleep(0.5) # 1 sec to generate
+                    pyautogui.moveTo(0, 0)
+                    time.sleep(0.5) # 1 sec to generate
                     continue
 
                 # hough transform: detect lines
                 print("hough transform: lines")
-                connections = matcher.match_lines(circles)
+                edge_images, raw_lines, connections = match_lines(cv_images, resolution, circles)
+                debugger.set_edge_images(edge_images)
+                debugger.set_raw_lines(raw_lines)
+                debugger.set_connections(connections)
 
                 # create networkx graph of nodes
                 print("creating networkx graph")
-                grapher = Grapher(debugger, circles, connections) # all 9999
+                grapher = Grapher(circles, connections) # all 9999
                 base_bloodweb = grapher.create()
                 debugger.set_base_bloodweb(base_bloodweb)
                 print("NODES")
@@ -198,12 +208,12 @@ class StateProcess(Process):
                 run = True
                 while run:
                     # correct reachable nodes
-                    print("pre-correction")
-                    for node_id, data in base_bloodweb.nodes.items():
-                        if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
-                                base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
-                            print(f"    corrected {node_id}")
-                            nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+                    # print("pre-correction")
+                    # for node_id, data in base_bloodweb.nodes.items():
+                    #     if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
+                    #             base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
+                    #         print(f"    corrected {node_id}")
+                    #         nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
 
                     # run through optimiser
                     print("optimiser")
@@ -228,9 +238,10 @@ class StateProcess(Process):
                     print(optimal_unlockable.node_id)
                     debugger.set_dijkstra(optimiser.dijkstra_graph, j)
                     self.emit("bloodpoint", (bp_total, bp_limit))
-                    optimal_unlockable.set_user_claimed(True)
-                    optimal_unlockable.set_value(9999)
-                    nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
+                    if fast:
+                        optimal_unlockable.set_user_claimed(True)
+                        optimal_unlockable.set_value(9999)
+                        nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
 
                     # select perk: hold on the perk for 0.3s
                     pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
@@ -264,9 +275,9 @@ class StateProcess(Process):
 
                         # take new picture and update colours
                         print("updating bloodweb")
-                        updated_images = Capturer(base_res, ratio, 1).output[0]
-                        Grapher.update(base_bloodweb, updated_images, resolution)
-                        debugger.add_updated_image(updated_images.get_bgr(), j)
+                        updated_image = screen_capture(base_res, ratio, 1)[0]
+                        Grapher.update(base_bloodweb, updated_image, resolution)
+                        debugger.add_updated_image(updated_image.get_bgr(), j)
 
                     # new level
                     optimiser_test = Optimiser(base_bloodweb)
@@ -294,7 +305,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v0.3.2"
+    version = "v0.3.3"
 
     def __init__(self, pipe):
         self.process = None

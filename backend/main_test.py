@@ -3,7 +3,7 @@ from pathlib import Path
 
 import cv2
 
-from images import Images
+from image import Image
 from resolution import Resolution
 from simulation import Simulation
 
@@ -74,8 +74,8 @@ if __name__ == '__main__':
             if ratio != 1:
                 height, width = image_gray.shape
                 new_height, new_width = round(height / ratio), round(width / ratio)
-                image_bgr = cv2.resize(image_bgr, (new_width, new_height), interpolation=Images.interpolation)
-                image_gray = cv2.resize(image_gray, (new_width, new_height), interpolation=Images.interpolation)
+                image_bgr = cv2.resize(image_bgr, (new_width, new_height), interpolation=Image.interpolation)
+                image_gray = cv2.resize(image_gray, (new_width, new_height), interpolation=Image.interpolation)
 
             images = {"bgr": image_bgr, "gray": image_gray}
 

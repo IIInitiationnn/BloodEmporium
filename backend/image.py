@@ -1,6 +1,6 @@
 import cv2
 
-class Images:
+class Image:
     interpolation = cv2.INTER_CUBIC
 
     def __init__(self):
@@ -11,7 +11,7 @@ class Images:
         # same with prestige
 
     def origin_basic_r_resize(self, dim):
-        return cv2.resize(self.origin_basic_r, (dim, dim), interpolation=Images.interpolation)
+        return cv2.resize(self.origin_basic_r, (dim, dim), interpolation=Image.interpolation)
 
     def origin_basic_a_resize(self, dim):
-        return cv2.resize(self.origin_basic_a, (dim, dim), interpolation=Images.interpolation)
+        return cv2.resize(self.origin_basic_a, (dim, dim), interpolation=Image.interpolation)

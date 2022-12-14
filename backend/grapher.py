@@ -1,14 +1,14 @@
 import cv2
 import networkx as nx
 
+from backend.cvimage import CVImage
 from matcher import Matcher
 from node import Node
-from shapes import Position
+from shapes import Position, Circle, Connection
 
 
 class Grapher:
-    def __init__(self, debugger, circles, connections):
-        self.debugger = debugger
+    def __init__(self, circles: [Circle], connections: [Connection]):
         self.circles = circles
         self.connections = connections
 
@@ -41,9 +41,10 @@ class Grapher:
         return graph
 
     @staticmethod
-    def update(base_bloodweb, updated_images, res):
-        image_filtered = updated_images.get_gray()
-        image_filtered = cv2.convertScaleAbs(image_filtered, alpha=1.4, beta=0)
+    def update(base_bloodweb, updated_cv_image: CVImage, res):
+        image_bgr = updated_cv_image.get_bgr()
+        image_gray = updated_cv_image.get_gray()
+        image_filtered = cv2.convertScaleAbs(image_gray, alpha=1.4, beta=0)
         image_filtered = cv2.fastNlMeansDenoising(image_filtered, None, 3, 7, 21)
         # image_filtered = cv2.GaussianBlur(image_filtered, (self.res.gaussian_c(),
         #                                   self.res.gaussian_c()), sigmaX=0, sigmaY=0)
@@ -54,8 +55,7 @@ class Grapher:
             if data["is_user_claimed"]:
                 # the one the user just claimed is handled previously in the main method
                 continue
-            r, color, match_unique_id = Matcher.get_circle_properties(None, updated_images.get_gray(), updated_images.get_bgr(),
-                                                                      image_filtered, None,
+            r, color, match_unique_id = Matcher.get_circle_properties(None, image_gray, image_bgr, image_filtered, None,
                                                                       Position(int(data["x"]), int(data["y"])), res)
             if all(x is None for x in (r, color, match_unique_id)):
                 # consumed by entity

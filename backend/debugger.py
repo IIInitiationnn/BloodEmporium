@@ -2,13 +2,14 @@ import os
 
 import cv2
 
-from images import Images
+from backend.cvimage import CVImage
+from image import Image
 from paths import Path
 from utils.network_util import NetworkUtil
 
 
 class Debugger:
-    def __init__(self, cv_images, timestamp, i, write_to_output=False):
+    def __init__(self, cv_images: [CVImage], timestamp, i, write_to_output=False):
         self.cv_images = cv_images
         self.write_to_output = write_to_output
 
@@ -17,7 +18,7 @@ class Debugger:
         self.all_circles = []
         self.icons = []
         self.edge_images = []
-        self.all_lines = {}
+        self.raw_lines = {}
 
         self.connections = []
 
@@ -32,7 +33,7 @@ class Debugger:
     # merger
     def set_merger(self, merger):
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/collage.png", merger.images)
+            cv2.imwrite(f"output/{self.time}/collage.png", merger.cv_images)
         return self
 
     # match origin
@@ -54,16 +55,17 @@ class Debugger:
         self.icons.append((from_screen, matched))
 
     # match lines
-    def add_edge_image(self, edges):
-        self.edge_images.append(edges)
+    def set_edge_images(self, edge_images):
+        self.edge_images = edge_images
         if self.write_to_output:
-            index = len(self.edge_images) - 1
-            cv2.imwrite(f"output/{self.time}/{self.i}/edges_{index}.png", self.edge_images[index])
+            for index, edge_image in enumerate(self.edge_images):
+                cv2.imwrite(f"output/{self.time}/{self.i}/edges_{index}.png", edge_image)
 
-    def add_line(self, num, line):
-        if self.all_lines.get(num) is None:
-            self.all_lines[num] = []
-        self.all_lines[num].append(line)
+    def set_raw_lines(self, all_raw_lines):
+        for i, raw_lines in enumerate(all_raw_lines):
+            if self.raw_lines.get(i) is None:
+                self.raw_lines[i] = []
+            self.raw_lines[i].extend(raw_lines)
 
     def set_connections(self, connections):
         self.connections = connections
@@ -102,8 +104,8 @@ class Debugger:
                 r = circle.radius
                 cv2.circle(raw_output, (x, y), r, 255, 2)
                 cv2.rectangle(raw_output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
-            if i in self.all_lines:
-                for line in self.all_lines[i]:
+            if i in self.raw_lines:
+                for line in self.raw_lines[i]:
                     x1, y1, x2, y2 = line.positions()
                     cv2.line(raw_output, (x1, y1), (x2, y2), 255, 2)
 
@@ -133,8 +135,8 @@ class Debugger:
 
         # matcher
         for from_screen, matched in self.icons:
-            cv2.imshow("unlockable from screen", cv2.resize(from_screen, (200, 200), interpolation=Images.interpolation))
-            cv2.imshow(f"matched unlockable", cv2.resize(matched, (200, 200), interpolation=Images.interpolation))
+            cv2.imshow("unlockable from screen", cv2.resize(from_screen, (200, 200), interpolation=Image.interpolation))
+            cv2.imshow(f"matched unlockable", cv2.resize(matched, (200, 200), interpolation=Image.interpolation))
             cv2.waitKey(0)
 
         cv2.destroyAllWindows()

@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from data import Data
-from images import Images
+from image import Image
 
 
 class MergedBase:
@@ -88,7 +88,7 @@ class MergedBase:
                 gray_bg[:, :, layer] = template_alpha * template[:, :, layer] + bg_alpha * gray_bg[:, :, layer]
 
             template = cv2.cvtColor(gray_bg, cv2.COLOR_BGR2GRAY)
-            template = cv2.resize(template, (dim, dim), interpolation=Images.interpolation)
+            template = cv2.resize(template, (dim, dim), interpolation=Image.interpolation)
 
             border1 = math.floor((self.full_dim - dim) / 2)
             border2 = math.ceil((self.full_dim - dim) / 2)

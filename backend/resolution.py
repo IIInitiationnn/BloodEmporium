@@ -135,6 +135,7 @@ class Resolution:
     # https://www.desmos.com/calculator/4psfavvzoz
     # https://www.desmos.com/calculator/hcxllwtp44 6.1.0
     # https://www.desmos.com/calculator/p3bqkbaiod widescreen support
+    # https://www.desmos.com/calculator/otc52rt6wy squarescreen support
     def top_left(self):
         return self.top_left_x(), self.top_left_y()
 

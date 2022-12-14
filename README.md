@@ -34,14 +34,17 @@ but absolutely not necessary. Please consider your own financial situation befor
 
 ## Features
 - Allows user to configure which unlockables are preferred or undesirable.
-- Bloodpoint spend limit / prestige level limit
-- Hotkey to run / stop the program (default: Ctrl + Alt + 9)
+- Bloodpoint spend limit / prestige level limit.
+- Hotkey to run / stop the program (default: Ctrl + Alt + 9).
 - Completely automatic and hands-free.
 
 ## Issues
 - Icon packs with similar-looking icons are more likely to cause incorrect object recognition, which may result in
   incorrect or suboptimal selection.
 - Shaders must be disabled while using this program, as colour changes interfere with object and colour recognition.
+
+## Known Bugs
+- Slight inaccuracies in detecting which unlockables are connected (especially as of Patch 6.4.0).
 
 ## Roadmap & Future Developments
 - Improved speed
