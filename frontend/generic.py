@@ -195,10 +195,14 @@ class HotkeyInput(QPushButton):
         self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
         self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
 
-    def on_key_up(self):
+    def on_key_up(self, key):
         self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
 
         self.active = False
         self.stop_keyboard_listener()
         self.on_deactivate()
         self.setStyleSheet(StyleSheets.button)
+
+    def set_keys(self, pressed_keys):
+        self.pressed_keys = pressed_keys
+        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))

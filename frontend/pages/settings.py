@@ -68,7 +68,20 @@ class SettingsPage(QWidget):
         config.set_resolution(int(width), int(height), int(ui_scale))
         config.set_path(path)
         config.set_hotkey(hotkey)
+        self.config_cache = Config()
         self.show_settings_page_save_success_text("Settings changed.")
+
+    def reset_settings(self):
+        res = self.config_cache.resolution()
+        self.resolutionWidthInput.setText(str(res.width))
+        self.on_width_update()
+        self.resolutionHeightInput.setText(str(res.height))
+        self.on_height_update()
+        self.resolutionUIInput.setText(str(res.ui_scale))
+        self.on_ui_scale_update()
+        self.pathText.setText(self.config_cache.path())
+        self.hotkeyInput.set_keys(self.config_cache.hotkey())
+        self.show_settings_page_save_success_text("Settings reset to last saved state.")
 
     def start_keyboard_listener(self):
         self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
@@ -94,8 +107,9 @@ class SettingsPage(QWidget):
     def __init__(self, run_terminate):
         super().__init__()
         self.listener = None
-        self.setObjectName("settingsPage")
         self.pressed_keys = []
+        self.config_cache = Config()
+        self.setObjectName("settingsPage")
         self.run_terminate = run_terminate
 
         self.layout = QVBoxLayout(self)
@@ -103,8 +117,7 @@ class SettingsPage(QWidget):
         self.layout.setContentsMargins(25, 25, 25, 25)
         self.layout.setSpacing(15)
 
-        config = Config()
-        res = config.resolution()
+        res = self.config_cache.resolution()
         self.resolutionLabel = TextLabel(self, "settingsPageResolutionLabel", "Display Resolution", Font(12))
         self.resolutionUIDescription = TextLabel(self, "settingsPageResolutionUIDescription",
                                                  "You can find your UI scale in your Dead by Daylight settings under "
@@ -153,7 +166,7 @@ class SettingsPage(QWidget):
         self.pathRowLayout = RowLayout(self.pathRow, "settingsPagePathRowLayout")
 
         self.pathText = TextInputBox(self, "settingsPagePathText", QSize(550, 40),
-                                     "Path to Dead by Daylight game icon files", str(config.path()))
+                                     "Path to Dead by Daylight game icon files", str(self.config_cache.path()))
         self.pathButton = Button(self, "settingsPagePathButton", "Set path to game icon files", QSize(180, 35))
         self.pathButton.clicked.connect(self.set_path)
 
@@ -170,10 +183,11 @@ class SettingsPage(QWidget):
 
         self.saveButton = Button(self.saveRow, "settingsPageSaveButton", "Save", QSize(60, 35))
         self.saveButton.clicked.connect(self.save_settings)
+        self.resetButton = Button(self.saveRow, "settingsPageResetButton", "Reset", QSize(70, 35))
+        self.resetButton.clicked.connect(self.reset_settings)
 
         self.saveSuccessText = TextLabel(self.saveRow, "settingsPageSaveSuccessText", "", Font(10))
         self.saveSuccessText.setVisible(False)
-        # TODO reset to last saved settings button
 
         self.resolutionWidthRowLayout.addWidget(self.resolutionWidthLabel)
         self.resolutionWidthRowLayout.addWidget(self.resolutionWidthInput)
@@ -192,6 +206,7 @@ class SettingsPage(QWidget):
         self.pathRowLayout.addStretch(1)
 
         self.saveRowLayout.addWidget(self.saveButton)
+        self.saveRowLayout.addWidget(self.resetButton)
         self.saveRowLayout.addWidget(self.saveSuccessText)
         self.saveRowLayout.addStretch(1)
 
