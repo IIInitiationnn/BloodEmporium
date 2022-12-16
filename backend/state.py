@@ -20,11 +20,11 @@ from resolution import Resolution
 
 """
 bugs to fix
-- prestige may sometimes not claim cosmetics / perks, causing termination
 - squarescreen support
 
 immediate priorities
 - print location of origin detected (improve origin detection by reducing region for detection - test on multiple res)
+- reload images in preferences page when path changes
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
 - tweak hough line parameters
     - if lines are invalidated from not being in the majority of images, print which nodes it connects

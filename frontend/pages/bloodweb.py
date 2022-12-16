@@ -4,14 +4,14 @@ import sys
 from PyQt5.QtCore import QSize, QTimer
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
-sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
-
-from backend.config import Config
-from backend.data import Data
 from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
 
+sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
+
+from backend.config import Config
+from backend.data import Data
 
 class BloodwebPage(QWidget):
     def on_toggle_prestige_limit(self):

@@ -1,7 +1,8 @@
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QSize, QTimer
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QLabel, QLineEdit, QCheckBox, QComboBox, QListView, QPushButton
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QLabel, QLineEdit, QCheckBox, QComboBox, QListView, QPushButton, QWidget, QVBoxLayout, \
+    QToolButton, QProxyStyle, QStyle
 
 from frontend.stylesheets import StyleSheets
 
@@ -93,3 +94,57 @@ class CheckBoxWithFunction(CheckBox):
     def __init__(self, parent, object_name, on_click, style_sheet=StyleSheets.check_box):
         super().__init__(parent, object_name, style_sheet)
         self.clicked.connect(on_click)
+
+class CollapsibleBox(QWidget):
+    def __init__(self, parent, object_name, text):
+        super().__init__(parent)
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(15)
+
+        self.toggleButton = QToolButton(self)
+        self.toggleButton.setObjectName(object_name)
+        self.toggleButton.setCheckable(True)
+        self.toggleButton.setChecked(False)
+        self.toggleButton.setFont(Font(12))
+        self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
+        self.toggleButton.setText(text)
+        self.toggleButton.setIcon(QIcon(Icons.right_arrow))
+        self.toggleButton.setIconSize(QSize(20, 20))
+        self.toggleButton.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.toggleButton.pressed.connect(self.on_pressed)
+        self.toggleButton.setStyle(NoShiftStyle())
+
+        self.layout.addWidget(self.toggleButton, alignment=Qt.AlignTop)
+
+    def on_pressed(self):
+        pass
+
+# https://forum.qt.io/topic/15068/prevent-flat-qtoolbutton-from-moving-when-clicked/8
+class NoShiftStyle(QProxyStyle):
+    def pixelMetric(self, metric, option, widget):
+        if metric == QStyle.PM_ButtonShiftHorizontal or metric == QStyle.PM_ButtonShiftVertical:
+            ret = 0
+        else:
+            ret = QProxyStyle.pixelMetric(self, metric, option, widget)
+        return ret
+
+class Icons:
+    __base = "assets/images/icons"
+    icon = "assets/images/inspo1.png"
+    splash = "assets/images/splash.png"
+    minimize = __base + "/icon_minimize.png"
+    restore = __base + "/icon_restore.png"
+    maximize = __base + "/icon_maximize.png"
+    close = __base + "/icon_close.png"
+    menu = __base + "/icon_menu.png"
+    home = __base + "/icon_home.png"
+    preferences = __base + "/icon_preferences.png"
+    settings = __base + "/icon_settings.png"
+    bloodweb = __base + "/icon_graph.png"
+    help = __base + "/icon_help.png"
+    down_arrow = __base + "/icon_down_arrow.png"
+    right_arrow = __base + "/icon_right_arrow.png"
+    up_arrow = __base + "/icon_up_arrow.png"
+    discord = __base + "/icon_discord.png"
+    twitter = __base + "/icon_twitter.png"
