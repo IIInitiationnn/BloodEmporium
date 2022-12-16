@@ -23,6 +23,8 @@ class Debugger:
         self.connections = []
 
         if self.write_to_output:
+            if not os.path.isdir(f"output"):
+                os.mkdir(f"output")
             if not os.path.isdir(f"output/{self.time}"):
                 os.mkdir(f"output/{self.time}")
             if not os.path.isdir(f"output/{self.time}/{i}"):
