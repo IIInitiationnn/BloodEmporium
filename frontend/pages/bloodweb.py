@@ -4,7 +4,7 @@ import sys
 from PyQt5.QtCore import QSize, QTimer
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
-from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button
+from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button, CheckBox
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
 
@@ -65,8 +65,13 @@ class BloodwebPage(QWidget):
     def hide_run_text(self):
         self.runErrorText.setVisible(False)
 
-    def __init__(self):
+    def get_run_mode(self):
+        return (self.devDebugCheckBox.isChecked(), self.devOutputCheckBox.isChecked()) \
+            if self.dev_mode else (False, False)
+
+    def __init__(self, dev_mode):
         super().__init__()
+        self.dev_mode = dev_mode
         self.setObjectName("bloodwebPage")
 
         self.layout = QVBoxLayout(self)
@@ -115,6 +120,27 @@ class BloodwebPage(QWidget):
         self.bloodpointInput.setReadOnly(True)
         self.bloodpointDescription = TextLabel(self.prestigeRow, "bloodwebPageBloodpointDescription",
                                                "The number of bloodpoints to spend before terminating.", Font(10))
+        if dev_mode:
+            self.devLabel = TextLabel(self, "settingsPageDevLabel", "Dev Options", Font(12))
+
+            self.devDebugRow = QWidget(self)
+            self.devDebugRow.setObjectName("bloodwebPageDevDebugRow")
+            self.devDebugRowLayout = RowLayout(self.devDebugRow, "bloodwebPageDevDebugRowLayout")
+            self.devDebugCheckBox = CheckBox(self, "bloodwebPageDevDebugCheckBox")
+            self.devDebugLabel = TextLabel(self, "bloodwebPageDevDebugLabel", "Debug Mode", Font(10))
+
+            self.devOutputRow = QWidget(self)
+            self.devOutputRow.setObjectName("bloodwebPageDevOutputRow")
+            self.devOutputRowLayout = RowLayout(self.devOutputRow, "bloodwebPageDevOutputRowLayout")
+            self.devOutputCheckBox = CheckBox(self, "bloodwebPageDevOutputCheckBox")
+            self.devOutputLabel = TextLabel(self, "bloodwebPageDevOutputLabel", "Write Output to Folder", Font(10))
+
+            self.devDebugRowLayout.addWidget(self.devDebugCheckBox)
+            self.devDebugRowLayout.addWidget(self.devDebugLabel)
+            self.devDebugRowLayout.addStretch(1)
+            self.devOutputRowLayout.addWidget(self.devOutputCheckBox)
+            self.devOutputRowLayout.addWidget(self.devOutputLabel)
+            self.devOutputRowLayout.addStretch(1)
 
         self.runLabel = TextLabel(self, "bloodwebPageRunLabel", "Run", Font(12))
         self.runDescription = TextLabel(self, "bloodwebPageRunLabel",
@@ -156,6 +182,10 @@ class BloodwebPage(QWidget):
         self.layout.addWidget(self.limitsDescription)
         self.layout.addWidget(self.prestigeRow)
         self.layout.addWidget(self.bloodpointRow)
+        if dev_mode:
+            self.layout.addWidget(self.devLabel)
+            self.layout.addWidget(self.devDebugRow)
+            self.layout.addWidget(self.devOutputRow)
         self.layout.addWidget(self.runLabel)
         self.layout.addWidget(self.runDescription)
         self.layout.addWidget(self.runRow)

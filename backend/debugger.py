@@ -33,7 +33,7 @@ class Debugger:
     # merger
     def set_merger(self, merger):
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/collage.png", merger.cv_images)
+            cv2.imwrite(f"output/{self.time}/collage.png", merger.images)
         return self
 
     # match origin

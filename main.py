@@ -320,7 +320,8 @@ class MainWindow(QMainWindow):
     def get_runtime_bloodpoint_limit(self) -> str or None:
         return self.bloodwebPage.bloodpointInput.text() if self.bloodwebPage.bloodpointCheckBox.isChecked() else None
 
-    def run_terminate(self, debug=False, write_to_output=False):
+    def run_terminate(self):
+        debug, write_to_output = self.bloodwebPage.get_run_mode()
         if not self.state.is_active(): # run
             # check prestige limit
             prestige_limit = self.get_runtime_prestige_limit()
@@ -404,7 +405,7 @@ class MainWindow(QMainWindow):
         QMainWindow.resizeEvent(self, event)
         self.update_grips()
 
-    def __init__(self, state_pipe_, emitter):
+    def __init__(self, state_pipe_, emitter, dev_mode):
         super().__init__()
         # TODO windows up + windows down; cursor when hovering over buttons
         self.is_maximized = False
@@ -614,7 +615,7 @@ class MainWindow(QMainWindow):
                                     "Instructions & contact details here.")
 
         # stack: bloodwebPage
-        self.bloodwebPage = BloodwebPage()
+        self.bloodwebPage = BloodwebPage(dev_mode)
         self.bloodwebButton.setPage(self.bloodwebPage)
         self.bloodwebPage.runButton.clicked.connect(self.run_terminate)
 
@@ -813,5 +814,5 @@ if __name__ == "__main__":
     main_emitter = Emitter(main_pipe)
 
     app = QApplication([])
-    window = MainWindow(state_pipe, main_emitter)
+    window = MainWindow(state_pipe, main_emitter, len(sys.argv) > 1 and "--dev" in sys.argv[1:])
     sys.exit(app.exec_())
