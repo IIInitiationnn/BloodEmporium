@@ -3,15 +3,17 @@ import sys
 from multiprocessing import freeze_support, Pipe
 from threading import Thread
 
-from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect, QObject, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
+from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QGraphicsDropShadowEffect, QStackedWidget, QComboBox, QListView, QScrollArea, QScrollBar, \
-    QCheckBox, QLineEdit, QToolButton, QFileDialog, QSizeGrip, QProxyStyle, QStyle, QKeySequenceEdit
+    QGraphicsDropShadowEffect, QStackedWidget, QScrollArea, QScrollBar, \
+    QToolButton, QFileDialog, QSizeGrip, QProxyStyle, QStyle
 from pynput import keyboard
 
+from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, CheckBox, Selector, Button, \
+    CheckBoxWithFunction
 from frontend.layouts import RowLayout
+from frontend.pages.bloodweb import BloodwebPage
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
@@ -20,64 +22,6 @@ from backend.data import Data, Unlockable
 from backend.state import State
 from backend.utils.text_util import TextUtil
 from frontend.stylesheets import StyleSheets
-
-# generic
-class Font(QFont):
-    def __init__(self, font_size):
-        super().__init__()
-        self.setFamily("Segoe UI")
-        self.setPointSize(font_size)
-
-class TextLabel(QLabel):
-    def __init__(self, parent, object_name, text, font=Font(10), style_sheet=StyleSheets.white_text):
-        super().__init__(parent)
-        self.setObjectName(object_name)
-        self.setText(text)
-        self.setFont(font)
-        self.setStyleSheet(style_sheet)
-        self.setAlignment(Qt.AlignVCenter)
-
-class HyperlinkTextLabel(QLabel):
-    def __init__(self, parent, object_name, text, link, font):
-        super().__init__(parent)
-        self.setObjectName(object_name)
-        self.setFont(font)
-        self.setText(f"<a style=\"color: white; text-decoration:none;\" href=\"{link}\">{text}</a>")
-        self.setAlignment(Qt.AlignVCenter)
-        self.setTextFormat(Qt.RichText)
-        self.setTextInteractionFlags(Qt.TextBrowserInteraction)
-        self.setOpenExternalLinks(True)
-
-class TextInputBox(QLineEdit):
-    on_focus_in_callback = lambda: None
-    on_focus_out_callback = lambda: None
-
-    def __init__(self, parent, object_name, size, placeholder_text, text=None, font=Font(10),
-                 style_sheet=StyleSheets.text_box):
-        QLineEdit.__init__(self, parent)
-        self.setObjectName(object_name)
-        self.setFixedSize(size)
-        self.setPlaceholderText(placeholder_text)
-        if text is not None:
-            self.setText(text)
-        self.setFont(font)
-        self.setStyleSheet(style_sheet)
-
-    def focusInEvent(self, event: QtGui.QFocusEvent) -> None:
-        super().focusInEvent(event)
-        TextInputBox.on_focus_in_callback()
-
-    def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
-        super().focusOutEvent(event)
-        TextInputBox.on_focus_out_callback()
-
-class CheckBox(QCheckBox):
-    def __init__(self, parent, object_name, style_sheet=StyleSheets.check_box):
-        super().__init__(parent)
-        if object_name is not None:
-            self.setObjectName(object_name)
-        self.setAutoFillBackground(False)
-        self.setStyleSheet(style_sheet)
 
 # not so generic
 class TopBar(QFrame):
@@ -237,34 +181,6 @@ class PageButton(QPushButton):
 
         self.clicked.connect(on_click)
 
-class Selector(QComboBox):
-    def __init__(self, parent, object_name, size, items, active_item=None):
-        super().__init__(parent)
-        self.view = QListView()
-        self.view.setFont(Font(8))
-
-        self.setObjectName(object_name)
-        self.setFont(Font(10))
-        self.setFixedSize(size)
-        self.addItems(items)
-        if active_item is not None:
-            self.setCurrentIndex(self.findText(active_item))
-        self.setView(self.view)
-        self.setStyleSheet(StyleSheets.selector)
-
-class Button(QPushButton):
-    def __init__(self, parent, object_name, text, size: QSize):
-        super().__init__(parent)
-        self.setObjectName(object_name)
-        self.setFixedSize(size)
-        self.setFont(Font(10))
-        self.setText(text)
-        self.setStyleSheet(StyleSheets.button)
-
-class CheckBoxWithFunction(CheckBox):
-    def __init__(self, parent, object_name, on_click, style_sheet=StyleSheets.check_box):
-        super().__init__(parent, object_name, style_sheet)
-        self.clicked.connect(on_click)
 
 # https://forum.qt.io/topic/15068/prevent-flat-qtoolbutton-from-moving-when-clicked/8
 class NoShiftStyle(QProxyStyle):
@@ -654,9 +570,9 @@ class MainWindow(QMainWindow):
             self.preferencesPageProfileSelector.removeItem(0)
         self.preferencesPageProfileSelector.addItems(Config().profile_names() + ["blank"])
 
-        while self.bloodwebPageProfileSelector.count() > 0:
-            self.bloodwebPageProfileSelector.removeItem(0)
-        self.bloodwebPageProfileSelector.addItems(Config().profile_names() + ["blank"])
+        while self.bloodwebPage.profileSelector.count() > 0:
+            self.bloodwebPage.profileSelector.removeItem(0)
+        self.bloodwebPage.profileSelector.addItems(Config().profile_names() + ["blank"])
 
     def replace_unlockable_widgets(self):
         sort_by = self.preferencesPageSortSelector.currentText()
@@ -909,67 +825,16 @@ class MainWindow(QMainWindow):
 
     # bloodweb
     def get_runtime_profile(self):
-        return self.bloodwebPageProfileSelector.currentText()
+        return self.bloodwebPage.profileSelector.currentText()
 
     def get_runtime_character(self):
-        return self.bloodwebPageCharacterSelector.currentText()
+        return self.bloodwebPage.characterSelector.currentText()
 
     def get_runtime_prestige_limit(self) -> str or None:
-        return self.bloodwebPagePrestigeInput.text() if self.bloodwebPagePrestigeCheckBox.isChecked() else None
-
-    def on_toggle_prestige_limit(self):
-        if self.bloodwebPagePrestigeCheckBox.isChecked():
-            self.bloodwebPagePrestigeInput.setReadOnly(False)
-            text = self.bloodwebPagePrestigeInput.text()
-            self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.prestige_input(text))
-        else:
-            self.bloodwebPagePrestigeInput.setReadOnly(True)
-            self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.text_box_read_only)
-
-    def on_edit_prestige_limit_input(self):
-        text = self.bloodwebPagePrestigeInput.text()
-        self.bloodwebPagePrestigeInput.setStyleSheet(StyleSheets.prestige_input(text))
+        return self.bloodwebPage.prestigeInput.text() if self.bloodwebPage.prestigeCheckBox.isChecked() else None
 
     def get_runtime_bloodpoint_limit(self) -> str or None:
-        return self.bloodwebPageBloodpointInput.text() if self.bloodwebPageBloodpointCheckBox.isChecked() else None
-
-    def on_toggle_bloodpoint_limit(self):
-        if self.bloodwebPageBloodpointCheckBox.isChecked():
-            self.bloodwebPageBloodpointInput.setReadOnly(False)
-            text = self.bloodwebPageBloodpointInput.text()
-            self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.bloodpoint_input(text))
-        else:
-            self.bloodwebPageBloodpointInput.setReadOnly(True)
-            self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.text_box_read_only)
-
-    def on_edit_bloodpoint_limit_input(self):
-        text = self.bloodwebPageBloodpointInput.text()
-        self.bloodwebPageBloodpointInput.setStyleSheet(StyleSheets.bloodpoint_input(text))
-
-    def show_run_success(self, text, hide):
-        self.bloodwebPageRunErrorText.setText(text)
-        self.bloodwebPageRunErrorText.setStyleSheet(StyleSheets.pink_text)
-        self.bloodwebPageRunErrorText.setVisible(True)
-        if hide:
-            QTimer.singleShot(10000, self.hide_run_text)
-
-    def show_run_error(self, text, hide):
-        self.bloodwebPageRunErrorText.setText(text)
-        self.bloodwebPageRunErrorText.setStyleSheet(StyleSheets.purple_text)
-        self.bloodwebPageRunErrorText.setVisible(True)
-        if hide:
-            QTimer.singleShot(10000, self.hide_run_text)
-
-    def hide_run_text(self):
-        self.bloodwebPageRunErrorText.setVisible(False)
-
-    def on_prestige_signal(self, prestige_total, prestige_limit):
-        self.bloodwebPageRunPrestigeProgress.setText(f"Prestige levels completed: {prestige_total}" +
-                                                     (f" / {prestige_limit}" if prestige_limit is not None else ""))
-
-    def on_bloodpoint_signal(self, bp_total, bp_limit):
-        self.bloodwebPageRunBloodpointProgress.setText(f"Bloodpoints spent: {bp_total:,}" +
-                                                       (f" / {bp_limit:,}" if bp_limit is not None else ""))
+        return self.bloodwebPage.bloodpointInput.text() if self.bloodwebPage.bloodpointCheckBox.isChecked() else None
 
     def run_terminate(self, debug=False, write_to_output=False):
         if not self.state.is_active(): # run
@@ -979,18 +844,18 @@ class MainWindow(QMainWindow):
                 try:
                     prestige_limit = int(prestige_limit)
                 except:
-                    return self.show_run_error("Prestige level must be an integer from 1 to 100.", True)
+                    return self.bloodwebPage.show_run_error("Prestige level must be an integer from 1 to 100.", True)
                 if not (1 <= prestige_limit <= 100):
-                    return self.show_run_error("Prestige level must be an integer from 1 to 100.", True)
+                    return self.bloodwebPage.show_run_error("Prestige level must be an integer from 1 to 100.", True)
 
             bp_limit = self.get_runtime_bloodpoint_limit()
             if bp_limit is not None:
                 try:
                     bp_limit = int(bp_limit)
                 except:
-                    return self.show_run_error("Bloodpoint limit must be a positive integer.", True)
+                    return self.bloodwebPage.show_run_error("Bloodpoint limit must be a positive integer.", True)
                 if not (1 <= bp_limit):
-                    return self.show_run_error("Bloodpoint limit must be a positive integer.", True)
+                    return self.bloodwebPage.show_run_error("Bloodpoint limit must be a positive integer.", True)
 
             self.state.run((debug, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
                             prestige_limit, bp_limit))
@@ -1000,18 +865,18 @@ class MainWindow(QMainWindow):
             self.toggle_run_terminate_text("Manually terminated.", False, True)
 
     def toggle_run_terminate_text(self, text, is_error, hide):
-        self.hide_run_text()
+        self.bloodwebPage.hide_run_text()
         if not self.state.is_active():
-            self.bloodwebPageRunButton.setText("Run")
-            self.bloodwebPageRunButton.setFixedSize(QSize(60, 35))
+            self.bloodwebPage.runButton.setText("Run")
+            self.bloodwebPage.runButton.setFixedSize(QSize(60, 35))
         else:
-            self.bloodwebPageRunButton.setText("Terminate")
-            self.bloodwebPageRunButton.setFixedSize(QSize(92, 35))
+            self.bloodwebPage.runButton.setText("Terminate")
+            self.bloodwebPage.runButton.setFixedSize(QSize(92, 35))
 
         if is_error:
-            self.show_run_error(text, hide)
+            self.bloodwebPage.show_run_error(text, hide)
         else:
-            self.show_run_success(text, hide)
+            self.bloodwebPage.show_run_success(text, hide)
 
     # settings
     def on_width_update(self):
@@ -1145,10 +1010,6 @@ class MainWindow(QMainWindow):
 
         self.emitter = emitter
         self.emitter.start() # start the thread, calling Emitter.run()
-        self.emitter.prestige.connect(self.on_prestige_signal)
-        self.emitter.bloodpoint.connect(self.on_bloodpoint_signal)
-        self.emitter.terminate.connect(self.state.terminate)
-        self.emitter.toggle_text.connect(self.toggle_run_terminate_text)
 
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -1581,89 +1442,9 @@ class MainWindow(QMainWindow):
         self.preferencesPageEditDropdownContentCancelButton.clicked.connect(self.on_edit_dropdown_minimise)
 
         # stack: bloodwebPage
-        self.bloodwebPage = QWidget()
-        self.bloodwebPage.setObjectName("bloodwebPage")
+        self.bloodwebPage = BloodwebPage()
         self.bloodwebButton.setPage(self.bloodwebPage)
-
-        self.bloodwebPageLayout = QVBoxLayout(self.bloodwebPage)
-        self.bloodwebPageLayout.setObjectName("bloodwebPageLayout")
-        self.bloodwebPageLayout.setContentsMargins(25, 25, 25, 25)
-        self.bloodwebPageLayout.setSpacing(15)
-
-        self.bloodwebPageProfileLabel = TextLabel(self.bloodwebPage, "bloodwebPageProfileLabel", "Profile", Font(12))
-        self.bloodwebPageProfileSelector = Selector(self.bloodwebPage, "bloodwebPageProfileSelector", QSize(200, 40),
-                                                    Config().profile_names())
-
-        self.bloodwebPageCharacterLabel = TextLabel(self.bloodwebPage, "bloodwebPageCharacterLabel", "Character",
-                                                    Font(12))
-        self.bloodwebPageCharacterSelector = Selector(self.bloodwebPage, "bloodwebPageCharacterSelector",
-                                                      QSize(200, 40), Data.get_characters(True))
-
-        self.bloodwebPageLimitsLabel = TextLabel(self.bloodwebPage, "bloodwebPageLimitsLabel", "Limits", Font(12))
-
-        self.bloodwebPageLimitsDescription = TextLabel(self.bloodwebPage, "bloodwebPageLimitsDescription",
-                                                       "If multiple of the following limits are selected, the program "
-                                                       "will terminate when any limit is reached.")
-
-        self.bloodwebPagePrestigeRow = QWidget(self.bloodwebPage)
-        self.bloodwebPagePrestigeRow.setObjectName("bloodwebPagePrestigeRow")
-        self.bloodwebPagePrestigeRowLayout = RowLayout(self.bloodwebPagePrestigeRow, "bloodwebPagePrestigeRowLayout")
-
-        self.bloodwebPagePrestigeCheckBox = CheckBoxWithFunction(self.bloodwebPagePrestigeRow,
-                                                                 "bloodwebPagePrestigeCheckBox",
-                                                                 self.on_toggle_prestige_limit)
-        self.bloodwebPagePrestigeLabel = TextLabel(self.bloodwebPagePrestigeRow,
-                                                   "bloodwebPagePrestigeLabel", "Prestige Limit")
-        self.bloodwebPagePrestigeInput = TextInputBox(self.bloodwebPagePrestigeRow,
-                                                      "bloodwebPagePrestigeInput",
-                                                      QSize(94, 40), "Enter levels", "1",
-                                                      style_sheet=StyleSheets.text_box_read_only)
-        self.bloodwebPagePrestigeInput.textEdited.connect(self.on_edit_prestige_limit_input)
-        self.bloodwebPagePrestigeInput.setReadOnly(True)
-        self.bloodwebPagePrestigeDescription = TextLabel(self.bloodwebPagePrestigeRow,
-                                                         "bloodwebPagePrestigeDescription",
-                                                         "The number of prestige levels to complete before terminating "
-                                                         "(any integer from 1 to 100).", Font(10))
-
-        self.bloodwebPageBloodpointRow = QWidget(self.bloodwebPage)
-        self.bloodwebPageBloodpointRow.setObjectName("bloodwebPageBloodpointRow")
-        self.bloodwebPageBloodpointRowLayout = RowLayout(self.bloodwebPageBloodpointRow,
-                                                         "bloodwebPageBloodpointRowLayout")
-
-        self.bloodwebPageBloodpointCheckBox = CheckBoxWithFunction(self.bloodwebPagePrestigeRow,
-                                                                   "bloodwebPageBloodpointCheckBox",
-                                                                   self.on_toggle_bloodpoint_limit)
-        self.bloodwebPageBloodpointLabel = TextLabel(self.bloodwebPagePrestigeRow,
-                                                     "bloodwebPageBloodpointLabel", "Bloodpoint Limit")
-        self.bloodwebPageBloodpointInput = TextInputBox(self.bloodwebPagePrestigeRow,
-                                                        "bloodwebPageBloodpointInput",
-                                                        QSize(132, 40), "Enter bloodpoints", "69420",
-                                                        style_sheet=StyleSheets.text_box_read_only)
-        self.bloodwebPageBloodpointInput.textEdited.connect(self.on_edit_bloodpoint_limit_input)
-        self.bloodwebPageBloodpointInput.setReadOnly(True)
-        self.bloodwebPageBloodpointDescription = TextLabel(self.bloodwebPagePrestigeRow,
-                                                           "bloodwebPageBloodpointDescription",
-                                                           "The number of bloodpoints to spend before terminating.",
-                                                           Font(10))
-
-        self.bloodwebPageRunLabel = TextLabel(self.bloodwebPage, "bloodwebPageRunLabel", "Run", Font(12))
-        self.bloodwebPageRunDescription = TextLabel(self.bloodwebPage, "bloodwebPageRunLabel",
-                                                    "Make sure your game is open on your monitor, and any shaders "
-                                                    "and visual effects are off.", Font(10))
-
-        self.bloodwebPageRunRow = QWidget(self.bloodwebPage)
-        self.bloodwebPageRunRow.setObjectName("bloodwebPageRunRow")
-        self.bloodwebPageRunRowLayout = RowLayout(self.bloodwebPageRunRow, "bloodwebPageRunRowLayout")
-
-        self.bloodwebPageRunButton = Button(self.bloodwebPageRunRow, "bloodwebPageRunButton", "Run", QSize(60, 35))
-        self.bloodwebPageRunButton.clicked.connect(self.run_terminate)
-        self.bloodwebPageRunErrorText = TextLabel(self.bloodwebPageRunRow, "bloodwebPageRunErrorText", "", Font(10))
-        self.bloodwebPageRunErrorText.setVisible(False)
-
-        self.bloodwebPageRunPrestigeProgress = TextLabel(self.bloodwebPage, "bloodwebPageRunPrestigeProgress", "",
-                                                         Font(10))
-        self.bloodwebPageRunBloodpointProgress = TextLabel(self.bloodwebPage, "bloodwebPageRunBloodpointProgress", "",
-                                                           Font(10))
+        self.bloodwebPage.runButton.clicked.connect(self.run_terminate)
 
         # stack: helpPage
         self.helpPage = QWidget()
@@ -2026,40 +1807,6 @@ class MainWindow(QMainWindow):
         self.preferencesPageLayout.setColumnStretch(0, 1)
 
         """
-        bloodwebPage
-        """
-        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeCheckBox)
-        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeLabel)
-        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeInput)
-        self.bloodwebPagePrestigeRowLayout.addWidget(self.bloodwebPagePrestigeDescription)
-        self.bloodwebPagePrestigeRowLayout.addStretch(1)
-
-        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointCheckBox)
-        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointLabel)
-        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointInput)
-        self.bloodwebPageBloodpointRowLayout.addWidget(self.bloodwebPageBloodpointDescription)
-        self.bloodwebPageBloodpointRowLayout.addStretch(1)
-
-        self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunButton)
-        self.bloodwebPageRunRowLayout.addWidget(self.bloodwebPageRunErrorText)
-        self.bloodwebPageRunRowLayout.addStretch(1)
-
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageProfileLabel)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageProfileSelector)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageCharacterLabel)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageCharacterSelector)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageLimitsLabel)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageLimitsDescription)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPagePrestigeRow)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageBloodpointRow)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunLabel)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunDescription)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunRow)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunPrestigeProgress)
-        self.bloodwebPageLayout.addWidget(self.bloodwebPageRunBloodpointProgress)
-        self.bloodwebPageLayout.addStretch(1)
-
-        """
         helpPage
         """
         self.helpPageContactDiscordRowLayout.addWidget(self.helpPageContactDiscordIcon)
@@ -2115,6 +1862,12 @@ class MainWindow(QMainWindow):
         self.settingsPageLayout.addStretch(1)
 
         self.preferencesPageSortSelector.setCurrentIndex(1) # self.lastSortedBy becomes "character"
+
+        self.emitter.prestige.connect(self.bloodwebPage.on_prestige_signal)
+        self.emitter.bloodpoint.connect(self.bloodwebPage.on_bloodpoint_signal)
+        self.emitter.terminate.connect(self.state.terminate)
+        self.emitter.toggle_text.connect(self.toggle_run_terminate_text)
+
         self.show()
 
 class Icons:
