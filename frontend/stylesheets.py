@@ -114,6 +114,7 @@ class StyleSheets:
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding: 0 10px 0 10px;
+            selection-background-color: {purple};
         }}
         
         QLineEdit:hover {{
@@ -140,6 +141,7 @@ class StyleSheets:
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding: 0 10px 0 10px;
+            selection-background-color: {purple};
         }}
         
         QLineEdit:hover {{
@@ -153,6 +155,7 @@ class StyleSheets:
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding: 0 10px 0 10px;
+            selection-background-color: {purple};
         }}
         
         QLineEdit:hover {{
@@ -166,6 +169,7 @@ class StyleSheets:
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding: 0 10px 0 10px;
+            selection-background-color: {purple};
         }}
         
         QLineEdit:hover {{

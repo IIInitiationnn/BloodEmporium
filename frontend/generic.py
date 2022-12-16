@@ -1,5 +1,5 @@
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QLabel, QLineEdit, QCheckBox, QComboBox, QListView, QPushButton
 
@@ -50,6 +50,8 @@ class TextInputBox(QLineEdit):
     def focusInEvent(self, event: QtGui.QFocusEvent) -> None:
         super().focusInEvent(event)
         TextInputBox.on_focus_in_callback()
+        if not self.isReadOnly():
+            QTimer.singleShot(0, self.selectAll)
 
     def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
         super().focusOutEvent(event)
