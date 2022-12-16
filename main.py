@@ -349,13 +349,13 @@ class MainWindow(QMainWindow):
         self.move(self.pos() + dpos)
 
     def animate(self):
-        animation = QPropertyAnimation(self.leftMenu, b"minimumWidth")
-        animation.setDuration(500)
-        animation.setStartValue(self.leftMenu.width())
-        animation.setEndValue(LeftMenuButton.min_width if self.leftMenu.width() == LeftMenuButton.max_width
-                              else LeftMenuButton.max_width)
-        animation.setEasingCurve(QEasingCurve.InOutQuint)
-        animation.start()
+        self.animation = QPropertyAnimation(self.leftMenu, b"minimumWidth")
+        self.animation.setDuration(500)
+        self.animation.setStartValue(self.leftMenu.width())
+        self.animation.setEndValue(LeftMenuButton.min_width if self.leftMenu.width() == LeftMenuButton.max_width
+                                   else LeftMenuButton.max_width)
+        self.animation.setEasingCurve(QEasingCurve.InOutQuint)
+        self.animation.start()
 
     # bloodweb
     def get_runtime_profile(self):
