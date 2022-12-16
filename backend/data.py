@@ -20,7 +20,6 @@ class Unlockable:
         self.image_path = image_path
 
 class Data:
-    # TODO why being called twice
     __connection = None
     try:
         __connection = sqlite3.connect(Path.assets_database)
@@ -36,6 +35,7 @@ class Data:
     __killers_rows = __cursor.fetchall()
 
     __connection.close()
+    print("disconnected from database")
 
     @staticmethod
     def get_unlockables():

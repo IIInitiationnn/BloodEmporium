@@ -13,6 +13,7 @@ from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, 
     Icons
 from frontend.layouts import RowLayout
 from frontend.pages.bloodweb import BloodwebPage
+from frontend.pages.help import HelpPage
 from frontend.pages.preferences import PreferencesPage
 from frontend.stylesheets import StyleSheets
 
@@ -76,6 +77,8 @@ class LeftMenuButton(QPushButton):
         self.setIcon(icon)
 
         self.main = main_window
+        self.bar = None
+        self.page = None
 
         self.is_active = is_active
         self.setStyleSheet(StyleSheets.left_menu_button(LeftMenuButton.padding, is_active))
@@ -282,6 +285,7 @@ class HotkeyInput(QPushButton):
         self.setFont(Font(10))
         self.clicked.connect(self.on_click)
         self.active = False
+        self.listener = None
 
     def on_click(self):
         if not self.active:
@@ -305,7 +309,7 @@ class HotkeyInput(QPushButton):
         self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
         self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
 
-    def on_key_up(self, key):
+    def on_key_up(self):
         self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
 
         self.active = False
@@ -345,13 +349,13 @@ class MainWindow(QMainWindow):
         self.move(self.pos() + dpos)
 
     def animate(self):
-        self.animation = QPropertyAnimation(self.leftMenu, b"minimumWidth")
-        self.animation.setDuration(500)
-        self.animation.setStartValue(self.leftMenu.width())
-        self.animation.setEndValue(LeftMenuButton.min_width if self.leftMenu.width() == LeftMenuButton.max_width
-                                   else LeftMenuButton.max_width)
-        self.animation.setEasingCurve(QEasingCurve.InOutQuint)
-        self.animation.start()
+        animation = QPropertyAnimation(self.leftMenu, b"minimumWidth")
+        animation.setDuration(500)
+        animation.setStartValue(self.leftMenu.width())
+        animation.setEndValue(LeftMenuButton.min_width if self.leftMenu.width() == LeftMenuButton.max_width
+                              else LeftMenuButton.max_width)
+        animation.setEasingCurve(QEasingCurve.InOutQuint)
+        animation.start()
 
     # bloodweb
     def get_runtime_profile(self):
@@ -527,6 +531,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, state_pipe_, emitter):
         super().__init__()
+        self.listener = None
         # TODO windows up + windows down; cursor when hovering over buttons
 
         TextInputBox.on_focus_in_callback = self.stop_keyboard_listener
@@ -750,71 +755,8 @@ class MainWindow(QMainWindow):
         self.preferencesButton.setPage(self.preferencesPage)
 
         # stack: helpPage
-        self.helpPage = QWidget()
-        self.helpPage.setObjectName("helpPage")
+        self.helpPage = HelpPage()
         self.helpButton.setPage(self.helpPage)
-
-        self.helpPageLayout = QVBoxLayout(self.helpPage)
-        self.helpPageLayout.setContentsMargins(25, 25, 25, 25)
-        self.helpPageLayout.setSpacing(15)
-
-        self.helpPageInstructionsLabel = TextLabel(self.helpPage, "helpPageInstructionsLabel", "How to Use Blood Emporium", Font(12))
-        self.helpPageInstructionsDescription = TextLabel(self.helpPage, "helpPageInstructionsDescription",
-                                                         "<p style=line-height:125%> First, configure your display resolution and UI scale in the settings page. "
-                                                         "This will ensure that the correct region of your screen is used for the algorithm. "
-                                                         "If you have a non-default Dead by Daylight installation, you will also need "
-                                                         "to find the folder containing the icons, in case you are using a custom icon pack.<br><br>"
-                                                         "You can then set up preferences for what add-ons, items, offerings and perks "
-                                                         "you would like to obtain from the bloodweb. Each set of preferences can be "
-                                                         "stored in a different profile, for convenient switching as required. "
-                                                         "One preset profile comes with the program: cheapskate (for levelling up the bloodweb as cheaply as possible). "
-                                                         "It comes in two variants, one which prioritises perks, and one which ignores them. "
-                                                         "You can use this preset as a starting point for your own profile, or "
-                                                         "create your own from scratch using the blank profile.<br><br>"
-                                                         "Each unlockable you configure will have a tier and a subtier:<br>"
-                                                         "    - the higher the tier (or subtier), the higher your preference for that item<br>"
-                                                         "    - the lower the tier (or subtier), the lower your preference for that item<br>"
-                                                         "    - neutral items will have tier and subtier 0<br>"
-                                                         "    - tiers and subtiers can range from -999 to 999<br>"
-                                                         "    - tier A item + tier B item are equivalent in preference to a tier A + B item<br>"
-                                                         "         - for instance, two tier 1 items is equivalent to a single tier 2 item<br>"
-                                                         "         - you can use these numbers to fine tune exactly how much you want each item<br>"
-                                                         "    - a similar system applies with negative tiers when specifying how much you dislike an item<br>"
-                                                         "    - subtier allows for preference within a tier e.g. a tier 3 subtier 3 is higher priority than tier 3 subtier 2<br><br>"
-                                                         "Then simply select a profile, select the character whose bloodweb you are on, set any limits you want, and run! "
-                                                         "Make sure your shaders are off before running, or the program is very likely to perform in unintended ways.",
-                                                         Font(10))
-        self.helpPageInstructionsDescription.setWordWrap(True)
-
-        self.helpPageContactLabel = TextLabel(self.helpPage, "helpPageContactLabel", "Contact Me", Font(12))
-
-        self.helpPageContactDiscordRow = QWidget(self.helpPage)
-        self.helpPageContactDiscordRow.setObjectName("helpPageContactDiscordRow")
-        self.helpPageContactDiscordRowLayout = RowLayout(self.helpPageContactDiscordRow,
-                                                         "helpPageContactDiscordRowLayout")
-
-        self.helpPageContactDiscordIcon = QLabel(self.helpPageContactDiscordRow)
-        self.helpPageContactDiscordIcon.setObjectName("helpPageContactDiscordIcon")
-        self.helpPageContactDiscordIcon.setFixedSize(QSize(20, 20))
-        self.helpPageContactDiscordIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.discord))
-        self.helpPageContactDiscordIcon.setScaledContents(True)
-        self.helpPageContactDiscordLabel = HyperlinkTextLabel(self.helpPageContactDiscordRow,
-                                                              "helpPageContactDiscordLabel",
-                                                              "Discord", "https://discord.gg/bGdJTnF2hr", Font(10))
-
-        self.helpPageContactTwitterRow = QWidget(self.helpPage)
-        self.helpPageContactTwitterRow.setObjectName("helpPageContactTwitterRow")
-        self.helpPageContactTwitterRowLayout = RowLayout(self.helpPageContactTwitterRow,
-                                                         "helpPageContactTwitterRowLayout")
-
-        self.helpPageContactTwitterIcon = QLabel(self.helpPageContactTwitterRow)
-        self.helpPageContactTwitterIcon.setObjectName("helpPageContactTwitterIcon")
-        self.helpPageContactTwitterIcon.setFixedSize(QSize(20, 20))
-        self.helpPageContactTwitterIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.twitter))
-        self.helpPageContactTwitterIcon.setScaledContents(True)
-        self.helpPageContactTwitterLabel = HyperlinkTextLabel(self.helpPageContactTwitterRow,
-                                                              "helpPageContactTwitterLabel", "Twitter",
-                                                              "https://twitter.com/initiationmusic", Font(10))
 
         # stack: settingsPage
         self.settingsPage = QWidget()
@@ -1038,24 +980,6 @@ class MainWindow(QMainWindow):
         self.homePageLayout.addWidget(self.homePageRow3)
         self.homePageLayout.addWidget(self.homePageRow4)
         self.homePageLayout.addStretch(1)
-
-        """
-        helpPage
-        """
-        self.helpPageContactDiscordRowLayout.addWidget(self.helpPageContactDiscordIcon)
-        self.helpPageContactDiscordRowLayout.addWidget(self.helpPageContactDiscordLabel)
-        self.helpPageContactDiscordRowLayout.addStretch(1)
-
-        self.helpPageContactTwitterRowLayout.addWidget(self.helpPageContactTwitterIcon)
-        self.helpPageContactTwitterRowLayout.addWidget(self.helpPageContactTwitterLabel)
-        self.helpPageContactTwitterRowLayout.addStretch(1)
-
-        self.helpPageLayout.addWidget(self.helpPageInstructionsLabel)
-        self.helpPageLayout.addWidget(self.helpPageInstructionsDescription)
-        self.helpPageLayout.addWidget(self.helpPageContactLabel)
-        self.helpPageLayout.addWidget(self.helpPageContactDiscordRow)
-        self.helpPageLayout.addWidget(self.helpPageContactTwitterRow)
-        self.helpPageLayout.addStretch(1)
 
         """
         settingsPage
