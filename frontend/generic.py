@@ -1,11 +1,19 @@
+import os
+import sys
+
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QLabel, QLineEdit, QCheckBox, QComboBox, QListView, QPushButton, QWidget, QVBoxLayout, \
     QToolButton, QProxyStyle, QStyle
+from pynput import keyboard
 
 from frontend.stylesheets import StyleSheets
 
+sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
+
+from backend.config import Config
+from backend.utils.text_util import TextUtil
 
 class Font(QFont):
     def __init__(self, font_size):
@@ -148,3 +156,49 @@ class Icons:
     up_arrow = __base + "/icon_up_arrow.png"
     discord = __base + "/icon_discord.png"
     twitter = __base + "/icon_twitter.png"
+
+class HotkeyInput(QPushButton):
+    def __init__(self, parent, object_name, size, on_activate, on_deactivate):
+        super().__init__(parent)
+        self.on_activate = on_activate # on activating THIS button
+        self.on_deactivate = on_deactivate # on deactivating THIS button
+        self.pressed_keys = []
+        self.setObjectName(object_name)
+        self.setFixedSize(size)
+        self.setStyleSheet(StyleSheets.button)
+        self.pressed_keys = Config().hotkey()
+        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
+        self.setFont(Font(10))
+        self.clicked.connect(self.on_click)
+        self.active = False
+        self.listener = None
+
+    def on_click(self):
+        if not self.active:
+            self.pressed_keys = []
+            self.setStyleSheet(StyleSheets.button_recording)
+            self.setText("Recording keystrokes...")
+            self.on_activate()
+            self.start_keyboard_listener()
+            self.active = True
+
+    def start_keyboard_listener(self):
+        self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
+        self.listener.start()
+
+    def stop_keyboard_listener(self):
+        self.listener.stop()
+        self.listener = None
+
+    def on_key_down(self, key):
+        key = TextUtil.pynput_to_key_string(self.listener, key)
+        self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
+        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
+
+    def on_key_up(self):
+        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
+
+        self.active = False
+        self.stop_keyboard_listener()
+        self.on_deactivate()
+        self.setStyleSheet(StyleSheets.button)

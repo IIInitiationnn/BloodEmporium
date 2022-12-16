@@ -3,26 +3,22 @@ import sys
 from multiprocessing import freeze_support, Pipe
 from threading import Thread
 
-from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QTimer, QRect, QObject, pyqtSignal
+from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QGraphicsDropShadowEffect, QStackedWidget, QFileDialog, QSizeGrip
-from pynput import keyboard
+    QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip
 
-from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Button, \
-    Icons
+from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
 from frontend.layouts import RowLayout
 from frontend.pages.bloodweb import BloodwebPage
 from frontend.pages.help import HelpPage
 from frontend.pages.preferences import PreferencesPage
+from frontend.pages.settings import SettingsPage
 from frontend.stylesheets import StyleSheets
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
-from backend.config import Config
-from backend.data import Data
 from backend.state import State
-from backend.utils.text_util import TextUtil
 
 class TopBar(QFrame):
     def __init__(self, parent):
@@ -271,52 +267,6 @@ class SideGrip(QWidget):
     def mouseReleaseEvent(self, event):
         self.mousePos = None
 
-class HotkeyInput(QPushButton):
-    def __init__(self, parent, object_name, size, on_activate, on_deactivate):
-        super().__init__(parent)
-        self.on_activate = on_activate # on activating THIS button
-        self.on_deactivate = on_deactivate # on deactivating THIS button
-        self.pressed_keys = []
-        self.setObjectName(object_name)
-        self.setFixedSize(size)
-        self.setStyleSheet(StyleSheets.button)
-        self.pressed_keys = Config().hotkey()
-        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
-        self.setFont(Font(10))
-        self.clicked.connect(self.on_click)
-        self.active = False
-        self.listener = None
-
-    def on_click(self):
-        if not self.active:
-            self.pressed_keys = []
-            self.setStyleSheet(StyleSheets.button_recording)
-            self.setText("Recording keystrokes...")
-            self.on_activate()
-            self.start_keyboard_listener()
-            self.active = True
-
-    def start_keyboard_listener(self):
-        self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
-        self.listener.start()
-
-    def stop_keyboard_listener(self):
-        self.listener.stop()
-        self.listener = None
-
-    def on_key_down(self, key):
-        key = TextUtil.pynput_to_key_string(self.listener, key)
-        self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
-        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
-
-    def on_key_up(self):
-        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
-
-        self.active = False
-        self.stop_keyboard_listener()
-        self.on_deactivate()
-        self.setStyleSheet(StyleSheets.button)
-
 class MainWindow(QMainWindow):
     def minimize(self):
         self.showMinimized()
@@ -412,60 +362,6 @@ class MainWindow(QMainWindow):
         else:
             self.bloodwebPage.show_run_success(text, hide)
 
-    # settings
-    def on_width_update(self):
-        text = self.settingsPageResolutionWidthInput.text()
-        self.settingsPageResolutionWidthInput.setStyleSheet(StyleSheets.settings_input(width=text))
-
-    def on_height_update(self):
-        text = self.settingsPageResolutionHeightInput.text()
-        self.settingsPageResolutionHeightInput.setStyleSheet(StyleSheets.settings_input(height=text))
-
-    def on_ui_scale_update(self):
-        text = self.settingsPageResolutionUIInput.text()
-        self.settingsPageResolutionUIInput.setStyleSheet(StyleSheets.settings_input(ui_scale=text))
-
-    def set_path(self):
-        icon_dir = QFileDialog.getExistingDirectory(self, "Select Icon Folder", self.settingsPagePathText.text())
-        if icon_dir != "":
-            self.settingsPagePathText.setText(icon_dir)
-
-    def show_settings_page_save_success_text(self, text):
-        self.settingsPageSaveSuccessText.setText(text)
-        self.settingsPageSaveSuccessText.setStyleSheet(StyleSheets.pink_text)
-        self.settingsPageSaveSuccessText.setVisible(True)
-        QTimer.singleShot(10000, self.hide_settings_page_save_success_text)
-
-    def show_settings_page_save_fail_text(self, text):
-        self.settingsPageSaveSuccessText.setText(text)
-        self.settingsPageSaveSuccessText.setStyleSheet(StyleSheets.purple_text)
-        self.settingsPageSaveSuccessText.setVisible(True)
-        QTimer.singleShot(10000, self.hide_settings_page_save_success_text)
-
-    def hide_settings_page_save_success_text(self):
-        self.settingsPageSaveSuccessText.setVisible(False)
-
-    def save_settings(self):
-        width = self.settingsPageResolutionWidthInput.text()
-        height = self.settingsPageResolutionHeightInput.text()
-        ui_scale = self.settingsPageResolutionUIInput.text()
-        if not Data.verify_settings_res(width, height, ui_scale):
-            self.show_settings_page_save_fail_text("Ensure width, height and UI scale are all numbers. "
-                                                   "UI scale must be an integer between 70 and 100. Changes not saved.")
-            return
-
-        path = self.settingsPagePathText.text()
-        if not Data.verify_path(path):
-            self.show_settings_page_save_fail_text("Ensure path is an actual folder. Changes not saved.")
-            return
-
-        hotkey = self.settingsPageHotkeyInput.pressed_keys
-
-        Config().set_resolution(int(width), int(height), int(ui_scale))
-        Config().set_path(path)
-        Config().set_hotkey(hotkey)
-        self.show_settings_page_save_success_text("Settings changed.")
-
     @property
     def grip_size(self):
         return self.__grip_size
@@ -508,37 +404,9 @@ class MainWindow(QMainWindow):
         QMainWindow.resizeEvent(self, event)
         self.update_grips()
 
-    def start_keyboard_listener(self):
-        self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
-        self.listener.start()
-
-    def stop_keyboard_listener(self):
-        self.listener.stop()
-        self.listener = None
-
-    def on_key_down(self, key):
-        key = TextUtil.pynput_to_key_string(self.listener, key)
-        self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
-        if self.pressed_keys == Config().hotkey():
-            self.run_terminate()
-
-    def on_key_up(self, key):
-        key = TextUtil.pynput_to_key_string(self.listener, key)
-        try:
-            self.pressed_keys.remove(key)
-        except ValueError:
-            pass
-
     def __init__(self, state_pipe_, emitter):
         super().__init__()
-        self.listener = None
         # TODO windows up + windows down; cursor when hovering over buttons
-
-        TextInputBox.on_focus_in_callback = self.stop_keyboard_listener
-        TextInputBox.on_focus_out_callback = self.start_keyboard_listener
-        self.pressed_keys = []
-        self.start_keyboard_listener()
-
         self.is_maximized = False
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
         self.state = State(state_pipe_)
@@ -759,98 +627,11 @@ class MainWindow(QMainWindow):
         self.helpButton.setPage(self.helpPage)
 
         # stack: settingsPage
-        self.settingsPage = QWidget()
-        self.settingsPage.setObjectName("settingsPage")
+        self.settingsPage = SettingsPage(self.run_terminate)
         self.settingsButton.setPage(self.settingsPage)
-
-        self.settingsPageLayout = QVBoxLayout(self.settingsPage)
-        self.settingsPageLayout.setObjectName("settingsPageLayout")
-        self.settingsPageLayout.setContentsMargins(25, 25, 25, 25)
-        self.settingsPageLayout.setSpacing(15)
-
-        res = Config().resolution()
-        self.settingsPageResolutionLabel = TextLabel(self.settingsPage, "settingsPageResolutionLabel",
-                                                     "Display Resolution", Font(12))
-        self.settingsPageResolutionUIDescription = TextLabel(self.settingsPage,
-                                                             "settingsPageResolutionUIDescription",
-                                                             "You can find your UI scale in your Dead by Daylight "
-                                                             "settings under Graphics -> UI / HUD -> UI Scale.",
-                                                             Font(10))
-        self.settingsPageResolutionWidthRow = QWidget(self.settingsPage)
-        self.settingsPageResolutionWidthRow.setObjectName("settingsPageResolutionWidthRow")
-
-        self.settingsPageResolutionWidthRowLayout = RowLayout(self.settingsPageResolutionWidthRow,
-                                                              "settingsPageResolutionWidthRowLayout")
-
-        self.settingsPageResolutionWidthLabel = TextLabel(self.settingsPageResolutionWidthRow,
-                                                          "settingsPageResolutionWidthLabel", "Width", Font(10))
-        self.settingsPageResolutionWidthInput = TextInputBox(self.settingsPageResolutionWidthRow,
-                                                             "settingsPageResolutionWidthInput", QSize(70, 40),
-                                                             "Width", str(res.width))
-        self.settingsPageResolutionWidthInput.textEdited.connect(self.on_width_update)
-
-        self.settingsPageResolutionHeightRow = QWidget(self.settingsPage)
-        self.settingsPageResolutionHeightRow.setObjectName("settingsPageResolutionHeightRow")
-        self.settingsPageResolutionHeightRowLayout = RowLayout(self.settingsPageResolutionHeightRow,
-                                                               "settingsPageResolutionHeightRowLayout")
-
-        self.settingsPageResolutionHeightLabel = TextLabel(self.settingsPageResolutionHeightRow,
-                                                           "settingsPageResolutionHeightLabel", "Height", Font(10))
-        self.settingsPageResolutionHeightInput = TextInputBox(self.settingsPageResolutionHeightRow,
-                                                              "settingsPageResolutionHeightInput", QSize(70, 40),
-                                                              "Height", str(res.height))
-        self.settingsPageResolutionHeightInput.textEdited.connect(self.on_height_update)
-
-        self.settingsPageResolutionUIRow = QWidget(self.settingsPage)
-        self.settingsPageResolutionUIRow.setObjectName("settingsPageResolutionUIRow")
-        self.settingsPageResolutionUIRowLayout = RowLayout(self.settingsPageResolutionUIRow,
-                                                           "settingsPageResolutionUIRowLayout")
-
-        self.settingsPageResolutionUILabel = TextLabel(self.settingsPageResolutionUIRow,
-                                                       "settingsPageResolutionUILabel", "UI Scale", Font(10))
-        self.settingsPageResolutionUIInput = TextInputBox(self.settingsPageResolutionUIRow,
-                                                          "settingsPageResolutionUIInput", QSize(70, 40),
-                                                          "UI Scale", str(res.ui_scale))
-        self.settingsPageResolutionUIInput.textEdited.connect(self.on_ui_scale_update)
-
-        self.settingsPagePathLabel = TextLabel(self.settingsPage, "settingsPagePathLabel", "Installation Path",
-                                               Font(12))
-        self.settingsPagePathLabelDefaultLabel = TextLabel(self.settingsPage, "settingsPagePathLabelDefaultLabel",
-                                                           "Default path on Steam is C:/Program Files (x86)"
-                                                           "/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/"
-                                                           "Content/UI/Icons", Font(10))
-
-        self.settingsPagePathRow = QWidget(self.settingsPage)
-        self.settingsPagePathRow.setObjectName("settingsPagePathRow")
-        self.settingsPagePathRowLayout = RowLayout(self.settingsPagePathRow, "settingsPagePathRowLayout")
-
-        self.settingsPagePathText = TextInputBox(self.settingsPage, "settingsPagePathText", QSize(550, 40),
-                                                 "Path to Dead by Daylight game icon files", str(Config().path()))
-        self.settingsPagePathButton = Button(self.settingsPage, "settingsPagePathButton", "Set path to game icon files",
-                                             QSize(180, 35))
-        self.settingsPagePathButton.clicked.connect(self.set_path)
-
-        self.settingsPageHotkeyLabel = TextLabel(self.settingsPage, "settingsPageHotkeyLabel", "Hotkey",
-                                                 Font(12))
-        self.settingsPageHotkeyDescription = TextLabel(self.settingsPage, "settingsPageHotkeyDescription",
-                                                       "Shortcut to run or terminate the automatic bloodweb process.",
-                                                       Font(10))
-
-        self.settingsPageHotkeyInput = HotkeyInput(self.settingsPage, "settingsPageHotkeyInput", QSize(300, 40),
-                                                   self.stop_keyboard_listener, self.start_keyboard_listener)
-
-        self.settingsPageSaveRow = QWidget(self.settingsPage)
-        self.settingsPageSaveRow.setObjectName("settingsPageSaveRow")
-        self.settingsPageSaveRowLayout = RowLayout(self.settingsPageSaveRow, "settingsPageSaveRowLayout")
-
-        self.settingsPageSaveButton = Button(self.settingsPageSaveRow, "settingsPageSaveButton", "Save", QSize(60, 35))
-        self.settingsPageSaveButton.clicked.connect(self.save_settings)
-
-        self.settingsPageSaveSuccessText = TextLabel(self.settingsPageSaveRow, "settingsPageSaveSuccessText", "",
-                                                     Font(10))
-        self.settingsPageSaveSuccessText.setVisible(False)
-
-        # TODO reset to last saved settings button
+        TextInputBox.on_focus_in_callback = self.settingsPage.stop_keyboard_listener
+        TextInputBox.on_focus_out_callback = self.settingsPage.start_keyboard_listener
+        self.settingsPage.start_keyboard_listener()
 
         # bottom bar
         self.bottomBar = QFrame(self.content)
@@ -980,43 +761,6 @@ class MainWindow(QMainWindow):
         self.homePageLayout.addWidget(self.homePageRow3)
         self.homePageLayout.addWidget(self.homePageRow4)
         self.homePageLayout.addStretch(1)
-
-        """
-        settingsPage
-        """
-        self.settingsPageResolutionWidthRowLayout.addWidget(self.settingsPageResolutionWidthLabel)
-        self.settingsPageResolutionWidthRowLayout.addWidget(self.settingsPageResolutionWidthInput)
-        self.settingsPageResolutionWidthRowLayout.addStretch(1)
-
-        self.settingsPageResolutionHeightRowLayout.addWidget(self.settingsPageResolutionHeightLabel)
-        self.settingsPageResolutionHeightRowLayout.addWidget(self.settingsPageResolutionHeightInput)
-        self.settingsPageResolutionHeightRowLayout.addStretch(1)
-
-        self.settingsPageResolutionUIRowLayout.addWidget(self.settingsPageResolutionUILabel)
-        self.settingsPageResolutionUIRowLayout.addWidget(self.settingsPageResolutionUIInput)
-        self.settingsPageResolutionUIRowLayout.addStretch(1)
-
-        self.settingsPagePathRowLayout.addWidget(self.settingsPagePathText)
-        self.settingsPagePathRowLayout.addWidget(self.settingsPagePathButton)
-        self.settingsPagePathRowLayout.addStretch(1)
-
-        self.settingsPageSaveRowLayout.addWidget(self.settingsPageSaveButton)
-        self.settingsPageSaveRowLayout.addWidget(self.settingsPageSaveSuccessText)
-        self.settingsPageSaveRowLayout.addStretch(1)
-
-        self.settingsPageLayout.addWidget(self.settingsPageResolutionLabel)
-        self.settingsPageLayout.addWidget(self.settingsPageResolutionUIDescription)
-        self.settingsPageLayout.addWidget(self.settingsPageResolutionWidthRow)
-        self.settingsPageLayout.addWidget(self.settingsPageResolutionHeightRow)
-        self.settingsPageLayout.addWidget(self.settingsPageResolutionUIRow)
-        self.settingsPageLayout.addWidget(self.settingsPagePathLabel)
-        self.settingsPageLayout.addWidget(self.settingsPagePathLabelDefaultLabel)
-        self.settingsPageLayout.addWidget(self.settingsPagePathRow)
-        self.settingsPageLayout.addWidget(self.settingsPageHotkeyLabel)
-        self.settingsPageLayout.addWidget(self.settingsPageHotkeyDescription)
-        self.settingsPageLayout.addWidget(self.settingsPageHotkeyInput)
-        self.settingsPageLayout.addWidget(self.settingsPageSaveRow)
-        self.settingsPageLayout.addStretch(1)
 
         self.emitter.prestige.connect(self.bloodwebPage.on_prestige_signal)
         self.emitter.bloodpoint.connect(self.bloodwebPage.on_bloodpoint_signal)
