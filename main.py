@@ -1,12 +1,17 @@
 import os
+import subprocess
 import sys
+import time
+from io import BytesIO
 from multiprocessing import freeze_support, Pipe
 from threading import Thread
+from zipfile import ZipFile
 
+import requests
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip
+    QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox
 
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
 from frontend.layouts import RowLayout
@@ -19,6 +24,54 @@ from frontend.stylesheets import StyleSheets
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 from backend.state import State
+
+# auto-update code courtesy of DAzVise#1666
+def get_latest_update():
+    resp = requests.get("https://api.github.com/repos/IIInitiationnn/BloodEmporium/releases/latest")
+
+    if resp.status_code == 200:
+        data = resp.json()
+        version = data["tag_name"]
+
+        if version != State.version:
+            return data
+
+def install_update(update):
+    download = requests.get(update["assets"][0]["browser_download_url"])
+    zipped = ZipFile(BytesIO(download.content))
+
+    os.rename(sys.argv[0], f"Blood Emporium Old ({State.version}).exe")
+    zipped.extractall(path=".")
+
+def handle_updates():
+    if os.path.isfile(f"Blood Emporium Old ({State.version}).exe"):
+        os.remove(f"Blood Emporium Old ({State.version}).exe")
+
+    if getattr(sys, "frozen", False):
+        update = get_latest_update()
+
+        if update is not None:
+            install_update(update)
+            subprocess.Popen("Blood Emporium.exe")
+            sys.exit()
+
+class Dialog(QMessageBox):
+    def __init__(self):
+        super().__init__()
+        self.setWindowIcon(QIcon(Icons.icon))
+        # TODO stylise like main window
+
+
+class UpdateDialog(Dialog):
+    def __init__(self, new_version):
+        super().__init__()
+        self.setBaseSize(300, 200)
+        self.setMinimumSize(300, 200)
+        self.setWindowTitle(f"Update {new_version} available")
+        self.setText(f"A new version of Blood Emporium ({new_version}) is available.\nInstall now?")
+
+        self.addButton(QPushButton("Install"), QMessageBox.AcceptRole)
+        self.addButton(QPushButton("Not Now"), QMessageBox.RejectRole)
 
 class TopBar(QFrame):
     def __init__(self, parent):
@@ -769,6 +822,14 @@ class MainWindow(QMainWindow):
         self.emitter.toggle_text.connect(self.toggle_run_terminate_text)
 
         self.show()
+
+        # auto update
+        update = get_latest_update()
+        if update is not None:
+            dialog = UpdateDialog(update["tag_name"])
+            selection = dialog.exec()
+            if selection == QMessageBox.AcceptRole:
+                handle_updates()
 
 # https://stackoverflow.com/questions/26746379/how-to-signal-slots-in-a-gui-from-a-different-process
 # https://stackoverflow.com/questions/34525750/mainwindow-object-has-no-attribute-connect

@@ -23,7 +23,6 @@ bugs to fix
 - squarescreen support
 
 immediate priorities
-- print location of origin detected (improve origin detection by reducing region for detection - test on multiple res)
 - reload images in preferences page when path changes
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
 - tweak hough line parameters
@@ -36,8 +35,6 @@ features to add
 - blind mode
 - delete oldest logs once there are more than 100 (allowing retention for greater detail)
 - "you have unsaved changes" next to save button - profiles, settings
-- ability to auto-update software
-    - maybe ability to update default config presets as well? may not be desired by people who have overridden
 - import / export profile as string to share with others
 - find rarity of items with varying rarity (colour for mystery boxes)
     - configure rarity of different tiers of mystery boxes
@@ -305,7 +302,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v0.3.3"
+    version = "v1.0.0"
 
     def __init__(self, pipe):
         self.process = None

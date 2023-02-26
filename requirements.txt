@@ -5,3 +5,4 @@ PyAutoGUI==0.9.53
 pynput==1.7.5
 PyQt5==5.15.7
 pyvis==0.1.9
+requests~=2.28.1
