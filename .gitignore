@@ -3,6 +3,8 @@ compile.json
 config.json
 config_mine.json
 *.spec
+!onedir.spec
+!onefile.spec
 temp.py
 cheapskate.py
 

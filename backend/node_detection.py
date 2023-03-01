@@ -1,9 +1,7 @@
 import random
-from pprint import pprint
 
 import cv2
 import numpy as np
-import torch
 from supervision.draw.color import ColorPalette
 from supervision.tools.detections import Detections, BoxAnnotator
 from ultralytics import YOLO

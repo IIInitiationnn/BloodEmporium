@@ -1,5 +1,5 @@
 mkdir "../Blood Emporium Output/Blood Emporium ${1}"
-pyinstaller --noconfirm --onefile --windowed --name "Blood Emporium" --icon "references/inspo1.ico" --paths "backend" --distpath "../Blood Emporium Output/Blood Emporium ${1}" "main.py"
+pyinstaller --noconfirm --distpath "../Blood Emporium Output/Blood Emporium ${1}" "onefile.spec"
 cp -r "assets" "../Blood Emporium Output/Blood Emporium ${1}/assets"
 mkdir "../Blood Emporium Output/Blood Emporium ${1}/logs"
 

@@ -7,6 +7,4 @@ PyQt5==5.15.7
 pyvis==0.1.9
 requests~=2.28.1
 supervision==0.1.0
-torch==1.10.1
-torchvision==0.11.2
 ultralytics==8.0.33

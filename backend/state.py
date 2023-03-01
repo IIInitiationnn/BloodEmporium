@@ -7,14 +7,12 @@ from datetime import datetime
 from multiprocessing import Process, Pipe
 
 import networkx as nx
-import numpy as np
 import pyautogui
 
 from backend import node_detection
 from backend.data import Data
 from backend.node import Node
 from config import Config
-from cvimage import CVImage
 from debugger import Debugger
 from functions import screen_capture, match_origin, vector_circles, match_lines
 from grapher import Grapher
@@ -73,6 +71,9 @@ TODO possible improvements:
     - brightness and saturation preprocessing?
     - add some images containing transitions (new level) to train model to not classify them as prestiges
       may be able to retire the 0.7 arbitrary threshold after this
+- naive & aware mode: after each, check node colours, if none accessible left, run new level proceedings
+    - disappears instantly now, need to get screenshot immediately and then can bypass the level screen being captured
+- if no progress for 5 seconds, need to use failsafe
 '''
 
 class StateProcess(Process):
@@ -403,7 +404,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.0"
+    version = "v1.0.0-alpha.0"
 
     def __init__(self, pipe):
         self.process = None
