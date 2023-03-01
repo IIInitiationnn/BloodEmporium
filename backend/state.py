@@ -38,7 +38,6 @@ features to add
 - nodes yolov8
 - edges yolov8?
 - import / export profile as string to share with others
-- splash screen
 - find rarity of items with varying rarity (colour for mystery boxes)
     - configure rarity of different tiers of mystery boxes
         - configure 5 mystery box tiers for preferences

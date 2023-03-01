@@ -10,7 +10,7 @@ import requests
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox
+    QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
 
 from dialogs import UpdateDialog
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
@@ -772,16 +772,6 @@ class MainWindow(QMainWindow):
         self.emitter.terminate.connect(self.state.terminate)
         self.emitter.toggle_text.connect(self.toggle_run_terminate_text)
 
-        self.show()
-
-        # auto update
-        update = get_latest_update()
-        if update is not None:
-            dialog = UpdateDialog(update["tag_name"])
-            selection = dialog.exec()
-            if selection == QMessageBox.AcceptRole:
-                handle_updates()
-
 # https://stackoverflow.com/questions/26746379/how-to-signal-slots-in-a-gui-from-a-different-process
 # https://stackoverflow.com/questions/34525750/mainwindow-object-has-no-attribute-connect
 # receives data from state process via pipe, then emits to main window in this process
@@ -826,5 +816,25 @@ if __name__ == "__main__":
     main_emitter = Emitter(main_pipe)
 
     app = QApplication([])
+    splash = QSplashScreen(QPixmap(Icons.app_splash))
+    splash.setFont(Font(8))
+    splash.show()
+
+    splash.showMessage("initialising...", Qt.AlignHCenter | Qt.AlignBottom, QColor(StyleSheets.pink))
+    splash.showMessage("loading node detection model...", Qt.AlignHCenter | Qt.AlignBottom, QColor(StyleSheets.pink))
+    splash.showMessage("loading edge detection model...", Qt.AlignHCenter | Qt.AlignBottom, QColor(StyleSheets.pink))
+    splash.showMessage("launching...", Qt.AlignHCenter | Qt.AlignBottom, QColor(StyleSheets.pink))
+
     window = MainWindow(state_pipe, main_emitter, len(sys.argv) > 1 and "--dev" in sys.argv[1:])
+    splash.finish(window)
+    window.show()
+
+    # auto update
+    update = get_latest_update()
+    if update is not None:
+        dialog = UpdateDialog(update["tag_name"])
+        selection = dialog.exec()
+        if selection == QMessageBox.AcceptRole:
+            handle_updates()
+
     sys.exit(app.exec_())

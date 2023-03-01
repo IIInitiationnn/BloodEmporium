@@ -139,8 +139,11 @@ class NoShiftStyle(QProxyStyle):
 
 class Icons:
     __base = "assets/images/icons"
+
     icon = "assets/images/inspo1.png"
+    app_splash = "assets/images/app_splash.png"
     splash = "assets/images/splash.png"
+
     minimize = __base + "/icon_minimize.png"
     restore = __base + "/icon_restore.png"
     maximize = __base + "/icon_maximize.png"
