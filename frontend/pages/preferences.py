@@ -255,6 +255,7 @@ class PreferencesPage(QWidget):
             self.show_preferences_page_save_success(f"New empty profile created: {profile_id}")
 
             self.ignore_profile_signals = False
+            self.switch_edit_profile()
 
     def save_profile(self):
         profile_id = self.get_edit_profile()
@@ -539,7 +540,7 @@ class PreferencesPage(QWidget):
         self.profileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
         self.newProfileButton = Button(self.profileSaveRow, "preferencesPageNewProfileButton", "New Profile",
-                                       QSize(110, 35))
+                                       QSize(95, 35))
         self.newProfileButton.clicked.connect(self.new_profile)
 
         self.saveButton = Button(self.profileSaveRow, "preferencesPageSaveButton", "Save", QSize(60, 35))
