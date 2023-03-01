@@ -200,11 +200,11 @@ class PreferencesPage(QWidget):
         config = Config()
         while self.profileSelector.count() > 0:
             self.profileSelector.removeItem(0)
-        self.profileSelector.addItems(config.profile_names() + ["blank"])
+        self.profileSelector.addItems(config.profile_names())
 
         while self.bloodwebPage.profileSelector.count() > 0:
             self.bloodwebPage.profileSelector.removeItem(0)
-        self.bloodwebPage.profileSelector.addItems(config.profile_names() + ["blank"])
+        self.bloodwebPage.profileSelector.addItems(config.profile_names())
 
     def replace_unlockable_widgets(self):
         sort_by = self.sortSelector.currentText()
@@ -241,6 +241,20 @@ class PreferencesPage(QWidget):
             config = Config()
             for widget in self.unlockableWidgets:
                 widget.setTiers(*config.preference(widget.unlockable.unique_id, self.get_edit_profile()))
+
+    def new_profile(self):
+        if not self.ignore_profile_signals:
+            self.ignore_profile_signals = True
+            config = Config()
+            profile_id = config.get_next_free_profile_name()
+            config.add_profile({"id": profile_id})
+
+            self.update_profiles_from_config()
+            index = self.profileSelector.findText(profile_id)
+            self.profileSelector.setCurrentIndex(index)
+            self.show_preferences_page_save_success(f"New empty profile created: {profile_id}")
+
+            self.ignore_profile_signals = False
 
     def save_profile(self):
         profile_id = self.get_edit_profile()
@@ -315,6 +329,7 @@ class PreferencesPage(QWidget):
             self.ignore_profile_signals = False
 
     def rename_profile(self):
+        # TODO maybe rename instead of save and delete - preserve config order
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True
 
@@ -344,24 +359,23 @@ class PreferencesPage(QWidget):
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True
             profile_id = self.get_edit_profile()
-            if profile_id == "blank":
-                self.show_preferences_page_save_error("You cannot delete the blank profile.")
-            else:
-                # confirm if user wants to delete
-                delete_profile_dialog = ConfirmDialog("Are you sure you want to delete this profile?")
-                confirmation = delete_profile_dialog.exec()
-                if confirmation != QMessageBox.AcceptRole:
-                    self.ignore_profile_signals = False
-                    return
 
-                Config().delete_profile(profile_id)
-
-                self.update_profiles_from_config()
-                self.profileSelector.setCurrentIndex(0)
+            # confirm if user wants to delete
+            delete_profile_dialog = ConfirmDialog("Are you sure you want to delete this profile?")
+            confirmation = delete_profile_dialog.exec()
+            if confirmation != QMessageBox.AcceptRole:
                 self.ignore_profile_signals = False
-                self.switch_edit_profile()
+                return
 
-                self.show_preferences_page_save_success(f"Profile deleted: {profile_id}")
+            Config().delete_profile(profile_id)
+
+            self.update_profiles_from_config()
+            self.profileSelector.setCurrentIndex(0)
+            self.ignore_profile_signals = False
+            self.switch_edit_profile()
+
+            self.show_preferences_page_save_success(f"Profile deleted: {profile_id}")
+
             self.ignore_profile_signals = False
 
     def show_preferences_page_save_success(self, text):
@@ -521,8 +535,12 @@ class PreferencesPage(QWidget):
         self.profileLabel = TextLabel(self.scrollAreaContent, "preferencesPageProfileLabel", "Profile", Font(12))
 
         self.profileSelector = Selector(self.profileSaveRow, "preferencesPageProfileSelector", QSize(200, 40),
-                                        config.profile_names() + ["blank"])
+                                        config.profile_names())
         self.profileSelector.currentIndexChanged.connect(self.switch_edit_profile)
+
+        self.newProfileButton = Button(self.profileSaveRow, "preferencesPageNewProfileButton", "New Profile",
+                                       QSize(110, 35))
+        self.newProfileButton.clicked.connect(self.new_profile)
 
         self.saveButton = Button(self.profileSaveRow, "preferencesPageSaveButton", "Save", QSize(60, 35))
         self.saveButton.clicked.connect(self.save_profile)
@@ -676,6 +694,7 @@ class PreferencesPage(QWidget):
         """
         # rows comprising the content
         self.profileSaveRowLayout.addWidget(self.profileSelector)
+        self.profileSaveRowLayout.addWidget(self.newProfileButton)
         self.profileSaveRowLayout.addWidget(self.saveButton)
         self.profileSaveRowLayout.addWidget(self.saveAsButton)
         self.profileSaveRowLayout.addWidget(self.renameButton)

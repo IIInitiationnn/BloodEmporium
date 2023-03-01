@@ -37,8 +37,6 @@ class Config:
                 raise ConfigError(f"Missing profile id for profile {num} in config.json")
             if profile["id"] in ids:
                 raise ConfigError(f"Multiple profiles with same id (profile {num}) in config.json")
-            if profile["id"] == "blank":
-                raise ConfigError(f"blank is an invalid profile id for profile {num} in config.json")
 
             ids.append(profile["id"])
             for unique_id, v in profile.items():
@@ -78,7 +76,7 @@ class Config:
         return [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
 
     def preference(self, unlockable_id, profile_id):
-        if profile_id == "blank":
+        if profile_id is None:
             return 0, 0
         p = self.get_profile_by_id(profile_id).get(unlockable_id, {})
         return p.get("tier", 0), p.get("subtier", 0)
@@ -118,6 +116,15 @@ class Config:
         :return: whether the profile existed before already
         """
         return profile_id in [profile["id"] for profile in self.__profiles()]
+
+    def get_next_free_profile_name(self):
+        profile_ids = [profile["id"] for profile in self.__profiles()]
+        i = 0
+        profile_id = "new profile"
+        while profile_id in profile_ids:
+            i += 1
+            profile_id = f"new profile ({i})"
+        return profile_id
 
     def add_profile(self, new_profile):
         """

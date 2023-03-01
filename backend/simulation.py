@@ -56,7 +56,7 @@ class Simulation:
 
             # run through optimiser
             optimiser = Optimiser(base_bloodweb)
-            optimiser.run("blank")
+            optimiser.run(None)
             optimal_unlockable = optimiser.select_best()
             pprint(optimal_unlockable.get_tuple())
             NetworkUtil.write_to_html(optimiser.dijkstra_graph, f"output/dijkstra{i}")
