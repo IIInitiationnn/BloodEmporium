@@ -19,9 +19,6 @@ from optimiser import Optimiser
 from resolution import Resolution
 
 """
-bugs to fix
-- squarescreen support
-
 immediate priorities
 - reload images in preferences page when path changes
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
@@ -32,18 +29,26 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
-- blind mode
+- dialog window
 - delete oldest logs once there are more than 100 (allowing retention for greater detail)
+- naive mode (explain underneath)
+    - screenshot, select accessible / prestige, repeat
+- notes for each config
+- settings: are you using a custom pack
 - "you have unsaved changes" next to save button - profiles, settings
+- nodes yolov8
+- edges yolov8?
 - import / export profile as string to share with others
+- splash screen
 - find rarity of items with varying rarity (colour for mystery boxes)
     - configure rarity of different tiers of mystery boxes
         - configure 5 mystery box tiers for preferences
+- summary on items obtained by the application
+- program termination upon reaching insufficient bloodpoints
 
 timeline
 - above new features and TODOs
 - josh feedback
-- optimisation and accuracy guarantees
 - finalise -> 1.0.0
 """
 
