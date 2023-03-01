@@ -2,7 +2,7 @@ import math
 import os
 import time
 from datetime import datetime
-from typing import Tuple
+from typing import Tuple, List
 
 import cv2
 import numpy as np
@@ -16,7 +16,7 @@ from cvimage import CVImage
 from image import Image
 
 
-def screen_capture(base_res: Resolution, ratio, iterations=3, interval=0.5) -> [CVImage]:
+def screen_capture(base_res: Resolution, ratio, iterations=3, interval=0.5, crop=True) -> List[CVImage]:
     """
     Takes several images with some intervening interval.
 
@@ -38,7 +38,10 @@ def screen_capture(base_res: Resolution, ratio, iterations=3, interval=0.5) -> [
 
     previous = datetime.now()
     for i in range(iterations):
-        screenshot = pyautogui.screenshot(region=(x, y, width, height))
+        if crop:
+            screenshot = pyautogui.screenshot(region=(x, y, width, height))
+        else:
+            screenshot = pyautogui.screenshot()
         screenshot = np.array(screenshot)[:, :, :: -1].copy()
 
         if ratio != 1:

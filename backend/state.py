@@ -7,13 +7,16 @@ from datetime import datetime
 from multiprocessing import Process, Pipe
 
 import networkx as nx
+import numpy as np
 import pyautogui
 
+from backend import node_detection
 from backend.data import Data
 from backend.node import Node
-from functions import screen_capture, match_origin, vector_circles, match_lines
 from config import Config
+from cvimage import CVImage
 from debugger import Debugger
+from functions import screen_capture, match_origin, vector_circles, match_lines
 from grapher import Grapher
 from mergedbase import MergedBase
 from optimiser import Optimiser
@@ -30,8 +33,6 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
-- naive mode (explain underneath)
-    - screenshot, select accessible / prestige, repeat
 - notes for each config
 - settings: are you using a custom pack
 - "you have unsaved changes" next to save button - profiles, settings
@@ -67,6 +68,17 @@ class LoggerWriter(object):
         if self._msg != "":
             self._writer(self._msg)
             self._msg = ""
+
+'''
+TODO possible improvements:
+- get rid of yolov8 logging
+- better model
+    - more training data
+    - more prestige data
+    - brightness and saturation preprocessing?
+    - add some images containing transitions (new level) to train model to not classify them as prestiges
+      may be able to retire the 0.7 arbitrary threshold after this
+'''
 
 class StateProcess(Process):
     def __init__(self, pipe: Pipe, args):
@@ -108,6 +120,8 @@ class StateProcess(Process):
 
             pyautogui.FAILSAFE = False
 
+            node_detector = node_detection.NodeDetection()
+
             prestige_total = 0
             bp_total = 0
             self.emit("prestige", (prestige_total, prestige_limit))
@@ -129,128 +143,72 @@ class StateProcess(Process):
             merged_base = MergedBase(resolution, character)
             pyautogui.moveTo(0, 0)
 
-            i = 0
-            while True:
-                if prestige_limit is not None and prestige_total == prestige_limit:
-                    print("reached prestige limit. terminating")
-                    self.emit("terminate")
-                    self.emit("toggle_text", ("Prestige limit reached.", False, False))
-                    return
-
-                # screen capture
-                print("capturing screen")
-                cv_images = screen_capture(base_res, ratio)
-                debugger = Debugger(cv_images, timestamp, i, write_to_output)
-                debugger.set_merger(merged_base)
-
-                print("matching origin")
-                origin, origin_type, cropped = match_origin(cv_images[0], resolution)
-                debugger.set_origin(origin)
-                debugger.set_origin_type(origin_type)
-                debugger.set_cropped(cropped)
-                print(f"matched origin: {origin_type} ({x + origin.x() * ratio}, {y + origin.y() * ratio})")
-
-                # vectors: detect circles and match to unlockables
-                print("vector: circles and match to unlockables")
-                circles = vector_circles(cv_images[0], resolution, origin, merged_base, debugger)
-                debugger.set_valid_circles(circles)
-
-                # prestige level: proceed to next level
-                if origin_type == "origin_prestige.png" or origin_type == "origin_prestige_small.png":
-                    if debug:
-                        debugger.show_images()
-                    prestige_total += 1
-                    bp_total += 20000
-                    if bp_limit is not None and bp_total > bp_limit:
-                        print("prestige level: reached bloodpoint limit. terminating")
+            if is_naive_mode:
+                print("running in naive mode")
+                while True:
+                    if prestige_limit is not None and prestige_total == prestige_limit:
+                        print("reached prestige limit. terminating")
                         self.emit("terminate")
-                        self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
+                        self.emit("toggle_text", ("Prestige limit reached.", False, False))
                         return
 
-                    print("prestige level: selecting")
-                    self.emit("prestige", (prestige_total, prestige_limit))
-                    self.emit("bloodpoint", (bp_total, bp_limit))
-                    pyautogui.moveTo(x + round(origin.x() * ratio), y + round(origin.y() * ratio))
-                    pyautogui.mouseDown()
-                    time.sleep(1.5)
-                    pyautogui.mouseUp()
-                    time.sleep(4) # 4 sec to clear out until new level screen
-                    pyautogui.click()
-                    time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
-                    pyautogui.click()
-                    time.sleep(0.5) # 1 sec to generate
-                    pyautogui.moveTo(0, 0)
-                    time.sleep(0.5) # 1 sec to generate
-                    continue
+                    # screen capture
+                    print("capturing screen")
+                    cv_image = screen_capture(base_res, ratio, iterations=1, crop=False)[0]
 
-                # hough transform: detect lines
-                print("hough transform: lines")
-                edge_images, raw_lines, connections = match_lines(cv_images, resolution, circles)
-                debugger.set_edge_images(edge_images)
-                debugger.set_raw_lines(raw_lines)
-                debugger.set_connections(connections)
+                    # yolov8: detect accessible nodes
+                    print("yolov8: detect accessible nodes")
+                    results = node_detector.predict(cv_image.get_bgr())
+                    identified = node_detector.get_accessible_or_prestige(results, cv_image.get_gray(), merged_base)
 
-                # create networkx graph of nodes
-                print("creating networkx graph")
-                grapher = Grapher(circles, connections) # all 9999
-                base_bloodweb = grapher.create()
-                debugger.set_base_bloodweb(base_bloodweb)
-                print("NODES")
-                for node in base_bloodweb.nodes:
-                    print(f"    {node}")
-                print("EDGES")
-                max_len = max([str_len for edge in base_bloodweb.edges for str_len in [len(edge[0]), len(edge[1])]])
-                for edge in base_bloodweb.edges:
-                    print(f"    {str(edge[0]).ljust(max_len, ' ')} {edge[1]}")
+                    # nothing detected
+                    if identified is None:
+                        time.sleep(0.5) # try again
+                        pyautogui.click()
+                        continue
 
-                if debug:
-                    debugger.show_images()
+                    (x1, y1, x2, y2), unlockable_name = identified
 
-                # fast-forward levels with <= 6 nodes (excl. origin) and none yet claimed
-                fast = len(base_bloodweb.nodes) <= 7 and all([not data["is_user_claimed"]
-                                                              for node_id, data in base_bloodweb.nodes.items()
-                                                              if node_id != "ORIGIN"])
-                j = 1
-                run = True
-                while run:
-                    # correct reachable nodes
-                    # print("pre-correction")
-                    # for node_id, data in base_bloodweb.nodes.items():
-                    #     if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
-                    #             base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
-                    #         print(f"    corrected {node_id}")
-                    #         nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+                    # prestige
+                    if unlockable_name == "prestige":
+                        prestige_total += 1
+                        bp_total += 20000
+                        if bp_limit is not None and bp_total > bp_limit:
+                            print("prestige level: reached bloodpoint limit. terminating")
+                            self.emit("terminate")
+                            self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
+                            return
 
-                    # run through optimiser
-                    print("optimiser")
-                    optimiser = Optimiser(base_bloodweb)
-                    optimiser.run(profile_id)
-                    print("    updated nodes")
-                    for node_id, data in optimiser.dijkstra_graph.nodes.items():
-                        print(f"        {node_id.ljust(max_len, ' ')} "
-                              f"value {str(data['value']).ljust(10, ' ')} "
-                              f"accessible {str(data['is_accessible']).ljust(5, ' ')} "
-                              f"claimed {data['is_user_claimed']}")
+                        print("prestige level: selecting")
+                        self.emit("prestige", (prestige_total, prestige_limit))
+                        self.emit("bloodpoint", (bp_total, bp_limit))
+                        pyautogui.moveTo(int((x1 + x2) / 2 * ratio), int((y1 + y2) / 2 * ratio))
+                        pyautogui.mouseDown()
+                        time.sleep(1.5)
+                        pyautogui.mouseUp()
+                        time.sleep(4) # 4 sec to clear out until new level screen
+                        pyautogui.click()
+                        time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
+                        pyautogui.click()
+                        time.sleep(0.5) # 1 sec to generate
+                        pyautogui.moveTo(0, 0)
+                        time.sleep(0.5) # 1 sec to generate
+                        continue
 
-                    optimal_unlockable = optimiser.select_best()
-                    selected_unlockable = [u for u in unlockables if u.unique_id == optimal_unlockable.name][0]
+                    # accessible
+                    selected_unlockable = [u for u in unlockables if u.unique_id == unlockable_name][0]
                     bp_total += Data.get_cost(selected_unlockable.rarity)
                     if bp_limit is not None and bp_total > bp_limit:
-                        print(f"{optimal_unlockable.node_id}: reached bloodpoint limit. terminating")
+                        print(f"{unlockable_name}: reached bloodpoint limit. terminating")
                         self.emit("terminate")
                         self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                         return
 
-                    print(optimal_unlockable.node_id)
-                    debugger.set_dijkstra(optimiser.dijkstra_graph, j)
+                    print(unlockable_name)
                     self.emit("bloodpoint", (bp_total, bp_limit))
-                    if fast:
-                        optimal_unlockable.set_user_claimed(True)
-                        optimal_unlockable.set_value(9999)
-                        nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
 
                     # select perk: hold on the perk for 0.3s
-                    pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
+                    pyautogui.moveTo(int((x1 + x2) / 2 * ratio), int((y1 + y2) / 2 * ratio))
                     pyautogui.mouseDown()
                     time.sleep(0.15)
                     pyautogui.moveTo(0, 0)
@@ -258,7 +216,7 @@ class StateProcess(Process):
                     pyautogui.mouseUp()
 
                     # mystery box: click
-                    if "mysteryBox" in optimal_unlockable.name:
+                    if "mysteryBox" in unlockable_name:
                         print("mystery box selected")
                         time.sleep(0.9)
                         pyautogui.click()
@@ -266,43 +224,182 @@ class StateProcess(Process):
 
                     # move mouse again in case it didn't the first time
                     pyautogui.moveTo(0, 0)
+            else:
+                print("running in aware mode")
+                i = 0
+                while True:
+                    if prestige_limit is not None and prestige_total == prestige_limit:
+                        print("reached prestige limit. terminating")
+                        self.emit("terminate")
+                        self.emit("toggle_text", ("Prestige limit reached.", False, False))
+                        return
 
-                    if fast:
+                    # screen capture
+                    print("capturing screen")
+                    cv_images = screen_capture(base_res, ratio)
+                    debugger = Debugger(cv_images, timestamp, i, write_to_output)
+                    debugger.set_merger(merged_base)
+
+                    print("matching origin")
+                    origin, origin_type, cropped = match_origin(cv_images[0], resolution)
+                    debugger.set_origin(origin)
+                    debugger.set_origin_type(origin_type)
+                    debugger.set_cropped(cropped)
+                    print(f"matched origin: {origin_type} ({x + origin.x() * ratio}, {y + origin.y() * ratio})")
+
+                    # vectors: detect circles and match to unlockables
+                    print("vector: circles and match to unlockables")
+                    circles = vector_circles(cv_images[0], resolution, origin, merged_base, debugger)
+                    debugger.set_valid_circles(circles)
+
+                    # prestige level: proceed to next level
+                    if origin_type == "origin_prestige.png" or origin_type == "origin_prestige_small.png":
+                        if debug:
+                            debugger.show_images()
+                        prestige_total += 1
+                        bp_total += 20000
+                        if bp_limit is not None and bp_total > bp_limit:
+                            print("prestige level: reached bloodpoint limit. terminating")
+                            self.emit("terminate")
+                            self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
+                            return
+
+                        print("prestige level: selecting")
+                        self.emit("prestige", (prestige_total, prestige_limit))
+                        self.emit("bloodpoint", (bp_total, bp_limit))
+                        pyautogui.moveTo(x + round(origin.x() * ratio), y + round(origin.y() * ratio))
+                        pyautogui.mouseDown()
+                        time.sleep(1.5)
+                        pyautogui.mouseUp()
+                        time.sleep(4) # 4 sec to clear out until new level screen
+                        pyautogui.click()
+                        time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
+                        pyautogui.click()
+                        time.sleep(0.5) # 1 sec to generate
+                        pyautogui.moveTo(0, 0)
+                        time.sleep(0.5) # 1 sec to generate
+                        continue
+
+                    # hough transform: detect lines
+                    print("hough transform: lines")
+                    edge_images, raw_lines, connections = match_lines(cv_images, resolution, circles)
+                    debugger.set_edge_images(edge_images)
+                    debugger.set_raw_lines(raw_lines)
+                    debugger.set_connections(connections)
+
+                    # create networkx graph of nodes
+                    print("creating networkx graph")
+                    grapher = Grapher(circles, connections) # all 9999
+                    base_bloodweb = grapher.create()
+                    debugger.set_base_bloodweb(base_bloodweb)
+                    print("NODES")
+                    for node in base_bloodweb.nodes:
+                        print(f"    {node}")
+                    print("EDGES")
+                    max_len = max([str_len for edge in base_bloodweb.edges for str_len in [len(edge[0]), len(edge[1])]])
+                    for edge in base_bloodweb.edges:
+                        print(f"    {str(edge[0]).ljust(max_len, ' ')} {edge[1]}")
+
+                    if debug:
+                        debugger.show_images()
+
+                    # fast-forward levels with <= 6 nodes (excl. origin) and none yet claimed
+                    fast = len(base_bloodweb.nodes) <= 7 and all([not data["is_user_claimed"]
+                                                                  for node_id, data in base_bloodweb.nodes.items()
+                                                                  if node_id != "ORIGIN"])
+                    j = 1
+                    run = True
+                    while run:
                         # correct reachable nodes
-                        print("post-correction")
-                        for node_id, data in base_bloodweb.nodes.items():
-                            if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
-                                    base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
-                                print(f"    corrected {node_id}")
-                                nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
-                    else:
-                        # time for bloodweb to update
-                        time.sleep(0.3)
+                        # print("pre-correction")
+                        # for node_id, data in base_bloodweb.nodes.items():
+                        #     if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
+                        #             base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
+                        #         print(f"    corrected {node_id}")
+                        #         nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
 
-                        # take new picture and update colours
-                        print("updating bloodweb")
-                        updated_image = screen_capture(base_res, ratio, 1)[0]
-                        Grapher.update(base_bloodweb, updated_image, resolution)
-                        debugger.add_updated_image(updated_image.get_bgr(), j)
+                        # run through optimiser
+                        print("optimiser")
+                        optimiser = Optimiser(base_bloodweb)
+                        optimiser.run(profile_id)
+                        print("    updated nodes")
+                        for node_id, data in optimiser.dijkstra_graph.nodes.items():
+                            print(f"        {node_id.ljust(max_len, ' ')} "
+                                  f"value {str(data['value']).ljust(10, ' ')} "
+                                  f"accessible {str(data['is_accessible']).ljust(5, ' ')} "
+                                  f"claimed {data['is_user_claimed']}")
 
-                    # new level
-                    optimiser_test = Optimiser(base_bloodweb)
-                    optimiser_test.run(profile_id)
-                    optimal_test = optimiser_test.select_best()
-                    num_left = sum([1 for data in base_bloodweb.nodes.values() if not data["is_user_claimed"]])
-                    if optimal_test.node_id == "ORIGIN" or num_left == 0:
-                        # TODO verify that .node_id == "ORIGIN" will still happen if >1 item gets chomped by entity on last click
-                        print("level cleared")
-                        run = False
-                        time.sleep(0.5) # 2 sec to clear out until new level screen
-                        pyautogui.click()
-                        time.sleep(0.5) # in case of extra information on early level (eg. lvl 2 or lvl 5)
-                        pyautogui.click()
-                        time.sleep(0.5) # in case of yet more extra information on early level (eg. lvl 10)
-                        pyautogui.click()
-                        time.sleep(2) # 2 secs to generate
-                    j += 1
-                i += 1
+                        optimal_unlockable = optimiser.select_best()
+                        selected_unlockable = [u for u in unlockables if u.unique_id == optimal_unlockable.name][0]
+                        bp_total += Data.get_cost(selected_unlockable.rarity)
+                        if bp_limit is not None and bp_total > bp_limit:
+                            print(f"{optimal_unlockable.node_id}: reached bloodpoint limit. terminating")
+                            self.emit("terminate")
+                            self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
+                            return
+
+                        print(optimal_unlockable.node_id)
+                        debugger.set_dijkstra(optimiser.dijkstra_graph, j)
+                        self.emit("bloodpoint", (bp_total, bp_limit))
+                        if fast:
+                            optimal_unlockable.set_user_claimed(True)
+                            optimal_unlockable.set_value(9999)
+                            nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
+
+                        # select perk: hold on the perk for 0.3s
+                        pyautogui.moveTo(x + round(optimal_unlockable.x * ratio), y + round(optimal_unlockable.y * ratio))
+                        pyautogui.mouseDown()
+                        time.sleep(0.15)
+                        pyautogui.moveTo(0, 0)
+                        time.sleep(0.15)
+                        pyautogui.mouseUp()
+
+                        # mystery box: click
+                        if "mysteryBox" in optimal_unlockable.name:
+                            print("mystery box selected")
+                            time.sleep(0.9)
+                            pyautogui.click()
+                            time.sleep(0.2)
+
+                        # move mouse again in case it didn't the first time
+                        pyautogui.moveTo(0, 0)
+
+                        if fast:
+                            # correct reachable nodes
+                            print("post-correction")
+                            for node_id, data in base_bloodweb.nodes.items():
+                                if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
+                                        base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
+                                    print(f"    corrected {node_id}")
+                                    nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
+                        else:
+                            # time for bloodweb to update
+                            time.sleep(0.3)
+
+                            # take new picture and update colours
+                            print("updating bloodweb")
+                            updated_image = screen_capture(base_res, ratio, 1)[0]
+                            Grapher.update(base_bloodweb, updated_image, resolution)
+                            debugger.add_updated_image(updated_image.get_bgr(), j)
+
+                        # new level
+                        optimiser_test = Optimiser(base_bloodweb)
+                        optimiser_test.run(profile_id)
+                        optimal_test = optimiser_test.select_best()
+                        num_left = sum([1 for data in base_bloodweb.nodes.values() if not data["is_user_claimed"]])
+                        if optimal_test.node_id == "ORIGIN" or num_left == 0:
+                            # TODO verify that .node_id == "ORIGIN" will still happen if >1 item gets chomped by entity on last click
+                            print("level cleared")
+                            run = False
+                            time.sleep(0.5) # 2 sec to clear out until new level screen
+                            pyautogui.click()
+                            time.sleep(0.5) # in case of extra information on early level (eg. lvl 2 or lvl 5)
+                            pyautogui.click()
+                            time.sleep(0.5) # in case of yet more extra information on early level (eg. lvl 10)
+                            pyautogui.click()
+                            time.sleep(2) # 2 secs to generate
+                        j += 1
+                    i += 1
         except:
             traceback.print_exc()
             self.emit("terminate")

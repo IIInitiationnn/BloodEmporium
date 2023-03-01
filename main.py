@@ -817,24 +817,21 @@ if __name__ == "__main__":
 
     app = QApplication([])
     splash = QSplashScreen(QPixmap(Icons.app_splash))
-    splash.setFont(Font(8))
     splash.show()
-
-    splash.showMessage("initialising...", Qt.AlignHCenter | Qt.AlignBottom, QColor(StyleSheets.pink))
-    splash.showMessage("loading node detection model...", Qt.AlignHCenter | Qt.AlignBottom, QColor(StyleSheets.pink))
-    splash.showMessage("loading edge detection model...", Qt.AlignHCenter | Qt.AlignBottom, QColor(StyleSheets.pink))
-    splash.showMessage("launching...", Qt.AlignHCenter | Qt.AlignBottom, QColor(StyleSheets.pink))
 
     window = MainWindow(state_pipe, main_emitter, len(sys.argv) > 1 and "--dev" in sys.argv[1:])
     splash.finish(window)
     window.show()
 
     # auto update
-    update = get_latest_update()
-    if update is not None:
-        dialog = UpdateDialog(update["tag_name"])
-        selection = dialog.exec()
-        if selection == QMessageBox.AcceptRole:
-            handle_updates()
+    try:
+        update = get_latest_update()
+        if update is not None:
+            dialog = UpdateDialog(State.version, update["tag_name"])
+            selection = dialog.exec()
+            if selection == QMessageBox.AcceptRole:
+                handle_updates()
+    except:
+        pass
 
     sys.exit(app.exec_())

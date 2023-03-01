@@ -29,7 +29,8 @@ class BloodwebPage(QWidget):
 
     def on_prestige_signal(self, prestige_total, prestige_limit):
         self.runPrestigeProgress.setText(f"Prestige levels completed: {prestige_total} / {prestige_limit}"
-                                         if prestige_limit is not None else "")
+                                         if prestige_limit is not None else
+                                         f"Prestige levels completed: {prestige_total}")
 
     def on_toggle_bloodpoint_limit(self):
         if self.bloodpointCheckBox.isChecked():
@@ -46,7 +47,7 @@ class BloodwebPage(QWidget):
 
     def on_bloodpoint_signal(self, bp_total, bp_limit):
         self.runBloodpointProgress.setText(f"Bloodpoints spent: {bp_total:,} / {bp_limit:,}"
-                                           if bp_limit is not None else "")
+                                           if bp_limit is not None else f"Bloodpoints spent: {bp_total:,}")
 
     def show_run_success(self, text, hide):
         self.runErrorText.setText(text)

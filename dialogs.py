@@ -15,9 +15,10 @@ class Dialog(QDialog):
         self.setWindowTitle(title)
 
 class UpdateDialog(QMessageBox, Dialog):
-    def __init__(self, new_version):
+    def __init__(self, old_version, new_version):
         super().__init__(f"Update {new_version} available", "updateDialog")
-        self.setText(f"A new version of Blood Emporium ({new_version}) is available.\nInstall now?")
+        self.setText(f"A new version of Blood Emporium ({new_version}) is available.\n"
+                     f"You are currently using version {old_version}.\n\nInstall now?")
 
         self.addButton(QPushButton("Install"), QMessageBox.AcceptRole)
         self.addButton(QPushButton("Not Now"), QMessageBox.RejectRole)
