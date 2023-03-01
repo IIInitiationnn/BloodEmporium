@@ -1,6 +1,7 @@
 *.html
 compile.json
 config.json
+config_mine.json
 *.spec
 temp.py
 cheapskate.py
@@ -9,6 +10,7 @@ cheapskate.py
 __pycache__/
 training_data/
 logs/
+logs backup/
 output/
 investigate/
 references/

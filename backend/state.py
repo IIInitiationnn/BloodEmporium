@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import time
 import traceback
@@ -29,8 +30,6 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
-- dialog window
-- delete oldest logs once there are more than 100 (allowing retention for greater detail)
 - naive mode (explain underneath)
     - screenshot, select accessible / prestige, repeat
 - notes for each config
@@ -93,7 +92,13 @@ class StateProcess(Process):
             stream_handler.setFormatter(logging.Formatter("%(message)s"))
             log.addHandler(stream_handler)
 
-            # TODO >= 100 logs, kill until 99
+            # >= 100 logs, kill until 99
+            all_logs = [f"logs/{x}" for x in os.listdir("logs")]
+            if len(all_logs) >= 100:
+                all_logs.sort(key=os.path.getctime, reverse=True)
+                for old_log in all_logs[99:]:
+                    os.remove(os.path.abspath(old_log))
+
             file_handler = logging.FileHandler(f"logs/debug-{timestamp.strftime('%y-%m-%d %H-%M-%S')}.log")
             file_handler.setLevel(logging.DEBUG)
             file_handler.setFormatter(logging.Formatter("%(message)s"))

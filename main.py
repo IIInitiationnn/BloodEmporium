@@ -55,24 +55,6 @@ def handle_updates():
             subprocess.Popen("Blood Emporium.exe")
             sys.exit()
 
-class Dialog(QMessageBox):
-    def __init__(self):
-        super().__init__()
-        self.setWindowIcon(QIcon(Icons.icon))
-        # TODO stylise like main window
-
-
-class UpdateDialog(Dialog):
-    def __init__(self, new_version):
-        super().__init__()
-        self.setBaseSize(300, 200)
-        self.setMinimumSize(300, 200)
-        self.setWindowTitle(f"Update {new_version} available")
-        self.setText(f"A new version of Blood Emporium ({new_version}) is available.\nInstall now?")
-
-        self.addButton(QPushButton("Install"), QMessageBox.AcceptRole)
-        self.addButton(QPushButton("Not Now"), QMessageBox.RejectRole)
-
 class TopBar(QFrame):
     def __init__(self, parent):
         super().__init__(parent)
@@ -231,6 +213,25 @@ class PageButton(QPushButton):
         self.setStyleSheet(StyleSheets.page_button)
 
         self.clicked.connect(on_click)
+
+class Dialog(QMessageBox):
+    def __init__(self, title, object_name):
+        super().__init__()
+        self.setObjectName(object_name)
+        self.setWindowIcon(QIcon(Icons.icon))
+
+        # TODO stylise like main window
+        # self.setWindowFlag(Qt.FramelessWindowHint)
+        self.setFixedSize(300, 200)
+        self.setWindowTitle(title)
+
+class UpdateDialog(Dialog):
+    def __init__(self, new_version):
+        super().__init__(f"Update {new_version} available", "updateDialog")
+        self.setText(f"A new version of Blood Emporium ({new_version}) is available.\nInstall now?")
+
+        self.addButton(QPushButton("Install"), QMessageBox.AcceptRole)
+        self.addButton(QPushButton("Not Now"), QMessageBox.RejectRole)
 
 '''class PromptWindow(QMainWindow):
     def __init__(self, parent, title, object_name):
