@@ -22,6 +22,7 @@ from resolution import Resolution
 
 """
 immediate priorities
+- shattered bottle
 - reload images in preferences page when path changes
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
 - tweak hough line parameters
