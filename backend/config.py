@@ -113,6 +113,12 @@ class Config:
         self.config["profiles"][self.config["profiles"].index(self.get_profile_by_id(updated_profile["id"]))] = updated_profile
         self.commit_changes()
 
+    def is_profile(self, profile_id):
+        """
+        :return: whether the profile existed before already
+        """
+        return profile_id in [profile["id"] for profile in self.__profiles()]
+
     def add_profile(self, new_profile):
         """
         :return: whether the profile existed before already

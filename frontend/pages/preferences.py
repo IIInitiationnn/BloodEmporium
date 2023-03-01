@@ -3,8 +3,10 @@ import sys
 
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QScrollArea, QScrollBar, QToolButton
+from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QScrollArea, QScrollBar, QToolButton, \
+    QInputDialog, QMessageBox
 
+from dialogs import InputDialog, ConfirmDialog
 from frontend.generic import Font, TextLabel, TextInputBox, Selector, Button, CheckBoxWithFunction, CheckBox, \
     CollapsibleBox, Icons, NoShiftStyle
 from frontend.layouts import RowLayout
@@ -242,33 +244,101 @@ class PreferencesPage(QWidget):
 
     def save_profile(self):
         profile_id = self.get_edit_profile()
-        if profile_id == "blank":
-            self.show_preferences_page_save_error("You cannot save to the blank profile. "
-                                                  "Use Save As below to create a new profile.")
-        else:
-            updated_profile = Config().get_profile_by_id(profile_id).copy()
+        updated_profile = Config().get_profile_by_id(profile_id).copy()
 
-            non_integer = Data.verify_tiers(self.unlockableWidgets)
-            if len(non_integer) > 0:
-                self.show_preferences_page_save_error(f"There are {len(non_integer)} unlockables with invalid "
-                                                      "inputs. Inputs must be a number from -999 to 999. Changes "
-                                                      "not saved.")
+        non_integer = Data.verify_tiers(self.unlockableWidgets)
+        if len(non_integer) > 0:
+            self.show_preferences_page_save_error(f"There are {len(non_integer)} unlockables with invalid "
+                                                  "inputs. Inputs must be a number from -999 to 999. Changes "
+                                                  "not saved.")
+            return
+
+        for widget in self.unlockableWidgets:
+            tier, subtier = widget.getTiers()
+            if tier != 0 or subtier != 0:
+                updated_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
+            else:
+                updated_profile.pop(widget.unlockable.unique_id, None)
+        Config().set_profile(updated_profile)
+
+        self.show_preferences_page_save_success(f"Changes saved to profile: {profile_id}")
+        QTimer.singleShot(10000, self.hide_preferences_page_save_text)
+
+    def create_profile(self, title, label_text, ok_button_text):
+        # check for invalid tiers
+        non_integer = Data.verify_tiers(self.unlockableWidgets)
+        if len(non_integer) > 0:
+            self.show_preferences_page_save_error(f"There are {len(non_integer)} unlockables with "
+                                                  "invalid inputs. Inputs must be a number from -999 to "
+                                                  "999. Changes not saved.")
+            return
+
+        # save or cancel
+        new_profile_dialog = InputDialog(title, label_text, QInputDialog.TextInput, ok_button_text)
+        selection = new_profile_dialog.exec()
+        if selection != QInputDialog.Accepted:
+            return
+
+        # check if user wants to overwrite profile
+        profile_id = new_profile_dialog.textValue()
+        if Config().is_profile(profile_id):
+            overwrite_profile_dialog = ConfirmDialog("This will overwrite an existing profile. Are you "
+                                                     "sure you want to save?")
+            confirmation = overwrite_profile_dialog.exec()
+            if confirmation != QMessageBox.AcceptRole:
                 return
 
-            for widget in self.unlockableWidgets:
-                tier, subtier = widget.getTiers()
-                if tier != 0 or subtier != 0:
-                    updated_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
-                else:
-                    updated_profile.pop(widget.unlockable.unique_id, None)
-            Config().set_profile(updated_profile)
+        # user either wants to overwrite, or is saving new profile
+        new_profile = {"id": profile_id}
 
-            self.show_preferences_page_save_success(f"Changes saved to profile: {profile_id}")
-            QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
+        for widget in self.unlockableWidgets:
+            tier, subtier = widget.getTiers()
+            if tier != 0 or subtier != 0:
+                new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
 
-    # def rename_profile(self):
-    #     rename_prompt = PromptWindow(self, "Rename", "renamePrompt")
-    #     rename_prompt.show()
+        already_existed = Config().add_profile(new_profile)
+
+        self.update_profiles_from_config()
+        index = self.profileSelector.findText(profile_id)
+        self.profileSelector.setCurrentIndex(index)
+
+        if already_existed:
+            self.show_preferences_page_save_success(f"Existing profile overridden with changes: {profile_id}")
+        else:
+            self.show_preferences_page_save_success(f"Changes saved to new profile: {profile_id}")
+        return profile_id
+
+    def save_as_profile(self):
+        if not self.ignore_profile_signals:
+            self.ignore_profile_signals = True # saving as new profile; don't trigger
+            self.create_profile("Save As", "Enter your new profile name:", "Save")
+            self.ignore_profile_signals = False
+
+    def rename_profile(self):
+        if not self.ignore_profile_signals:
+            self.ignore_profile_signals = True
+
+            old_profile_id = self.get_edit_profile()
+
+            # save as
+            new_profile_id = self.create_profile("Save and Rename", "Enter your new profile name:", "Save and Rename")
+            if new_profile_id is None:
+                self.ignore_profile_signals = False
+                return
+
+            # same name
+            if old_profile_id == new_profile_id:
+                self.ignore_profile_signals = False
+                return
+
+            # delete
+            Config().delete_profile(old_profile_id)
+            self.update_profiles_from_config()
+            index = self.profileSelector.findText(new_profile_id)
+            self.profileSelector.setCurrentIndex(index)
+
+            self.ignore_profile_signals = False
+            self.switch_edit_profile()
 
     def delete_profile(self):
         if not self.ignore_profile_signals:
@@ -277,7 +347,13 @@ class PreferencesPage(QWidget):
             if profile_id == "blank":
                 self.show_preferences_page_save_error("You cannot delete the blank profile.")
             else:
-                # TODO "are you sure" for deleting
+                # confirm if user wants to delete
+                delete_profile_dialog = ConfirmDialog("Are you sure you want to delete this profile?")
+                confirmation = delete_profile_dialog.exec()
+                if confirmation != QMessageBox.AcceptRole:
+                    self.ignore_profile_signals = False
+                    return
+
                 Config().delete_profile(profile_id)
 
                 self.update_profiles_from_config()
@@ -302,61 +378,6 @@ class PreferencesPage(QWidget):
 
     def hide_preferences_page_save_text(self):
         self.saveSuccessText.setVisible(False)
-
-    def save_as_profile(self):
-        if not self.ignore_profile_signals:
-            self.ignore_profile_signals = True # saving as new profile; don't trigger
-
-            profile_id = self.saveAsInput.text()
-            self.saveAsInput.setText("")
-            if profile_id == "blank":
-                self.show_preferences_page_save_as_fail_text("You cannot save to a profile named \"blank\". "
-                                                             "Try a different name.")
-            else:
-                # TODO "are you sure" for overwriting existing profile "this will overwrite an existing profile.
-                #  are you sure you want to save?"
-                new_profile = {"id": profile_id}
-
-                non_integer = Data.verify_tiers(self.unlockableWidgets)
-                if len(non_integer) > 0:
-                    self.show_preferences_page_save_as_fail_text(f"There are {len(non_integer)} unlockables with "
-                                                                 "invalid inputs. Inputs must be a number from -999 to "
-                                                                 "999. Changes not saved.")
-                    return
-
-                for widget in self.unlockableWidgets:
-                    tier, subtier = widget.getTiers()
-                    if tier != 0 or subtier != 0:
-                        new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
-
-                already_existed = Config().add_profile(new_profile)
-
-                self.update_profiles_from_config()
-                index = self.profileSelector.findText(profile_id)
-                self.profileSelector.setCurrentIndex(index)
-
-                if already_existed:
-                    self.show_preferences_page_save_as_success_text("Existing profile overridden with changes: "
-                                                                    f"{profile_id}")
-                else:
-                    self.show_preferences_page_save_as_success_text(f"Changes saved to new profile: {profile_id}")
-
-            self.ignore_profile_signals = False
-
-    def show_preferences_page_save_as_success_text(self, text):
-        self.saveAsSuccessText.setText(text)
-        self.saveAsSuccessText.setStyleSheet(StyleSheets.pink_text)
-        self.saveAsSuccessText.setVisible(True)
-        QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
-
-    def show_preferences_page_save_as_fail_text(self, text):
-        self.saveAsSuccessText.setText(text)
-        self.saveAsSuccessText.setStyleSheet(StyleSheets.purple_text)
-        self.saveAsSuccessText.setVisible(True)
-        QTimer.singleShot(10000, self.hide_preferences_page_save_as_success_text)
-
-    def hide_preferences_page_save_as_success_text(self):
-        self.saveAsSuccessText.setVisible(False)
 
     def selected_widgets(self):
         return [widget for widget in self.unlockableWidgets if widget.checkBox.isChecked()]
@@ -452,6 +473,7 @@ class PreferencesPage(QWidget):
 
     def __init__(self, bloodweb_page):
         super().__init__()
+        self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
         self.bloodwebPage = bloodweb_page # for updating profiles from config; necessary coupling
         self.setObjectName("preferencesPage")
         config = Config()
@@ -505,28 +527,18 @@ class PreferencesPage(QWidget):
         self.saveButton = Button(self.profileSaveRow, "preferencesPageSaveButton", "Save", QSize(60, 35))
         self.saveButton.clicked.connect(self.save_profile)
 
-        # self.renameButton = Button(self.profileSaveRow, "preferencesPageRenameButton", "Rename", QSize(75, 35))
-        # self.renameButton.clicked.connect(self.rename_profile)
+        self.saveAsButton = Button(self.profileSaveRow, "preferencesPageSaveAsButton", "Save As", QSize(80, 35))
+        self.saveAsButton.clicked.connect(self.save_as_profile)
+
+        self.renameButton = Button(self.profileSaveRow, "preferencesPageRenameButton", "Save and Rename",
+                                   QSize(130, 35))
+        self.renameButton.clicked.connect(self.rename_profile)
 
         self.deleteButton = Button(self.profileSaveRow, "preferencesPageDeleteButton", "Delete", QSize(75, 35))
         self.deleteButton.clicked.connect(self.delete_profile)
 
         self.saveSuccessText = TextLabel(self.profileSaveRow, "preferencesPageSaveSuccessText", "", Font(10))
         self.saveSuccessText.setVisible(False)
-
-        # save as
-        self.profileSaveAsRow = QWidget(self.scrollAreaContent)
-        self.profileSaveAsRow.setObjectName("preferencesPageProfileSaveAsRow")
-        self.profileSaveAsRowLayout = RowLayout(self.profileSaveAsRow, "preferencesPageProfileSaveAsRowLayout")
-
-        self.saveAsInput = TextInputBox(self.profileSaveAsRow, "preferencesPageSaveAsInput", QSize(200, 40),
-                                        "Enter profile name")
-
-        self.saveAsButton = Button(self.profileSaveAsRow, "preferencesPageSaveAsButton", "Save As", QSize(80, 35))
-        self.saveAsButton.clicked.connect(self.save_as_profile)
-
-        self.saveAsSuccessText = TextLabel(self.profileSaveAsRow, "preferencesPageSaveAsSuccessText", "", Font(10))
-        self.saveAsSuccessText.setVisible(False)
 
         # filters
         self.filtersBox = FilterOptionsCollapsibleBox(self.scrollAreaContent, "preferencesPageFiltersBox",
@@ -665,15 +677,11 @@ class PreferencesPage(QWidget):
         # rows comprising the content
         self.profileSaveRowLayout.addWidget(self.profileSelector)
         self.profileSaveRowLayout.addWidget(self.saveButton)
-        # self.profileSaveRowLayout.addWidget(self.renameButton)
+        self.profileSaveRowLayout.addWidget(self.saveAsButton)
+        self.profileSaveRowLayout.addWidget(self.renameButton)
         self.profileSaveRowLayout.addWidget(self.deleteButton)
         self.profileSaveRowLayout.addWidget(self.saveSuccessText)
         self.profileSaveRowLayout.addStretch(1)
-
-        self.profileSaveAsRowLayout.addWidget(self.saveAsInput)
-        self.profileSaveAsRowLayout.addWidget(self.saveAsButton)
-        self.profileSaveAsRowLayout.addWidget(self.saveAsSuccessText)
-        self.profileSaveAsRowLayout.addStretch(1)
 
         self.searchSortRowLayout.addWidget(self.searchBar)
         self.searchSortRowLayout.addWidget(self.sortLabel)
@@ -683,7 +691,6 @@ class PreferencesPage(QWidget):
         # putting the rows into the content
         self.scrollAreaContentLayout.addWidget(self.profileLabel)
         self.scrollAreaContentLayout.addWidget(self.profileSaveRow)
-        self.scrollAreaContentLayout.addWidget(self.profileSaveAsRow)
         self.scrollAreaContentLayout.addSpacing(15)
         self.scrollAreaContentLayout.addWidget(self.filtersBox)
         self.scrollAreaContentLayout.addWidget(self.searchSortRow)
