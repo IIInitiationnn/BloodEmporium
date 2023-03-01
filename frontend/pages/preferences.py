@@ -406,6 +406,7 @@ class PreferencesPage(QWidget):
                                        if all([widget.checkBox.isChecked() for widget in
                                                [widget for widget in self.unlockableWidgets if widget.isVisible()]])
                                        else StyleSheets.check_box_some)
+        self.allCheckbox.setToolTip("Deselect All" if num_selected > 0 else "Select All")
 
     def on_unlockable_select_all(self):
         checked = self.allCheckbox.isChecked() # whether checkbox is select all (T) or deselect all (F)
@@ -539,25 +540,30 @@ class PreferencesPage(QWidget):
                                         config.profile_names())
         self.profileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
-        self.newProfileButton = Button(self.profileSaveRow, "preferencesPageNewProfileButton", "New Profile",
+        self.saveSuccessText = TextLabel(self.profileSaveRow, "preferencesPageSaveSuccessText", "", Font(10))
+        self.saveSuccessText.setVisible(False)
+
+        self.profileSaveRow2 = QWidget(self.scrollAreaContent)
+        self.profileSaveRow2.setObjectName("preferencesPageProfileSaveRow2")
+        self.profileSaveRow2Layout = RowLayout(self.profileSaveRow2, "preferencesPageProfileSaveRow2Layout")
+
+        self.newProfileButton = Button(self.profileSaveRow2, "preferencesPageNewProfileButton", "New Profile",
                                        QSize(95, 35))
         self.newProfileButton.clicked.connect(self.new_profile)
 
-        self.saveButton = Button(self.profileSaveRow, "preferencesPageSaveButton", "Save", QSize(60, 35))
+        self.saveButton = Button(self.profileSaveRow2, "preferencesPageSaveButton", "Save", QSize(60, 35))
         self.saveButton.clicked.connect(self.save_profile)
 
-        self.saveAsButton = Button(self.profileSaveRow, "preferencesPageSaveAsButton", "Save As", QSize(80, 35))
+        self.saveAsButton = Button(self.profileSaveRow2, "preferencesPageSaveAsButton", "Save As", QSize(80, 35))
         self.saveAsButton.clicked.connect(self.save_as_profile)
 
-        self.renameButton = Button(self.profileSaveRow, "preferencesPageRenameButton", "Save and Rename",
+        self.renameButton = Button(self.profileSaveRow2, "preferencesPageRenameButton", "Save and Rename",
                                    QSize(130, 35))
         self.renameButton.clicked.connect(self.rename_profile)
 
-        self.deleteButton = Button(self.profileSaveRow, "preferencesPageDeleteButton", "Delete", QSize(75, 35))
+        self.deleteButton = Button(self.profileSaveRow2, "preferencesPageDeleteButton", "Delete", QSize(70, 35))
         self.deleteButton.clicked.connect(self.delete_profile)
 
-        self.saveSuccessText = TextLabel(self.profileSaveRow, "preferencesPageSaveSuccessText", "", Font(10))
-        self.saveSuccessText.setVisible(False)
 
         # filters
         self.filtersBox = FilterOptionsCollapsibleBox(self.scrollAreaContent, "preferencesPageFiltersBox",
@@ -588,15 +594,14 @@ class PreferencesPage(QWidget):
         self.persistentBar.setObjectName("preferencesPagePersistentBar")
         self.persistentBar.setStyleSheet(f"""
         QWidget#preferencesPagePersistentBar {{
-            border-top: 6px solid {StyleSheets.selection};
-            border-radius: 3px;           
+            border-top: 4px solid {StyleSheets.background};
         }}""")
         self.persistentBar.setMinimumHeight(80)
         self.persistentBarLayout = RowLayout(self.persistentBar, "preferencesPagePersistentBarLayout")
 
         self.allCheckbox = CheckBoxWithFunction(self.persistentBar, "preferencesPageAllCheckbox",
                                                 self.on_unlockable_select_all, style_sheet=StyleSheets.check_box_all)
-        # TODO hover over says select all / deselect all ^
+        self.allCheckbox.setToolTip("Select All")
         self.selectedLabel = TextLabel(self.persistentBar, "preferencesPageSelectedLabel", "0 selected")
         # TODO to the right, confirmation text like with saving
 
@@ -695,13 +700,15 @@ class PreferencesPage(QWidget):
         """
         # rows comprising the content
         self.profileSaveRowLayout.addWidget(self.profileSelector)
-        self.profileSaveRowLayout.addWidget(self.newProfileButton)
-        self.profileSaveRowLayout.addWidget(self.saveButton)
-        self.profileSaveRowLayout.addWidget(self.saveAsButton)
-        self.profileSaveRowLayout.addWidget(self.renameButton)
-        self.profileSaveRowLayout.addWidget(self.deleteButton)
         self.profileSaveRowLayout.addWidget(self.saveSuccessText)
         self.profileSaveRowLayout.addStretch(1)
+
+        self.profileSaveRow2Layout.addWidget(self.newProfileButton)
+        self.profileSaveRow2Layout.addWidget(self.saveButton)
+        self.profileSaveRow2Layout.addWidget(self.saveAsButton)
+        self.profileSaveRow2Layout.addWidget(self.renameButton)
+        self.profileSaveRow2Layout.addWidget(self.deleteButton)
+        self.profileSaveRow2Layout.addStretch(1)
 
         self.searchSortRowLayout.addWidget(self.searchBar)
         self.searchSortRowLayout.addWidget(self.sortLabel)
@@ -710,6 +717,7 @@ class PreferencesPage(QWidget):
 
         # putting the rows into the content
         self.scrollAreaContentLayout.addWidget(self.profileLabel)
+        self.scrollAreaContentLayout.addWidget(self.profileSaveRow2)
         self.scrollAreaContentLayout.addWidget(self.profileSaveRow)
         self.scrollAreaContentLayout.addSpacing(15)
         self.scrollAreaContentLayout.addWidget(self.filtersBox)

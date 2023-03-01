@@ -82,7 +82,7 @@ class StateProcess(Process):
     def run(self):
         timestamp = datetime.now()
         try:
-            debug, write_to_output, profile_id, character, prestige_limit, bp_limit = self.args
+            debug, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
             log = logging.getLogger()
             log.setLevel(logging.DEBUG)
             log.handlers = []

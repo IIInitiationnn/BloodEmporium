@@ -86,8 +86,18 @@ class BloodwebPage(QWidget):
         self.characterSelector = Selector(self, "bloodwebPageCharacterSelector", QSize(200, 40),
                                           Data.get_characters(True))
 
-        self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
+        self.naiveModeLabel = TextLabel(self, "bloodwebPageNaiveModeLabel", "Naive Mode", Font(12))
 
+        self.naiveModeRow = QWidget(self)
+        self.naiveModeRow.setObjectName("bloodwebPageNaiveModeRow")
+        self.naiveModeRowLayout = RowLayout(self.naiveModeRow, "bloodwebPageNaiveModeRowLayout")
+
+        self.naiveModeCheckBox = CheckBox(self.naiveModeRow, "bloodwebPageNaiveModeCheckBox")
+        self.naiveModeDescription = TextLabel(self.naiveModeRow, "bloodwebPageNaiveModeDescription",
+                                              "Enable this mode if you do not care about which items are selected. "
+                                              "This mode is significantly faster.")
+
+        self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
         self.limitsDescription = TextLabel(self, "bloodwebPageLimitsDescription",
                                            "If multiple of the following limits are selected, the program "
                                            "will terminate when any limit is reached.")
@@ -158,6 +168,10 @@ class BloodwebPage(QWidget):
         self.runPrestigeProgress = TextLabel(self, "bloodwebPageRunPrestigeProgress", "", Font(10))
         self.runBloodpointProgress = TextLabel(self, "bloodwebPageRunBloodpointProgress", "", Font(10))
 
+        self.naiveModeRowLayout.addWidget(self.naiveModeCheckBox)
+        self.naiveModeRowLayout.addWidget(self.naiveModeDescription)
+        self.naiveModeRowLayout.addStretch(1)
+
         self.prestigeRowLayout.addWidget(self.prestigeCheckBox)
         self.prestigeRowLayout.addWidget(self.prestigeLabel)
         self.prestigeRowLayout.addWidget(self.prestigeInput)
@@ -178,6 +192,8 @@ class BloodwebPage(QWidget):
         self.layout.addWidget(self.profileSelector)
         self.layout.addWidget(self.characterLabel)
         self.layout.addWidget(self.characterSelector)
+        self.layout.addWidget(self.naiveModeLabel)
+        self.layout.addWidget(self.naiveModeRow)
         self.layout.addWidget(self.limitsLabel)
         self.layout.addWidget(self.limitsDescription)
         self.layout.addWidget(self.prestigeRow)

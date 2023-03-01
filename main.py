@@ -316,6 +316,9 @@ class MainWindow(QMainWindow):
     def get_runtime_character(self):
         return self.bloodwebPage.characterSelector.currentText()
 
+    def get_runtime_naive_mode(self):
+        return self.bloodwebPage.naiveModeCheckBox.isChecked()
+
     def get_runtime_prestige_limit(self) -> str or None:
         return self.bloodwebPage.prestigeInput.text() if self.bloodwebPage.prestigeCheckBox.isChecked() else None
 
@@ -345,7 +348,7 @@ class MainWindow(QMainWindow):
                     return self.bloodwebPage.show_run_error("Bloodpoint limit must be a positive integer.", True)
 
             self.state.run((debug, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
-                            prestige_limit, bp_limit))
+                            self.get_runtime_naive_mode(), prestige_limit, bp_limit))
             self.toggle_run_terminate_text("Running...", False, True)
         else: # terminate
             self.state.terminate()
