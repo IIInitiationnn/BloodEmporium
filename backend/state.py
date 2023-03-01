@@ -34,7 +34,7 @@ immediate priorities
 
 features to add
 - notes for each config
-- settings: are you using a custom pack
+- settings: are you using a custom pack (+ "browse for folder")
 - "you have unsaved changes" next to save button - profiles, settings
 - nodes yolov8
 - edges yolov8?
@@ -44,11 +44,6 @@ features to add
         - configure 5 mystery box tiers for preferences
 - summary on items obtained by the application
 - program termination upon reaching insufficient bloodpoints
-
-timeline
-- above new features and TODOs
-- josh feedback
-- finalise -> 1.0.0
 """
 
 # https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python

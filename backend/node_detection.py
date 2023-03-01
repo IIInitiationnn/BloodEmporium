@@ -13,9 +13,6 @@ from backend.image import Image
 
 class NodeDetection:
     def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"Node Detector is going to use device: {self.device}")
-
         # loads model on init
         self.model = YOLO("assets/models/nodes.pt")
         self.model.fuse()
