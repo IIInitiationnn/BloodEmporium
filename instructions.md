@@ -1,5 +1,5 @@
 If you are a user reading this file, you are in the wrong place!
-Please download the non-source code archive from https://github.com/IIInitiationnn/BloodEmporium/releases
+Please download the non-source-code archive from https://github.com/IIInitiationnn/BloodEmporium/releases/latest
 
 # Compilation (Powershell)
 (Update state version)
@@ -24,7 +24,7 @@ Please download the non-source code archive from https://github.com/IIInitiation
 ### Killer + Survivor (Perks)
 - add perks to unlockables in db
 - add perks to assets/killer and assets/survivor
-OTHERS
+### Others
 - new maps (offerings), generic perks etc to look out for
 
 - update preference profiles

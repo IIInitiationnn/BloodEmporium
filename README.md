@@ -1,4 +1,4 @@
-[![Blood Emporium](assets/images/splash.png)](https://github.com/IIInitiationnn/BloodEmporium/releases)
+[![Blood Emporium](assets/images/splash.png)](https://github.com/IIInitiationnn/BloodEmporium/releases/latest)
 
 [Releases](https://github.com/IIInitiationnn/BloodEmporium/releases)
 
@@ -14,7 +14,7 @@ but absolutely not necessary. Please consider your own financial situation befor
 
 ## Installation
 1. Download the latest release [here](https://github.com/IIInitiationnn/BloodEmporium/releases/latest) - make sure you
-download `Blood Emporium.version.numbers.zip` and not the source code.
+download `Blood Emporium.version.zip` and not the source code.
 2. Extract the ZIP archive at a folder of your choice. Please make sure the path to this folder
 does not contain any special unicode characters (see [#5](https://github.com/IIInitiationnn/BloodEmporium/issues/5))
 3. Run `Blood Emporium.exe` and check the `Settings` section to make sure the app is ready to run. For more information,
