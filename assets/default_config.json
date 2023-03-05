@@ -2453,10 +2453,6 @@
                 "tier": -1,
                 "subtier": 0
             },
-            "iconFavors_dustyNoose_universal": {
-                "tier": -1,
-                "subtier": 0
-            },
             "iconFavors_strodeRealtyKey_universal": {
                 "tier": -1,
                 "subtier": 0
@@ -3244,6 +3240,106 @@
             "iconFavors_BeefTallowMixture_universal": {
                 "tier": -1,
                 "subtier": 0
+            },
+            "iconFavors_ShatteredBottle_universal": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_UltrasonicTrapSpeaker_skull merchant": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_HighPowerFloodlight_skull merchant": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_HighCurrentUpgrade_skull merchant": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_AdiValente1_skull merchant": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_VitalTargetingProcessor_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_PowderedGlass_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_LooseScrew_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_InfaredUpgrade_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_BrownNoiseGenerator_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_RandomizedStrobes_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_GeographicalReadout_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_ExpiredBatteries_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_AdvancedMovementPrediction_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_PrototypeRotor_skull merchant": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_IridescentUnpublishedManuscript_skull merchant": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconPerks_Thwack_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_Leverage_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_GameAfoot_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_FriendlyCompetition_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_TeamworkPowerOfTwo_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_CutLoose_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_BloodRush_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_TeamworkCollectiveStealth_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_BackgroundPlayer_survivor": {
+                "tier": -2,
+                "subtier": 1
             }
         },
         {
@@ -3309,10 +3405,6 @@
                 "subtier": 0
             },
             "iconFavors_jigsawPiece_universal": {
-                "tier": -2,
-                "subtier": 0
-            },
-            "iconFavors_dustyNoose_universal": {
                 "tier": -2,
                 "subtier": 0
             },
@@ -6653,6 +6745,111 @@
                 "subtier": 0
             },
             "iconPerks_VittoriosGambit_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconFavors_ShatteredBottle_universal": {
+                "tier": -2,
+                "subtier": 0
+            },
+
+            "iconAddon_StereoRemoteMic_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_ShotgunSpeakers_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_Overcharge_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_LowPowerMode_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_AdaptiveLighting_skull merchant": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_VitalTargetingProcessor_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_PowderedGlass_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_LooseScrew_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_InfaredUpgrade_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_BrownNoiseGenerator_skull merchant": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_RandomizedStrobes_skull merchant": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_GeographicalReadout_skull merchant": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_ExpiredBatteries_skull merchant": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_AdvancedMovementPrediction_skull merchant": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_PrototypeRotor_skull merchant": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconAddon_IridescentUnpublishedManuscript_skull merchant": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconPerks_Thwack_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_Leverage_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_GameAfoot_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_FriendlyCompetition_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_TeamworkPowerOfTwo_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_CutLoose_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_BloodRush_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_TeamworkCollectiveStealth_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_BackgroundPlayer_survivor": {
                 "tier": 15,
                 "subtier": 0
             }

@@ -2,7 +2,7 @@ import networkx as nx
 from pyvis.network import Network
 from pyvis.options import Layout
 
-from node import Node
+from backend.graph_node import GraphNode
 
 
 class NetworkUtil:
@@ -15,6 +15,6 @@ class NetworkUtil:
 
         graph_copy = graph.copy()
         for node_id, data in graph_copy.nodes.items():
-            nx.set_node_attributes(graph_copy, Node.from_dict(data, x=int(data["x"]) - 600, y=int(data["y"]) - 600).get_dict())
+            nx.set_node_attributes(graph_copy, GraphNode.from_dict(data, x=int(data["x"]) - 600, y=int(data["y"]) - 600).get_dict())
         net.from_nx(graph_copy)
         net.show(f"{file_name}.html")

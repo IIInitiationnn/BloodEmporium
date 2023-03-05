@@ -2,14 +2,14 @@ from pprint import pprint
 
 import networkx as nx
 
-from matcher import HoughTransform, IconMatcher
 from mergedbase import MergedBase
-from node import Node
+from graph_node import GraphNode
 from optimiser import Optimiser
 from utils.network_util import NetworkUtil
 
 
 # TODO fix
+'''
 class Simulation:
     def __init__(self, images, res, run_optimiser=True):
         self.images = images
@@ -62,10 +62,11 @@ class Simulation:
             NetworkUtil.write_to_html(optimiser.dijkstra_graph, f"output/dijkstra{i}")
 
             # select the node
-            optimal_unlockable.set_user_claimed(True)
+            optimal_unlockable.set_claimed(True)
             optimal_unlockable.set_value(9999)
             nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
             i += 1
 
             if all([data["is_user_claimed"] for data in base_bloodweb.nodes.values()]):
                 run = False
+'''

@@ -1,3 +1,4 @@
+import atexit
 import os
 import subprocess
 import sys
@@ -824,14 +825,19 @@ if __name__ == "__main__":
     window.show()
 
     # auto update
-    try:
-        update = get_latest_update()
-        if update is not None:
-            dialog = UpdateDialog(State.version, update["tag_name"])
-            selection = dialog.exec()
-            if selection == QMessageBox.AcceptRole:
-                handle_updates()
-    except:
-        pass
+    if "alpha" not in State.version:
+        try:
+            update = get_latest_update()
+            if update is not None:
+                dialog = UpdateDialog(State.version, update["tag_name"])
+                selection = dialog.exec()
+                if selection == QMessageBox.AcceptRole:
+                    handle_updates()
+        except:
+            pass
+
+    @atexit.register
+    def shutdown():
+        window.state.terminate() # terminate running process if main app is closed
 
     sys.exit(app.exec_())

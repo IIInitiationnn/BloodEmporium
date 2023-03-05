@@ -4,22 +4,22 @@ import numpy as np
 
 
 class Position:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self, x1, y1, x2, y2):
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
 
-    def xy(self):
-        return self.x, self.y
+    def xyxy(self):
+        return self.x1, self.y1, self.x2, self.y2
 
-    def scale(self, ratio):
-        return Position(round(self.x * ratio), round(self.y * ratio))
-
-    def sum(self, vector):
-        return Position(self.x + vector.x, self.y + vector.y)
+    def centre(self):
+        return (self.x1 + self.x2) // 2, (self.y1 + self.y2) // 2
 
     @staticmethod
     def is_equal(position1, position2):
-        return position1.x == position2.x and position1.y == position2.y
+        return position1.x1 == position2.x1 and position1.y1 == position2.y1 and \
+               position1.x2 == position2.x2 and position1.y2 == position2.y2
 
     @staticmethod
     def points_are_close(position1, position2, res):
@@ -29,13 +29,10 @@ class Position:
         max_dist = res.ratio() * 30
         return abs(position1.x - position2.x) < max_dist and abs(position1.y - position2.y) < max_dist
 
-class Circle:
-    def __init__(self, position, radius, color, unique_id, is_origin=False):
+class UnmatchedNode:
+    def __init__(self, position, cls_name):
         self.position = position
-        self.radius = radius
-        self.color = color
-        self.unique_id = unique_id
-        self.is_origin = is_origin
+        self.cls_name = cls_name
 
     def x(self):
         return self.position.x
@@ -54,6 +51,11 @@ class Circle:
         return Position.is_equal(circle1.position, circle2.position) and \
                circle1.radius == circle2.radius and \
                circle1.color == circle2.color
+
+class MatchedNode(UnmatchedNode):
+    def __init__(self, position, cls_name, unique_id=""):
+        super().__init__(position, cls_name)
+        self.unique_id = unique_id # same as unlockable unique id
 
 class Line:
     def __init__(self, position1, position2):
@@ -111,8 +113,8 @@ class Connection:
 
     @staticmethod
     def is_equal(c1, c2):
-        return (Circle.is_equal(c1.circle1, c2.circle1) and Circle.is_equal(c1.circle2, c2.circle2)) or \
-            (Circle.is_equal(c1.circle1, c2.circle2) and Circle.is_equal(c1.circle2, c2.circle1))
+        return (UnmatchedNode.is_equal(c1.circle1, c2.circle1) and UnmatchedNode.is_equal(c1.circle2, c2.circle2)) or \
+               (UnmatchedNode.is_equal(c1.circle1, c2.circle2) and UnmatchedNode.is_equal(c1.circle2, c2.circle1))
 
     @staticmethod
     def list_contains(connections, wanted):

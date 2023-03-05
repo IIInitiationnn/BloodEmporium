@@ -5,7 +5,7 @@ import random
 import networkx as nx
 
 from config import Config
-from node import Node
+from graph_node import GraphNode
 
 
 class Optimiser:
@@ -17,7 +17,7 @@ class Optimiser:
         heatmap = copy.deepcopy(self.base_graph)
         desired_value = -(9999 * tier + subtier)
         base_data = self.base_graph.nodes[desired_node_id]
-        nx.set_node_attributes(heatmap, Node.from_dict(base_data, value=desired_value).get_dict())
+        nx.set_node_attributes(heatmap, GraphNode.from_dict(base_data, value=desired_value).get_dict())
 
         if heatmap.nodes[desired_node_id]["is_accessible"]:
             return heatmap
@@ -33,7 +33,7 @@ class Optimiser:
                                    if not heatmap.nodes[neighbor]["is_accessible"]]
                 lowest_neighbor_value = min(neighbor_values) if len(neighbor_values) > 0 else 9999 # if node is not connected to rest of graph
                 if data["value"] > lowest_neighbor_value + 1:
-                    nx.set_node_attributes(heatmap, Node.from_dict(data, value=lowest_neighbor_value + 1).get_dict())
+                    nx.set_node_attributes(heatmap, GraphNode.from_dict(data, value=lowest_neighbor_value + 1).get_dict())
                     edited = True
 
         return heatmap
@@ -44,7 +44,7 @@ class Optimiser:
         for graph in graphs[1:]:
             for node_id, data in graph.nodes.items():
                 total_data = total.nodes[node_id]
-                nx.set_node_attributes(total, Node.from_dict(total_data, value=total_data["value"] + data["value"]).get_dict())
+                nx.set_node_attributes(total, GraphNode.from_dict(total_data, value=total_data["value"] + data["value"]).get_dict())
         return total
 
     def select_best(self):
@@ -57,7 +57,7 @@ class Optimiser:
                     min_id.append(node_id)
                     min_val.append(data["value"])
 
-        return Node.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
+        return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
 
     def run(self, profile_id):
         config = Config()
@@ -72,7 +72,7 @@ class Optimiser:
                 elif tier < 0: # temp: undesirable and unclaimed
                     heatmap = copy.deepcopy(self.base_graph)
                     cost = heatmap.nodes[node_id]["value"] - 9999 * tier + subtier
-                    nx.set_node_attributes(heatmap, Node.from_dict(heatmap.nodes[node_id], value=cost).get_dict())
+                    nx.set_node_attributes(heatmap, GraphNode.from_dict(heatmap.nodes[node_id], value=cost).get_dict())
                     graphs.append(heatmap)
                 # TODO tier 0 with subtier
 

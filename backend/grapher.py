@@ -1,14 +1,12 @@
-import cv2
 import networkx as nx
 
 from backend.cvimage import CVImage
-from matcher import Matcher
-from node import Node
-from shapes import Position, Circle, Connection
+from graph_node import GraphNode
+from shapes import UnmatchedNode, Connection
 
 
 class Grapher:
-    def __init__(self, circles: [Circle], connections: [Connection]):
+    def __init__(self, circles: [UnmatchedNode], connections: [Connection]):
         self.circles = circles
         self.connections = connections
 
@@ -20,13 +18,13 @@ class Grapher:
         for circle in self.circles:
             if circle.unique_id == "ORIGIN":
                 ids[circle] = "ORIGIN"
-                nodes.append(Node("ORIGIN", circle.unique_id, 9999, circle.xy(), True, True).get_tuple())
+                nodes.append(GraphNode("ORIGIN", circle.unique_id, 9999, circle.xy(), True, True).get_tuple())
                 continue
 
             node_id = f"{i}_{circle.unique_id}"
             ids[circle] = node_id
-            is_accessible, is_user_claimed = Node.state_from_color(circle.color)
-            nodes.append(Node(node_id, circle.unique_id, 9999, circle.xy(), is_accessible, is_user_claimed).get_tuple())
+            is_accessible, is_user_claimed = GraphNode.state_from_color(circle.color)
+            nodes.append(GraphNode(node_id, circle.unique_id, 9999, circle.xy(), is_accessible, is_user_claimed).get_tuple())
             i += 1
 
         # actual edges joining circles
@@ -42,6 +40,8 @@ class Grapher:
 
     @staticmethod
     def update(base_bloodweb, updated_cv_image: CVImage, res):
+        pass
+        '''
         image_bgr = updated_cv_image.get_bgr()
         image_gray = updated_cv_image.get_gray()
         image_filtered = cv2.convertScaleAbs(image_gray, alpha=1.4, beta=0)
@@ -68,3 +68,4 @@ class Grapher:
 
         for node_id in to_remove:
             base_bloodweb.remove_node(node_id)
+        '''

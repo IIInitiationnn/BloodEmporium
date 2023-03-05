@@ -16,6 +16,7 @@ logs backup/
 output/
 investigate/
 references/
+yolov5_obb/
 
 frontend/base.py
 frontend/test*.py

@@ -11,18 +11,32 @@ import pyautogui
 
 from backend import node_detection
 from backend.data import Data
-from backend.node import Node
+from backend.graph_node import GraphNode
 from config import Config
 from debugger import Debugger
-from functions import screen_capture, match_origin, vector_circles, match_lines
+from functions import screen_capture, match_lines
 from grapher import Grapher
 from mergedbase import MergedBase
 from optimiser import Optimiser
 from resolution import Resolution
 
 """
+Offerings | Killer + Survivor | Hexagon | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/Favors
+Addons    | Killer + Survivor | Square  | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/ItemAddons
+Items     | Survivor          | Square  | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/Items
+Perks     | Killer + Survivor | Diamond | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/Perks
+
+venv/Lib/site-packages/ultralytics/hub/utils.py Class Traces early return on __init__ and __call__
+venv/Lib/site-packages/ultralytics/yolo/engine/predictor.py Class BasePredictor self.args.verbose = False
+
+yolov8 node detection
+yolo task=detect mode=train data="datasets/Blood-Emporium-Node-Detection-1/data.yaml" epochs=2000 plots=True device=0 TODO add new hyperparam file
+
+yolov5obb edge detection
+python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
+
 immediate priorities
-- shattered bottle
+- move image resizing inside models (already done for edge, need to do for nodes)
 - reload images in preferences page when path changes
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
 - tweak hough line parameters
@@ -32,8 +46,8 @@ immediate priorities
 - try sum of several images to cancel out background noise instead of taking "majority" lines
 
 features to add
-- notes for each config
 - settings: are you using a custom pack (+ "browse for folder")
+- notes for each config
 - "you have unsaved changes" next to save button - profiles, settings
 - nodes yolov8
 - edges yolov8?
@@ -156,7 +170,7 @@ class StateProcess(Process):
                     # yolov8: detect accessible nodes
                     print("yolov8: detect accessible nodes")
                     results = node_detector.predict(cv_image.get_bgr())
-                    identified = node_detector.get_accessible_or_prestige(results, cv_image.get_gray(), merged_base)
+                    identified = node_detector.match_accessible_or_prestige(results, cv_image.get_gray(), merged_base)
 
                     # nothing detected
                     if identified is None:
@@ -164,10 +178,11 @@ class StateProcess(Process):
                         pyautogui.click()
                         continue
 
-                    (x1, y1, x2, y2), unlockable_name = identified
+                    centre = identified.position.centre()
+                    centre = (int(coordinate * ratio) for coordinate in centre)
 
                     # prestige
-                    if unlockable_name == "prestige":
+                    if identified.cls_name == GraphNode.PRESTIGE:
                         prestige_total += 1
                         bp_total += 20000
                         if bp_limit is not None and bp_total > bp_limit:
@@ -179,7 +194,7 @@ class StateProcess(Process):
                         print("prestige level: selecting")
                         self.emit("prestige", (prestige_total, prestige_limit))
                         self.emit("bloodpoint", (bp_total, bp_limit))
-                        pyautogui.moveTo(int((x1 + x2) / 2 * ratio), int((y1 + y2) / 2 * ratio))
+                        pyautogui.moveTo(**centre)
                         pyautogui.mouseDown()
                         time.sleep(1.5)
                         pyautogui.mouseUp()
@@ -193,19 +208,19 @@ class StateProcess(Process):
                         continue
 
                     # accessible
-                    selected_unlockable = [u for u in unlockables if u.unique_id == unlockable_name][0]
+                    selected_unlockable = [u for u in unlockables if u.unique_id == identified.unique_id][0]
                     bp_total += Data.get_cost(selected_unlockable.rarity)
                     if bp_limit is not None and bp_total > bp_limit:
-                        print(f"{unlockable_name}: reached bloodpoint limit. terminating")
+                        print(f"{identified.unique_id}: reached bloodpoint limit. terminating")
                         self.emit("terminate")
                         self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                         return
 
-                    print(unlockable_name)
+                    print(identified.unique_id)
                     self.emit("bloodpoint", (bp_total, bp_limit))
 
                     # select perk: hold on the perk for 0.3s
-                    pyautogui.moveTo(int((x1 + x2) / 2 * ratio), int((y1 + y2) / 2 * ratio))
+                    pyautogui.moveTo(**centre)
                     pyautogui.mouseDown()
                     time.sleep(0.15)
                     pyautogui.moveTo(0, 0)
@@ -213,7 +228,7 @@ class StateProcess(Process):
                     pyautogui.mouseUp()
 
                     # mystery box: click
-                    if "mysteryBox" in unlockable_name:
+                    if "mysteryBox" in identified.unique_id:
                         print("mystery box selected")
                         time.sleep(0.9)
                         pyautogui.click()
@@ -233,26 +248,21 @@ class StateProcess(Process):
 
                     # screen capture
                     print("capturing screen")
-                    cv_images = screen_capture(base_res, ratio)
-                    debugger = Debugger(cv_images, timestamp, i, write_to_output)
-                    debugger.set_merger(merged_base)
+                    cv_image = screen_capture(base_res, ratio, iterations=1, crop=False)[0]
 
-                    print("matching origin")
-                    origin, origin_type, cropped = match_origin(cv_images[0], resolution)
-                    debugger.set_origin(origin)
-                    debugger.set_origin_type(origin_type)
-                    debugger.set_cropped(cropped)
-                    print(f"matched origin: {origin_type} ({x + origin.x() * ratio}, {y + origin.y() * ratio})")
+                    # yolov8: detect all nodes
+                    print("yolov8: detect all nodes")
+                    results = node_detector.predict(cv_image.get_bgr())
+                    matched_nodes = node_detector.match_nodes(results, cv_image.get_gray(), merged_base)
 
-                    # vectors: detect circles and match to unlockables
-                    print("vector: circles and match to unlockables")
-                    circles = vector_circles(cv_images[0], resolution, origin, merged_base, debugger)
-                    debugger.set_valid_circles(circles)
+                    # nothing detected
+                    if len(matched_nodes) == 0:
+                        time.sleep(0.5) # try again
+                        pyautogui.click()
+                        continue
 
-                    # prestige level: proceed to next level
-                    if origin_type == "origin_prestige.png" or origin_type == "origin_prestige_small.png":
-                        if debug:
-                            debugger.show_images()
+                    # prestige
+                    elif len(matched_nodes) == 1 and matched_nodes[0].cls_name == GraphNode.PRESTIGE:
                         prestige_total += 1
                         bp_total += 20000
                         if bp_limit is not None and bp_total > bp_limit:
@@ -264,7 +274,9 @@ class StateProcess(Process):
                         print("prestige level: selecting")
                         self.emit("prestige", (prestige_total, prestige_limit))
                         self.emit("bloodpoint", (bp_total, bp_limit))
-                        pyautogui.moveTo(x + round(origin.x() * ratio), y + round(origin.y() * ratio))
+                        centre = matched_nodes[0].position.centre()
+                        centre = (int(coordinate * ratio) for coordinate in centre)
+                        pyautogui.moveTo(**centre)
                         pyautogui.mouseDown()
                         time.sleep(1.5)
                         pyautogui.mouseUp()
@@ -277,18 +289,14 @@ class StateProcess(Process):
                         time.sleep(0.5) # 1 sec to generate
                         continue
 
-                    # hough transform: detect lines
-                    print("hough transform: lines")
+                    # yolov5obb: detect all edges
+                    print("yolov5obb: detect all edges")
                     edge_images, raw_lines, connections = match_lines(cv_images, resolution, circles)
-                    debugger.set_edge_images(edge_images)
-                    debugger.set_raw_lines(raw_lines)
-                    debugger.set_connections(connections)
 
                     # create networkx graph of nodes
                     print("creating networkx graph")
                     grapher = Grapher(circles, connections) # all 9999
                     base_bloodweb = grapher.create()
-                    debugger.set_base_bloodweb(base_bloodweb)
                     print("NODES")
                     for node in base_bloodweb.nodes:
                         print(f"    {node}")
@@ -297,9 +305,6 @@ class StateProcess(Process):
                     for edge in base_bloodweb.edges:
                         print(f"    {str(edge[0]).ljust(max_len, ' ')} {edge[1]}")
 
-                    if debug:
-                        debugger.show_images()
-
                     # fast-forward levels with <= 6 nodes (excl. origin) and none yet claimed
                     fast = len(base_bloodweb.nodes) <= 7 and all([not data["is_user_claimed"]
                                                                   for node_id, data in base_bloodweb.nodes.items()
@@ -307,14 +312,6 @@ class StateProcess(Process):
                     j = 1
                     run = True
                     while run:
-                        # correct reachable nodes
-                        # print("pre-correction")
-                        # for node_id, data in base_bloodweb.nodes.items():
-                        #     if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
-                        #             base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
-                        #         print(f"    corrected {node_id}")
-                        #         nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
-
                         # run through optimiser
                         print("optimiser")
                         optimiser = Optimiser(base_bloodweb)
@@ -336,10 +333,9 @@ class StateProcess(Process):
                             return
 
                         print(optimal_unlockable.node_id)
-                        debugger.set_dijkstra(optimiser.dijkstra_graph, j)
                         self.emit("bloodpoint", (bp_total, bp_limit))
                         if fast:
-                            optimal_unlockable.set_user_claimed(True)
+                            optimal_unlockable.set_claimed(True)
                             optimal_unlockable.set_value(9999)
                             nx.set_node_attributes(base_bloodweb, optimal_unlockable.get_dict())
 
@@ -361,15 +357,7 @@ class StateProcess(Process):
                         # move mouse again in case it didn't the first time
                         pyautogui.moveTo(0, 0)
 
-                        if fast:
-                            # correct reachable nodes
-                            print("post-correction")
-                            for node_id, data in base_bloodweb.nodes.items():
-                                if any([base_bloodweb.nodes[neighbour]["is_user_claimed"] for neighbour in
-                                        base_bloodweb.neighbors(node_id)]) and not data["is_accessible"]:
-                                    print(f"    corrected {node_id}")
-                                    nx.set_node_attributes(base_bloodweb, Node.from_dict(data, is_accessible=True).get_dict())
-                        else:
+                        if not fast:
                             # time for bloodweb to update
                             time.sleep(0.3)
 
@@ -377,7 +365,6 @@ class StateProcess(Process):
                             print("updating bloodweb")
                             updated_image = screen_capture(base_res, ratio, 1)[0]
                             Grapher.update(base_bloodweb, updated_image, resolution)
-                            debugger.add_updated_image(updated_image.get_bgr(), j)
 
                         # new level
                         optimiser_test = Optimiser(base_bloodweb)
@@ -405,7 +392,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.0-alpha.0"
+    version = "v1.0.0-alpha.1"
 
     def __init__(self, pipe):
         self.process = None
