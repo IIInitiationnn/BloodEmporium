@@ -42,6 +42,7 @@ see below; there is also a `Help` section in the app.
 
 ## Features
 - Allows user to configure which unlockables are preferred or undesirable.
+- Two modes: NAIVE (select any available item) and AWARE (select items according to preference)
 - Bloodpoint spend limit / prestige level limit.
 - Hotkey to run / stop the program (default: Ctrl + Alt + 9).
 - Completely automatic and hands-free.
@@ -55,8 +56,9 @@ see below; there is also a `Help` section in the app.
 - Slight inaccuracies in detecting which unlockables are connected (especially as of Patch 6.4.0).
 
 ## Roadmap & Future Developments
-- Improved speed
-- Blind mode (selects random nodes blindly - a very fast alternative for those who don't care about what items they get)
+- Improved accuracy
+- Automatic termination upon depleting bloodpoints
+- Item summary
 
 ## Credits
 - Icons taken from [The Noun Project](https://thenounproject.com/).

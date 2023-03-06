@@ -81,15 +81,12 @@ class LoggerWriter(object):
 
 '''
 TODO possible improvements:
-- get rid of yolov8 logging
 - better model
     - more training data
     - more prestige data
     - brightness and saturation preprocessing?
     - add some images containing transitions (new level) to train model to not classify them as prestiges
       may be able to retire the 0.7 arbitrary threshold after this
-- naive & aware mode: after each, check node colours, if none accessible left, run new level proceedings
-    - disappears instantly now, need to get screenshot immediately and then can bypass the level screen being captured
 - if no progress for 5 seconds, need to use failsafe
 '''
 
