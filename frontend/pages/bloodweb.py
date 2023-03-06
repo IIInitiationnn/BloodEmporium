@@ -95,8 +95,7 @@ class BloodwebPage(QWidget):
 
         self.naiveModeCheckBox = CheckBox(self.naiveModeRow, "bloodwebPageNaiveModeCheckBox")
         self.naiveModeDescription = TextLabel(self.naiveModeRow, "bloodwebPageNaiveModeDescription",
-                                              "Enable this mode if you do not care about which items are selected. "
-                                              "This mode is significantly faster.")
+                                              "Enable this mode if you do not care about which items are selected.")
 
         self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
         self.limitsDescription = TextLabel(self, "bloodwebPageLimitsDescription",

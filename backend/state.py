@@ -48,6 +48,7 @@ python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml
 IMMEDIATE PRIORITIES
 - reload images in preferences page when path changes
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
+- buggy pages when resizing main window
 
 FEATURES TO ADD
 - settings: are you using a custom pack (+ "browse for folder")

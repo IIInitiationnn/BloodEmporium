@@ -66,7 +66,7 @@ class Optimiser:
                     min_id, min_val = [node_id], data["value"]
                 elif data["value"] == min_val:
                     min_id.append(node_id)
-        return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)]) # TODO hhhhh
+        return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
 
     def run(self, profile_id):
         config = Config()

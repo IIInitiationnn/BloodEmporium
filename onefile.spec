@@ -6,9 +6,9 @@ block_cipher = None
 
 a = Analysis(
     ['main.py'],
-    pathex=['backend'],
+    pathex=['backend', 'yolov5_obb'],
     binaries=[],
-    datas=[('venv/Lib/site-packages/ultralytics', 'ultralytics/')],
+    datas=[('venv/Lib/site-packages/ultralytics', 'ultralytics/'), ('yolov5_obb', 'yolov5_obb/')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
