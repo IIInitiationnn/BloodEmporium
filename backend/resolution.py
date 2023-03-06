@@ -1,7 +1,5 @@
 import math
 
-from shapes import Position
-
 
 class Resolution:
     """

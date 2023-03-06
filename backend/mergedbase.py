@@ -52,10 +52,8 @@ class MergedBase:
             else:
                 print(f"no source found for desired unlockable: {unlockable} under category: {category}")"""
 
-        valid_names, valid_images = self.__get_valid_images(image_paths)
-
-        self.names = valid_names
-        self.images = cv2.vconcat(valid_images)
+        self.names, self.valid_images = self.__get_valid_images(image_paths)
+        self.images = cv2.vconcat(self.valid_images)
 
     def __get_valid_images(self, image_paths):
         ret_names = []

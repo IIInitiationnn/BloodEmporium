@@ -5,7 +5,7 @@ import networkx as nx
 from mergedbase import MergedBase
 from graph_node import GraphNode
 from optimiser import Optimiser
-from utils.network_util import NetworkUtil
+from util.network_util import NetworkUtil
 
 
 # TODO fix

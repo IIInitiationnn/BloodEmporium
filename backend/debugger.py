@@ -1,144 +1,98 @@
 import os
+from typing import List
 
 import cv2
 
 from backend.cvimage import CVImage
-from image import Image
-from paths import Path
-from utils.network_util import NetworkUtil
+from backend.shapes import MatchedNode, LinkedEdge
+from backend.util.node_util import ColorUtil
+from util.network_util import NetworkUtil
 
 
+# direct = in this function, indirect = stored to be used by another function
 class Debugger:
-    def __init__(self, cv_images: [CVImage], timestamp, i, write_to_output=False):
-        self.cv_images = cv_images
+    def __init__(self, timestamp, write_to_output=False):
         self.write_to_output = write_to_output
-
-        self.i = i
         self.time = timestamp.strftime("%d-%m-%y %H-%M-%S")
-        self.all_circles = []
-        self.icons = []
-        self.edge_images = []
-        self.raw_lines = {}
 
-        self.connections = []
+        self.cv_images = []
+        self.nodes: List[List[MatchedNode]] = []
+        self.edges: List[List[LinkedEdge]] = []
 
         if self.write_to_output:
             if not os.path.isdir(f"output"):
                 os.mkdir(f"output")
             if not os.path.isdir(f"output/{self.time}"):
                 os.mkdir(f"output/{self.time}")
-            if not os.path.isdir(f"output/{self.time}/{i}"):
-                os.mkdir(f"output/{self.time}/{i}")
-            for j in range(len(self.cv_images)):
-                cv2.imwrite(f"output/{self.time}/{i}/initial_image_{j}.png", self.cv_images[j].get_bgr())
 
-    # merger
-    def set_merger(self, merger):
+    # merged base - direct output
+    def set_merged_base(self, merged_base):
+        self.merged_base = merged_base
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/collage.png", merger.images)
+            cv2.imwrite(f"output/{self.time}/collage.png", merged_base.images)
         return self
 
-    # match origin
-    def set_cropped(self, cropped):
-        self.cropped = cropped
-
-    def set_origin_type(self, origin_type):
-        self.origin_type = origin_type
-
-    def set_origin(self, origin):
-        self.origin = origin
-
-    # match circles
-    def set_valid_circles(self, valid_circles):
-        self.valid_circles = valid_circles
-
-    # match icons
-    def add_icon(self, from_screen, matched):
-        self.icons.append((from_screen, matched))
-
-    # match lines
-    def set_edge_images(self, edge_images):
-        self.edge_images = edge_images
+    # image - direct output, indirect debug
+    def set_image(self, bloodweb_iteration, cv_image: CVImage):
+        while len(self.cv_images) < bloodweb_iteration + 1:
+            self.cv_images.append(None)
+            self.nodes.append([])
+            self.edges.append([])
+        self.cv_images[bloodweb_iteration] = cv_image
         if self.write_to_output:
-            for index, edge_image in enumerate(self.edge_images):
-                cv2.imwrite(f"output/{self.time}/{self.i}/edges_{index}.png", edge_image)
+            if not os.path.isdir(f"output/{self.time}/{bloodweb_iteration}"):
+                os.mkdir(f"output/{self.time}/{bloodweb_iteration}")
+            cv2.imwrite(f"output/{self.time}/{bloodweb_iteration}/initial.png", cv_image.get_bgr())
 
-    def set_raw_lines(self, all_raw_lines):
-        for i, raw_lines in enumerate(all_raw_lines):
-            if self.raw_lines.get(i) is None:
-                self.raw_lines[i] = []
-            self.raw_lines[i].extend(raw_lines)
+    # nodes - indirect output, indirect debug
+    def set_nodes(self, bloodweb_iteration, nodes: List[MatchedNode]):
+        # TODO in future show separate images for unprocessed (bbox nodes, oriented bbox edges) and
+        #  processed (centre dot nodes, line edges)
+        self.nodes[bloodweb_iteration] = nodes
 
-    def set_connections(self, connections):
-        self.connections = connections
+    # edges - indirect output, indirect debug
+    def set_edges(self, bloodweb_iteration, edges: List[LinkedEdge]):
+        self.edges[bloodweb_iteration] = edges
 
-    # grapher
-    def set_base_bloodweb(self, base_bloodweb):
+    # grapher - direct output
+    def set_base_bloodweb(self, bloodweb_iteration, base_bloodweb):
         if self.write_to_output:
-            NetworkUtil.write_to_html(base_bloodweb, f"output/{self.time}/{self.i}/base_bloodweb")
+            NetworkUtil.write_to_html(base_bloodweb, f"output/{self.time}/{bloodweb_iteration}/base_bloodweb")
         return self
 
-    # optimiser
-    def set_dijkstra(self, dijkstra_graph, j):
+    # updated image - direct output
+    def add_updated_image(self, bloodweb_iteration, update_iteration, updated_image):
         if self.write_to_output:
-            NetworkUtil.write_to_html(dijkstra_graph, f"output/{self.time}/{self.i}/dijkstra_{j}")
+            cv2.imwrite(f"output/{self.time}/{bloodweb_iteration}/updated_{update_iteration}.png",
+                        updated_image.get_bgr())
+
+    # optimiser - direct output
+    def set_dijkstra(self, bloodweb_iteration, update_iteration, dijkstra_graph):
+        if self.write_to_output:
+            NetworkUtil.write_to_html(dijkstra_graph,
+                                      f"output/{self.time}/{bloodweb_iteration}/dijkstra_{update_iteration}")
         return self
 
-    # updated image
-    def add_updated_image(self, updated_image, j):
+    def construct_and_show_images(self, bloodweb_iteration):
+        img = self.cv_images[bloodweb_iteration].get_bgr()
+        for node in self.nodes[bloodweb_iteration]:
+            cv2.rectangle(img, node.box.nw.xy(), node.box.se.xy(),
+                          ColorUtil.bgr_from_cls_name(node.cls_name), 4)
+
+            if node.unique_id != "":
+                matched_icon = self.merged_base.valid_images[self.merged_base.names.index(node.unique_id)]
+                resized_match = cv2.resize(matched_icon, tuple(reversed([c * 2 // 3 for c in matched_icon.shape])))
+                centre_x, centre_y = node.box.centre().xy()
+                node_width, node_height = node.box.dimensions()
+                offset_x, offset_y = centre_x + node_width // 2, centre_y - node_height // 2
+                img[offset_y:offset_y+resized_match.shape[0], offset_x:offset_x+resized_match.shape[1]] = \
+                    cv2.merge([resized_match, resized_match, resized_match])
+        for edge in self.edges[bloodweb_iteration]:
+            cv2.line(img, edge.node_a.box.centre().xy(), edge.node_b.box.centre().xy(), (255, 255, 255), 1)
+
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/{self.i}/updated_image_{j}.png", updated_image)
-        return self
+            cv2.imwrite(f"output/{self.time}/{bloodweb_iteration}/processed.png", img)
 
-    def show_images(self):
-        # hough
-        cv2.imshow("cropped for origin matching", self.cropped)
-        cv2.imshow("matched origin", cv2.split(cv2.imread(f"{Path.assets_origins}/{self.origin_type}", cv2.IMREAD_UNCHANGED))[2])
-
-        for i in range(len(self.cv_images)):
-            raw_output = self.cv_images[i].get_gray().copy()
-            cv2.circle(raw_output, (self.origin.x(), self.origin.y()), self.origin.radius, 255, 4)
-            for circle in self.valid_circles:
-                if circle.is_origin:
-                    continue
-                x = circle.x()
-                y = circle.y()
-                r = circle.radius
-                cv2.circle(raw_output, (x, y), r, 255, 2)
-                cv2.rectangle(raw_output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
-            if i in self.raw_lines:
-                for line in self.raw_lines[i]:
-                    x1, y1, x2, y2 = line.positions()
-                    cv2.line(raw_output, (x1, y1), (x2, y2), 255, 2)
-
-            if self.write_to_output:
-                cv2.imwrite(f"output/{self.time}/{self.i}/raw_output_{i}.png", raw_output)
-
-            cv2.imshow("unfiltered raw output (r-adjusted)", raw_output)
-            if len(self.edge_images) > i:
-                cv2.imshow("edges for matching lines", self.edge_images[i])
-            cv2.waitKey(0)
-
-        validated_output = self.cv_images[0].get_gray().copy()
-        cv2.circle(validated_output, (self.origin.x(), self.origin.y()), self.origin.radius, 255, 4)
-        for circle in self.valid_circles:
-            if circle.is_origin:
-                continue
-            x = circle.x()
-            y = circle.y()
-            r = circle.radius
-            cv2.circle(validated_output, (x, y), r, 255, 2)
-            cv2.rectangle(validated_output, (x - 5, y - 5), (x + 5, y + 5), 255, -1)
-        for connection in self.connections:
-            cv2.line(validated_output, (connection.circle1.x(), connection.circle1.y()),
-                     (connection.circle2.x(), connection.circle2.y()), 255, 1)
-        cv2.imshow("validated & processed output (r-adjusted)", validated_output)
+        cv2.imshow("processed", img)
         cv2.waitKey(0)
-
-        # matcher
-        for from_screen, matched in self.icons:
-            cv2.imshow("unlockable from screen", cv2.resize(from_screen, (200, 200), interpolation=Image.interpolation))
-            cv2.imshow(f"matched unlockable", cv2.resize(matched, (200, 200), interpolation=Image.interpolation))
-            cv2.waitKey(0)
-
         cv2.destroyAllWindows()

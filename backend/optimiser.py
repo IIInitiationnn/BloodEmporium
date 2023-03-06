@@ -4,6 +4,7 @@ import random
 
 import networkx as nx
 
+from backend.util.node_util import NodeType
 from config import Config
 from graph_node import GraphNode
 
@@ -13,24 +14,33 @@ class Optimiser:
         self.base_graph = graph
         self.dijkstra_graph = None
 
-    def dijkstra(self, desired_node_id, tier, subtier):
+    def dijkstra(self, node_id, tier, subtier):
+        # run dijkstra map for node corresponding to node_id
         heatmap = copy.deepcopy(self.base_graph)
-        desired_value = -(9999 * tier + subtier)
-        base_data = self.base_graph.nodes[desired_node_id]
+        desired_value = -(9999 * tier + subtier) # the lower this number, the higher the priority
+        base_data = self.base_graph.nodes[node_id]
         nx.set_node_attributes(heatmap, GraphNode.from_dict(base_data, value=desired_value).get_dict())
 
-        if heatmap.nodes[desired_node_id]["is_accessible"]:
+        # for this graph, if the node is already accessible, its value cannot be decreased or increased by neighbours
+        if heatmap.nodes[node_id]["cls_name"] == NodeType.ACCESSIBLE:
             return heatmap
 
         edited = True
         while edited:
             edited = False
             for node_id, data in heatmap.nodes.items():
-                if node_id == "ORIGIN":
+                if data["cls_name"] not in NodeType.MULTI_UNCLAIMED:
                     continue
 
+                #         O-\
+                #         |  \
+                # A - B - C - D - E
+                # CDO accessible, ABE inaccessible
+                # calculating dijkstra for A; then D and E not on the path to A and shouldn't be penalised for distance
+                # essentially allows neighbours to be "cutoff points" to prevent further rolling down the hill
                 neighbor_values = [heatmap.nodes[neighbor]["value"] for neighbor in heatmap.neighbors(node_id)
-                                   if not heatmap.nodes[neighbor]["is_accessible"]]
+                                   if heatmap.nodes[neighbor]["cls_name"] == NodeType.INACCESSIBLE] # see above for why
+
                 lowest_neighbor_value = min(neighbor_values) if len(neighbor_values) > 0 else 9999 # if node is not connected to rest of graph
                 if data["value"] > lowest_neighbor_value + 1:
                     nx.set_node_attributes(heatmap, GraphNode.from_dict(data, value=lowest_neighbor_value + 1).get_dict())
@@ -38,6 +48,7 @@ class Optimiser:
 
         return heatmap
 
+    # TODO check timing; if bad, this can be easily optimised
     @staticmethod
     def add_graphs(graphs):
         total = copy.deepcopy(graphs[0])
@@ -47,34 +58,29 @@ class Optimiser:
                 nx.set_node_attributes(total, GraphNode.from_dict(total_data, value=total_data["value"] + data["value"]).get_dict())
         return total
 
-    def select_best(self):
-        min_id, min_val = ["ORIGIN"], [math.inf]
+    def select_best(self) -> GraphNode:
+        min_id, min_val = [None], math.inf
         for node_id, data in self.dijkstra_graph.nodes.items():
-            if data["is_accessible"] and not data["is_user_claimed"]:
-                if data["value"] < min(min_val):
-                    min_id, min_val = [node_id], [data["value"]]
-                elif data["value"] == min(min_val):
+            if data["cls_name"] == NodeType.ACCESSIBLE:
+                if data["value"] < min_val:
+                    min_id, min_val = [node_id], data["value"]
+                elif data["value"] == min_val:
                     min_id.append(node_id)
-                    min_val.append(data["value"])
-
-        return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
+        return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)]) # TODO hhhhh
 
     def run(self, profile_id):
         config = Config()
         graphs = []
         for node_id, data in self.base_graph.nodes.items():
-            if data["is_user_claimed"]: # claimed
-                pass
-            else:
+            if data["cls_name"] in NodeType.MULTI_UNCLAIMED:
                 tier, subtier = config.preference(data["name"], profile_id)
-                if tier > 0: # desirable and unclaimed
+                if tier > 0 or (tier == 0 and subtier > 0): # desirable and unclaimed
                     graphs.append(self.dijkstra(node_id, tier, subtier))
-                elif tier < 0: # temp: undesirable and unclaimed
+                elif tier < 0 or (tier == 0 and subtier < 0): # temp: undesirable and unclaimed
                     heatmap = copy.deepcopy(self.base_graph)
                     cost = heatmap.nodes[node_id]["value"] - 9999 * tier + subtier
                     nx.set_node_attributes(heatmap, GraphNode.from_dict(heatmap.nodes[node_id], value=cost).get_dict())
                     graphs.append(heatmap)
-                # TODO tier 0 with subtier
 
         if len(graphs) == 0:
             graphs = [self.base_graph]

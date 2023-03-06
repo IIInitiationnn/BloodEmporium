@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 from backend.config import Config
 from backend.data import Data
-from backend.utils.text_util import TextUtil
+from backend.util.text_util import TextUtil
 
 class SettingsPage(QWidget):
     def on_width_update(self):

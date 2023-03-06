@@ -1,22 +1,23 @@
 import os
 import sys
-
-sys.path.append(os.path.dirname(os.path.realpath("yolov5_obb/models")))
-
-from yolov5_obb.utils.rboxs_utils import rbox2poly
-
-from yolov5_obb.utils.augmentations import letterbox
-from yolov5_obb.utils.general import check_img_size, scale_polys, non_max_suppression_obb
+from typing import List
 
 import numpy as np
 import torch
 
+from backend.shapes import LinkedEdge, MatchedNode
+
+sys.path.append(os.path.dirname(os.path.realpath("yolov5_obb/models")))
+
 from yolov5_obb.models.common import DetectMultiBackend
+from yolov5_obb.utils.augmentations import letterbox
+from yolov5_obb.utils.general import check_img_size, scale_polys, non_max_suppression_obb
+from yolov5_obb.utils.rboxs_utils import rbox2poly
 
 class EdgeDetection:
     def __init__(self):
         # load model on init
-        self.model = DetectMultiBackend("edges v1.pt")
+        self.model = DetectMultiBackend("assets/models/edges v1.pt")
         self.model.float()
 
         # get custom names from custom model
@@ -50,3 +51,21 @@ class EdgeDetection:
             processed_results = torch.cat((pred_poly, results[:, -2:]), dim=1) # (n, [poly conf cls])
 
         return processed_results
+
+    # TODO maybe optimise, currently takes about 100ms
+    def link_edges(self, results, matched_nodes: List[MatchedNode], avg_diameter) -> List[LinkedEdge]:
+        edges = []
+        for x1, y1, x2, y2, x3, y3, x4, y4, confidence, cls in results: # cls not useful
+            if confidence > 0.8: # TODO remove with better model
+                closests = []
+                for (x, y) in [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]:
+                    closest = min(matched_nodes, key=lambda node: node.box.centre().distance_xy(x, y))
+                    if closest not in closests and closest.box.centre().distance_xy(x, y) < avg_diameter:
+                        closests.append(closest)
+                    if len(closests) > 2:
+                        continue
+                if len(closests) == 2:
+                    new_edge = LinkedEdge(*closests)
+                    if not any([new_edge == edge for edge in edges]):
+                        edges.append(new_edge)
+        return edges

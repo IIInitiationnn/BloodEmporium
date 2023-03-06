@@ -13,7 +13,7 @@ from frontend.stylesheets import StyleSheets
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 from backend.config import Config
-from backend.utils.text_util import TextUtil
+from backend.util.text_util import TextUtil
 
 class Font(QFont):
     def __init__(self, font_size):
