@@ -12,6 +12,7 @@ from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QR
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
+from parse import parse
 
 from dialogs import UpdateDialog
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
@@ -32,9 +33,21 @@ def get_latest_update():
 
     if resp.status_code == 200:
         data = resp.json()
-        version = data["tag_name"]
+        old_version = State.version
+        new_version = data["tag_name"]
 
-        if version != State.version:
+        # compare version numbers MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-alpha.PRERELEASE
+        # TODO could maybe put into a new class
+        if "alpha" in old_version:
+            old_maj, old_min, old_patch, old_prerelease = parse("v{:n}.{:n}.{:n}-alpha.{:n}", old_version)
+        else:
+            old_maj, old_min, old_patch = parse("v{:n}.{:n}.{:n}", old_version)
+            old_prerelease = None
+        new_maj, new_min, new_patch = parse("v{:n}.{:n}.{:n}", new_version)
+        if old_maj < new_maj or \
+                (old_maj == new_maj and old_min < new_min) or \
+                (old_maj == new_maj and old_min == new_min and old_patch < new_patch) or \
+                (old_maj == new_maj and old_min == new_min and old_patch == new_patch and old_prerelease is not None):
             return data
 
 def install_update(update):
@@ -825,16 +838,15 @@ if __name__ == "__main__":
     window.show()
 
     # auto update
-    if "alpha" not in State.version:
-        try:
-            update = get_latest_update()
-            if update is not None:
-                dialog = UpdateDialog(State.version, update["tag_name"])
-                selection = dialog.exec()
-                if selection == QMessageBox.AcceptRole:
-                    handle_updates()
-        except:
-            pass
+    try:
+        try_update = get_latest_update()
+        if try_update is not None:
+            dialog = UpdateDialog(State.version, try_update["tag_name"])
+            selection = dialog.exec()
+            if selection == QMessageBox.AcceptRole:
+                handle_updates()
+    except:
+        pass
 
     @atexit.register
     def shutdown():

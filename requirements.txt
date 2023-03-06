@@ -1,6 +1,7 @@
 networkx==2.6.3
 numpy==1.21.3
 opencv_python==4.6.0.66
+parse~=1.19.0
 PyAutoGUI==0.9.53
 pynput==1.7.5
 PyQt5==5.15.7

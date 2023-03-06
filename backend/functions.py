@@ -6,7 +6,7 @@ from backend.resolution import Resolution
 from cvimage import CVImage
 from image import Image
 
-
+# TODO move to util?
 def screen_capture(base_res: Resolution, ratio, interval=0.5, crop=True) -> CVImage:
     """
     Takes several images with some intervening interval.
