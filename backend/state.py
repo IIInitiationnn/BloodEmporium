@@ -46,6 +46,7 @@ yolov5obb edge detection
 python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
 
 IMMEDIATE PRIORITIES
+- 2 1.0.0-alpha.1 bugs, hotkey bug
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
 - buggy pages when resizing main window
 

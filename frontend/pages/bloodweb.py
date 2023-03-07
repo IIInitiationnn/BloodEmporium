@@ -4,6 +4,7 @@ import sys
 from PyQt5.QtCore import QSize, QTimer
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
+from backend.util.text_util import TextUtil
 from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button, CheckBox
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
@@ -65,6 +66,13 @@ class BloodwebPage(QWidget):
 
     def hide_run_text(self):
         self.runErrorText.setVisible(False)
+
+    def refresh_run_description(self):
+        self.pressed_keys = Config().hotkey()
+        self.runDescription.setText("Make sure your game is open on your monitor, and any shaders and visual effects "
+                                    "are off.\n\nShortcut to run or terminate: " +
+                                    " + ".join([TextUtil.title_case(k) for k in self.pressed_keys]) +
+                                    " (can be changed in settings).")
 
     def get_run_mode(self):
         return (self.devDebugCheckBox.isChecked(), self.devOutputCheckBox.isChecked()) \
@@ -153,9 +161,8 @@ class BloodwebPage(QWidget):
             self.devOutputRowLayout.addStretch(1)
 
         self.runLabel = TextLabel(self, "bloodwebPageRunLabel", "Run", Font(12))
-        self.runDescription = TextLabel(self, "bloodwebPageRunLabel",
-                                        "Make sure your game is open on your monitor, and any shaders and visual "
-                                        "effects are off.", Font(10))
+        self.runDescription = TextLabel(self, "bloodwebPageRunLabel", "", Font(10))
+        self.refresh_run_description()
 
         self.runRow = QWidget(self)
         self.runRow.setObjectName("bloodwebPageRunRow")

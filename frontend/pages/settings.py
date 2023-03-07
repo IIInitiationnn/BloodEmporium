@@ -69,6 +69,7 @@ class SettingsPage(QWidget):
         config.set_path(path)
         config.set_hotkey(hotkey)
         self.config_cache = Config()
+        self.bloodweb_page.refresh_run_description()
         self.show_settings_page_save_success_text("Settings changed.")
 
     def reset_settings(self):
@@ -104,13 +105,14 @@ class SettingsPage(QWidget):
         except ValueError:
             pass
 
-    def __init__(self, run_terminate):
+    def __init__(self, run_terminate, bloodweb_page):
         super().__init__()
         self.listener = None
         self.pressed_keys = []
         self.config_cache = Config()
         self.setObjectName("settingsPage")
         self.run_terminate = run_terminate
+        self.bloodweb_page = bloodweb_page
 
         self.layout = QVBoxLayout(self)
         self.layout.setObjectName("settingsPageLayout")

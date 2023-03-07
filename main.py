@@ -646,7 +646,7 @@ class MainWindow(QMainWindow):
         self.helpButton.setPage(self.helpPage)
 
         # stack: settingsPage
-        self.settingsPage = SettingsPage(self.run_terminate)
+        self.settingsPage = SettingsPage(self.run_terminate, self.bloodwebPage)
         self.settingsButton.setPage(self.settingsPage)
         TextInputBox.on_focus_in_callback = self.settingsPage.stop_keyboard_listener
         TextInputBox.on_focus_out_callback = self.settingsPage.start_keyboard_listener
