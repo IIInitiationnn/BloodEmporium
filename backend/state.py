@@ -5,7 +5,6 @@ import time
 import traceback
 from datetime import datetime
 from multiprocessing import Process, Pipe
-from typing import List
 
 import pyautogui
 from numpy import mean
@@ -13,7 +12,6 @@ from numpy import mean
 from backend.data import Data
 from backend.edge_detection import EdgeDetection
 from backend.node_detection import NodeDetection
-from backend.shapes import UnmatchedNode
 from backend.util.node_util import NodeType
 from config import Config
 from debugger import Debugger
@@ -386,6 +384,7 @@ class StateProcess(Process):
 
                         # move mouse again in case it didn't the first time
                         pyautogui.moveTo(0, 0)
+                        # TODO should wait 0.3s for stolen to appear...
 
                         # take new picture and update colours
                         print("updating bloodweb")
@@ -395,7 +394,7 @@ class StateProcess(Process):
                         print("yolov8: detect all nodes")
                         updated_results = node_detector.predict(updated_image.get_bgr())
                         updated_nodes = node_detector.get_nodes(updated_results)
-                        Grapher.update(base_bloodweb, updated_nodes)
+                        Grapher.update(base_bloodweb, updated_nodes, optimal_unlockable)
                         update_iteration += 1
                     bloodweb_iteration += 1
         except:

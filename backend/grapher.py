@@ -33,15 +33,24 @@ class Grapher:
         return graph
 
     @staticmethod
-    def update(base_bloodweb, updated_nodes: List[UnmatchedNode]):
+    def update(base_bloodweb, updated_nodes: List[UnmatchedNode], previously_selected_node: GraphNode):
         for updated_node in updated_nodes:
             for node_id, data in base_bloodweb.nodes.items():
                 if updated_node.box.close_to_xy(int(data["x"]), int(data["y"])):
                     if updated_node.cls_name in NodeType.MULTI_UNCLAIMED and data["name"] == "":
                         # error check: if node had no unlockable matched (e.g. claimed, stolen) but now seems unclaimed
                         continue
+
+                    updated_cls_name = updated_node.cls_name
+                    if updated_node.box.close_to_xy(previously_selected_node.x, previously_selected_node.y):
+                        # error check: if this is the previous selection, it should be
+                        # - claimed: if not, it was inaccessible (thought was accessible but wasn't), OR
+                        # - stolen: appeared accessible (not enough delay after last selection)
+                        if updated_node.cls_name not in [NodeType.CLAIMED, NodeType.STOLEN]:
+                            updated_cls_name = NodeType.INACCESSIBLE
+
                     x1, y1, x2, y2 = updated_node.xyxy()
-                    nx.set_node_attributes(base_bloodweb, GraphNode.from_dict(data, cls_name=updated_node.cls_name,
+                    nx.set_node_attributes(base_bloodweb, GraphNode.from_dict(data, cls_name=updated_cls_name,
                                                                               x1=x1, y1=y1, x2=x2, y2=y2).get_dict())
                 else: # TODO previously undetected, match and add?
                     pass
