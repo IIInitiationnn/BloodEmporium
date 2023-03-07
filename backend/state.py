@@ -332,10 +332,9 @@ class StateProcess(Process):
                         debugger.construct_and_show_images(bloodweb_iteration)
 
                     update_iteration = 0
-                    updated_nodes: List[UnmatchedNode] = matched_nodes.copy()
                     while True:
                         # new level
-                        if not any([node.cls_name in NodeType.MULTI_UNCLAIMED for node in updated_nodes]):
+                        if not any([data["cls_name"] == NodeType.ACCESSIBLE for data in base_bloodweb.nodes.values()]):
                             print("level cleared")
                             time.sleep(1) # 1 sec to clear out until new level screen
                             pyautogui.click()
