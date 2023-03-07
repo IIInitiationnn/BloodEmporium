@@ -2,6 +2,7 @@ from typing import List
 
 import networkx as nx
 
+from backend.util.node_util import NodeType
 from graph_node import GraphNode
 from shapes import LinkedEdge, MatchedNode, UnmatchedNode
 
@@ -36,6 +37,9 @@ class Grapher:
         for updated_node in updated_nodes:
             for node_id, data in base_bloodweb.nodes.items():
                 if updated_node.box.close_to_xy(int(data["x"]), int(data["y"])):
+                    if updated_node.cls_name in NodeType.MULTI_UNCLAIMED and data["name"] == "":
+                        # error check: if node had no unlockable matched (e.g. claimed, stolen) but now seems unclaimed
+                        continue
                     x1, y1, x2, y2 = updated_node.xyxy()
                     nx.set_node_attributes(base_bloodweb, GraphNode.from_dict(data, cls_name=updated_node.cls_name,
                                                                               x1=x1, y1=y1, x2=x2, y2=y2).get_dict())
