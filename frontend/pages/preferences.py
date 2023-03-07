@@ -206,10 +206,26 @@ class PreferencesPage(QWidget):
             self.bloodwebPage.profileSelector.removeItem(0)
         self.bloodwebPage.profileSelector.addItems(config.profile_names())
 
-    def replace_unlockable_widgets(self):
+    def has_unsaved_changes(self):
+        config = Config()
+        profile_id = self.get_edit_profile()
+        profile = config.get_profile_by_id(profile_id)
+
+        non_integer = Data.verify_tiers(self.unlockableWidgets)
+        if len(non_integer) > 0:
+            return True
+
+        for widget in self.unlockableWidgets:
+            tier, subtier = widget.getTiers()
+            config_tier, config_subtier = config.preference_by_profile(widget.unlockable.unique_id, profile)
+            if tier != config_tier or subtier != config_subtier:
+                return True
+        return False
+
+    def replace_unlockable_widgets(self, force_sort=False):
         sort_by = self.sortSelector.currentText()
 
-        if self.lastSortedBy == sort_by:
+        if not force_sort and self.lastSortedBy == sort_by:
             # if there was no change in ordering, don't pass in sort_by; the resulting visible list has arbitrary order
             for widget, is_visible in Data.filter(self.unlockableWidgets,
                                                   self.searchBar.text(),
@@ -240,7 +256,7 @@ class PreferencesPage(QWidget):
             # TODO prompt: unsaved changes (save or discard)
             config = Config()
             for widget in self.unlockableWidgets:
-                widget.setTiers(*config.preference(widget.unlockable.unique_id, self.get_edit_profile()))
+                widget.setTiers(*config.preference_by_id(widget.unlockable.unique_id, self.get_edit_profile()))
 
     def new_profile(self):
         if not self.ignore_profile_signals:
@@ -487,6 +503,28 @@ class PreferencesPage(QWidget):
         self.editDropdownButton.animateClick()
         self.expand_edit()
 
+    def load_unlockables(self):
+        config = Config()
+        self.unlockableWidgets = [UnlockableWidget(self.scrollAreaContent, unlockable,
+                                                   *config.preference_by_id(unlockable.unique_id,
+                                                                            self.get_edit_profile()),
+                                                   self.on_unlockable_select)
+                                  for unlockable in Data.get_unlockables()
+                                  if unlockable.category not in ["unused", "retired"]]
+
+    def refresh_unlockables(self):
+        if self.has_unsaved_changes():
+            self.show_preferences_page_save_error("You have unsaved changes. "
+                                                  "Please save or revert your changes before refreshing your icons.")
+            return
+
+        for unlockableWidget in self.unlockableWidgets:
+            self.scrollAreaContentLayout.removeWidget(unlockableWidget)
+        self.load_unlockables()
+        for unlockableWidget in self.unlockableWidgets:
+            self.scrollAreaContentLayout.addWidget(unlockableWidget)
+        self.replace_unlockable_widgets(True)
+
     def __init__(self, bloodweb_page):
         super().__init__()
         self.ignore_profile_signals = False # used to prevent infinite recursion e.g. when setting dropdown to a profile
@@ -582,12 +620,12 @@ class PreferencesPage(QWidget):
         self.sortSelector.currentIndexChanged.connect(self.replace_unlockable_widgets)
         self.lastSortedBy = "name" # cache of last sort
 
+        self.refreshIconsButton = Button(self.scrollAreaContent, "preferencesPageRefreshIconsButton", "Refresh Icons",
+                                         QSize(105, 35))
+        self.refreshIconsButton.clicked.connect(self.refresh_unlockables)
+
         # all unlockables
-        self.unlockableWidgets = [UnlockableWidget(self.scrollAreaContent, unlockable,
-                                                   *config.preference(unlockable.unique_id, self.get_edit_profile()),
-                                                   self.on_unlockable_select)
-                                  for unlockable in Data.get_unlockables()
-                                  if unlockable.category not in ["unused", "retired"]]
+        self.load_unlockables()
 
         # select all bar
         self.persistentBar = QWidget(self)
@@ -722,6 +760,7 @@ class PreferencesPage(QWidget):
         self.scrollAreaContentLayout.addSpacing(15)
         self.scrollAreaContentLayout.addWidget(self.filtersBox)
         self.scrollAreaContentLayout.addWidget(self.searchSortRow)
+        self.scrollAreaContentLayout.addWidget(self.refreshIconsButton)
         self.scrollAreaContentLayout.addSpacing(15)
         for unlockableWidget in self.unlockableWidgets:
             self.scrollAreaContentLayout.addWidget(unlockableWidget)

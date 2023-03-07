@@ -46,7 +46,6 @@ yolov5obb edge detection
 python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
 
 IMMEDIATE PRIORITIES
-- reload images in preferences page when path changes
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
 - buggy pages when resizing main window
 
@@ -407,7 +406,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.0-alpha.1"
+    version = "v1.0.0-alpha.2"
 
     def __init__(self, pipe):
         self.process = None

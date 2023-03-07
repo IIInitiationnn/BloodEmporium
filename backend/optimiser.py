@@ -73,7 +73,7 @@ class Optimiser:
         graphs = []
         for node_id, data in self.base_graph.nodes.items():
             if data["cls_name"] in NodeType.MULTI_UNCLAIMED:
-                tier, subtier = config.preference(data["name"], profile_id)
+                tier, subtier = config.preference_by_id(data["name"], profile_id)
                 if tier > 0 or (tier == 0 and subtier > 0): # desirable and unclaimed
                     graphs.append(self.dijkstra(node_id, tier, subtier))
                 elif tier < 0 or (tier == 0 and subtier < 0): # temp: undesirable and unclaimed

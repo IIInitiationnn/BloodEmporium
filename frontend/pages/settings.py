@@ -155,7 +155,7 @@ class SettingsPage(QWidget):
         self.pathLabel = TextLabel(self, "settingsPagePathLabel", "Installation Path", Font(12))
         self.pathLabelDefaultLabel = TextLabel(self, "settingsPagePathLabelDefaultLabel",
                                                "<p style=line-height:125%>"
-                                               "NOTE: You only need to modify this if you are using custom icons.<br>"
+                                               "You only need to modify this if you are using custom icons.<br>"
                                                "Default path on Steam is C:/Program Files (x86)/Steam/steamapps/common/"
                                                "Dead by Daylight/DeadByDaylight/Content/UI/Icons.<br>"
                                                "Default path on Epic Games is C:/Program Files/Epic Games/"
@@ -167,7 +167,7 @@ class SettingsPage(QWidget):
 
         self.pathText = TextInputBox(self, "settingsPagePathText", QSize(550, 40),
                                      "Path to Dead by Daylight game icon files", str(self.config_cache.path()))
-        self.pathButton = Button(self, "settingsPagePathButton", "Set path to game icon files", QSize(180, 35))
+        self.pathButton = Button(self, "settingsPagePathButton", "Browse for icons folder", QSize(180, 35))
         self.pathButton.clicked.connect(self.set_path)
 
         self.hotkeyLabel = TextLabel(self, "settingsPageHotkeyLabel", "Hotkey", Font(12))

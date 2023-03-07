@@ -75,10 +75,13 @@ class Config:
     def get_profile_by_id(self, profile_id):
         return [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
 
-    def preference(self, unlockable_id, profile_id):
+    def preference_by_id(self, unlockable_id, profile_id):
         if profile_id is None:
             return 0, 0
-        p = self.get_profile_by_id(profile_id).get(unlockable_id, {})
+        return self.preference_by_profile(unlockable_id, self.get_profile_by_id(profile_id))
+
+    def preference_by_profile(self, unlockable_id, profile):
+        p = profile.get(unlockable_id, {})
         return p.get("tier", 0), p.get("subtier", 0)
 
     def profile_names(self):
