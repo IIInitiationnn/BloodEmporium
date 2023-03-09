@@ -47,7 +47,6 @@ class NodeDetection:
             (x1, y1, x2, y2), confidence, cls = random.choice(filtered)
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
             cls_name = self.CLASS_NAMES_DICT[cls]
-            print(confidence, cls_name) # TODO hhhhh remove
             if self.CLASS_NAMES_DICT[cls] == NodeType.ACCESSIBLE:
                 unlockable = screenshot[y1:y2, x1:x2]
                 height, width = y2 - y1, x2 - x1
@@ -78,7 +77,7 @@ class NodeDetection:
         else:
             return None
 
-    # TODO ensure there is origin of highest conf
+    # TODO ensure there is origin of highest conf if output is > 1 and is not prestige
     def get_nodes(self, results) -> List[UnmatchedNode]:
         nodes = []
         for result in results:

@@ -58,13 +58,16 @@ class TextInputBox(QLineEdit):
 
     def focusInEvent(self, event: QtGui.QFocusEvent) -> None:
         super().focusInEvent(event)
-        TextInputBox.on_focus_in_callback()
         if not self.isReadOnly():
             QTimer.singleShot(0, self.selectAll)
+        else:
+            TextInputBox.on_focus_in_callback()
+        print("focus in")
 
     def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
         super().focusOutEvent(event)
         TextInputBox.on_focus_out_callback()
+        print("focus out")
 
 class CheckBox(QCheckBox):
     def __init__(self, parent, object_name, style_sheet=StyleSheets.check_box):

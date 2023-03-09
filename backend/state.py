@@ -37,14 +37,12 @@ venv/Lib/site-packages/torch/nn/modules/upsampling.py Class BasePredictor self.a
 
 TRAINING
 yolov8 node detection
-TODO add new hyperparam file, imgsz = 1024? random resize augmentation?
-yolo task=detect mode=train data="datasets/Blood-Emporium-Node-Detection-1/data.yaml" epochs=2000 plots=True device=0
+yolo cfg="hyperparameters.yaml" data="datasets/Blood-Emporium-Node-Detection-5/data.yaml"
 
 yolov5obb edge detection
 python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
 
 IMMEDIATE PRIORITIES
-- discord issue 36, hotkey bug
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
 - buggy pages when resizing main window
 
