@@ -24,11 +24,11 @@ class UpdateDialog(QMessageBox, Dialog):
         self.addButton(QPushButton("Not Now"), QMessageBox.RejectRole)
 
 class ConfirmDialog(QMessageBox, Dialog):
-    def __init__(self, text):
+    def __init__(self, text, accept_text="Confirm", reject_text="Cancel"):
         super().__init__("Confirm", "confirmDialog")
         self.setText(text)
-        self.addButton(QPushButton("Confirm"), QMessageBox.AcceptRole)
-        self.addButton(QPushButton("Cancel"), QMessageBox.RejectRole)
+        self.addButton(QPushButton(accept_text), QMessageBox.AcceptRole)
+        self.addButton(QPushButton(reject_text), QMessageBox.RejectRole)
 
 class InputDialog(QInputDialog, Dialog):
     def __init__(self, title, label_text, input_mode, ok_button_text):

@@ -381,7 +381,6 @@ class StateProcess(Process):
 
                         # move mouse again in case it didn't the first time
                         pyautogui.moveTo(0, 0)
-                        # TODO should wait 0.3s for stolen to appear...
 
                         # take new picture and update colours
                         print("updating bloodweb")

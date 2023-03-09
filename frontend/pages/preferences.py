@@ -220,10 +220,10 @@ class PreferencesPage(QWidget):
         return False
 
     # TODO optimise?
-    def replace_unlockable_widgets(self, force_sort=False):
+    def replace_unlockable_widgets(self):
         sort_by = self.sortSelector.currentText()
 
-        if not force_sort and self.lastSortedBy == sort_by:
+        if self.lastSortedBy == sort_by:
             # if there was no change in ordering, don't pass in sort_by; the resulting visible list has arbitrary order
             for widget, is_visible in Data.filter(self.unlockableWidgets,
                                                   self.searchBar.text(),
@@ -251,7 +251,7 @@ class PreferencesPage(QWidget):
 
     def switch_edit_profile(self):
         if not self.ignore_profile_signals:
-            # TODO prompt: unsaved changes (save or discard)
+            # TODO prompt: unsaved changes (save or discard) - override profile selector currentindexchanged method?
             config = Config()
             for widget in self.unlockableWidgets:
                 widget.setTiers(*config.preference_by_id(widget.unlockable.unique_id, self.get_edit_profile()))
@@ -259,6 +259,14 @@ class PreferencesPage(QWidget):
     def new_profile(self):
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True
+            if self.has_unsaved_changes():
+                overwrite_profile_dialog = ConfirmDialog("You have unsaved changes to the current profile. "
+                                                         "Do you wish to save or discard these changes?",
+                                                         "Save", "Discard")
+                confirmation = overwrite_profile_dialog.exec()
+                if confirmation == QMessageBox.AcceptRole:
+                    self.save_profile()
+
             config = Config()
             profile_id = config.get_next_free_profile_name()
             config.add_profile({"id": profile_id})
@@ -293,7 +301,6 @@ class PreferencesPage(QWidget):
         self.show_preferences_page_save_success(f"Changes saved to profile: {profile_id}")
         QTimer.singleShot(10000, self.hide_preferences_page_save_text)
 
-    # TODO unsaved changes
     def create_profile(self, title, label_text, ok_button_text):
         # check for invalid tiers
         non_integer = Data.verify_tiers(self.unlockableWidgets)
