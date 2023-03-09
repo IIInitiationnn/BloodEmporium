@@ -19,6 +19,9 @@ class Unlockable:
         self.type = unlockable_type
         self.image_path = image_path
 
+    def set_image_path(self, image_path):
+        self.image_path = image_path
+
 class Data:
     __connection = None
     try:
@@ -36,6 +39,40 @@ class Data:
 
     __connection.close()
     print("disconnected from database")
+
+    @staticmethod
+    def get_icons():
+        all_files = [(subdir, file) for subdir, dirs, files in os.walk(Config().path()) for file in files]
+        icons = {}
+        for row in Data.__unlockables_rows:
+            u_id, _, u_category, _, _, _ = row
+
+            # search in user's folder
+            u_image_path = None
+            for subdir, file in all_files:
+                if u_id in file:
+                    # bubba and hillbilly share an addon with the same name
+                    if u_category == "bubba" and u_id == "iconAddon_speedLimiter" and "Xipre" in subdir:
+                        continue
+                    elif u_category == "hillbilly" and u_id == "iconAddon_speedLimiter" and "Xipre" not in subdir:
+                        continue
+
+                    u_image_path = os.path.normpath(os.path.join(subdir, file))
+                    break
+
+            # search in asset folder
+            if u_image_path is None:
+                asset_path = Path.assets_file(u_category, u_id)
+                if os.path.isfile(asset_path):
+                    u_image_path = os.path.normpath(os.path.abspath(asset_path))
+                else:
+                    print(f"no source found for desired unlockable: {u_id} under category: {u_category}")
+                    continue
+
+            if u_image_path is not None:
+                icons[Unlockable.generate_unique_id(u_id, u_category)] = u_image_path
+
+        return icons
 
     @staticmethod
     def get_unlockables():

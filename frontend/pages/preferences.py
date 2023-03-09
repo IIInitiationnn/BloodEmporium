@@ -25,14 +25,9 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
 
         # TODO clear filters button
         # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
-        self.filters = QScrollArea(self)
+        self.filters = QWidget(self)
         self.filters.setMinimumHeight(0)
         self.filters.setMaximumHeight(0)
-        self.filters.setStyleSheet("""
-            QScrollArea {
-                background: rgba(0, 0, 0, 0);
-                border: 0px solid rgba(0, 0, 0, 0);
-            }""")
 
         self.filtersLayout = QGridLayout(self.filters)
         self.filtersLayout.setContentsMargins(0, 0, 0, 0)
@@ -99,7 +94,6 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
     def get_type_filters(self):
         return [name for name, checkbox in self.typeCheckBoxes.items() if checkbox.isChecked()]
 
-    # TODO auto resize rather than fixed number
     def on_pressed(self):
         if self.toggleButton.isChecked():
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_active)
@@ -111,8 +105,8 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
             self.toggleButton.setIcon(QIcon(Icons.down_arrow))
             self.toggleButton.setText("Filter Options (Click to Collapse)")
-            self.filters.setMinimumHeight(1200)
-            self.filters.setMaximumHeight(1200)
+            self.filters.setMinimumHeight(40 * len(self.characterCheckBoxes.keys()))
+            self.filters.setMaximumHeight(40 * len(self.characterCheckBoxes.keys()))
 
 class UnlockableWidget(QWidget):
     def __init__(self, parent, unlockable: Unlockable, tier, subtier, on_unlockable_select):
@@ -192,6 +186,9 @@ Type: {TextUtil.title_case(unlockable.type)}""")
     def getTiers(self):
         return int(self.tierInput.text()), int(self.subtierInput.text())
 
+    def refresh_icon(self):
+        self.image.setPixmap(QPixmap(self.unlockable.image_path))
+
 class PreferencesPage(QWidget):
     def get_edit_profile(self):
         return self.profileSelector.currentText()
@@ -222,6 +219,7 @@ class PreferencesPage(QWidget):
                 return True
         return False
 
+    # TODO optimise?
     def replace_unlockable_widgets(self, force_sort=False):
         sort_by = self.sortSelector.currentText()
 
@@ -295,6 +293,7 @@ class PreferencesPage(QWidget):
         self.show_preferences_page_save_success(f"Changes saved to profile: {profile_id}")
         QTimer.singleShot(10000, self.hide_preferences_page_save_text)
 
+    # TODO unsaved changes
     def create_profile(self, title, label_text, ok_button_text):
         # check for invalid tiers
         non_integer = Data.verify_tiers(self.unlockableWidgets)
@@ -503,27 +502,11 @@ class PreferencesPage(QWidget):
         self.editDropdownButton.animateClick()
         self.expand_edit()
 
-    def load_unlockables(self):
-        config = Config()
-        self.unlockableWidgets = [UnlockableWidget(self.scrollAreaContent, unlockable,
-                                                   *config.preference_by_id(unlockable.unique_id,
-                                                                            self.get_edit_profile()),
-                                                   self.on_unlockable_select)
-                                  for unlockable in Data.get_unlockables()
-                                  if unlockable.category not in ["unused", "retired"]]
-
     def refresh_unlockables(self):
-        if self.has_unsaved_changes():
-            self.show_preferences_page_save_error("You have unsaved changes. "
-                                                  "Please save or revert your changes before refreshing your icons.")
-            return
-
+        icons = Data.get_icons()
         for unlockableWidget in self.unlockableWidgets:
-            self.scrollAreaContentLayout.removeWidget(unlockableWidget)
-        self.load_unlockables()
-        for unlockableWidget in self.unlockableWidgets:
-            self.scrollAreaContentLayout.addWidget(unlockableWidget)
-        self.replace_unlockable_widgets(True)
+            unlockableWidget.unlockable.set_image_path(icons[unlockableWidget.unlockable.unique_id])
+            unlockableWidget.refresh_icon()
 
     def __init__(self, bloodweb_page):
         super().__init__()
@@ -625,7 +608,12 @@ class PreferencesPage(QWidget):
         self.refreshIconsButton.clicked.connect(self.refresh_unlockables)
 
         # all unlockables
-        self.load_unlockables()
+        self.unlockableWidgets = [UnlockableWidget(self.scrollAreaContent, unlockable,
+                                                   *config.preference_by_id(unlockable.unique_id,
+                                                                            self.get_edit_profile()),
+                                                   self.on_unlockable_select)
+                                  for unlockable in Data.get_unlockables()
+                                  if unlockable.category not in ["unused", "retired"]]
 
         # select all bar
         self.persistentBar = QWidget(self)
@@ -762,6 +750,7 @@ class PreferencesPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.searchSortRow)
         self.scrollAreaContentLayout.addWidget(self.refreshIconsButton)
         self.scrollAreaContentLayout.addSpacing(15)
+
         for unlockableWidget in self.unlockableWidgets:
             self.scrollAreaContentLayout.addWidget(unlockableWidget)
         self.scrollAreaContentLayout.addStretch(1)

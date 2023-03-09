@@ -24,6 +24,12 @@ class StyleSheets:
     def save_text(is_success):
         return StyleSheets.pink_text if is_success else StyleSheets.purple_text
 
+    scroll_area = """
+        QScrollArea {
+            background: transparent;
+            border: 0px;
+        }"""
+
     page_button = f"""
         QPushButton {{
             background-color: transparent;
