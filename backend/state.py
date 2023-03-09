@@ -44,7 +44,6 @@ python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml
 
 IMMEDIATE PRIORITIES
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
-- buggy pages when resizing main window
 
 FEATURES TO ADD
 - settings: are you using a custom pack
@@ -403,7 +402,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.0-alpha.2"
+    version = "v1.0.0-alpha.3"
 
     def __init__(self, pipe):
         self.process = None

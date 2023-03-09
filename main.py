@@ -11,7 +11,7 @@ import requests
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
-    QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen, QScrollArea
+    QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
 from parse import parse
 
 from dialogs import UpdateDialog
@@ -436,8 +436,8 @@ class MainWindow(QMainWindow):
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.setBaseSize(1230, 670)
         self.setMinimumSize(1100, 600)
+        self.resize(1230, 670)
         self.setWindowTitle("Blood Emporium")
         self.setWindowIcon(QIcon(Icons.icon))
 

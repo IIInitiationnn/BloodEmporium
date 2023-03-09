@@ -5,7 +5,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QLabel, QLineEdit, QCheckBox, QComboBox, QListView, QPushButton, QWidget, QVBoxLayout, \
-    QToolButton, QProxyStyle, QStyle
+    QToolButton, QProxyStyle, QStyle, QScrollArea, QScrollBar
 from pynput import keyboard
 
 from frontend.stylesheets import StyleSheets
@@ -60,14 +60,11 @@ class TextInputBox(QLineEdit):
         super().focusInEvent(event)
         if not self.isReadOnly():
             QTimer.singleShot(0, self.selectAll)
-        else:
             TextInputBox.on_focus_in_callback()
-        print("focus in")
 
     def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
         super().focusOutEvent(event)
         TextInputBox.on_focus_out_callback()
-        print("focus out")
 
 class CheckBox(QCheckBox):
     def __init__(self, parent, object_name, style_sheet=StyleSheets.check_box):
@@ -212,3 +209,33 @@ class HotkeyInput(QPushButton):
     def set_keys(self, pressed_keys):
         self.pressed_keys = pressed_keys
         self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
+
+class ScrollBar(QScrollBar):
+    def __init__(self, parent, base_object_name):
+        super().__init__(parent)
+        self.setObjectName(f"{base_object_name}ScrollBar")
+        self.setOrientation(Qt.Vertical)
+        self.setStyleSheet(StyleSheets.scroll_bar)
+
+class ScrollArea(QScrollArea):
+    def __init__(self, parent, base_object_name, scroll_bar):
+        super().__init__(parent)
+        self.setObjectName(f"{base_object_name}ScrollArea")
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBar(scroll_bar)
+        self.setWidgetResizable(True)
+        self.setStyleSheet(f"""
+            QScrollArea#{base_object_name}ScrollArea {{
+                background: transparent;
+                border: 0px;
+            }}""")
+
+class ScrollAreaContent(QWidget):
+    def __init__(self, parent, base_object_name):
+        super().__init__(parent)
+        self.setObjectName(f"{base_object_name}ScrollAreaContent")
+        self.setStyleSheet(f"""
+            QWidget#{base_object_name}ScrollAreaContent {{
+                background: transparent;
+            }}""")

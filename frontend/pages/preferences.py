@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QScrollAr
 
 from dialogs import InputDialog, ConfirmDialog
 from frontend.generic import Font, TextLabel, TextInputBox, Selector, Button, CheckBoxWithFunction, CheckBox, \
-    CollapsibleBox, Icons, NoShiftStyle
+    CollapsibleBox, Icons, NoShiftStyle, ScrollBar, ScrollArea, ScrollAreaContent
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
 
@@ -520,31 +520,10 @@ class PreferencesPage(QWidget):
         self.layout.setContentsMargins(25, 25, 25, 0)
         self.layout.setSpacing(0)
 
-        self.scrollBar = QScrollBar(self)
-        self.scrollBar.setObjectName("preferencesPageScrollBar")
-        self.scrollBar.setOrientation(Qt.Vertical)
-        self.scrollBar.setStyleSheet(StyleSheets.scroll_bar)
-
-        self.scrollArea = QScrollArea(self)
-        self.scrollArea.setObjectName("preferencesPageScrollArea")
-        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scrollArea.setVerticalScrollBar(self.scrollBar)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setStyleSheet("""
-            QScrollArea#preferencesPageScrollArea {
-                background: transparent;
-                border: 0px;
-            }""")
-
-        self.scrollAreaContent = QWidget(self.scrollArea)
-        self.scrollAreaContent.setObjectName("preferencesPageScrollAreaContent")
-        self.scrollAreaContent.setStyleSheet("""
-            QWidget#preferencesPageScrollAreaContent {
-                background: transparent;
-            }""")
+        self.scrollBar = ScrollBar(self, "preferencesPage")
+        self.scrollArea = ScrollArea(self, "preferencesPage", self.scrollBar)
+        self.scrollAreaContent = ScrollAreaContent(self.scrollArea, "preferencesPage")
         self.scrollArea.setWidget(self.scrollAreaContent)
-
         self.scrollAreaContentLayout = QVBoxLayout(self.scrollAreaContent)
         self.scrollAreaContentLayout.setObjectName("preferencesPageScrollAreaContentLayout")
         self.scrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
@@ -750,7 +729,6 @@ class PreferencesPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.searchSortRow)
         self.scrollAreaContentLayout.addWidget(self.refreshIconsButton)
         self.scrollAreaContentLayout.addSpacing(15)
-
         for unlockableWidget in self.unlockableWidgets:
             self.scrollAreaContentLayout.addWidget(unlockableWidget)
         self.scrollAreaContentLayout.addStretch(1)
@@ -783,7 +761,6 @@ class PreferencesPage(QWidget):
 
         # assembling it all together
         self.layout.addWidget(self.scrollArea, 0, 0, 1, 1)
-        self.layout.addWidget(self.scrollBar, 0, 1, 1, 1)
         self.layout.addWidget(self.persistentBar, 1, 0, 1, 1, Qt.AlignBottom)
         self.layout.setRowStretch(0, 1)
         self.layout.setColumnStretch(0, 1)

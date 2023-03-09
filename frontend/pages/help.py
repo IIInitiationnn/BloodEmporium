@@ -3,9 +3,9 @@ import sys
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QGridLayout
 
-from frontend.generic import Font, TextLabel, HyperlinkTextLabel, Icons
+from frontend.generic import Font, TextLabel, HyperlinkTextLabel, Icons, ScrollBar, ScrollArea, ScrollAreaContent
 from frontend.layouts import RowLayout
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
@@ -15,14 +15,23 @@ class HelpPage(QWidget):
         super().__init__()
         self.setObjectName("helpPage")
 
-        self.layout = QVBoxLayout(self)
+        self.layout = QGridLayout(self)
+        self.layout.setObjectName("helpPageLayout")
         self.layout.setContentsMargins(25, 25, 25, 25)
-        self.layout.setSpacing(15)
+        self.layout.setSpacing(0)
+
+        self.scrollBar = ScrollBar(self, "helpPage")
+        self.scrollArea = ScrollArea(self, "helpPage", self.scrollBar)
+        self.scrollAreaContent = ScrollAreaContent(self.scrollArea, "helpPage")
+        self.scrollArea.setWidget(self.scrollAreaContent)
+        self.scrollAreaContentLayout = QVBoxLayout(self.scrollAreaContent)
+        self.scrollAreaContentLayout.setObjectName("helpPageScrollAreaContentLayout")
+        self.scrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
+        self.scrollAreaContentLayout.setSpacing(15)
 
         # TODO unify across README, here, discord server FAQ, and video tutorial
         d = ("<p style=line-height:125%> "
-             "First, configure your display resolution and UI scale in the settings page. "
-             "This will ensure that the correct region of your screen is used for the algorithm. "
+             "First, configure your display resolution and UI scale in the Settings page. "
              "If you have a non-default Dead by Daylight installation, you will also need "
              "to find the folder containing the icons, in case you are using a custom icon pack.<br><br>"
              "You can then set up preferences for what add-ons, items, offerings and perks "
@@ -32,7 +41,7 @@ class HelpPage(QWidget):
              "(for levelling up the bloodweb as cheaply as possible). "
              "It comes in two variants, one which prioritises perks, and one which ignores them. "
              "You can use this preset as a starting point for your own profile, or "
-             "create your own from scratch using the blank profile.<br><br>"
+             "create your own from scratch.<br><br>"
              "Each unlockable you configure will have a tier and a subtier:<br>"
              "    - the higher the tier (or subtier), the higher your preference for that item<br>"
              "    - the lower the tier (or subtier), the lower your preference for that item<br>"
@@ -85,9 +94,13 @@ class HelpPage(QWidget):
         self.contactTwitterRowLayout.addWidget(self.contactTwitterLabel)
         self.contactTwitterRowLayout.addStretch(1)
 
-        self.layout.addWidget(self.instructionsLabel)
-        self.layout.addWidget(self.instructionsDescription)
-        self.layout.addWidget(self.contactLabel)
-        self.layout.addWidget(self.contactDiscordRow)
-        self.layout.addWidget(self.contactTwitterRow)
-        self.layout.addStretch(1)
+        self.scrollAreaContentLayout.addWidget(self.instructionsLabel)
+        self.scrollAreaContentLayout.addWidget(self.instructionsDescription)
+        self.scrollAreaContentLayout.addWidget(self.contactLabel)
+        self.scrollAreaContentLayout.addWidget(self.contactDiscordRow)
+        self.scrollAreaContentLayout.addWidget(self.contactTwitterRow)
+        self.scrollAreaContentLayout.addStretch(1)
+
+        self.layout.addWidget(self.scrollArea)
+        self.layout.setRowStretch(0, 1)
+        self.layout.setColumnStretch(0, 1)

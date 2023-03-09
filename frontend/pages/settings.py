@@ -2,10 +2,11 @@ import os
 import sys
 
 from PyQt5.QtCore import QSize, QTimer
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QGridLayout
 from pynput import keyboard
 
-from frontend.generic import Font, TextLabel, TextInputBox, Button, HotkeyInput
+from frontend.generic import Font, TextLabel, TextInputBox, Button, HotkeyInput, ScrollAreaContent, ScrollBar, \
+    ScrollArea
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
 
@@ -93,17 +94,19 @@ class SettingsPage(QWidget):
         self.listener = None
 
     def on_key_down(self, key):
-        key = TextUtil.pynput_to_key_string(self.listener, key)
-        self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
-        if self.pressed_keys == Config().hotkey():
-            self.run_terminate()
+        if self.listener is not None:
+            key = TextUtil.pynput_to_key_string(self.listener, key)
+            self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
+            if self.pressed_keys == Config().hotkey():
+                self.run_terminate()
 
     def on_key_up(self, key):
-        key = TextUtil.pynput_to_key_string(self.listener, key)
-        try:
-            self.pressed_keys.remove(key)
-        except ValueError:
-            pass
+        if self.listener is not None:
+            key = TextUtil.pynput_to_key_string(self.listener, key)
+            try:
+                self.pressed_keys.remove(key)
+            except ValueError:
+                pass
 
     def __init__(self, run_terminate, bloodweb_page):
         super().__init__()
@@ -114,10 +117,19 @@ class SettingsPage(QWidget):
         self.run_terminate = run_terminate
         self.bloodweb_page = bloodweb_page
 
-        self.layout = QVBoxLayout(self)
+        self.layout = QGridLayout(self)
         self.layout.setObjectName("settingsPageLayout")
         self.layout.setContentsMargins(25, 25, 25, 25)
-        self.layout.setSpacing(15)
+        self.layout.setSpacing(0)
+
+        self.scrollBar = ScrollBar(self, "settingsPage")
+        self.scrollArea = ScrollArea(self, "settingsPage", self.scrollBar)
+        self.scrollAreaContent = ScrollAreaContent(self.scrollArea, "settingsPage")
+        self.scrollArea.setWidget(self.scrollAreaContent)
+        self.scrollAreaContentLayout = QVBoxLayout(self.scrollAreaContent)
+        self.scrollAreaContentLayout.setObjectName("settingsPageScrollAreaContentLayout")
+        self.scrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
+        self.scrollAreaContentLayout.setSpacing(15)
 
         res = self.config_cache.resolution()
         self.resolutionLabel = TextLabel(self, "settingsPageResolutionLabel", "Display Resolution", Font(12))
@@ -212,16 +224,20 @@ class SettingsPage(QWidget):
         self.saveRowLayout.addWidget(self.saveSuccessText)
         self.saveRowLayout.addStretch(1)
 
-        self.layout.addWidget(self.resolutionLabel)
-        self.layout.addWidget(self.resolutionUIDescription)
-        self.layout.addWidget(self.resolutionWidthRow)
-        self.layout.addWidget(self.resolutionHeightRow)
-        self.layout.addWidget(self.resolutionUIRow)
-        self.layout.addWidget(self.pathLabel)
-        self.layout.addWidget(self.pathLabelDefaultLabel)
-        self.layout.addWidget(self.pathRow)
-        self.layout.addWidget(self.hotkeyLabel)
-        self.layout.addWidget(self.hotkeyDescription)
-        self.layout.addWidget(self.hotkeyInput)
-        self.layout.addWidget(self.saveRow)
-        self.layout.addStretch(1)
+        self.scrollAreaContentLayout.addWidget(self.resolutionLabel)
+        self.scrollAreaContentLayout.addWidget(self.resolutionUIDescription)
+        self.scrollAreaContentLayout.addWidget(self.resolutionWidthRow)
+        self.scrollAreaContentLayout.addWidget(self.resolutionHeightRow)
+        self.scrollAreaContentLayout.addWidget(self.resolutionUIRow)
+        self.scrollAreaContentLayout.addWidget(self.pathLabel)
+        self.scrollAreaContentLayout.addWidget(self.pathLabelDefaultLabel)
+        self.scrollAreaContentLayout.addWidget(self.pathRow)
+        self.scrollAreaContentLayout.addWidget(self.hotkeyLabel)
+        self.scrollAreaContentLayout.addWidget(self.hotkeyDescription)
+        self.scrollAreaContentLayout.addWidget(self.hotkeyInput)
+        self.scrollAreaContentLayout.addWidget(self.saveRow)
+        self.scrollAreaContentLayout.addStretch(1)
+
+        self.layout.addWidget(self.scrollArea)
+        self.layout.setRowStretch(0, 1)
+        self.layout.setColumnStretch(0, 1)

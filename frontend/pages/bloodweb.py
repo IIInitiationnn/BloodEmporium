@@ -2,10 +2,11 @@ import os
 import sys
 
 from PyQt5.QtCore import QSize, QTimer
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGridLayout
 
 from backend.util.text_util import TextUtil
-from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button, CheckBox
+from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button, CheckBox, ScrollBar, \
+    ScrollArea, ScrollAreaContent
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
 
@@ -83,10 +84,19 @@ class BloodwebPage(QWidget):
         self.dev_mode = dev_mode
         self.setObjectName("bloodwebPage")
 
-        self.layout = QVBoxLayout(self)
+        self.layout = QGridLayout(self)
         self.layout.setObjectName("bloodwebPageLayout")
         self.layout.setContentsMargins(25, 25, 25, 25)
-        self.layout.setSpacing(15)
+        self.layout.setSpacing(0)
+
+        self.scrollBar = ScrollBar(self, "bloodwebPage")
+        self.scrollArea = ScrollArea(self, "bloodwebPage", self.scrollBar)
+        self.scrollAreaContent = ScrollAreaContent(self.scrollArea, "bloodwebPage")
+        self.scrollArea.setWidget(self.scrollAreaContent)
+        self.scrollAreaContentLayout = QVBoxLayout(self.scrollAreaContent)
+        self.scrollAreaContentLayout.setObjectName("bloodwebPageScrollAreaContentLayout")
+        self.scrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
+        self.scrollAreaContentLayout.setSpacing(15)
 
         self.profileLabel = TextLabel(self, "bloodwebPageProfileLabel", "Profile", Font(12))
         self.profileSelector = Selector(self, "bloodwebPageProfileSelector", QSize(200, 40), Config().profile_names())
@@ -195,23 +205,27 @@ class BloodwebPage(QWidget):
         self.runRowLayout.addWidget(self.runErrorText)
         self.runRowLayout.addStretch(1)
 
-        self.layout.addWidget(self.profileLabel)
-        self.layout.addWidget(self.profileSelector)
-        self.layout.addWidget(self.characterLabel)
-        self.layout.addWidget(self.characterSelector)
-        self.layout.addWidget(self.naiveModeLabel)
-        self.layout.addWidget(self.naiveModeRow)
-        self.layout.addWidget(self.limitsLabel)
-        self.layout.addWidget(self.limitsDescription)
-        self.layout.addWidget(self.prestigeRow)
-        self.layout.addWidget(self.bloodpointRow)
+        self.scrollAreaContentLayout.addWidget(self.profileLabel)
+        self.scrollAreaContentLayout.addWidget(self.profileSelector)
+        self.scrollAreaContentLayout.addWidget(self.characterLabel)
+        self.scrollAreaContentLayout.addWidget(self.characterSelector)
+        self.scrollAreaContentLayout.addWidget(self.naiveModeLabel)
+        self.scrollAreaContentLayout.addWidget(self.naiveModeRow)
+        self.scrollAreaContentLayout.addWidget(self.limitsLabel)
+        self.scrollAreaContentLayout.addWidget(self.limitsDescription)
+        self.scrollAreaContentLayout.addWidget(self.prestigeRow)
+        self.scrollAreaContentLayout.addWidget(self.bloodpointRow)
         if dev_mode:
-            self.layout.addWidget(self.devLabel)
-            self.layout.addWidget(self.devDebugRow)
-            self.layout.addWidget(self.devOutputRow)
-        self.layout.addWidget(self.runLabel)
-        self.layout.addWidget(self.runDescription)
-        self.layout.addWidget(self.runRow)
-        self.layout.addWidget(self.runPrestigeProgress)
-        self.layout.addWidget(self.runBloodpointProgress)
-        self.layout.addStretch(1)
+            self.scrollAreaContentLayout.addWidget(self.devLabel)
+            self.scrollAreaContentLayout.addWidget(self.devDebugRow)
+            self.scrollAreaContentLayout.addWidget(self.devOutputRow)
+        self.scrollAreaContentLayout.addWidget(self.runLabel)
+        self.scrollAreaContentLayout.addWidget(self.runDescription)
+        self.scrollAreaContentLayout.addWidget(self.runRow)
+        self.scrollAreaContentLayout.addWidget(self.runPrestigeProgress)
+        self.scrollAreaContentLayout.addWidget(self.runBloodpointProgress)
+        self.scrollAreaContentLayout.addStretch(1)
+
+        self.layout.addWidget(self.scrollArea)
+        self.layout.setRowStretch(0, 1)
+        self.layout.setColumnStretch(0, 1)
