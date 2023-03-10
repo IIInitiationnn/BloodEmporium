@@ -1,11 +1,12 @@
 import os
 import sys
 
+from PIL import Image, ImageQt
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QScrollArea, QScrollBar, QToolButton, \
-    QInputDialog, QMessageBox
+from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QToolButton, QInputDialog, QMessageBox
 
+from backend.paths import Path
 from dialogs import InputDialog, ConfirmDialog
 from frontend.generic import Font, TextLabel, TextInputBox, Selector, Button, CheckBoxWithFunction, CheckBox, \
     CollapsibleBox, Icons, NoShiftStyle, ScrollBar, ScrollArea, ScrollAreaContent
@@ -114,6 +115,7 @@ class UnlockableWidget(QWidget):
 
         super().__init__(parent)
         self.setObjectName(f"{name}Widget")
+        self.unlockable = unlockable
 
         self.layout = RowLayout(self, f"{name}Layout")
 
@@ -125,7 +127,7 @@ class UnlockableWidget(QWidget):
         self.image = QLabel(self)
         self.image.setObjectName(f"{name}Image")
         self.image.setFixedSize(QSize(75, 75))
-        self.image.setPixmap(QPixmap(unlockable.image_path))
+        self.refresh_icon()
         self.image.setScaledContents(True)
         self.image.setToolTip(f"""Character: {TextUtil.title_case(unlockable.category)}
 Rarity: {TextUtil.title_case(unlockable.rarity)}
@@ -167,8 +169,6 @@ Type: {TextUtil.title_case(unlockable.type)}""")
 
         self.layout.addStretch(1)
 
-        self.unlockable = unlockable
-
     def on_tier_update(self):
         self.tierInput.setStyleSheet(StyleSheets.tiers_input(self.tierInput.text()))
 
@@ -187,7 +187,17 @@ Type: {TextUtil.title_case(unlockable.type)}""")
         return int(self.tierInput.text()), int(self.subtierInput.text())
 
     def refresh_icon(self):
-        self.image.setPixmap(QPixmap(self.unlockable.image_path))
+        if self.unlockable.is_custom_icon:
+            self.image.setPixmap(QPixmap(self.unlockable.image_path))
+        else:
+            try:
+                bg = Image.open(f"{Path.assets_backgrounds}/{self.unlockable.rarity}.png")
+                icon = Image.open(self.unlockable.image_path)
+                combined = Image.alpha_composite(bg, icon)
+                self.image.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(combined)))
+            except:
+                print(f"error adding background to {self.unlockable.unique_id}")
+                self.image.setPixmap(QPixmap(self.unlockable.image_path))
 
 class PreferencesPage(QWidget):
     def get_edit_profile(self):
@@ -512,7 +522,9 @@ class PreferencesPage(QWidget):
     def refresh_unlockables(self):
         icons = Data.get_icons()
         for unlockableWidget in self.unlockableWidgets:
-            unlockableWidget.unlockable.set_image_path(icons[unlockableWidget.unlockable.unique_id])
+            info = icons[unlockableWidget.unlockable.unique_id]
+            unlockableWidget.unlockable.set_image_path(info["image_path"])
+            unlockableWidget.unlockable.set_is_custom_icon(info["is_custom_icon"])
             unlockableWidget.refresh_icon()
 
     def __init__(self, bloodweb_page):

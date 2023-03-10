@@ -12,7 +12,7 @@ from backend.util.node_util import NodeType
 class NodeDetection:
     def __init__(self):
         # loads model on init
-        self.model = YOLO("assets/models/nodes v3.alpha2.pt")
+        self.model = YOLO("assets/models/nodes v2.pt")
         self.model.fuse()
 
         # gets custom names from custom model

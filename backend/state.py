@@ -43,8 +43,7 @@ yolov5obb edge detection
 python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
 
 IMMEDIATE PRIORITIES
-- print if using icon pack to logs, and location of config path. also print runtime preference profile
-- add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
+- accessibility settings: swap lmb and rmb
 
 FEATURES TO ADD
 - notes for each config
@@ -146,6 +145,8 @@ class StateProcess(Process):
             # initialisation: merged base for template matching
             print(f"initialisation at {base_res.width} x {base_res.height} @ {base_res.ui_scale}; merging")
             unlockables = Data.get_unlockables()
+            num_custom = len([u for u in unlockables if u.is_custom_icon])
+            print(f"using {num_custom} custom icons and {len(unlockables) - num_custom} vanilla icons")
             merged_base = MergedBase(resolution, character)
             pyautogui.moveTo(0, 0)
 

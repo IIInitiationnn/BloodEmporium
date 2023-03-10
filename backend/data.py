@@ -9,7 +9,7 @@ class Unlockable:
     def generate_unique_id(unlockable_id, category):
         return f"{unlockable_id}_{category}"
 
-    def __init__(self, unlockable_id, name, category, rarity, notes, unlockable_type, image_path):
+    def __init__(self, unlockable_id, name, category, rarity, notes, unlockable_type, image_path, is_custom_icon):
         self.unique_id = Unlockable.generate_unique_id(unlockable_id, category)
         self.id = unlockable_id
         self.name = name
@@ -18,9 +18,13 @@ class Unlockable:
         self.notes = notes
         self.type = unlockable_type
         self.image_path = image_path
+        self.is_custom_icon = is_custom_icon
 
     def set_image_path(self, image_path):
         self.image_path = image_path
+
+    def set_is_custom_icon(self, is_custom_icon):
+        self.is_custom_icon = is_custom_icon
 
 class Data:
     __connection = None
@@ -49,6 +53,7 @@ class Data:
 
             # search in user's folder
             u_image_path = None
+            u_is_custom_icon = None
             for subdir, file in all_files:
                 if u_id in file:
                     # bubba and hillbilly share an addon with the same name
@@ -58,6 +63,7 @@ class Data:
                         continue
 
                     u_image_path = os.path.normpath(os.path.join(subdir, file))
+                    u_is_custom_icon = True
                     break
 
             # search in asset folder
@@ -65,12 +71,18 @@ class Data:
                 asset_path = Path.assets_file(u_category, u_id)
                 if os.path.isfile(asset_path):
                     u_image_path = os.path.normpath(os.path.abspath(asset_path))
+                    u_is_custom_icon = False
                 else:
                     print(f"no source found for desired unlockable: {u_id} under category: {u_category}")
                     continue
 
             if u_image_path is not None:
-                icons[Unlockable.generate_unique_id(u_id, u_category)] = u_image_path
+                if "mysteryBox" in u_id:
+                    print(u_is_custom_icon)
+                icons[Unlockable.generate_unique_id(u_id, u_category)] = {
+                    "image_path": u_image_path,
+                    "is_custom_icon": u_is_custom_icon,
+                }
 
         return icons
 
@@ -83,6 +95,7 @@ class Data:
 
             # search in user's folder
             u_image_path = None
+            u_is_custom_icon = None
             for subdir, file in all_files:
                 if u_id in file:
                     # bubba and hillbilly share an addon with the same name
@@ -92,6 +105,7 @@ class Data:
                         continue
 
                     u_image_path = os.path.normpath(os.path.join(subdir, file))
+                    u_is_custom_icon = True
                     break
 
             # search in asset folder
@@ -99,12 +113,14 @@ class Data:
                 asset_path = Path.assets_file(u_category, u_id)
                 if os.path.isfile(asset_path):
                     u_image_path = os.path.normpath(os.path.abspath(asset_path))
+                    u_is_custom_icon = False
                 else:
                     print(f"no source found for desired unlockable: {u_id} under category: {u_category}")
                     continue
 
             if u_image_path is not None:
-                unlockables.append(Unlockable(u_id, u_name, u_category, u_rarity, u_notes, u_type, u_image_path))
+                unlockables.append(Unlockable(u_id, u_name, u_category, u_rarity, u_notes, u_type, u_image_path,
+                                              u_is_custom_icon))
 
         return unlockables
 

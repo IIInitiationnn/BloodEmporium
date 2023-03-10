@@ -17,7 +17,7 @@ class Path:
     perks = image + "/Perks" # 67, 51
 
     assets = "assets"
-    assets_origins = "assets/origins"
+    assets_backgrounds = "assets/backgrounds"
     assets_database = "assets/data.db"
 
     @staticmethod
