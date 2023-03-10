@@ -37,22 +37,19 @@ venv/Lib/site-packages/torch/nn/modules/upsampling.py Class BasePredictor self.a
 
 TRAINING
 yolov8 node detection
-yolo cfg="hyperparameters.yaml" data="datasets/Blood-Emporium-Node-Detection-5/data.yaml"
+yolo cfg="hyperparameters.yaml"
 
 yolov5obb edge detection
 python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
 
 IMMEDIATE PRIORITIES
+- print if using icon pack to logs, and location of config path. also print runtime preference profile
 - add background to assets for frontend if using vanilla (so people can see rarity) with the full coloured background
 
 FEATURES TO ADD
-- settings: are you using a custom pack
 - notes for each config
 - "you have unsaved changes" next to save button - profiles, settings
 - import / export profile as string to share with others
-- find rarity of items with varying rarity (colour for mystery boxes)
-    - configure rarity of different tiers of mystery boxes
-        - configure 5 mystery box tiers for preferences
 - program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
 - summary on items obtained by the application
 """
@@ -78,12 +75,15 @@ class LoggerWriter(object):
 '''
 TODO possible improvements:
 - better model
-    - more training data
-    - more prestige data
-    - brightness and saturation preprocessing?
-    - add some images containing transitions (new level) to train model to not classify them as prestiges
+    - high res 5:4 (done)
+    - low res 4:3 (done)
+    - high res 4:3 (done)
+    - mid res 8:5 (done)
+    - high res 8:9 (done)
+    - more backgrounds - scour old videos (done - could always get more)
+    - add some images containing transitions (new level) to train model to not classify them as prestiges (done)
       may be able to retire the 0.7 arbitrary threshold after this
-- if no progress for 5 seconds, need to use failsafe
+    - diff icon packs?
 '''
 
 class StateProcess(Process):
@@ -145,7 +145,6 @@ class StateProcess(Process):
 
             # initialisation: merged base for template matching
             print(f"initialisation at {base_res.width} x {base_res.height} @ {base_res.ui_scale}; merging")
-            print(f"region: ({x}, {y}) to ({x + cap_dim}, {y + cap_dim})")
             unlockables = Data.get_unlockables()
             merged_base = MergedBase(resolution, character)
             pyautogui.moveTo(0, 0)
@@ -328,18 +327,6 @@ class StateProcess(Process):
 
                     update_iteration = 0
                     while True:
-                        # new level
-                        if not any([data["cls_name"] == NodeType.ACCESSIBLE for data in base_bloodweb.nodes.values()]):
-                            print("level cleared")
-                            time.sleep(1) # 1 sec to clear out until new level screen
-                            pyautogui.click()
-                            time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-                            pyautogui.click()
-                            time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-                            pyautogui.click()
-                            time.sleep(2) # 2 secs to generate
-                            break
-
                         # run through optimiser
                         print("optimiser")
                         optimiser = Optimiser(base_bloodweb)
@@ -390,7 +377,21 @@ class StateProcess(Process):
                         print("yolov8: detect all nodes")
                         updated_results = node_detector.predict(updated_image.get_bgr())
                         updated_nodes = node_detector.get_nodes(updated_results)
-                        Grapher.update(base_bloodweb, updated_nodes, optimal_unlockable)
+                        new_level = Grapher.update(base_bloodweb, updated_nodes, optimal_unlockable)
+
+                        # new level
+                        if new_level:
+                            print("level cleared")
+                            time.sleep(1) # 1 sec to clear out until new level screen
+                            pyautogui.click()
+                            time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
+                            pyautogui.click()
+                            time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
+                            pyautogui.click()
+                            time.sleep(2) # 2 secs to generate
+                            break
+
+
                         update_iteration += 1
                     bloodweb_iteration += 1
         except:

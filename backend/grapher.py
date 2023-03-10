@@ -33,7 +33,15 @@ class Grapher:
         return graph
 
     @staticmethod
-    def update(base_bloodweb, updated_nodes: List[UnmatchedNode], previously_selected_node: GraphNode):
+    def update(base_bloodweb, updated_nodes: List[UnmatchedNode], previously_selected_node: GraphNode) -> bool:
+        if len(updated_nodes) == 0:
+            return True # no nodes
+
+        if len(updated_nodes) == 1:
+            if updated_nodes[0].cls_name in [NodeType.ORIGIN, NodeType.PRESTIGE]:
+                return True # just origin or new prestige (which shouldn't happen but just in case)
+
+        num_mismatches = 0 # another potential error checking mechanism
         for updated_node in updated_nodes:
             for node_id, data in base_bloodweb.nodes.items():
                 if updated_node.box.close_to_xy(int(data["x"]), int(data["y"])):
@@ -52,5 +60,12 @@ class Grapher:
                     x1, y1, x2, y2 = updated_node.xyxy()
                     nx.set_node_attributes(base_bloodweb, GraphNode.from_dict(data, cls_name=updated_cls_name,
                                                                               x1=x1, y1=y1, x2=x2, y2=y2).get_dict())
-                else: # TODO previously undetected, match and add?
-                    pass
+                    break # no need to keep iterating
+            else: # for else: didn't break means previously undetected TODO match and add?
+                num_mismatches += 1
+
+        if num_mismatches > 1:
+            return True # unlikely to be more than 1 mismatch
+
+        # no accessible nodes
+        return not any([data["cls_name"] == NodeType.ACCESSIBLE for data in base_bloodweb.nodes.values()])
