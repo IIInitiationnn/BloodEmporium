@@ -253,8 +253,13 @@ class StateProcess(Process):
 
                     # yolov8: detect and match all nodes
                     print("yolov8: detect and match all nodes")
+                    # timer = time.time()
                     node_results = node_detector.predict(cv_image.get_bgr())
+                    # timer2 = time.time()
+                    # print("time for detecting nodes:", timer2 - timer)
                     matched_nodes = node_detector.match_nodes(node_results, cv_image.get_gray(), merged_base)
+                    # timer3 = time.time()
+                    # print("time for matching:", timer3 - timer2)
                     debugger.set_nodes(bloodweb_iteration, matched_nodes)
 
                     # nothing detected
@@ -297,10 +302,15 @@ class StateProcess(Process):
                         continue
 
                     # yolov5obb: detect and link all edges
+                    # timer4 = time.time()
                     print("yolov5obb: detect and link all edges")
                     edge_results = edge_detector.predict(cv_image.get_bgr())
+                    # timer5 = time.time()
+                    # print("time for detecting edges:", timer5 - timer4)
                     avg_diameter = mean([(m.box.diameter()) for m in matched_nodes])
-                    linked_edges = edge_detector.link_edges(edge_results, matched_nodes, avg_diameter)
+                    linked_edges = edge_detector.link_edges(edge_results, matched_nodes, avg_diameter) # TODO maybe also return unlinked edges
+                    # timer6 = time.time()
+                    # print("time for linking edges:", timer6 - timer5)
                     debugger.set_edges(bloodweb_iteration, linked_edges)
 
                     # create networkx graph of nodes

@@ -10,6 +10,9 @@ from graph_node import GraphNode
 
 
 class Optimiser:
+    TIER_VALUE = 100000
+    SUBTIER_VALUE = 10
+
     def __init__(self, graph):
         self.base_graph = graph
         self.dijkstra_graph = None
@@ -17,7 +20,9 @@ class Optimiser:
     def dijkstra(self, node_id, tier, subtier):
         # run dijkstra map for node corresponding to node_id
         heatmap = copy.deepcopy(self.base_graph)
-        desired_value = -(9999 * tier + subtier) # the lower this number, the higher the priority
+
+        # the lower this number, the higher the priority
+        desired_value = -(Optimiser.TIER_VALUE * tier + subtier * Optimiser.SUBTIER_VALUE)
         base_data = self.base_graph.nodes[node_id]
         nx.set_node_attributes(heatmap, GraphNode.from_dict(base_data, value=desired_value).get_dict())
 
@@ -41,21 +46,21 @@ class Optimiser:
                 neighbor_values = [heatmap.nodes[neighbor]["value"] for neighbor in heatmap.neighbors(node_id)
                                    if heatmap.nodes[neighbor]["cls_name"] == NodeType.INACCESSIBLE] # see above for why
 
-                lowest_neighbor_value = min(neighbor_values) if len(neighbor_values) > 0 else 9999 # if node is not connected to rest of graph
+                lowest_neighbor_value = min(neighbor_values) if len(neighbor_values) > 0 else Optimiser.TIER_VALUE # if node is not connected to rest of graph
                 if data["value"] > lowest_neighbor_value + 1:
                     nx.set_node_attributes(heatmap, GraphNode.from_dict(data, value=lowest_neighbor_value + 1).get_dict())
                     edited = True
 
         return heatmap
 
-    # TODO check timing; if bad, this can be easily optimised
     @staticmethod
     def add_graphs(graphs):
         total = copy.deepcopy(graphs[0])
         for graph in graphs[1:]:
             for node_id, data in graph.nodes.items():
                 total_data = total.nodes[node_id]
-                nx.set_node_attributes(total, GraphNode.from_dict(total_data, value=total_data["value"] + data["value"]).get_dict())
+                nx.set_node_attributes(total, GraphNode.from_dict(total_data,
+                                                                  value=total_data["value"] + data["value"]).get_dict())
         return total
 
     def select_best(self) -> GraphNode:
@@ -76,9 +81,10 @@ class Optimiser:
                 tier, subtier = config.preference_by_id(data["name"], profile_id)
                 if tier > 0 or (tier == 0 and subtier > 0): # desirable and unclaimed
                     graphs.append(self.dijkstra(node_id, tier, subtier))
-                elif tier < 0 or (tier == 0 and subtier < 0): # temp: undesirable and unclaimed
+                elif tier < 0 or (tier == 0 and subtier < 0): # undesirable and unclaimed
                     heatmap = copy.deepcopy(self.base_graph)
-                    cost = heatmap.nodes[node_id]["value"] - 9999 * tier + subtier
+                    cost = heatmap.nodes[node_id]["value"] - \
+                           (Optimiser.TIER_VALUE * tier + subtier * Optimiser.SUBTIER_VALUE)
                     nx.set_node_attributes(heatmap, GraphNode.from_dict(heatmap.nodes[node_id], value=cost).get_dict())
                     graphs.append(heatmap)
 

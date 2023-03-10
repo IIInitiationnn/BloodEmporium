@@ -19,7 +19,7 @@ class Grapher:
         i = 1
         for node in self.nodes:
             ids[str(node)] = i
-            nodes.append(GraphNode(i, node.unique_id, 9999, node.box, node.cls_name).get_tuple())
+            nodes.append(GraphNode(i, node.unique_id, 0, node.box, node.cls_name).get_tuple())
             i += 1
 
         edges = []
