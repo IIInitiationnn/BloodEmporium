@@ -91,5 +91,4 @@ class Optimiser:
         if len(graphs) == 0:
             graphs = [self.base_graph]
 
-        # TODO in the future, add desirability (lower weight (value)) to nodes which are in danger and are desirable
         self.dijkstra_graph = self.add_graphs(graphs)

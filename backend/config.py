@@ -62,7 +62,10 @@ class Config:
         return self.config["profiles"]
 
     def get_profile_by_id(self, profile_id):
-        return [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
+        if profile_id is None:
+            return {"id": None}
+        profiles = self.__profiles()
+        return [p for p in profiles if p["id"] == profile_id].pop(0) if len(profiles) > 0 else {"id": None}
 
     def preference_by_id(self, unlockable_id, profile_id):
         if profile_id is None:
@@ -93,6 +96,8 @@ class Config:
         self.commit_changes()
 
     def set_profile(self, updated_profile):
+        if updated_profile["id"] is None:
+            return
         self.config["profiles"][self.config["profiles"].index(self.get_profile_by_id(updated_profile["id"]))] = updated_profile
         self.commit_changes()
 
@@ -111,7 +116,7 @@ class Config:
             profile_id = f"new profile ({i})"
         return profile_id
 
-    def add_profile(self, new_profile):
+    def add_profile(self, new_profile, index=None):
         """
         :return: whether the profile existed before already
         """
@@ -122,7 +127,10 @@ class Config:
                 existing_profile = profile
 
         if existing_profile is None:
-            self.config["profiles"].append(new_profile)
+            if index is None:
+                self.config["profiles"].append(new_profile)
+            else:
+                self.config["profiles"].insert(index, new_profile)
         else:
             self.set_profile(new_profile)
 

@@ -41,14 +41,17 @@ yolo cfg="hyperparameters.yaml"
 yolov5obb edge detection
 python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
 
-IMMEDIATE PRIORITIES
-- optimisation algorithm...
+FOR 1.0.0
+- edges model
 - accessibility settings: swap lmb and rmb
-
-FEATURES TO ADD
-- notes for each config
-- "you have unsaved changes" next to save button - profiles, settings
 - import / export profile as string to share with others
+- notes for each config
+- clear filters button
+- new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
+
+POST 1.0.0
+- additive algorithm???
+- "you have unsaved changes" next to save button - profiles, settings
 - program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
 - summary on items obtained by the application
 """

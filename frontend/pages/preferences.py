@@ -201,7 +201,7 @@ Type: {TextUtil.title_case(unlockable.type)}""")
 
 class PreferencesPage(QWidget):
     def get_edit_profile(self):
-        return self.profileSelector.currentText()
+        return self.profileSelector.currentText() if self.profileSelector.count() > 0 else None
 
     def update_profiles_from_config(self):
         config = Config()
@@ -216,6 +216,9 @@ class PreferencesPage(QWidget):
     def has_unsaved_changes(self):
         config = Config()
         profile_id = self.get_edit_profile()
+        if profile_id is None:
+            return False
+
         profile = config.get_profile_by_id(profile_id)
 
         non_integer = Data.verify_tiers(self.unlockableWidgets)
@@ -291,6 +294,8 @@ class PreferencesPage(QWidget):
 
     def save_profile(self):
         profile_id = self.get_edit_profile()
+        if profile_id is None:
+            return
         updated_profile = Config().get_profile_by_id(profile_id).copy()
 
         non_integer = Data.verify_tiers(self.unlockableWidgets)
@@ -311,7 +316,7 @@ class PreferencesPage(QWidget):
         self.show_preferences_page_save_success(f"Changes saved to profile: {profile_id}")
         QTimer.singleShot(10000, self.hide_preferences_page_save_text)
 
-    def create_profile(self, title, label_text, ok_button_text):
+    def save_to_profile(self, title, label_text, ok_button_text, index=None):
         # check for invalid tiers
         non_integer = Data.verify_tiers(self.unlockableWidgets)
         if len(non_integer) > 0:
@@ -343,7 +348,7 @@ class PreferencesPage(QWidget):
             if tier != 0 or subtier != 0:
                 new_profile[widget.unlockable.unique_id] = {"tier": tier, "subtier": subtier}
 
-        already_existed = Config().add_profile(new_profile)
+        already_existed = Config().add_profile(new_profile, index)
 
         self.update_profiles_from_config()
         index = self.profileSelector.findText(profile_id)
@@ -352,24 +357,28 @@ class PreferencesPage(QWidget):
         if already_existed:
             self.show_preferences_page_save_success(f"Existing profile overridden with changes: {profile_id}")
         else:
-            self.show_preferences_page_save_success(f"Changes saved to new profile: {profile_id}")
+            self.show_preferences_page_save_success(f"Changes saved to profile: {profile_id}")
         return profile_id
 
     def save_as_profile(self):
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True # saving as new profile; don't trigger
-            self.create_profile("Save As", "Enter your new profile name:", "Save")
+            self.save_to_profile("Save As", "Enter your new profile name:", "Save")
             self.ignore_profile_signals = False
 
     def rename_profile(self):
-        # TODO maybe rename instead of save and delete - preserve config order
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True
 
             old_profile_id = self.get_edit_profile()
+            if old_profile_id is None:
+                self.ignore_profile_signals = False
+                return
+            index = self.profileSelector.currentIndex()
 
             # save as
-            new_profile_id = self.create_profile("Save and Rename", "Enter your new profile name:", "Save and Rename")
+            new_profile_id = self.save_to_profile("Save and Rename", "Enter your new profile name:", "Save and Rename",
+                                                  index)
             if new_profile_id is None:
                 self.ignore_profile_signals = False
                 return
@@ -382,7 +391,6 @@ class PreferencesPage(QWidget):
             # delete
             Config().delete_profile(old_profile_id)
             self.update_profiles_from_config()
-            index = self.profileSelector.findText(new_profile_id)
             self.profileSelector.setCurrentIndex(index)
 
             self.ignore_profile_signals = False
@@ -392,6 +400,9 @@ class PreferencesPage(QWidget):
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True
             profile_id = self.get_edit_profile()
+            if profile_id is None:
+                self.ignore_profile_signals = False
+                return
 
             # confirm if user wants to delete
             delete_profile_dialog = ConfirmDialog("Are you sure you want to delete this profile?")
