@@ -555,7 +555,7 @@ class PreferencesPage(QWidget):
 
         self.profileLabel = TextLabel(self.scrollAreaContent, "preferencesPageProfileLabel", "Profile", Font(12))
 
-        self.profileSelector = Selector(self.profileSaveRow, "preferencesPageProfileSelector", QSize(200, 40),
+        self.profileSelector = Selector(self.profileSaveRow, "preferencesPageProfileSelector", QSize(250, 40),
                                         config.profile_names())
         self.profileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
@@ -593,10 +593,10 @@ class PreferencesPage(QWidget):
         self.searchSortRow.setObjectName("preferencesPageSearchSortRow")
         self.searchSortRowLayout = RowLayout(self.searchSortRow, "preferencesPageSearchSortRowLayout")
 
-        self.searchBar = TextInputBox(self.searchSortRow, "preferencesPageSearchBar", QSize(200, 40), "Search by name")
+        self.searchBar = TextInputBox(self.searchSortRow, "preferencesPageSearchBar", QSize(250, 40), "Search by name")
         self.searchBar.textEdited.connect(self.replace_unlockable_widgets)
         self.sortLabel = TextLabel(self.searchSortRow, "preferencesPageSortLabel", "Sort by")
-        self.sortSelector = Selector(self.searchSortRow, "preferencesPageSortSelector", QSize(150, 40),
+        self.sortSelector = Selector(self.searchSortRow, "preferencesPageSortSelector", QSize(120, 40),
                                      Data.get_sorts())
         self.sortSelector.currentIndexChanged.connect(self.replace_unlockable_widgets)
         self.lastSortedBy = "name" # cache of last sort

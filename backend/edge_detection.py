@@ -6,6 +6,7 @@ import numpy as np
 import torch
 
 from backend.shapes import LinkedEdge, MatchedNode
+from backend.util.timer import Timer
 
 sys.path.append(os.path.dirname(os.path.realpath("yolov5_obb/models")))
 
@@ -52,8 +53,8 @@ class EdgeDetection:
 
         return processed_results
 
-    # TODO maybe optimise, currently takes about 100ms
     def link_edges(self, results, matched_nodes: List[MatchedNode], avg_diameter) -> List[LinkedEdge]:
+        timer = Timer()
         edges = []
         for x1, y1, x2, y2, x3, y3, x4, y4, confidence, cls in results: # cls not useful
             if confidence > 0.8: # TODO remove with better model
@@ -68,4 +69,5 @@ class EdgeDetection:
                     new_edge = LinkedEdge(*closests)
                     if not any([new_edge == edge for edge in edges]):
                         edges.append(new_edge)
+        timer.update("link_edges")
         return edges

@@ -13,13 +13,11 @@ from backend.data import Data
 from backend.edge_detection import EdgeDetection
 from backend.node_detection import NodeDetection
 from backend.util.node_util import NodeType
-from config import Config
 from debugger import Debugger
 from functions import screen_capture
 from grapher import Grapher
 from mergedbase import MergedBase
 from optimiser import Optimiser
-from resolution import Resolution
 
 """
 PATHS
@@ -42,7 +40,9 @@ yolo cfg="hyperparameters.yaml"
 yolov5obb edge detection
 python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
 
-IMMEDIATE PRIORITIES
+IMMEDIATE PRIORITIES hhh
+- debugging for naive
+- optimisation algorithm...
 - accessibility settings: swap lmb and rmb
 
 FEATURES TO ADD
@@ -95,7 +95,6 @@ class StateProcess(Process):
     def emit(self, signal_name, payload=()):
         self.pipe.send((signal_name, payload))
 
-    # TODO instead of scaling ratio of node centres in this function, just send them rescaled back from the models
     def run(self):
         timestamp = datetime.now()
         try:
@@ -133,28 +132,19 @@ class StateProcess(Process):
             self.emit("prestige", (prestige_total, prestige_limit))
             self.emit("bloodpoint", (bp_total, bp_limit))
 
-            base_res = resolution = Config().resolution()
-            x, y = base_res.top_left()
-            cap_dim = base_res.cap_dim()
-
-            ratio = 1
-            if base_res.height != 1080 or base_res.ui_scale != 100:
-                ratio = base_res.height / 1080 * base_res.ui_scale / 100
-                resolution = Resolution(1080 * base_res.width / base_res.height, 1080, 100)
-
             # initialisation: merged base for template matching
-            print(f"initialisation at {base_res.width} x {base_res.height} @ {base_res.ui_scale}; merging")
+            print(f"merging")
             unlockables = Data.get_unlockables()
             num_custom = len([u for u in unlockables if u.is_custom_icon])
             print(f"using {num_custom} custom icons and {len(unlockables) - num_custom} vanilla icons")
-            merged_base = MergedBase(resolution, character)
+            merged_base = MergedBase(character)
             pyautogui.moveTo(0, 0)
 
             debugger = Debugger(timestamp, write_to_output)
             debugger.set_merged_base(merged_base)
 
             bloodweb_iteration = 0
-            if is_naive_mode: # TODO add debugger
+            if is_naive_mode:
                 print("running in naive mode")
                 while True:
                     if prestige_limit is not None and prestige_total == prestige_limit:
@@ -165,7 +155,7 @@ class StateProcess(Process):
 
                     # screen capture
                     print("capturing screen")
-                    cv_image = screen_capture(base_res, ratio, crop=False)
+                    cv_image = screen_capture()
 
                     # yolov8: detect accessible nodes
                     print("yolov8: detect accessible nodes")
@@ -179,7 +169,6 @@ class StateProcess(Process):
                         continue
 
                     centre = matched_node.box.centre()
-                    centre.scale(ratio)
 
                     # prestige
                     if matched_node.cls_name == NodeType.PRESTIGE:
@@ -240,7 +229,7 @@ class StateProcess(Process):
             else:
                 print("running in aware mode")
                 edge_detector = EdgeDetection()
-                while True:
+                while True: # TODO could set limit on this
                     if prestige_limit is not None and prestige_total == prestige_limit:
                         print("reached prestige limit. terminating")
                         self.emit("terminate")
@@ -249,18 +238,13 @@ class StateProcess(Process):
 
                     # screen capture
                     print("capturing screen")
-                    cv_image = screen_capture(base_res, ratio, crop=False)
+                    cv_image = screen_capture()
                     debugger.set_image(bloodweb_iteration, cv_image)
 
                     # yolov8: detect and match all nodes
                     print("yolov8: detect and match all nodes")
-                    # timer = time.time()
                     node_results = node_detector.predict(cv_image.get_bgr())
-                    # timer2 = time.time()
-                    # print("time for detecting nodes:", timer2 - timer)
                     matched_nodes = node_detector.match_nodes(node_results, cv_image.get_gray(), merged_base)
-                    # timer3 = time.time()
-                    # print("time for matching:", timer3 - timer2)
                     debugger.set_nodes(bloodweb_iteration, matched_nodes)
 
                     # nothing detected
@@ -288,7 +272,6 @@ class StateProcess(Process):
                         self.emit("prestige", (prestige_total, prestige_limit))
                         self.emit("bloodpoint", (bp_total, bp_limit))
                         centre = matched_nodes[0].box.centre()
-                        centre.scale(ratio)
                         pyautogui.moveTo(*centre.xy())
                         pyautogui.mouseDown()
                         time.sleep(1.5)
@@ -303,15 +286,10 @@ class StateProcess(Process):
                         continue
 
                     # yolov5obb: detect and link all edges
-                    # timer4 = time.time()
                     print("yolov5obb: detect and link all edges")
                     edge_results = edge_detector.predict(cv_image.get_bgr())
-                    # timer5 = time.time()
-                    # print("time for detecting edges:", timer5 - timer4)
                     avg_diameter = mean([(m.box.diameter()) for m in matched_nodes])
                     linked_edges = edge_detector.link_edges(edge_results, matched_nodes, avg_diameter) # TODO maybe also return unlinked edges
-                    # timer6 = time.time()
-                    # print("time for linking edges:", timer6 - timer5)
                     debugger.set_edges(bloodweb_iteration, linked_edges)
 
                     # create networkx graph of nodes
@@ -363,7 +341,7 @@ class StateProcess(Process):
                         self.emit("bloodpoint", (bp_total, bp_limit))
 
                         # select perk: hold on the perk for 0.3s
-                        pyautogui.moveTo(optimal_unlockable.x * ratio, optimal_unlockable.y * ratio)
+                        pyautogui.moveTo(optimal_unlockable.x, optimal_unlockable.y)
                         pyautogui.mouseDown()
                         time.sleep(0.15)
                         pyautogui.moveTo(0, 0)
@@ -382,7 +360,7 @@ class StateProcess(Process):
 
                         # take new picture and update colours
                         print("updating bloodweb")
-                        updated_image = screen_capture(base_res, ratio, crop=False)
+                        updated_image = screen_capture()
                         debugger.add_updated_image(bloodweb_iteration, update_iteration, updated_image)
 
                         print("yolov8: detect all nodes")

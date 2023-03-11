@@ -4,7 +4,6 @@ import os
 from shutil import copyfile
 
 from exceptions import ConfigError
-from resolution import Resolution
 
 
 class Config:
@@ -16,11 +15,6 @@ class Config:
             self.config = dict(json.load(f))
 
         # ensure all parameters are legal
-        if "resolution" not in self.config.keys():
-            self.copy_from_default("resolution")
-        if any([prop not in self.config["resolution"].keys() for prop in ["width", "height", "ui_scale"]]):
-            self.copy_from_default("resolution")
-
         if "path" not in self.config.keys():
             self.copy_from_default("path")
 
@@ -55,11 +49,6 @@ class Config:
         self.config[prop] = default_config[prop]
         self.commit_changes()
 
-    def resolution(self):
-        return Resolution(self.config["resolution"]["width"],
-                          self.config["resolution"]["height"],
-                          self.config["resolution"]["ui_scale"])
-
     def top_left(self):
         return self.config["capture"]["top_left_x"], self.config["capture"]["top_left_y"]
 
@@ -90,17 +79,10 @@ class Config:
     def commit_changes(self):
         with open("config.json", "w") as output:
             json.dump({
-                "resolution": self.config["resolution"],
                 "path": self.config["path"],
                 "hotkey": self.config["hotkey"],
                 "profiles": self.config["profiles"],
             }, output, indent=4) # to preserve order
-
-    def set_resolution(self, width, height, ui_scale):
-        self.config["resolution"]["width"] = width
-        self.config["resolution"]["height"] = height
-        self.config["resolution"]["ui_scale"] = ui_scale
-        self.commit_changes()
 
     def set_path(self, path):
         self.config["path"] = path

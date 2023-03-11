@@ -42,7 +42,7 @@ see below; there is also a `Help` section in the app.
 
 ## Features
 - Allows user to configure which unlockables are preferred or undesirable.
-- Two modes: NAIVE (select any available item) and AWARE (select items according to preference)
+- Two modes: NAIVE (select any available item) and AWARE (select items according to preference).
 - Bloodpoint spend limit / prestige level limit.
 - Hotkey to run / stop the program (default: Ctrl + Alt + 9).
 - Completely automatic and hands-free.

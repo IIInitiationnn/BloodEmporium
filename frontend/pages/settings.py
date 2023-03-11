@@ -17,22 +17,14 @@ from backend.data import Data
 from backend.util.text_util import TextUtil
 
 class SettingsPage(QWidget):
-    def on_width_update(self):
-        text = self.resolutionWidthInput.text()
-        self.resolutionWidthInput.setStyleSheet(StyleSheets.settings_input(width=text))
-
-    def on_height_update(self):
-        text = self.resolutionHeightInput.text()
-        self.resolutionHeightInput.setStyleSheet(StyleSheets.settings_input(height=text))
-
-    def on_ui_scale_update(self):
-        text = self.resolutionUIInput.text()
-        self.resolutionUIInput.setStyleSheet(StyleSheets.settings_input(ui_scale=text))
-
     def set_path(self):
         icon_dir = QFileDialog.getExistingDirectory(self, "Select Icon Folder", self.pathText.text())
         if icon_dir != "":
             self.pathText.setText(icon_dir)
+
+    def on_path_update(self):
+        text = self.pathText.text()
+        self.pathText.setStyleSheet(StyleSheets.settings_input(text))
 
     def show_settings_page_save_success_text(self, text):
         self.saveSuccessText.setText(text)
@@ -50,40 +42,25 @@ class SettingsPage(QWidget):
         self.saveSuccessText.setVisible(False)
 
     def save_settings(self):
-        width = self.resolutionWidthInput.text()
-        height = self.resolutionHeightInput.text()
-        ui_scale = self.resolutionUIInput.text()
-        if not Data.verify_settings_res(width, height, ui_scale):
-            self.show_settings_page_save_fail_text("Ensure width, height and UI scale are all numbers. "
-                                                   "UI scale must be an integer between 70 and 100. Changes not saved.")
-            return
-
         path = self.pathText.text()
         if not Data.verify_path(path):
-            self.show_settings_page_save_fail_text("Ensure path is an actual folder. Changes not saved.")
+            self.show_settings_page_save_fail_text("Ensure path is an actual folder (can be empty if you are not using "
+                                                   "custom icons). Changes not saved.")
             return
 
         hotkey = self.hotkeyInput.pressed_keys
 
         config = Config()
-        config.set_resolution(int(width), int(height), int(ui_scale))
         config.set_path(path)
         config.set_hotkey(hotkey)
         self.config_cache = Config()
         self.bloodweb_page.refresh_run_description()
-        self.show_settings_page_save_success_text("Settings changed.")
+        self.show_settings_page_save_success_text("Settings saved.")
 
-    def reset_settings(self):
-        res = self.config_cache.resolution()
-        self.resolutionWidthInput.setText(str(res.width))
-        self.on_width_update()
-        self.resolutionHeightInput.setText(str(res.height))
-        self.on_height_update()
-        self.resolutionUIInput.setText(str(res.ui_scale))
-        self.on_ui_scale_update()
+    def revert_settings(self):
         self.pathText.setText(self.config_cache.path())
         self.hotkeyInput.set_keys(self.config_cache.hotkey())
-        self.show_settings_page_save_success_text("Settings reset to last saved state.")
+        self.show_settings_page_save_success_text("Settings reverted to last saved state.")
 
     def start_keyboard_listener(self):
         self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
@@ -131,41 +108,6 @@ class SettingsPage(QWidget):
         self.scrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
         self.scrollAreaContentLayout.setSpacing(15)
 
-        res = self.config_cache.resolution()
-        self.resolutionLabel = TextLabel(self, "settingsPageResolutionLabel", "Display Resolution", Font(12))
-        self.resolutionUIDescription = TextLabel(self, "settingsPageResolutionUIDescription",
-                                                 "You can find your UI scale in your Dead by Daylight settings under "
-                                                 "Graphics -> UI / HUD -> UI Scale.", Font(10))
-        self.resolutionWidthRow = QWidget(self)
-        self.resolutionWidthRow.setObjectName("settingsPageResolutionWidthRow")
-
-        self.resolutionWidthRowLayout = RowLayout(self.resolutionWidthRow, "settingsPageResolutionWidthRowLayout")
-
-        self.resolutionWidthLabel = TextLabel(self.resolutionWidthRow, "settingsPageResolutionWidthLabel", "Width",
-                                              Font(10))
-        self.resolutionWidthInput = TextInputBox(self.resolutionWidthRow, "settingsPageResolutionWidthInput",
-                                                 QSize(70, 40), "Width", str(res.width))
-        self.resolutionWidthInput.textEdited.connect(self.on_width_update)
-
-        self.resolutionHeightRow = QWidget(self)
-        self.resolutionHeightRow.setObjectName("settingsPageResolutionHeightRow")
-        self.resolutionHeightRowLayout = RowLayout(self.resolutionHeightRow, "settingsPageResolutionHeightRowLayout")
-
-        self.resolutionHeightLabel = TextLabel(self.resolutionHeightRow, "settingsPageResolutionHeightLabel", "Height",
-                                               Font(10))
-        self.resolutionHeightInput = TextInputBox(self.resolutionHeightRow, "settingsPageResolutionHeightInput",
-                                                  QSize(70, 40), "Height", str(res.height))
-        self.resolutionHeightInput.textEdited.connect(self.on_height_update)
-
-        self.resolutionUIRow = QWidget(self)
-        self.resolutionUIRow.setObjectName("settingsPageResolutionUIRow")
-        self.resolutionUIRowLayout = RowLayout(self.resolutionUIRow, "settingsPageResolutionUIRowLayout")
-
-        self.resolutionUILabel = TextLabel(self.resolutionUIRow, "settingsPageResolutionUILabel", "UI Scale", Font(10))
-        self.resolutionUIInput = TextInputBox(self.resolutionUIRow, "settingsPageResolutionUIInput", QSize(70, 40),
-                                              "UI Scale", str(res.ui_scale))
-        self.resolutionUIInput.textEdited.connect(self.on_ui_scale_update)
-
         self.pathLabel = TextLabel(self, "settingsPagePathLabel", "Installation Path", Font(12))
         self.pathLabelDefaultLabel = TextLabel(self, "settingsPagePathLabelDefaultLabel",
                                                "<p style=line-height:125%>"
@@ -181,6 +123,7 @@ class SettingsPage(QWidget):
 
         self.pathText = TextInputBox(self, "settingsPagePathText", QSize(550, 40),
                                      "Path to Dead by Daylight game icon files", str(self.config_cache.path()))
+        self.pathText.textChanged.connect(self.on_path_update)
         self.pathButton = Button(self, "settingsPagePathButton", "Browse for icons folder", QSize(180, 35))
         self.pathButton.clicked.connect(self.set_path)
 
@@ -197,38 +140,21 @@ class SettingsPage(QWidget):
 
         self.saveButton = Button(self.saveRow, "settingsPageSaveButton", "Save", QSize(60, 35))
         self.saveButton.clicked.connect(self.save_settings)
-        self.resetButton = Button(self.saveRow, "settingsPageResetButton", "Reset", QSize(70, 35))
-        self.resetButton.clicked.connect(self.reset_settings)
+        self.revertButton = Button(self.saveRow, "settingsPageRevertButton", "Revert", QSize(70, 35))
+        self.revertButton.clicked.connect(self.revert_settings)
 
         self.saveSuccessText = TextLabel(self.saveRow, "settingsPageSaveSuccessText", "", Font(10))
         self.saveSuccessText.setVisible(False)
-
-        self.resolutionWidthRowLayout.addWidget(self.resolutionWidthLabel)
-        self.resolutionWidthRowLayout.addWidget(self.resolutionWidthInput)
-        self.resolutionWidthRowLayout.addStretch(1)
-
-        self.resolutionHeightRowLayout.addWidget(self.resolutionHeightLabel)
-        self.resolutionHeightRowLayout.addWidget(self.resolutionHeightInput)
-        self.resolutionHeightRowLayout.addStretch(1)
-
-        self.resolutionUIRowLayout.addWidget(self.resolutionUILabel)
-        self.resolutionUIRowLayout.addWidget(self.resolutionUIInput)
-        self.resolutionUIRowLayout.addStretch(1)
 
         self.pathRowLayout.addWidget(self.pathText)
         self.pathRowLayout.addWidget(self.pathButton)
         self.pathRowLayout.addStretch(1)
 
         self.saveRowLayout.addWidget(self.saveButton)
-        self.saveRowLayout.addWidget(self.resetButton)
+        self.saveRowLayout.addWidget(self.revertButton)
         self.saveRowLayout.addWidget(self.saveSuccessText)
         self.saveRowLayout.addStretch(1)
 
-        self.scrollAreaContentLayout.addWidget(self.resolutionLabel)
-        self.scrollAreaContentLayout.addWidget(self.resolutionUIDescription)
-        self.scrollAreaContentLayout.addWidget(self.resolutionWidthRow)
-        self.scrollAreaContentLayout.addWidget(self.resolutionHeightRow)
-        self.scrollAreaContentLayout.addWidget(self.resolutionUIRow)
         self.scrollAreaContentLayout.addWidget(self.pathLabel)
         self.scrollAreaContentLayout.addWidget(self.pathLabelDefaultLabel)
         self.scrollAreaContentLayout.addWidget(self.pathRow)

@@ -31,10 +31,9 @@ class HelpPage(QWidget):
 
         # TODO unify across README, here, discord server FAQ, and video tutorial
         d = ("<p style=line-height:125%> "
-             "First, configure your display resolution and UI scale in the Settings page. "
-             "If you have a non-default Dead by Daylight installation, you will also need "
-             "to find the folder containing the icons, in case you are using a custom icon pack.<br><br>"
-             "You can then set up preferences for what add-ons, items, offerings and perks "
+             "If you are using a custom icon pack, navigate to the Settings page. Here you can browse for your Dead by "
+             "Daylight installation (specifically, the folder containing your icons).<br><br>"
+             "You can set up preferences for what add-ons, items, offerings and perks "
              "you would like to obtain from the bloodweb. Each set of preferences can be "
              "stored in a different profile, for convenient switching as required. "
              "One preset profile comes with the program: cheapskate "

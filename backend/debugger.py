@@ -4,6 +4,7 @@ from typing import List
 import cv2
 
 from backend.cvimage import CVImage
+from backend.mergedbase import MergedBase
 from backend.shapes import MatchedNode, LinkedEdge
 from backend.util.node_util import ColorUtil
 from util.network_util import NetworkUtil
@@ -26,7 +27,7 @@ class Debugger:
                 os.mkdir(f"output/{self.time}")
 
     # merged base - direct output
-    def set_merged_base(self, merged_base):
+    def set_merged_base(self, merged_base: MergedBase):
         self.merged_base = merged_base
         if self.write_to_output:
             cv2.imwrite(f"output/{self.time}/collage.png", merged_base.images)

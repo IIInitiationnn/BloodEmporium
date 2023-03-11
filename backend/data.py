@@ -77,8 +77,6 @@ class Data:
                     continue
 
             if u_image_path is not None:
-                if "mysteryBox" in u_id:
-                    print(u_is_custom_icon)
                 icons[Unlockable.generate_unique_id(u_id, u_category)] = {
                     "image_path": u_image_path,
                     "is_custom_icon": u_is_custom_icon,
@@ -222,16 +220,6 @@ class Data:
             except ValueError:
                 non_integer.append(widget.unlockable.name)
         return non_integer
-
-    @staticmethod
-    def verify_settings_res(width, height, ui_scale):
-        try:
-            int(width)
-            int(height)
-            ui_scale = int(ui_scale)
-            return 70 <= ui_scale <= 100
-        except ValueError:
-            return False
 
     @staticmethod
     def verify_path(path):

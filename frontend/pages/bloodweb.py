@@ -99,10 +99,10 @@ class BloodwebPage(QWidget):
         self.scrollAreaContentLayout.setSpacing(15)
 
         self.profileLabel = TextLabel(self, "bloodwebPageProfileLabel", "Profile", Font(12))
-        self.profileSelector = Selector(self, "bloodwebPageProfileSelector", QSize(200, 40), Config().profile_names())
+        self.profileSelector = Selector(self, "bloodwebPageProfileSelector", QSize(250, 40), Config().profile_names())
 
         self.characterLabel = TextLabel(self, "bloodwebPageCharacterLabel", "Character", Font(12))
-        self.characterSelector = Selector(self, "bloodwebPageCharacterSelector", QSize(200, 40),
+        self.characterSelector = Selector(self, "bloodwebPageCharacterSelector", QSize(150, 40),
                                           Data.get_characters(True))
 
         self.naiveModeLabel = TextLabel(self, "bloodwebPageNaiveModeLabel", "Naive Mode", Font(12))
@@ -113,7 +113,8 @@ class BloodwebPage(QWidget):
 
         self.naiveModeCheckBox = CheckBox(self.naiveModeRow, "bloodwebPageNaiveModeCheckBox")
         self.naiveModeDescription = TextLabel(self.naiveModeRow, "bloodwebPageNaiveModeDescription",
-                                              "Enable this mode if you do not care about which items are selected.")
+                                              "Enable this mode if you do not care about which items are selected "
+                                              "(the currently selected profile will be ignored).")
 
         self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
         self.limitsDescription = TextLabel(self, "bloodwebPageLimitsDescription",
@@ -142,7 +143,7 @@ class BloodwebPage(QWidget):
         self.bloodpointCheckBox = CheckBoxWithFunction(self.prestigeRow, "bloodwebPageBloodpointCheckBox",
                                                        self.on_toggle_bloodpoint_limit)
         self.bloodpointLabel = TextLabel(self.prestigeRow, "bloodwebPageBloodpointLabel", "Bloodpoint Limit")
-        self.bloodpointInput = TextInputBox(self.prestigeRow, "bloodwebPageBloodpointInput", QSize(132, 40),
+        self.bloodpointInput = TextInputBox(self.prestigeRow, "bloodwebPageBloodpointInput", QSize(142, 40),
                                             "Enter bloodpoints", "69420", style_sheet=StyleSheets.text_box_read_only)
         self.bloodpointInput.textEdited.connect(self.on_edit_bloodpoint_limit_input)
         self.bloodpointInput.setReadOnly(True)

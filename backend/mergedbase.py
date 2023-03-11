@@ -1,14 +1,13 @@
-import math
-
 import cv2
 import numpy as np
 
+from backend.resolution import Resolution
 from data import Data
 from image import Image
 
 
 class MergedBase:
-    def __init__(self, res, category=None, retired=False):
+    def __init__(self, category=None, retired=False):
         """
         :param category: can be used to reduce the number of valid images needed to be drawn from
                          is one of Categories.killers or "survivor"
@@ -26,96 +25,64 @@ class MergedBase:
         if retired:
             categories.append("retired")
 
-        self.res = res
-        self.full_dim = round(1 + self.res.mystery_box())
+        unlockables = [unlockable for unlockable in Data.get_unlockables() if unlockable.category in categories]
 
-        image_paths = [(unlockable.image_path, unlockable.unique_id) for unlockable in Data.get_unlockables()
-                       if unlockable.category in categories]
-
-        """all_files = [(subdir, file) for subdir, dirs, files in os.walk(path) for file in files]
-        image_paths = []
-        for category, unlockable in Data.categories_as_tuples(categories):
-            # search in user's folder
-            found = False
-            for subdir, file in all_files:
-                if unlockable in file:
-                    image_paths.append(os.path.join(subdir, file))
-                    found = True
-                    break
-            if found:
-                continue
-
-            # search in asset folder
-            asset_path = Path.assets_file(category, unlockable)
-            if os.path.isfile(asset_path):
-                image_paths.append(os.path.abspath(asset_path))
-            else:
-                print(f"no source found for desired unlockable: {unlockable} under category: {category}")"""
-
-        self.names, self.valid_images = self.__get_valid_images(image_paths)
+        self.size = 64
+        self.names, self.valid_images = self.__get_valid_images(unlockables)
         self.images = cv2.vconcat(self.valid_images)
+        # sift_extractor = cv2.SIFT_create()
+        # self.keypoints, self.descriptors = sift_extractor.detectAndCompute(self.images_condensed, None)
+        self.keypoints, self.descriptors = None, None
 
-    def __get_valid_images(self, image_paths):
+    def __get_valid_images(self, unlockables):
         ret_names = []
         ret_images = []
-        for image_path, unique_id in image_paths:
+
+        colors = {
+            "common": (60, 60, 60),
+            "uncommon": (100, 100, 100),
+            "rare": (75, 75, 75),
+            "very_rare": (45, 45, 45),
+            "ultra_rare": (40, 40, 40),
+            "event": (170, 170, 170),
+            "varies": (125, 125, 125),
+        }
+
+        for unlockable in unlockables:
+            image_path = unlockable.image_path
             image_name = image_path.split("\\")[-1]
 
             if "mysteryBox" in image_name:
-                dim = self.res.mystery_box()
+                dim = round(Resolution.mystery_box * self.size)
             elif "Favors" in image_name:
-                dim = self.res.offerings()
+                dim = round(Resolution.offerings * self.size)
             elif "Perks" in image_name:
-                dim = self.res.perks()
+                dim = round(Resolution.perks * self.size)
             elif "Addon" in image_name or "Items" in image_name:
-                dim = self.res.items_addons()
+                dim = round(Resolution.items_addons * self.size)
             else:
                 print(f"error merging base with {image_path}")
                 continue
 
+            margin = (dim - self.size) // 2
+
             template = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+            template = cv2.resize(template, (dim, dim), interpolation=Image.interpolation)
+            template = template[margin:(margin + self.size), margin:(margin + self.size)]
+
             # no alpha channel (rgb instead of rgba) - note: alpha=0 denotes full transparency
             template_alpha = template[:, :, 3] / 255.0 if template.shape[2] == 4 else 1 - template[:, :, 0] * 0
             bg_alpha = 1 - template_alpha
 
-            gray_bg = np.zeros((256, 256, 3), np.uint8)
-            color = (125, 125, 125)
+            gray_bg = np.zeros((self.size, self.size, 3), np.uint8)
+            color = colors[unlockable.rarity]
             gray_bg[:] = color
 
             for layer in range(3):
                 gray_bg[:, :, layer] = template_alpha * template[:, :, layer] + bg_alpha * gray_bg[:, :, layer]
 
             template = cv2.cvtColor(gray_bg, cv2.COLOR_BGR2GRAY)
-            template = cv2.resize(template, (dim, dim), interpolation=Image.interpolation)
 
-            border1 = math.floor((self.full_dim - dim) / 2)
-            border2 = math.ceil((self.full_dim - dim) / 2)
-            template = cv2.copyMakeBorder(template, border1, border2, border1, border2, cv2.BORDER_CONSTANT, value=0)
-
-            ret_names.append(unique_id)
+            ret_names.append(unlockable.unique_id)
             ret_images.append(template)
-
-        """for subdir, dirs, files in os.walk(path):
-            for file in files:
-                if required_prefix in file:
-                    template = cv2.imread(os.path.join(subdir, file), cv2.IMREAD_UNCHANGED)
-                    template_alpha = template[:, :, 3] / 255.0
-                    bg_alpha = 1 - template_alpha
-
-                    gray_bg = np.zeros((256, 256, 3), np.uint8)
-                    color = (125, 125, 125)
-                    gray_bg[:] = color
-
-                    for layer in range(3):
-                        gray_bg[:, :, layer] = template_alpha * template[:, :, layer] + bg_alpha * gray_bg[:, :, layer]
-
-                    template = cv2.cvtColor(gray_bg, cv2.COLOR_BGR2GRAY)
-                    template = cv2.resize(template, (dim, dim), interpolation=Images.interpolation)
-
-                    border1 = math.floor((self.full_dim - dim) / 2)
-                    border2 = math.ceil((self.full_dim - dim) / 2)
-                    template = cv2.copyMakeBorder(template, border1, border2, border1, border2, cv2.BORDER_CONSTANT, value=0)
-
-                    ret_names.append(file)
-                    ret_images.append(template)"""
         return ret_names, ret_images

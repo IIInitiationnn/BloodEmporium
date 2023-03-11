@@ -55,6 +55,7 @@ def install_update(update):
     zipped = ZipFile(BytesIO(download.content))
 
     os.rename(sys.argv[0], f"Blood Emporium Old ({State.version}).exe")
+    # TODO maybe also get rid of old assets e.g. dusty noose went universal -> retired
     zipped.extractall(path=".")
 
 def handle_updates():
@@ -623,8 +624,7 @@ class MainWindow(QMainWindow):
         self.homePageIcon.setScaledContents(True)
 
         self.homePageRow1 = HomeRow(self.homePage, 1, QIcon(Icons.settings), self.settingsButton.on_click,
-                                    "First time here? Recently change your game / display settings? "
-                                    "Set up your config.")
+                                    "Using a custom icon pack? Set up your settings.")
         self.homePageRow2 = HomeRow(self.homePage, 2, QIcon(Icons.preferences), self.preferencesButton.on_click,
                                     "What would you like from the bloodweb? Set up your preferences.")
         self.homePageRow3 = HomeRow(self.homePage, 3, QIcon(Icons.bloodweb), self.bloodwebButton.on_click,

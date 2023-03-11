@@ -222,27 +222,8 @@ class StyleSheets:
             return StyleSheets.text_box
 
     @staticmethod
-    def settings_input(width=None, height=None, ui_scale=None, path=None):
-        if width is not None:
-            try:
-                int(width)
-                return StyleSheets.text_box
-            except ValueError:
-                return StyleSheets.text_box_invalid
-        elif height is not None:
-            try:
-                int(height)
-                return StyleSheets.text_box
-            except ValueError:
-                return StyleSheets.text_box_invalid
-        elif ui_scale is not None:
-            try:
-                ui_scale = int(ui_scale)
-                return StyleSheets.text_box if 70 <= ui_scale <= 100 else StyleSheets.text_box_invalid
-            except ValueError:
-                return StyleSheets.text_box_invalid
-        elif path is not None:
-            return StyleSheets.text_box if os.path.isdir(path) else StyleSheets.text_box_invalid
+    def settings_input(path):
+        return StyleSheets.text_box if os.path.isdir(path) else StyleSheets.text_box_invalid
 
     @staticmethod
     def left_menu_button_inactive(padding):
