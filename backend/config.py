@@ -23,24 +23,28 @@ class Config:
         if "profiles" not in self.config.keys():
             self.copy_from_default("profiles")
 
-        # TODO set the value instead of raising error
+        # TODO set the value instead of raising error (use get_next_free_profile_name)
         ids = []
         for num, profile in enumerate(self.config["profiles"], 1):
             if "id" not in profile.keys():
                 raise ConfigError(f"Missing profile id for profile {num} in config.json")
             if profile["id"] in ids:
                 raise ConfigError(f"Multiple profiles with same id (profile {num}) in config.json")
+            if "notes" not in profile.keys():
+                profile["notes"] = ""
 
             ids.append(profile["id"])
+            invalid_unlockables = []
             for unique_id, v in profile.items():
                 # TODO validate that unique_id is a valid unlockable id
-                if unique_id != "id":
+                if unique_id not in ["id", "notes"]:
                     if "tier" not in v:
-                        raise ConfigError(f"Missing tier for unlockable {unique_id} under profile {profile['id']}"
-                                          f"in config.json")
+                        invalid_unlockables.append(unique_id)
+                        continue
                     if "subtier" not in v:
-                        raise ConfigError(f"Missing subtier for unlockable {unique_id} under profile {profile['id']}"
-                                          f"in config.json")
+                        invalid_unlockables.append(unique_id)
+                        continue
+            [profile.pop(invalid_unlockable) for invalid_unlockable in invalid_unlockables]
 
     def copy_from_default(self, prop):
         with open("assets/default_config.json") as f:
@@ -62,9 +66,14 @@ class Config:
 
     def get_profile_by_id(self, profile_id):
         if profile_id is None:
-            return {"id": None}
+            return {"id": None, "notes": ""}
         profiles = self.__profiles()
-        return [p for p in profiles if p["id"] == profile_id].pop(0) if len(profiles) > 0 else {"id": None}
+        return [p for p in profiles if p["id"] == profile_id].pop(0) if len(profiles) > 0 else {"id": None, "notes": ""}
+
+    def notes_by_id(self, profile_id):
+        if profile_id is None:
+            return ""
+        return self.get_profile_by_id(profile_id).get("notes", "")
 
     def preference_by_id(self, unlockable_id, profile_id):
         if profile_id is None:
@@ -124,6 +133,9 @@ class Config:
         for profile in self.__profiles():
             if profile["id"] == new_profile["id"]:
                 existing_profile = profile
+
+        if "notes" not in new_profile.keys():
+            new_profile["notes"] = ""
 
         if existing_profile is None:
             if index is None:

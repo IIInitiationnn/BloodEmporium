@@ -439,7 +439,7 @@ class MainWindow(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         self.setMinimumSize(1100, 600)
-        self.resize(1230, 670)
+        self.resize(1570, 870)
         self.setWindowTitle("Blood Emporium")
         self.setWindowIcon(QIcon(Icons.icon))
 

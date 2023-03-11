@@ -6,12 +6,12 @@ from PIL import Image, ImageQt
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QToolButton, QInputDialog, QMessageBox, \
-    QFileDialog
+    QFileDialog, QPlainTextEdit
 
 from backend.paths import Path
 from dialogs import InputDialog, ConfirmDialog
 from frontend.generic import Font, TextLabel, TextInputBox, Selector, Button, CheckBoxWithFunction, CheckBox, \
-    CollapsibleBox, Icons, NoShiftStyle, ScrollBar, ScrollArea, ScrollAreaContent
+    CollapsibleBox, Icons, NoShiftStyle, ScrollBar, ScrollArea, ScrollAreaContent, MultiLineTextInputBox
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
 
@@ -232,6 +232,10 @@ class PreferencesPage(QWidget):
             config_tier, config_subtier = config.preference_by_profile(widget.unlockable.unique_id, profile)
             if tier != config_tier or subtier != config_subtier:
                 return True
+
+        if self.profileNotes.toPlainText() != config.notes_by_id(profile_id):
+            return True
+
         return False
 
     # TODO optimise?
@@ -268,8 +272,10 @@ class PreferencesPage(QWidget):
         if not self.ignore_profile_signals:
             # TODO prompt: unsaved changes (save or discard) - override profile selector currentindexchanged method?
             config = Config()
+            profile_id = self.get_edit_profile()
             for widget in self.unlockableWidgets:
-                widget.setTiers(*config.preference_by_id(widget.unlockable.unique_id, self.get_edit_profile()))
+                widget.setTiers(*config.preference_by_id(widget.unlockable.unique_id, profile_id))
+            self.profileNotes.setPlainText(config.notes_by_id(profile_id))
 
     def new_profile(self):
         if not self.ignore_profile_signals:
@@ -284,7 +290,7 @@ class PreferencesPage(QWidget):
 
             config = Config()
             profile_id = config.get_next_free_profile_name()
-            config.add_profile({"id": profile_id})
+            config.add_profile({"id": profile_id, "notes": ""})
 
             self.update_profiles_from_config()
             index = self.profileSelector.findText(profile_id)
@@ -299,6 +305,7 @@ class PreferencesPage(QWidget):
         if profile_id is None:
             return
         updated_profile = Config().get_profile_by_id(profile_id).copy()
+        updated_profile["notes"] = self.profileNotes.toPlainText()
 
         non_integer = Data.verify_tiers(self.unlockableWidgets)
         if len(non_integer) > 0:
@@ -343,7 +350,7 @@ class PreferencesPage(QWidget):
                 return
 
         # user either wants to overwrite, or is saving new profile
-        new_profile = {"id": profile_id}
+        new_profile = {"id": profile_id, "notes": self.profileNotes.toPlainText()}
 
         for widget in self.unlockableWidgets:
             tier, subtier = widget.getTiers()
@@ -620,7 +627,7 @@ class PreferencesPage(QWidget):
         self.scrollArea.setWidget(self.scrollAreaContent)
         self.scrollAreaContentLayout = QVBoxLayout(self.scrollAreaContent)
         self.scrollAreaContentLayout.setObjectName("preferencesPageScrollAreaContentLayout")
-        self.scrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
+        self.scrollAreaContentLayout.setContentsMargins(0, 0, 0, 25)
         self.scrollAreaContentLayout.setSpacing(15)
 
         # save, rename, delete
@@ -669,6 +676,9 @@ class PreferencesPage(QWidget):
         self.importButton = Button(self.profileExchangeRow, "preferencesPageImportButton", "Import Profile from File",
                                    QSize(165, 35))
         self.importButton.clicked.connect(self.import_profile)
+
+        self.profileNotes = MultiLineTextInputBox(self.scrollAreaContent, "preferencesPageProfileNotes",
+                                                  QSize(450, 100), "Notes for this profile")
 
         # filters
         self.filtersBox = FilterOptionsCollapsibleBox(self.scrollAreaContent, "preferencesPageFiltersBox",
@@ -834,7 +844,8 @@ class PreferencesPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.profileSaveRow)
         self.scrollAreaContentLayout.addWidget(self.profileSaveRow2)
         self.scrollAreaContentLayout.addWidget(self.profileExchangeRow)
-        self.scrollAreaContentLayout.addSpacing(15)
+        self.scrollAreaContentLayout.addWidget(self.profileNotes)
+        self.scrollAreaContentLayout.addSpacing(10)
         self.scrollAreaContentLayout.addWidget(self.filtersBox)
         self.scrollAreaContentLayout.addWidget(self.searchSortRow)
         self.scrollAreaContentLayout.addWidget(self.refreshIconsButton)

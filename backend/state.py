@@ -44,7 +44,6 @@ python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml
 FOR 1.0.0
 - edges model
 - accessibility settings: swap lmb and rmb
-- notes for each config
 - clear filters button
 - new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
 - additive algorithm???

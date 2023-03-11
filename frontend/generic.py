@@ -5,7 +5,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QLabel, QLineEdit, QCheckBox, QComboBox, QListView, QPushButton, QWidget, QVBoxLayout, \
-    QToolButton, QProxyStyle, QStyle, QScrollArea, QScrollBar
+    QToolButton, QProxyStyle, QStyle, QScrollArea, QScrollBar, QPlainTextEdit
 from pynput import keyboard
 
 from frontend.stylesheets import StyleSheets
@@ -65,6 +65,18 @@ class TextInputBox(QLineEdit):
     def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
         super().focusOutEvent(event)
         TextInputBox.on_focus_out_callback()
+
+class MultiLineTextInputBox(QPlainTextEdit):
+    def __init__(self, parent, object_name, size, placeholder_text, text=None, font=Font(10),
+                 style_sheet=StyleSheets.multiline_text_box):
+        super().__init__(parent)
+        self.setObjectName(object_name)
+        self.setFixedSize(size)
+        self.setPlaceholderText(placeholder_text)
+        if text is not None:
+            self.setPlainText(text)
+        self.setFont(font)
+        self.setStyleSheet(style_sheet)
 
 class CheckBox(QCheckBox):
     def __init__(self, parent, object_name, style_sheet=StyleSheets.check_box):

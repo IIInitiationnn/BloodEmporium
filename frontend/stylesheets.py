@@ -140,6 +140,41 @@ class StyleSheets:
             border: 2px solid {selection};
         }}"""
 
+    multiline_text_box = f"""
+        QPlainTextEdit {{
+            background-color: {background};
+            color: rgb(255, 255, 255);
+            border-radius: 5px;
+            border: 2px solid rgba(0, 0, 0, 0);
+            padding: 10px 10px 10px 10px;
+            selection-background-color: {purple};
+        }}
+
+        QPlainTextEdit:hover {{
+            border: 2px solid {selection};
+        }}
+
+        QScrollBar:vertical {{
+            background: {selection};
+            width: 4px;
+            border: 0px solid white;
+            border-radius: 4px;
+        }}
+
+        QScrollBar::handle:vertical {{
+            background: {purple};
+            min-height: 25px;
+            border-radius: 2px;
+        }}
+
+        QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
+            background: none;
+        }}
+
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            border: none;
+        }}"""
+
     tiers_input_positive = f"""
         QLineEdit {{
             background-color: #323543;
