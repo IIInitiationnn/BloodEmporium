@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, 
     QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
 from parse import parse
 
+from backend.util.timer import Timer
 from dialogs import UpdateDialog
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
 from frontend.layouts import RowLayout

@@ -13,6 +13,7 @@ from backend.data import Data
 from backend.edge_detection import EdgeDetection
 from backend.node_detection import NodeDetection
 from backend.util.node_util import NodeType
+from backend.util.timer import Timer
 from debugger import Debugger
 from functions import screen_capture
 from grapher import Grapher
@@ -40,8 +41,7 @@ yolo cfg="hyperparameters.yaml"
 yolov5obb edge detection
 python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
 
-IMMEDIATE PRIORITIES hhh
-- debugging for naive
+IMMEDIATE PRIORITIES
 - optimisation algorithm...
 - accessibility settings: swap lmb and rmb
 
@@ -98,7 +98,8 @@ class StateProcess(Process):
     def run(self):
         timestamp = datetime.now()
         try:
-            debug, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
+            dev_mode, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
+            Timer.PRINT = dev_mode
             log = logging.getLogger()
             log.setLevel(logging.DEBUG)
             log.handlers = []
@@ -156,11 +157,13 @@ class StateProcess(Process):
                     # screen capture
                     print("capturing screen")
                     cv_image = screen_capture()
+                    debugger.set_image(bloodweb_iteration, cv_image)
 
                     # yolov8: detect accessible nodes
                     print("yolov8: detect accessible nodes")
                     results = node_detector.predict(cv_image.get_bgr())
                     matched_node = node_detector.match_accessible_or_prestige(results, cv_image.get_gray(), merged_base)
+                    debugger.set_nodes(bloodweb_iteration, [matched_node])
 
                     # nothing detected
                     if matched_node is None:
@@ -174,6 +177,8 @@ class StateProcess(Process):
                     if matched_node.cls_name == NodeType.PRESTIGE:
                         prestige_total += 1
                         bp_total += 20000
+                        if dev_mode:
+                            debugger.construct_and_show_images(bloodweb_iteration)
                         if bp_limit is not None and bp_total > bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
                             self.emit("terminate")
@@ -200,10 +205,15 @@ class StateProcess(Process):
                     selected_unlockable = [u for u in unlockables if u.unique_id == matched_node.unique_id][0]
                     bp_total += Data.get_cost(selected_unlockable.rarity)
                     if bp_limit is not None and bp_total > bp_limit:
+                        if dev_mode:
+                            debugger.construct_and_show_images(bloodweb_iteration)
                         print(f"{matched_node.unique_id}: reached bloodpoint limit. terminating")
                         self.emit("terminate")
                         self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                         return
+
+                    if dev_mode:
+                        debugger.construct_and_show_images(bloodweb_iteration)
 
                     print(matched_node.unique_id)
                     self.emit("bloodpoint", (bp_total, bp_limit))
@@ -250,7 +260,7 @@ class StateProcess(Process):
                     # nothing detected
                     if len(matched_nodes) == 0:
                         print("nothing detected, trying again...")
-                        if debug:
+                        if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
                         pyautogui.click()
@@ -260,7 +270,7 @@ class StateProcess(Process):
                     elif len(matched_nodes) == 1 and matched_nodes[0].cls_name == NodeType.PRESTIGE:
                         prestige_total += 1
                         bp_total += 20000
-                        if debug:
+                        if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         if bp_limit is not None and bp_total > bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
@@ -311,7 +321,7 @@ class StateProcess(Process):
                               f"{str(edge[1]).ljust(2, ' ')} "
                               f"{base_bloodweb.nodes[edge[1]]['name']}")
 
-                    if debug:
+                    if dev_mode:
                         debugger.construct_and_show_images(bloodweb_iteration)
 
                     update_iteration = 0
@@ -380,7 +390,6 @@ class StateProcess(Process):
                             time.sleep(2) # 2 secs to generate
                             break
 
-
                         update_iteration += 1
                     bloodweb_iteration += 1
         except:
@@ -391,7 +400,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.0-alpha.3"
+    version = "v1.0.0-alpha.4"
 
     def __init__(self, pipe):
         self.process = None

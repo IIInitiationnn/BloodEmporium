@@ -2,7 +2,7 @@ import time
 
 
 class Timer:
-    PRINT = True # use this to tweak if message should be printed
+    PRINT = False
 
     def __init__(self):
         self.timers = [time.time()]
