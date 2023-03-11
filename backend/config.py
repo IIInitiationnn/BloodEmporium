@@ -1,5 +1,4 @@
 import json
-
 import os
 from shutil import copyfile
 
@@ -142,3 +141,10 @@ class Config:
         to_be_removed = [profile for profile in self.__profiles() if profile["id"] == profile_id].pop(0)
         self.config["profiles"].remove(to_be_removed)
         self.commit_changes()
+
+    def export_profile(self, profile_id):
+        if profile_id is None:
+            return
+        profile = self.get_profile_by_id(profile_id)
+        with open(f"{profile_id}.emp", "w") as file:
+            file.write(json.dumps(profile))

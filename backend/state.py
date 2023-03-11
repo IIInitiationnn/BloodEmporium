@@ -44,13 +44,12 @@ python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml
 FOR 1.0.0
 - edges model
 - accessibility settings: swap lmb and rmb
-- import / export profile as string to share with others
 - notes for each config
 - clear filters button
 - new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
+- additive algorithm???
 
 POST 1.0.0
-- additive algorithm???
 - "you have unsaved changes" next to save button - profiles, settings
 - program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
 - summary on items obtained by the application

@@ -1,10 +1,12 @@
+import json
 import os
 import sys
 
 from PIL import Image, ImageQt
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QToolButton, QInputDialog, QMessageBox
+from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QToolButton, QInputDialog, QMessageBox, \
+    QFileDialog
 
 from backend.paths import Path
 from dialogs import InputDialog, ConfirmDialog
@@ -273,10 +275,10 @@ class PreferencesPage(QWidget):
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True
             if self.has_unsaved_changes():
-                overwrite_profile_dialog = ConfirmDialog("You have unsaved changes to the current profile. "
-                                                         "Do you wish to save or discard these changes?",
-                                                         "Save", "Discard")
-                confirmation = overwrite_profile_dialog.exec()
+                save_profile_dialog = ConfirmDialog("You have unsaved changes to the current profile. "
+                                                    "Do you wish to save or discard these changes?",
+                                                    "Save", "Discard")
+                confirmation = save_profile_dialog.exec()
                 if confirmation == QMessageBox.AcceptRole:
                     self.save_profile()
 
@@ -421,6 +423,68 @@ class PreferencesPage(QWidget):
             self.show_preferences_page_save_success(f"Profile deleted: {profile_id}")
 
             self.ignore_profile_signals = False
+
+    def export_profile(self):
+        if self.has_unsaved_changes():
+            save_profile_dialog = ConfirmDialog("You have unsaved changes to the current profile. "
+                                                "Do you wish to save these changes or cancel the export?",
+                                                "Save", "Cancel")
+            confirmation = save_profile_dialog.exec()
+            if confirmation == QMessageBox.AcceptRole:
+                self.save_profile()
+            else:
+                return
+
+        profile_id = self.get_edit_profile()
+        Config().export_profile(profile_id)
+        self.show_preferences_page_save_success(f"Profile exported to \"{profile_id}.emp\". Share it with friends!")
+
+    def import_profile(self):
+        if not self.ignore_profile_signals:
+            self.ignore_profile_signals = True
+
+            if self.has_unsaved_changes():
+                save_profile_dialog = ConfirmDialog("You have unsaved changes to the current profile. "
+                                                    "Do you wish to save these changes or cancel the import?",
+                                                    "Save", "Cancel")
+                confirmation = save_profile_dialog.exec()
+                if confirmation == QMessageBox.AcceptRole:
+                    self.save_profile()
+                else:
+                    self.ignore_profile_signals = False
+                    return
+
+            path, _ = QFileDialog.getOpenFileName(self, "Select .emp File to Import",
+                                               filter="Blood Emporium Profile Files (*.emp)")
+            if path == "":
+                self.ignore_profile_signals = False
+                return
+
+            try:
+                with open(path, "r") as file:
+                    profile = dict(json.load(file))
+                    profile_id = profile["id"]
+                    if Config().is_profile(profile_id):
+                        overwrite_profile_dialog = ConfirmDialog("This will overwrite an existing profile. Are you "
+                                                                 "sure you want to import?")
+                        confirmation = overwrite_profile_dialog.exec()
+                        if confirmation != QMessageBox.AcceptRole:
+                            self.ignore_profile_signals = False
+                            return
+
+                    Config().add_profile(profile)
+            except:
+                self.show_preferences_page_save_error(f"Profile file ({path}) malformed.")
+                self.ignore_profile_signals = False
+                return
+
+            self.update_profiles_from_config()
+            index = self.profileSelector.findText(profile_id)
+            self.profileSelector.setCurrentIndex(index)
+
+            self.show_preferences_page_save_success(f"Profile: {profile_id} successfully imported.")
+            self.ignore_profile_signals = False
+            self.switch_edit_profile()
 
     def show_preferences_page_save_success(self, text):
         self.saveSuccessText.setText(text)
@@ -594,6 +658,17 @@ class PreferencesPage(QWidget):
         self.deleteButton = Button(self.profileSaveRow2, "preferencesPageDeleteButton", "Delete", QSize(70, 35))
         self.deleteButton.clicked.connect(self.delete_profile)
 
+        self.profileExchangeRow = QWidget(self.scrollAreaContent)
+        self.profileExchangeRow.setObjectName("preferencesPageProfileExchangeRow")
+        self.profileExchangeRowLayout = RowLayout(self.profileExchangeRow, "preferencesPageProfileExchangeRowLayout")
+
+        self.exportButton = Button(self.profileExchangeRow, "preferencesExportButton", "Export Profile to File",
+                                   QSize(150, 35))
+        self.exportButton.clicked.connect(self.export_profile)
+
+        self.importButton = Button(self.profileExchangeRow, "preferencesPageImportButton", "Import Profile from File",
+                                   QSize(165, 35))
+        self.importButton.clicked.connect(self.import_profile)
 
         # filters
         self.filtersBox = FilterOptionsCollapsibleBox(self.scrollAreaContent, "preferencesPageFiltersBox",
@@ -745,6 +820,10 @@ class PreferencesPage(QWidget):
         self.profileSaveRow2Layout.addWidget(self.deleteButton)
         self.profileSaveRow2Layout.addStretch(1)
 
+        self.profileExchangeRowLayout.addWidget(self.exportButton)
+        self.profileExchangeRowLayout.addWidget(self.importButton)
+        self.profileExchangeRowLayout.addStretch(1)
+
         self.searchSortRowLayout.addWidget(self.searchBar)
         self.searchSortRowLayout.addWidget(self.sortLabel)
         self.searchSortRowLayout.addWidget(self.sortSelector)
@@ -752,8 +831,9 @@ class PreferencesPage(QWidget):
 
         # putting the rows into the content
         self.scrollAreaContentLayout.addWidget(self.profileLabel)
-        self.scrollAreaContentLayout.addWidget(self.profileSaveRow2)
         self.scrollAreaContentLayout.addWidget(self.profileSaveRow)
+        self.scrollAreaContentLayout.addWidget(self.profileSaveRow2)
+        self.scrollAreaContentLayout.addWidget(self.profileExchangeRow)
         self.scrollAreaContentLayout.addSpacing(15)
         self.scrollAreaContentLayout.addWidget(self.filtersBox)
         self.scrollAreaContentLayout.addWidget(self.searchSortRow)
