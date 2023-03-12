@@ -146,7 +146,7 @@ class StyleSheets:
             color: rgb(255, 255, 255);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
-            padding: 10px 10px 10px 10px;
+            padding: 10px 10px 0 10px;
             selection-background-color: {purple};
         }}
 
@@ -158,12 +158,12 @@ class StyleSheets:
             background: {selection};
             width: 4px;
             border: 0px solid white;
+            margin: 10px 0 10px 0;
             border-radius: 4px;
         }}
 
         QScrollBar::handle:vertical {{
             background: {purple};
-            min-height: 25px;
             border-radius: 2px;
         }}
 

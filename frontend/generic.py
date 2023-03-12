@@ -2,7 +2,7 @@ import os
 import sys
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QSize, QTimer
+from PyQt5.QtCore import Qt, QSize, QTimer, QPropertyAnimation, QEasingCurve
 from PyQt5.QtGui import QFont, QIcon, QCursor
 from PyQt5.QtWidgets import QLabel, QLineEdit, QCheckBox, QComboBox, QListView, QPushButton, QWidget, QVBoxLayout, \
     QToolButton, QProxyStyle, QStyle, QScrollArea, QScrollBar, QPlainTextEdit
@@ -67,16 +67,51 @@ class TextInputBox(QLineEdit):
         TextInputBox.on_focus_out_callback()
 
 class MultiLineTextInputBox(QPlainTextEdit):
-    def __init__(self, parent, object_name, size, placeholder_text, text=None, font=Font(10),
+    def __init__(self, parent, object_name, width, height, full_height, placeholder_text, text=None, font=Font(10),
                  style_sheet=StyleSheets.multiline_text_box):
         super().__init__(parent)
         self.setObjectName(object_name)
-        self.setFixedSize(size)
+        self.setFixedWidth(width)
+        self.small_height = height
+        self.full_height = full_height
+        self.setMinimumHeight(height)
         self.setPlaceholderText(placeholder_text)
         if text is not None:
             self.setPlainText(text)
         self.setFont(font)
         self.setStyleSheet(style_sheet)
+
+    def wheelEvent(self, e: QtGui.QWheelEvent) -> None:
+        current = self.verticalScrollBar().value()
+        minimum = self.verticalScrollBar().minimum()
+        maximum = self.verticalScrollBar().maximum()
+
+        if e.angleDelta().y() < 0 and current == maximum:
+            self.verticalScrollBar().setValue(maximum)
+        elif e.angleDelta().y() > 0 and current == minimum:
+            self.verticalScrollBar().setValue(minimum)
+        else:
+            return QPlainTextEdit.wheelEvent(self, e)
+        e.accept()
+
+    def focusInEvent(self, event: QtGui.QFocusEvent) -> None:
+        super().focusInEvent(event)
+        if not self.isReadOnly():
+            self.animate()
+            TextInputBox.on_focus_in_callback()
+
+    def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
+        super().focusOutEvent(event)
+        self.animate()
+        TextInputBox.on_focus_out_callback()
+
+    def animate(self):
+        self.animation = QPropertyAnimation(self, b"minimumHeight")
+        self.animation.setDuration(500)
+        self.animation.setStartValue(self.minimumHeight())
+        self.animation.setEndValue(self.full_height if self.height() == self.small_height else self.small_height)
+        self.animation.setEasingCurve(QEasingCurve.InOutQuint)
+        self.animation.start()
 
 class CheckBox(QCheckBox):
     def __init__(self, parent, object_name, style_sheet=StyleSheets.check_box):
@@ -100,13 +135,9 @@ class Selector(QComboBox):
             self.setCurrentIndex(self.findText(active_item))
         self.setView(self.view)
         self.setStyleSheet(StyleSheets.selector)
-        self.setFocusPolicy(Qt.StrongFocus)
 
     def wheelEvent(self, e: QtGui.QWheelEvent) -> None:
-        if self.hasFocus():
-            return QComboBox.wheelEvent(self, e)
-        else:
-            e.ignore()
+        e.ignore()
 
 class Button(QPushButton):
     def __init__(self, parent, object_name, text, size: QSize):

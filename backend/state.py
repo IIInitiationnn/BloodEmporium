@@ -9,6 +9,7 @@ from multiprocessing import Process, Pipe
 import pyautogui
 from numpy import mean
 
+from backend.config import Config
 from backend.data import Data
 from backend.edge_detection import EdgeDetection
 from backend.node_detection import NodeDetection
@@ -44,7 +45,6 @@ python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml
 FOR 1.0.0
 - edges model
 - accessibility settings: swap lmb and rmb
-- new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
 - additive algorithm??? + beeline
 
 POST 1.0.0
@@ -97,6 +97,7 @@ class StateProcess(Process):
 
     def run(self):
         timestamp = datetime.now()
+        primary_mouse = Config().primary_mouse()
         try:
             dev_mode, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
             Timer.PRINT = dev_mode
@@ -168,7 +169,7 @@ class StateProcess(Process):
                     # nothing detected
                     if matched_node is None:
                         time.sleep(0.5) # try again
-                        pyautogui.click()
+                        pyautogui.click(button=primary_mouse)
                         continue
 
                     centre = matched_node.box.centre()
@@ -189,13 +190,13 @@ class StateProcess(Process):
                         self.emit("prestige", (prestige_total, prestige_limit))
                         self.emit("bloodpoint", (bp_total, bp_limit))
                         pyautogui.moveTo(*centre.xy())
-                        pyautogui.mouseDown()
+                        pyautogui.mouseDown(button=primary_mouse)
                         time.sleep(1.5)
-                        pyautogui.mouseUp()
+                        pyautogui.mouseUp(button=primary_mouse)
                         time.sleep(4) # 4 sec to clear out until new level screen
-                        pyautogui.click()
+                        pyautogui.click(button=primary_mouse)
                         time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
-                        pyautogui.click()
+                        pyautogui.click(button=primary_mouse)
                         time.sleep(0.5) # 1 sec to generate
                         pyautogui.moveTo(0, 0)
                         time.sleep(0.5) # 1 sec to generate
@@ -220,17 +221,17 @@ class StateProcess(Process):
 
                     # select perk: hold on the perk for 0.3s
                     pyautogui.moveTo(*centre.xy())
-                    pyautogui.mouseDown()
+                    pyautogui.mouseDown(button=primary_mouse)
                     time.sleep(0.15)
                     pyautogui.moveTo(0, 0)
                     time.sleep(0.15)
-                    pyautogui.mouseUp()
+                    pyautogui.mouseUp(button=primary_mouse)
 
                     # mystery box: click
                     if "mysteryBox" in matched_node.unique_id:
                         print("mystery box selected")
                         time.sleep(0.9)
-                        pyautogui.click()
+                        pyautogui.click(button=primary_mouse)
                         time.sleep(0.2)
 
                     # move mouse again in case it didn't the first time
@@ -263,7 +264,7 @@ class StateProcess(Process):
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
-                        pyautogui.click()
+                        pyautogui.click(button=primary_mouse)
                         continue
 
                     # prestige
@@ -283,13 +284,13 @@ class StateProcess(Process):
                         self.emit("bloodpoint", (bp_total, bp_limit))
                         centre = matched_nodes[0].box.centre()
                         pyautogui.moveTo(*centre.xy())
-                        pyautogui.mouseDown()
+                        pyautogui.mouseDown(button=primary_mouse)
                         time.sleep(1.5)
-                        pyautogui.mouseUp()
+                        pyautogui.mouseUp(button=primary_mouse)
                         time.sleep(4) # 4 sec to clear out until new level screen
-                        pyautogui.click()
+                        pyautogui.click(button=primary_mouse)
                         time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
-                        pyautogui.click()
+                        pyautogui.click(button=primary_mouse)
                         time.sleep(0.5) # 1 sec to generate
                         pyautogui.moveTo(0, 0)
                         time.sleep(0.5) # 1 sec to generate
@@ -352,17 +353,17 @@ class StateProcess(Process):
 
                         # select perk: hold on the perk for 0.3s
                         pyautogui.moveTo(optimal_unlockable.x, optimal_unlockable.y)
-                        pyautogui.mouseDown()
+                        pyautogui.mouseDown(button=primary_mouse)
                         time.sleep(0.15)
                         pyautogui.moveTo(0, 0)
                         time.sleep(0.15)
-                        pyautogui.mouseUp()
+                        pyautogui.mouseUp(button=primary_mouse)
 
                         # mystery box: click
                         if "mysteryBox" in optimal_unlockable.name:
                             print("mystery box selected")
                             time.sleep(0.9)
-                            pyautogui.click()
+                            pyautogui.click(button=primary_mouse)
                             time.sleep(0.2)
 
                         # move mouse again in case it didn't the first time
@@ -382,17 +383,18 @@ class StateProcess(Process):
                         if new_level:
                             print("level cleared")
                             time.sleep(1) # 1 sec to clear out until new level screen
-                            pyautogui.click()
+                            pyautogui.click(button=primary_mouse)
                             time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-                            pyautogui.click()
+                            pyautogui.click(button=primary_mouse)
                             time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-                            pyautogui.click()
+                            pyautogui.click(button=primary_mouse)
                             time.sleep(2) # 2 secs to generate
                             break
 
                         update_iteration += 1
                     bloodweb_iteration += 1
         except:
+            pyautogui.mouseUp(mouse=primary_mouse)
             traceback.print_exc()
             self.emit("terminate")
             self.emit("toggle_text", (f"An error occurred. Please check "

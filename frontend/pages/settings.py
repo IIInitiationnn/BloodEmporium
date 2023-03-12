@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QGridLayout
 from pynput import keyboard
 
 from frontend.generic import Font, TextLabel, TextInputBox, Button, HotkeyInput, ScrollAreaContent, ScrollBar, \
-    ScrollArea
+    ScrollArea, Selector
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
 
@@ -53,6 +53,7 @@ class SettingsPage(QWidget):
         config = Config()
         config.set_path(path)
         config.set_hotkey(hotkey)
+        config.set_primary_mouse(self.primaryMouseSelector.currentText())
         self.config_cache = Config()
         self.bloodweb_page.refresh_run_description()
         self.show_settings_page_save_success_text("Settings saved.")
@@ -60,6 +61,7 @@ class SettingsPage(QWidget):
     def revert_settings(self):
         self.pathText.setText(self.config_cache.path())
         self.hotkeyInput.set_keys(self.config_cache.hotkey())
+        self.primaryMouseSelector.setCurrentIndex(self.primaryMouseSelector.findText(self.config_cache.primary_mouse()))
         self.show_settings_page_save_success_text("Settings reverted to last saved state.")
 
     def start_keyboard_listener(self):
@@ -123,6 +125,7 @@ class SettingsPage(QWidget):
 
         self.pathText = TextInputBox(self, "settingsPagePathText", QSize(550, 40),
                                      "Path to Dead by Daylight game icon files", str(self.config_cache.path()))
+        self.on_path_update()
         self.pathText.textChanged.connect(self.on_path_update)
         self.pathButton = Button(self, "settingsPagePathButton", "Browse for icons folder", QSize(180, 35))
         self.pathButton.clicked.connect(self.set_path)
@@ -133,6 +136,16 @@ class SettingsPage(QWidget):
 
         self.hotkeyInput = HotkeyInput(self, "settingsPageHotkeyInput", QSize(300, 40),
                                        self.stop_keyboard_listener, self.start_keyboard_listener)
+
+        self.accessibilityLabel = TextLabel(self, "settingsPageAccessibilityLabel", "Accessibility Options", Font(12))
+        self.primaryMouseRow = QWidget(self)
+        self.primaryMouseRow.setObjectName("settingsPrimaryMouseRow")
+        self.primaryMouseRowLayout = RowLayout(self.primaryMouseRow, "settingsPrimaryMouseRowLayout")
+
+        self.primaryMouseDescription = TextLabel(self, "settingsPrimaryMouseDescription", "Primary Mouse Button",
+                                                 Font(10))
+        self.primaryMouseSelector = Selector(self, "settingsPagePrimaryMouseSelector", QSize(80, 35),
+                                             ["left", "right"], self.config_cache.primary_mouse())
 
         self.saveRow = QWidget(self)
         self.saveRow.setObjectName("settingsPageSaveRow")
@@ -150,6 +163,10 @@ class SettingsPage(QWidget):
         self.pathRowLayout.addWidget(self.pathButton)
         self.pathRowLayout.addStretch(1)
 
+        self.primaryMouseRowLayout.addWidget(self.primaryMouseDescription)
+        self.primaryMouseRowLayout.addWidget(self.primaryMouseSelector)
+        self.primaryMouseRowLayout.addStretch(1)
+
         self.saveRowLayout.addWidget(self.saveButton)
         self.saveRowLayout.addWidget(self.revertButton)
         self.saveRowLayout.addWidget(self.saveSuccessText)
@@ -161,6 +178,8 @@ class SettingsPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.hotkeyLabel)
         self.scrollAreaContentLayout.addWidget(self.hotkeyDescription)
         self.scrollAreaContentLayout.addWidget(self.hotkeyInput)
+        self.scrollAreaContentLayout.addWidget(self.accessibilityLabel)
+        self.scrollAreaContentLayout.addWidget(self.primaryMouseRow)
         self.scrollAreaContentLayout.addWidget(self.saveRow)
         self.scrollAreaContentLayout.addStretch(1)
 

@@ -28,7 +28,6 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         super().__init__(parent, object_name, "Filter Options (Click to Expand)")
         self.on_click = on_click # when a filter is set
 
-        # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier
         self.filters = QWidget(self)
         self.filters.setMinimumHeight(0)
         self.filters.setMaximumHeight(0)
@@ -92,10 +91,6 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
             label = TextLabel(self.filters, f"{TextUtil.camel_case(unlockable_type)}TypeFilterLabel",
                               TextUtil.title_case(unlockable_type))
             self.filtersLayout.addWidget(label, i, num_character_columns + 3, 1, 1)
-
-        # tier
-        # self.tierHeading = TextLabel(self.filters, "tierHeading", "Tier")
-        # self.filtersLayout.addWidget(self.tierHeading, 2, num_character_columns + 4, 1, 2)
 
         self.filtersLayout.setColumnStretch(999, 1)
         self.filtersLayout.setRowStretch(999, 1)
@@ -698,7 +693,8 @@ class PreferencesPage(QWidget):
         self.importButton.clicked.connect(self.import_profile)
 
         self.profileNotes = MultiLineTextInputBox(self.scrollAreaContent, "preferencesPageProfileNotes",
-                                                  QSize(450, 100), "Notes for this profile")
+                                                  450, 100, 150, "Notes for this profile")
+        self.profileNotes.setPlainText(Config().notes_by_id(self.get_edit_profile()))
 
         # filters
         self.filtersBox = FilterOptionsCollapsibleBox(self.scrollAreaContent, "preferencesPageFiltersBox",

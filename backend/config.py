@@ -13,15 +13,7 @@ class Config:
         with open("config.json") as f:
             self.config = dict(json.load(f))
 
-        # ensure all parameters are legal
-        if "path" not in self.config.keys():
-            self.copy_from_default("path")
-
-        if "hotkey" not in self.config.keys():
-            self.copy_from_default("hotkey")
-
-        if "profiles" not in self.config.keys():
-            self.copy_from_default("profiles")
+        self.commit_changes() # ensure all necessary keys are in (essentially copying missing values)
 
         # TODO set the value instead of raising error (use get_next_free_profile_name)
         ids = []
@@ -46,12 +38,6 @@ class Config:
                         continue
             [profile.pop(invalid_unlockable) for invalid_unlockable in invalid_unlockables]
 
-    def copy_from_default(self, prop):
-        with open("assets/default_config.json") as f:
-            default_config = dict(json.load(f))
-        self.config[prop] = default_config[prop]
-        self.commit_changes()
-
     def top_left(self):
         return self.config["capture"]["top_left_x"], self.config["capture"]["top_left_y"]
 
@@ -60,6 +46,9 @@ class Config:
 
     def hotkey(self):
         return self.config["hotkey"].split(" ")
+
+    def primary_mouse(self):
+        return self.config["primary_mouse"]
 
     def __profiles(self):
         return self.config["profiles"]
@@ -88,12 +77,15 @@ class Config:
         return [profile["id"] for profile in self.__profiles()]
 
     def commit_changes(self):
-        with open("config.json", "w") as output:
-            json.dump({
-                "path": self.config["path"],
-                "hotkey": self.config["hotkey"],
-                "profiles": self.config["profiles"],
-            }, output, indent=4) # to preserve order
+        with open("assets/default_config.json") as default:
+            default_config = dict(json.load(default))
+            with open("config.json", "w") as output:
+                json.dump({
+                    "path": self.config.get("path", default_config["path"]),
+                    "hotkey": self.config.get("hotkey", default_config["hotkey"]),
+                    "primary_mouse": self.config.get("primary_mouse", default_config["primary_mouse"]),
+                    "profiles": self.config.get("profiles", default_config["profiles"]),
+                }, output, indent=4) # to preserve order
 
     def set_path(self, path):
         self.config["path"] = path
@@ -101,6 +93,10 @@ class Config:
 
     def set_hotkey(self, hotkey):
         self.config["hotkey"] = " ".join(hotkey)
+        self.commit_changes()
+
+    def set_primary_mouse(self, primary_mouse):
+        self.config["primary_mouse"] = primary_mouse
         self.commit_changes()
 
     def set_profile(self, updated_profile):
