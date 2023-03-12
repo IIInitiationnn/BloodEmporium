@@ -3,7 +3,7 @@ import sys
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QSize, QTimer
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont, QIcon, QCursor
 from PyQt5.QtWidgets import QLabel, QLineEdit, QCheckBox, QComboBox, QListView, QPushButton, QWidget, QVBoxLayout, \
     QToolButton, QProxyStyle, QStyle, QScrollArea, QScrollBar, QPlainTextEdit
 from pynput import keyboard
@@ -100,6 +100,13 @@ class Selector(QComboBox):
             self.setCurrentIndex(self.findText(active_item))
         self.setView(self.view)
         self.setStyleSheet(StyleSheets.selector)
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, e: QtGui.QWheelEvent) -> None:
+        if self.hasFocus():
+            return QComboBox.wheelEvent(self, e)
+        else:
+            e.ignore()
 
 class Button(QPushButton):
     def __init__(self, parent, object_name, text, size: QSize):
@@ -109,6 +116,7 @@ class Button(QPushButton):
         self.setFont(Font(10))
         self.setText(text)
         self.setStyleSheet(StyleSheets.button)
+        self.setCursor(QCursor(Qt.PointingHandCursor))
 
 class CheckBoxWithFunction(CheckBox):
     def __init__(self, parent, object_name, on_click, style_sheet=StyleSheets.check_box):
@@ -134,6 +142,7 @@ class CollapsibleBox(QWidget):
         self.toggleButton.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.toggleButton.pressed.connect(self.on_pressed)
         self.toggleButton.setStyle(NoShiftStyle())
+        self.toggleButton.setCursor(Qt.PointingHandCursor)
 
         self.layout.addWidget(self.toggleButton, alignment=Qt.AlignTop)
 
@@ -178,18 +187,26 @@ class HotkeyInput(QPushButton):
         self.on_activate = on_activate # on activating THIS button
         self.on_deactivate = on_deactivate # on deactivating THIS button
         self.pressed_keys = []
+        self.pressed_keys_cache = []
         self.setObjectName(object_name)
         self.setFixedSize(size)
         self.setStyleSheet(StyleSheets.button)
-        self.pressed_keys = Config().hotkey()
-        self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
+        self.set_keys(Config().hotkey())
         self.setFont(Font(10))
         self.clicked.connect(self.on_click)
         self.active = False
         self.listener = None
+        self.setCursor(QCursor(Qt.PointingHandCursor))
 
     def on_click(self):
-        if not self.active:
+        if self.active:
+            self.set_keys(self.pressed_keys_cache)
+            self.setStyleSheet(StyleSheets.button)
+            self.on_deactivate()
+            self.stop_keyboard_listener()
+            self.active = False
+        else:
+            self.pressed_keys_cache = self.pressed_keys
             self.pressed_keys = []
             self.setStyleSheet(StyleSheets.button_recording)
             self.setText("Recording keystrokes...")

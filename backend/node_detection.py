@@ -90,7 +90,7 @@ class NodeDetection:
         # print(Counter(match_names))
         # if match_unique_id != "":
         #     index = mode([floor(yi / merged_base.size) for yi in y])
-        #     matched_unlockable = merged_base.images_condensed[(index * size):(index * size + size)]
+        #     matched_unlockable = merged_base.images[(index * size):(index * size + size)]
         #     cv2.imshow("matched unlockable", matched_unlockable)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
@@ -121,7 +121,7 @@ class NodeDetection:
         index = floor(overall_max_loc[1] / size)
         match_unique_id = merged_base.names[index]
 
-        # matched_unlockable = merged_base.images_condensed[(index * size):(index * size + size)]
+        # matched_unlockable = merged_base.images[(index * size):(index * size + size)]
         # cv2.imshow("unlockable from screen", unlockable)
         # cv2.imshow("matched unlockable", matched_unlockable)
         # cv2.waitKey(0)

@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import sys
 
@@ -6,7 +7,7 @@ from PIL import Image, ImageQt
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QToolButton, QInputDialog, QMessageBox, \
-    QFileDialog, QPlainTextEdit
+    QFileDialog
 
 from backend.paths import Path
 from dialogs import InputDialog, ConfirmDialog
@@ -25,9 +26,9 @@ from backend.util.text_util import TextUtil
 class FilterOptionsCollapsibleBox(CollapsibleBox):
     def __init__(self, parent, object_name, on_click):
         super().__init__(parent, object_name, "Filter Options (Click to Expand)")
+        self.on_click = on_click # when a filter is set
 
-        # TODO clear filters button
-        # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier, also sort by tier
+        # TODO new filter for positive / zero / negative tier, positive / zero / negative subtier
         self.filters = QWidget(self)
         self.filters.setMinimumHeight(0)
         self.filters.setMaximumHeight(0)
@@ -36,55 +37,68 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         self.filtersLayout.setContentsMargins(0, 0, 0, 0)
         self.filtersLayout.setSpacing(15)
 
+        self.clearFiltersButton = Button(self.filters, "preferencesPageClearFiltersButton", "Clear Filters",
+                                         QSize(100, 35))
+        self.clearFiltersButton.clicked.connect(self.clear_filters)
+        self.filtersLayout.addWidget(self.clearFiltersButton, 0, 0, 2, 999)
+
         # character
+        self.num_per_row = 10
+        categories = Data.get_categories(True)
+        num_character_columns = math.ceil(len(categories) / self.num_per_row) * 2 + 1 # extra 1 for a gap
         self.characterHeading = TextLabel(self.filters, "characterHeading", "Character")
-        self.filtersLayout.addWidget(self.characterHeading, 0, 0, 1, 2)
+        self.filtersLayout.addWidget(self.characterHeading, 2, 0, 1, num_character_columns)
 
         self.characterCheckBoxes = {}
-        for i, character in enumerate(Data.get_categories(True), 1):
+        for i, character in enumerate(categories):
             checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterCheckBox",
                                             on_click)
             checkbox.setFixedSize(25, 25)
             self.characterCheckBoxes[character] = checkbox
-            self.filtersLayout.addWidget(checkbox, i, 0, 1, 1)
+            self.filtersLayout.addWidget(checkbox, (i % self.num_per_row + 3), (i // self.num_per_row) * 2, 1, 1)
 
             label = TextLabel(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterLabel",
                               TextUtil.title_case(character))
-            self.filtersLayout.addWidget(label, i, 1, 1, 1)
+            self.filtersLayout.addWidget(label, (i % self.num_per_row + 3), (i // self.num_per_row) * 2 + 1, 1, 1)
 
         # rarity
         self.rarityHeading = TextLabel(self.filters, "rarityHeading", "Rarity")
-        self.filtersLayout.addWidget(self.rarityHeading, 0, 2, 1, 2)
+        self.filtersLayout.addWidget(self.rarityHeading, 2, num_character_columns, 1, 2)
 
         self.rarityCheckBoxes = {}
-        for i, rarity in enumerate(Data.get_rarities(), 1):
+        for i, rarity in enumerate(Data.get_rarities(), 3):
             checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(rarity)}RarityFilterCheckBox",
                                             on_click)
             checkbox.setFixedSize(25, 25)
             self.rarityCheckBoxes[rarity] = checkbox
-            self.filtersLayout.addWidget(checkbox, i, 2, 1, 1)
+            self.filtersLayout.addWidget(checkbox, i, num_character_columns, 1, 1)
 
             label = TextLabel(self.filters, f"{TextUtil.camel_case(rarity)}RarityFilterLabel",
                               TextUtil.title_case(rarity))
-            self.filtersLayout.addWidget(label, i, 3, 1, 1)
+            self.filtersLayout.addWidget(label, i, num_character_columns + 1, 1, 1)
 
         # type
         self.typeHeading = TextLabel(self.filters, "typeHeading", "Type")
-        self.filtersLayout.addWidget(self.typeHeading, 0, 4, 1, 2)
+        self.filtersLayout.addWidget(self.typeHeading, 2, num_character_columns + 2, 1, 2)
 
         self.typeCheckBoxes = {}
-        for i, unlockable_type in enumerate(Data.get_types(), 1):
+        for i, unlockable_type in enumerate(Data.get_types(), 3):
             checkbox = CheckBoxWithFunction(self.filters, f"{TextUtil.camel_case(unlockable_type)}TypeFilterCheckBox",
                                             on_click)
             checkbox.setFixedSize(25, 25)
             self.typeCheckBoxes[unlockable_type] = checkbox
-            self.filtersLayout.addWidget(checkbox, i, 4, 1, 1)
+            self.filtersLayout.addWidget(checkbox, i, num_character_columns + 2, 1, 1)
 
             label = TextLabel(self.filters, f"{TextUtil.camel_case(unlockable_type)}TypeFilterLabel",
                               TextUtil.title_case(unlockable_type))
-            self.filtersLayout.addWidget(label, i, 5, 1, 1)
+            self.filtersLayout.addWidget(label, i, num_character_columns + 3, 1, 1)
+
+        # tier
+        # self.tierHeading = TextLabel(self.filters, "tierHeading", "Tier")
+        # self.filtersLayout.addWidget(self.tierHeading, 2, num_character_columns + 4, 1, 2)
 
         self.filtersLayout.setColumnStretch(999, 1)
+        self.filtersLayout.setRowStretch(999, 1)
 
         self.layout.addWidget(self.filters, alignment=Qt.AlignTop)
 
@@ -108,8 +122,14 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
             self.toggleButton.setIcon(QIcon(Icons.down_arrow))
             self.toggleButton.setText("Filter Options (Click to Collapse)")
-            self.filters.setMinimumHeight(40 * len(self.characterCheckBoxes.keys()))
-            self.filters.setMaximumHeight(40 * len(self.characterCheckBoxes.keys()))
+            self.filters.setMinimumHeight(int(40 * (self.num_per_row + 1.5)))
+            self.filters.setMaximumHeight(int(40 * (self.num_per_row + 1.5)))
+
+    def clear_filters(self):
+        for checkboxes in self.characterCheckBoxes, self.rarityCheckBoxes, self.typeCheckBoxes:
+            for checkbox in checkboxes.values():
+                checkbox.setChecked(False)
+        self.on_click()
 
 class UnlockableWidget(QWidget):
     def __init__(self, parent, unlockable: Unlockable, tier, subtier, on_unlockable_select):
@@ -462,7 +482,7 @@ class PreferencesPage(QWidget):
                     return
 
             path, _ = QFileDialog.getOpenFileName(self, "Select .emp File to Import",
-                                               filter="Blood Emporium Profile Files (*.emp)")
+                                                  filter="Blood Emporium Profile Files (*.emp)")
             if path == "":
                 self.ignore_profile_signals = False
                 return
@@ -739,12 +759,13 @@ class PreferencesPage(QWidget):
         self.editDropdownButton.setChecked(False)
         self.editDropdownButton.setFont(Font(10))
         self.editDropdownButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
-        self.editDropdownButton.setText("Edit")
+        self.editDropdownButton.setText("Edit Selected")
         self.editDropdownButton.setIcon(QIcon(Icons.right_arrow))
         self.editDropdownButton.setIconSize(QSize(20, 20))
         self.editDropdownButton.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.editDropdownButton.setStyle(NoShiftStyle())
         self.editDropdownButton.pressed.connect(self.expand_edit)
+        self.editDropdownButton.setCursor(Qt.PointingHandCursor)
 
         self.editDropdownContent = QWidget(self)
         self.editDropdownContent.setObjectName("preferencesPageEditDropdownContent")

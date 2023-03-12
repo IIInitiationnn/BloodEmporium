@@ -157,33 +157,30 @@ class Data:
 
     @staticmethod
     def get_sorts():
-        return ["name", "character", "rarity", "type"]
-
-    @staticmethod
-    def __get_default_ordering(widgets):
-        print(len(widgets))
-        h = [widget for widget in widgets for u_id, u_name, u_category, _, _, _ in Data.__unlockables_rows
-             if Unlockable.generate_unique_id(u_id, u_category) == widget.unlockable.unique_id]
-        print(len(h))
-        return h
+        return ["name", "character", "rarity", "type", "tier"]
 
     @staticmethod
     def filter(unlockable_widgets, name, categories, rarities, types, sort_by=None):
         # category = character
 
-        # technically not needed since unlockable_widgets never changes order
-        # sorted_widgets = Data.__get_default_ordering(unlockable_widgets)
         sorted_widgets = unlockable_widgets
         if sort_by == "name":
-            sorted_widgets = sorted(sorted_widgets, key=lambda widget: widget.unlockable.name.replace("\"", ""))
+            sorted_widgets.sort(key=lambda widget: widget.unlockable.name.replace("\"", ""))
         elif sort_by == "character":
-            sorted_widgets = sorted(sorted_widgets, key=lambda widget: widget.unlockable.category)
+            sorted_widgets.sort(key=lambda widget: widget.unlockable.category)
         elif sort_by == "rarity":
             rarities_enum = {"common": 1, "uncommon": 2, "rare": 3, "very_rare": 4,
                              "ultra_rare": 5, "event": 6, "varies": 7}
-            sorted_widgets = sorted(sorted_widgets, key=lambda widget: rarities_enum[widget.unlockable.rarity])
+            sorted_widgets.sort(key=lambda widget: rarities_enum[widget.unlockable.rarity])
         elif sort_by == "type":
-            sorted_widgets = sorted(sorted_widgets, key=lambda widget: widget.unlockable.type)
+            sorted_widgets.sort(key=lambda widget: widget.unlockable.type)
+        elif sort_by == "tier":
+            def sort(widget):
+                try:
+                    return widget.getTiers()
+                except:
+                    return 1000, 1000
+            sorted_widgets.sort(key=sort, reverse=True)
 
         filtered = []
         for unlockable_widget in sorted_widgets:

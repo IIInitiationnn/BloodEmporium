@@ -30,9 +30,11 @@ class MergedBase:
         self.size = 64
         self.names, self.valid_images = self.__get_valid_images(unlockables)
         self.images = cv2.vconcat(self.valid_images)
-        # sift_extractor = cv2.SIFT_create()
-        # self.keypoints, self.descriptors = sift_extractor.detectAndCompute(self.images_condensed, None)
         self.keypoints, self.descriptors = None, None
+        # sift_extractor = cv2.SIFT_create()
+        # self.keypoints, self.descriptors = sift_extractor.detectAndCompute(self.images, None)
+        # orb_extractor = cv2.ORB_create()
+        # self.keypoints, self.descriptors = orb_extractor.detectAndCompute(self.images, None)
 
     def __get_valid_images(self, unlockables):
         ret_names = []
