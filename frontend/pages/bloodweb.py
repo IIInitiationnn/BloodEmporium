@@ -16,6 +16,10 @@ from backend.config import Config
 from backend.data import Data
 
 class BloodwebPage(QWidget):
+    def on_toggle_naive_mode(self):
+        self.profileSelector.setEnabled(not self.naiveModeCheckBox.isChecked())
+
+
     def on_toggle_prestige_limit(self):
         if self.prestigeCheckBox.isChecked():
             self.prestigeInput.setReadOnly(False)
@@ -70,8 +74,8 @@ class BloodwebPage(QWidget):
 
     def refresh_run_description(self):
         self.pressed_keys = Config().hotkey()
-        self.runDescription.setText("Make sure your game is open on your monitor, and any shaders and visual effects "
-                                    "are off.\n\nShortcut to run or terminate: " +
+        self.runDescription.setText("Make sure your game is open on your primary monitor, and any shaders and visual "
+                                    "effects are off.\n\nShortcut to run or terminate: " +
                                     " + ".join([TextUtil.title_case(k) for k in self.pressed_keys]) +
                                     " (can be changed in settings).")
 
@@ -112,6 +116,7 @@ class BloodwebPage(QWidget):
         self.naiveModeRowLayout = RowLayout(self.naiveModeRow, "bloodwebPageNaiveModeRowLayout")
 
         self.naiveModeCheckBox = CheckBox(self.naiveModeRow, "bloodwebPageNaiveModeCheckBox")
+        self.naiveModeCheckBox.clicked.connect(self.on_toggle_naive_mode)
         self.naiveModeDescription = TextLabel(self.naiveModeRow, "bloodwebPageNaiveModeDescription",
                                               "Enable this mode if you do not care about which items are selected "
                                               "(the currently selected profile will be ignored).")

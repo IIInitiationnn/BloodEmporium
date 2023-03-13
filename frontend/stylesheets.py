@@ -321,7 +321,11 @@ class StyleSheets:
             border: 2px solid rgba(0, 0, 0, 0);
             padding: 0 10px 0 10px;
         }}
-        
+
+        QComboBox::disabled {{
+            color: rgb(125, 125, 125);
+        }}
+
         QComboBox:hover {{
             border: 2px solid {selection};
         }}
