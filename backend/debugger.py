@@ -3,7 +3,7 @@ from typing import List
 
 import cv2
 
-from backend.cvimage import CVImage
+from backend.image import CVImage
 from backend.mergedbase import MergedBase
 from backend.shapes import MatchedNode, LinkedEdge
 from backend.util.node_util import ColorUtil

@@ -12,11 +12,11 @@ from numpy import mean
 from backend.config import Config
 from backend.data import Data
 from backend.edge_detection import EdgeDetection
+from backend.image import CVImage
 from backend.node_detection import NodeDetection
 from backend.util.node_util import NodeType
 from backend.util.timer import Timer
 from debugger import Debugger
-from functions import screen_capture
 from grapher import Grapher
 from mergedbase import MergedBase
 from optimiser import Optimiser
@@ -158,7 +158,7 @@ class StateProcess(Process):
 
                     # screen capture
                     print("capturing screen")
-                    cv_image = screen_capture()
+                    cv_image = CVImage.screen_capture()
                     debugger.set_image(bloodweb_iteration, cv_image)
 
                     # yolov8: detect accessible nodes
@@ -250,7 +250,7 @@ class StateProcess(Process):
 
                     # screen capture
                     print("capturing screen")
-                    cv_image = screen_capture()
+                    cv_image = CVImage.screen_capture()
                     debugger.set_image(bloodweb_iteration, cv_image)
 
                     # yolov8: detect and match all nodes
@@ -372,7 +372,7 @@ class StateProcess(Process):
 
                         # take new picture and update colours
                         print("updating bloodweb")
-                        updated_image = screen_capture()
+                        updated_image = CVImage.screen_capture()
                         debugger.add_updated_image(bloodweb_iteration, update_iteration, updated_image)
 
                         print("yolov8: detect all nodes")

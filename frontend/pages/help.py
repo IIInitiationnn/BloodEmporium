@@ -1,5 +1,4 @@
 import os
-import sys
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QPixmap
@@ -7,8 +6,6 @@ from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QGridLayout
 
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, Icons, ScrollBar, ScrollArea, ScrollAreaContent
 from frontend.layouts import RowLayout
-
-sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 class HelpPage(QWidget):
     def __init__(self):

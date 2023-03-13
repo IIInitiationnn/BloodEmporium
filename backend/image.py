@@ -1,17 +1,34 @@
 import cv2
+import numpy as np
+import pyautogui
+
+class CVImage:
+    """
+    A wrapper around the cropped image.
+    """
+    def __init__(self, image_bgr):
+        self.bgr = image_bgr
+        self.gray = cv2.cvtColor(self.bgr, cv2.COLOR_BGR2GRAY)
+        self.r = cv2.split(self.bgr)[2]
+
+    @staticmethod
+    def screen_capture():
+        screenshot = pyautogui.screenshot()
+        screenshot = np.array(screenshot)[:, :, :: -1].copy()
+        return CVImage(screenshot)
+
+    @staticmethod
+    def from_path_bgr(path):
+        return CVImage(cv2.imread(path, cv2.IMREAD_COLOR))
+
+    def get_bgr(self):
+        return self.bgr.copy()
+
+    def get_gray(self):
+        return self.gray.copy()
+
+    def get_red(self):
+        return self.r.copy()
 
 class Image:
     interpolation = cv2.INTER_CUBIC
-
-    def __init__(self):
-        origin_basic = cv2.split(cv2.imread("training_data/bases/base_larger.png", cv2.IMREAD_UNCHANGED))
-        self.origin_basic_r = origin_basic[2]
-        self.origin_basic_a = origin_basic[3]
-
-        # same with prestige
-
-    def origin_basic_r_resize(self, dim):
-        return cv2.resize(self.origin_basic_r, (dim, dim), interpolation=Image.interpolation)
-
-    def origin_basic_a_resize(self, dim):
-        return cv2.resize(self.origin_basic_a, (dim, dim), interpolation=Image.interpolation)
