@@ -6,14 +6,17 @@ from exceptions import ConfigError
 
 
 class Config:
-    def __init__(self):
-        if not os.path.isfile("config.json"):
-            copyfile("assets/default_config.json", "config.json")
+    def __init__(self, validate=False):
+        if validate:
+            if not os.path.isfile("config.json"):
+                copyfile("assets/default_config.json", "config.json")
 
-        with open("config.json") as f:
+            with open("config.json", "r") as f:
+                self.config = dict(json.load(f))
+            self.commit_changes() # ensure all necessary keys are in (essentially copying missing values)
+
+        with open("config.json", "r") as f:
             self.config = dict(json.load(f))
-
-        self.commit_changes() # ensure all necessary keys are in (essentially copying missing values)
 
         # TODO set the value instead of raising error (use get_next_free_profile_name)
         ids = []
@@ -77,7 +80,7 @@ class Config:
         return [profile["id"] for profile in self.__profiles()]
 
     def commit_changes(self):
-        with open("assets/default_config.json") as default:
+        with open("assets/default_config.json", "r") as default:
             default_config = dict(json.load(default))
             with open("config.json", "w") as output:
                 json.dump({

@@ -37,10 +37,11 @@ venv/Lib/site-packages/torch/nn/modules/upsampling.py Class BasePredictor self.a
 
 TRAINING
 yolov8 node detection
-yolo cfg="hyperparameters.yaml"
+yolo cfg="hyperparameters nodes v3.yaml"
 
 yolov5obb edge detection
-python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 0 --adam
+cd yolov5_obb
+python train.py --hyp "../hyperparameters edges v2.yaml" --weights "../../node-detector/edges v1.pt" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 FOR 1.0.0
 - edges model
@@ -99,6 +100,8 @@ class StateProcess(Process):
         timestamp = datetime.now()
         primary_mouse = Config().primary_mouse()
         try:
+            pyautogui.FAILSAFE = False
+
             dev_mode, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
             Timer.PRINT = dev_mode
             log = logging.getLogger()
@@ -124,8 +127,6 @@ class StateProcess(Process):
 
             sys.stdout = LoggerWriter(log.debug)
             sys.stderr = LoggerWriter(log.warning)
-
-            pyautogui.FAILSAFE = False
 
             node_detector = NodeDetection()
 
@@ -394,7 +395,6 @@ class StateProcess(Process):
                         update_iteration += 1
                     bloodweb_iteration += 1
         except:
-            pyautogui.mouseUp(mouse=primary_mouse)
             traceback.print_exc()
             self.emit("terminate")
             self.emit("toggle_text", (f"An error occurred. Please check "
@@ -419,6 +419,7 @@ class State:
 
     def terminate(self):
         if self.is_active():
+            pyautogui.mouseUp(button=Config().primary_mouse()) # release if was held
             self.process.terminate()
             self.process = None
             print("process terminated")

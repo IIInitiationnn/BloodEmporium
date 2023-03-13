@@ -14,7 +14,6 @@ from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, 
     QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
 from parse import parse
 
-from backend.util.timer import Timer
 from dialogs import UpdateDialog
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
 from frontend.layouts import RowLayout
@@ -26,6 +25,7 @@ from frontend.stylesheets import StyleSheets
 
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
+from backend.config import Config
 from backend.state import State
 
 # auto-update code courtesy of DAzVise#1666
@@ -821,6 +821,7 @@ class Emitter(QObject, Thread):
 
 if __name__ == "__main__":
     freeze_support() # --onedir (for exe)
+    Config(True) # validate config
 
     os.environ["QT_DEVICE_PIXEL_RATIO"] = "0"
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"

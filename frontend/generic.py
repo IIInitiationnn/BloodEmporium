@@ -212,6 +212,7 @@ class Icons:
     discord = __base + "/icon_discord.png"
     twitter = __base + "/icon_twitter.png"
 
+# TODO space shouldnt deselect
 class HotkeyInput(QPushButton):
     def __init__(self, parent, object_name, size, on_activate, on_deactivate):
         super().__init__(parent)
