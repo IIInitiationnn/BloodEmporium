@@ -45,10 +45,9 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 
 FOR 1.0.0
 - edges model
-- beeline
-- help page + readme
 
 POST 1.0.0
+- beeline
 - "you have unsaved changes" next to save button - profiles, settings
 - program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
 - summary on items obtained by the application
