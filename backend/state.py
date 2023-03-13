@@ -44,8 +44,8 @@ python train.py --hyp hyperparameters.yaml --data ../datasets/roboflow/data.yaml
 
 FOR 1.0.0
 - edges model
-- accessibility settings: swap lmb and rmb
 - additive algorithm??? + beeline
+- help page + readme
 
 POST 1.0.0
 - "you have unsaved changes" next to save button - profiles, settings

@@ -234,7 +234,7 @@ class HotkeyInput(QPushButton):
             self.set_keys(self.pressed_keys_cache)
             self.setStyleSheet(StyleSheets.button)
             self.on_deactivate()
-            self.stop_keyboard_listener()
+            self.stop_recording_listener()
             self.active = False
         else:
             self.pressed_keys_cache = self.pressed_keys
@@ -242,14 +242,14 @@ class HotkeyInput(QPushButton):
             self.setStyleSheet(StyleSheets.button_recording)
             self.setText("Recording keystrokes...")
             self.on_activate()
-            self.start_keyboard_listener()
+            self.start_recording_listener()
             self.active = True
 
-    def start_keyboard_listener(self):
+    def start_recording_listener(self):
         self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
         self.listener.start()
 
-    def stop_keyboard_listener(self):
+    def stop_recording_listener(self):
         self.listener.stop()
         self.listener = None
 
@@ -262,7 +262,7 @@ class HotkeyInput(QPushButton):
         self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
 
         self.active = False
-        self.stop_keyboard_listener()
+        self.stop_recording_listener()
         self.on_deactivate()
         self.setStyleSheet(StyleSheets.button)
 

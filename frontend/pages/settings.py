@@ -64,24 +64,24 @@ class SettingsPage(QWidget):
         self.primaryMouseSelector.setCurrentIndex(self.primaryMouseSelector.findText(self.config_cache.primary_mouse()))
         self.show_settings_page_save_success_text("Settings reverted to last saved state.")
 
-    def start_keyboard_listener(self):
-        self.listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
-        self.listener.start()
+    def start_hotkey_listener(self):
+        self.hotkey_listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
+        self.hotkey_listener.start()
 
-    def stop_keyboard_listener(self):
-        self.listener.stop()
-        self.listener = None
+    def stop_hotkey_listener(self):
+        self.hotkey_listener.stop()
+        self.hotkey_listener = None
 
     def on_key_down(self, key):
-        if self.listener is not None:
-            key = TextUtil.pynput_to_key_string(self.listener, key)
+        if self.hotkey_listener is not None:
+            key = TextUtil.pynput_to_key_string(self.hotkey_listener, key)
             self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
-            if self.pressed_keys == Config().hotkey():
+            if sorted(self.pressed_keys) == sorted(Config().hotkey()):
                 self.run_terminate()
 
     def on_key_up(self, key):
-        if self.listener is not None:
-            key = TextUtil.pynput_to_key_string(self.listener, key)
+        if self.hotkey_listener is not None:
+            key = TextUtil.pynput_to_key_string(self.hotkey_listener, key)
             try:
                 self.pressed_keys.remove(key)
             except ValueError:
@@ -89,7 +89,7 @@ class SettingsPage(QWidget):
 
     def __init__(self, run_terminate, bloodweb_page):
         super().__init__()
-        self.listener = None
+        self.hotkey_listener = None
         self.pressed_keys = []
         self.config_cache = Config()
         self.setObjectName("settingsPage")
@@ -135,7 +135,7 @@ class SettingsPage(QWidget):
                                            "Shortcut to run or terminate the automatic bloodweb process.", Font(10))
 
         self.hotkeyInput = HotkeyInput(self, "settingsPageHotkeyInput", QSize(300, 40),
-                                       self.stop_keyboard_listener, self.start_keyboard_listener)
+                                       self.stop_hotkey_listener, self.start_hotkey_listener)
 
         self.accessibilityLabel = TextLabel(self, "settingsPageAccessibilityLabel", "Accessibility Options", Font(12))
         self.primaryMouseRow = QWidget(self)

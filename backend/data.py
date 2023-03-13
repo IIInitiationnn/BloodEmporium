@@ -163,7 +163,7 @@ class Data:
     def filter(unlockable_widgets, name, categories, rarities, types, sort_by=None):
         # category = character
 
-        sorted_widgets = unlockable_widgets
+        sorted_widgets = unlockable_widgets.copy()
         if sort_by == "name":
             sorted_widgets.sort(key=lambda widget: widget.unlockable.name.replace("\"", ""))
         elif sort_by == "character":
