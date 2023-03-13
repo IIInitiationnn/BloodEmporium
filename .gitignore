@@ -1,12 +1,21 @@
-*.html
+\*.html
+*.spec
+*.emp
+
+!onedir.spec
+!onefile.spec
+
 compile.json
 config.json
 config_mine.json
-*.spec
-!onedir.spec
-!onefile.spec
-temp.py
+fast.txt
+
+frontend/base.py
+frontend/test*.py
+frontend/*.ui
+frontend/*.qrc
 cheapskate.py
+temp.py
 
 .idea/
 __pycache__/
@@ -17,8 +26,3 @@ output/
 investigate/
 references/
 yolov5_obb/
-
-frontend/base.py
-frontend/test*.py
-frontend/*.ui
-frontend/*.qrc

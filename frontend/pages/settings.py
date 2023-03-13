@@ -65,10 +65,12 @@ class SettingsPage(QWidget):
         self.show_settings_page_save_success_text("Settings reverted to last saved state.")
 
     def start_hotkey_listener(self):
+        print("listening for hotkey start")
         self.hotkey_listener = keyboard.Listener(on_press=self.on_key_down, on_release=self.on_key_up)
         self.hotkey_listener.start()
 
     def stop_hotkey_listener(self):
+        print("listening for hotkey end")
         self.hotkey_listener.stop()
         self.hotkey_listener = None
 
@@ -76,6 +78,7 @@ class SettingsPage(QWidget):
         if self.hotkey_listener is not None:
             key = TextUtil.pynput_to_key_string(self.hotkey_listener, key)
             self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
+            print(self.pressed_keys)
             if sorted(self.pressed_keys) == sorted(Config().hotkey()):
                 self.run_terminate()
 

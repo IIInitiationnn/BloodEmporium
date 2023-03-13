@@ -15,6 +15,7 @@ class Optimiser:
 
     def __init__(self, graph):
         self.base_graph = graph
+        self.shortest_paths = dict(nx.all_pairs_shortest_path(self.base_graph))
         self.dijkstra_graph = None
 
     def dijkstra(self, node_id, tier, subtier):
@@ -53,6 +54,32 @@ class Optimiser:
 
         return heatmap
 
+    def dijkstra_multiplier(self, src_node, tier, subtier):
+        heatmap = copy.deepcopy(self.base_graph)
+
+        # the lower this number, the higher the priority
+        desired_value = -(Optimiser.TIER_VALUE * tier + subtier * Optimiser.SUBTIER_VALUE)
+        base_data = self.base_graph.nodes[src_node]
+        nx.set_node_attributes(heatmap, GraphNode.from_dict(base_data, value=desired_value).get_dict())
+
+        # for this graph, if the node is already accessible, its value cannot be decreased or increased by neighbours
+        if heatmap.nodes[src_node]["cls_name"] == NodeType.ACCESSIBLE:
+            return heatmap
+
+        for dst_node in self.shortest_paths[src_node].keys():
+            if dst_node == src_node:
+                continue
+            for i, intermediate_node in enumerate(self.shortest_paths[src_node][dst_node]):
+                # dist = 0 => divide by 1, dist = 1 => divide by 2 etc.
+                averaged_value = round(desired_value / (i + 1)) # averaged over number of nodes required to obtain
+
+                if heatmap.nodes[intermediate_node]["value"] > averaged_value:
+                    nx.set_node_attributes(heatmap, GraphNode.from_dict(heatmap.nodes[intermediate_node],
+                                                                        value=averaged_value).get_dict())
+                if heatmap.nodes[intermediate_node]["cls_name"] == NodeType.ACCESSIBLE:
+                    break
+        return heatmap
+
     @staticmethod
     def add_graphs(graphs):
         total = copy.deepcopy(graphs[0])
@@ -80,7 +107,7 @@ class Optimiser:
             if data["cls_name"] in NodeType.MULTI_UNCLAIMED:
                 tier, subtier = config.preference_by_id(data["name"], profile_id)
                 if tier > 0 or (tier == 0 and subtier > 0): # desirable and unclaimed
-                    graphs.append(self.dijkstra(node_id, tier, subtier))
+                    graphs.append(self.dijkstra_multiplier(node_id, tier, subtier))
                 elif tier < 0 or (tier == 0 and subtier < 0): # undesirable and unclaimed
                     heatmap = copy.deepcopy(self.base_graph)
                     cost = heatmap.nodes[node_id]["value"] - \

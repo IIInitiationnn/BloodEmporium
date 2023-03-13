@@ -41,11 +41,11 @@ yolo cfg="hyperparameters nodes v3.yaml"
 
 yolov5obb edge detection
 cd yolov5_obb
-python train.py --hyp "../hyperparameters edges v2.yaml" --weights "../../node-detector/edges v1.pt" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
+python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 FOR 1.0.0
 - edges model
-- additive algorithm??? + beeline
+- beeline
 - help page + readme
 
 POST 1.0.0
@@ -100,8 +100,6 @@ class StateProcess(Process):
         timestamp = datetime.now()
         primary_mouse = Config().primary_mouse()
         try:
-            pyautogui.FAILSAFE = False
-
             dev_mode, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
             Timer.PRINT = dev_mode
             log = logging.getLogger()
@@ -127,6 +125,8 @@ class StateProcess(Process):
 
             sys.stdout = LoggerWriter(log.debug)
             sys.stderr = LoggerWriter(log.warning)
+
+            pyautogui.FAILSAFE = False
 
             node_detector = NodeDetection()
 

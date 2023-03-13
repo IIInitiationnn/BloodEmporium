@@ -117,8 +117,8 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
             self.toggleButton.setIcon(QIcon(Icons.down_arrow))
             self.toggleButton.setText("Filter Options (Click to Collapse)")
-            self.filters.setMinimumHeight(int(40 * (self.num_per_row + 1.5)))
-            self.filters.setMaximumHeight(int(40 * (self.num_per_row + 1.5)))
+            self.filters.setMinimumHeight(round(40 * (self.num_per_row + 1.5)))
+            self.filters.setMaximumHeight(round(40 * (self.num_per_row + 1.5)))
 
     def clear_filters(self):
         for checkboxes in self.characterCheckBoxes, self.rarityCheckBoxes, self.typeCheckBoxes:

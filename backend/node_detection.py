@@ -45,18 +45,18 @@ class NodeDetection:
 
     def preprocess_unlockable(self, xyxy, screenshot, size):
         x1, y1, x2, y2 = xyxy
-        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
         height, width = y2 - y1, x2 - x1 # original dim
 
         # cut out border
         margin_fraction = 4.5 # (1 / margin_fraction) around each side cut out
-        margin_y, margin_x = int(height / margin_fraction), int(width / margin_fraction)
+        margin_y, margin_x = round(height / margin_fraction), round(width / margin_fraction)
         height, width = height - 2 * margin_y, width - 2 * margin_x # dim after removing margins
         unlockable = screenshot[(y1 + margin_y):(y2 - margin_y), (x1 + margin_x):(x2 - margin_x)]
 
         # (assuming size = 64) resize to (64, x) or (x, 64) where x <= 64
-        size = (size, int(size / height * width)) if height > width else \
-            (int(size / width * height), size)
+        size = (size, round(size / height * width)) if height > width else \
+            (round(size / width * height), size)
         return cv2.resize(unlockable, size, interpolation=Image.interpolation)
 
     def match_unlockable_sift(self, xyxy, screenshot, merged_base: MergedBase) -> Optional[MatchedNode]:
@@ -106,7 +106,7 @@ class NodeDetection:
         # apply template matching
         for ratio in [0.8, 1, 0.9, 0.95, 0.85, 0.875, 0.975, 0.925, 0.825]: # TODO accuracy isnt perfect
             h, w = unlockable.shape
-            h, w = int(ratio * h), int(ratio * w)
+            h, w = round(ratio * h), round(ratio * w)
             if (h, w) in tried_shapes:
                 continue
             result = cv2.matchTemplate(merged_base.images, cv2.resize(unlockable, (h, w)), cv2.TM_CCOEFF_NORMED)
@@ -133,7 +133,7 @@ class NodeDetection:
         filtered = self.filter_by_class(results, [NodeType.ACCESSIBLE, NodeType.PRESTIGE])
         if len(filtered) > 0:
             (x1, y1, x2, y2), confidence, cls = random.choice(filtered)
-            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+            x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
             cls_name = self.CLASS_NAMES_DICT[cls]
 
             if self.CLASS_NAMES_DICT[cls] == NodeType.ACCESSIBLE:
@@ -156,7 +156,7 @@ class NodeDetection:
             cls_name = self.CLASS_NAMES_DICT[cls]
 
             # filter only those with sufficiently high confidence until more robust model TODO remove with better model
-            box = Box(int(x1), int(y1), int(x2), int(y2))
+            box = Box(round(x1), round(y1), round(x2), round(y2))
             if cls_name in [NodeType.ORIGIN, NodeType.CLAIMED, NodeType.ACCESSIBLE,
                             NodeType.INACCESSIBLE, NodeType.STOLEN, NodeType.VOID]:
                 for node in nodes:
