@@ -18,7 +18,7 @@ from yolov5_obb.utils.rboxs_utils import rbox2poly
 class EdgeDetection:
     def __init__(self):
         # load model on init
-        self.model = DetectMultiBackend("assets/models/edges v1.pt")
+        self.model = DetectMultiBackend("assets/models/edges v2.pt")
         self.model.float()
 
         # get custom names from custom model
@@ -40,7 +40,8 @@ class EdgeDetection:
         img_rescaled /= 255  # 0 - 255 to 0.0 - 1.0
 
         results = self.model(img_rescaled)
-        results = non_max_suppression_obb(results, 0.8, 0.45, None, False, multi_label=True, max_det=100)
+        # confidence threshold is 2nd parameter in this
+        results = non_max_suppression_obb(results, 0.6, 0.45, None, False, multi_label=True, max_det=100)
         results = results[0] # only one image
 
         pred_poly = rbox2poly(results[:, :5]) # (n, [x1 y1 x2 y2 x3 y3 x4 y4])
@@ -57,17 +58,16 @@ class EdgeDetection:
         timer = Timer()
         edges = []
         for x1, y1, x2, y2, x3, y3, x4, y4, confidence, cls in results: # cls not useful
-            if confidence > 0.8: # TODO remove with better model
-                closests = []
-                for (x, y) in [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]:
-                    closest = min(matched_nodes, key=lambda node: node.box.centre().distance_xy(x, y))
-                    if closest not in closests and closest.box.centre().distance_xy(x, y) < avg_diameter:
-                        closests.append(closest)
-                    if len(closests) > 2:
-                        continue
-                if len(closests) == 2:
-                    new_edge = LinkedEdge(*closests)
-                    if not any([new_edge == edge for edge in edges]):
-                        edges.append(new_edge)
+            closests = []
+            for (x, y) in [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]:
+                closest = min(matched_nodes, key=lambda node: node.box.centre().distance_xy(x, y))
+                if closest not in closests and closest.box.centre().distance_xy(x, y) < avg_diameter:
+                    closests.append(closest)
+                if len(closests) > 2:
+                    continue
+            if len(closests) == 2:
+                new_edge = LinkedEdge(*closests)
+                if not any([new_edge == edge for edge in edges]):
+                    edges.append(new_edge)
         timer.update("link_edges")
         return edges

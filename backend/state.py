@@ -43,11 +43,8 @@ yolov5obb edge detection
 cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
-FOR 1.0.0
-- edges model
-
 POST 1.0.0
-- beeline
+- beeline?
 - "you have unsaved changes" next to save button - profiles, settings
 - program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
 - summary on items obtained by the application
@@ -73,7 +70,7 @@ class LoggerWriter(object):
 
 '''
 TODO possible improvements:
-- better model
+- model
     - high res 5:4 (done)
     - low res 4:3 (done)
     - high res 4:3 (done)
@@ -83,6 +80,8 @@ TODO possible improvements:
     - add some images containing transitions (new level) to train model to not classify them as prestiges (done)
       may be able to retire the 0.7 arbitrary threshold after this
     - diff icon packs?
+    - clean up remaining edges
+    - lower ui scale (esp for edges)
 '''
 
 class StateProcess(Process):
@@ -401,7 +400,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.0-alpha.4"
+    version = "v1.0.0-alpha.5"
 
     def __init__(self, pipe):
         self.process = None
