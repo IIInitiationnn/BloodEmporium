@@ -403,7 +403,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.0-alpha.5"
+    version = "v1.0.0"
 
     def __init__(self, pipe):
         self.process = None
