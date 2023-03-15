@@ -36,10 +36,23 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         self.filtersLayout.setContentsMargins(0, 0, 0, 0)
         self.filtersLayout.setSpacing(15)
 
+        # filter buttons
+        self.filterButtonsRow = QWidget(self)
+        self.filterButtonsRow.setObjectName("preferencesPageFilterButtonsRow")
+        self.filterButtonsRowLayout = RowLayout(self.filterButtonsRow, "preferencesPageFilterButtonsRowLayout")
+
         self.clearFiltersButton = Button(self.filters, "preferencesPageClearFiltersButton", "Clear Filters",
                                          QSize(100, 35))
         self.clearFiltersButton.clicked.connect(self.clear_filters)
-        self.filtersLayout.addWidget(self.clearFiltersButton, 0, 0, 2, 999)
+
+        self.killersFiltersButton = Button(self.filters, "preferencesPageKillersFiltersButton", "Select All Killers",
+                                           QSize(125, 35))
+        self.killersFiltersButton.clicked.connect(self.filter_killers)
+
+        self.filterButtonsRowLayout.addWidget(self.clearFiltersButton)
+        self.filterButtonsRowLayout.addWidget(self.killersFiltersButton)
+        self.filterButtonsRowLayout.addStretch(1)
+        self.filtersLayout.addWidget(self.filterButtonsRow, 0, 0, 2, 999)
 
         # character
         self.num_per_row = 10
@@ -124,6 +137,13 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         for checkboxes in self.characterCheckBoxes, self.rarityCheckBoxes, self.typeCheckBoxes:
             for checkbox in checkboxes.values():
                 checkbox.setChecked(False)
+        self.on_click()
+
+    def filter_killers(self):
+        killers = Data.get_killers(False)
+        for character, checkbox in self.characterCheckBoxes.items():
+            if character in killers:
+                checkbox.setChecked(True)
         self.on_click()
 
 class UnlockableWidget(QWidget):

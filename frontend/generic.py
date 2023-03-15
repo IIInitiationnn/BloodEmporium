@@ -102,8 +102,9 @@ class MultiLineTextInputBox(QPlainTextEdit):
 
     def focusOutEvent(self, event: QtGui.QFocusEvent) -> None:
         super().focusOutEvent(event)
-        self.animate()
-        TextInputBox.on_focus_out_callback()
+        if not self.isReadOnly():
+            self.animate()
+            TextInputBox.on_focus_out_callback()
 
     def animate(self):
         self.animation = QPropertyAnimation(self, b"minimumHeight")
