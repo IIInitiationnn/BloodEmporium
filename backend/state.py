@@ -43,6 +43,9 @@ yolov5obb edge detection
 cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
+1.0.1
+- 6.6.2 changes to skull merchant rarities (database, default config)
+
 POST 1.0.0
 - tier slider
 - shift selection and unselection
@@ -99,7 +102,8 @@ class StateProcess(Process):
 
     def run(self):
         timestamp = datetime.now()
-        primary_mouse = Config().primary_mouse()
+        config = Config()
+        primary_mouse = config.primary_mouse()
         try:
             dev_mode, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
             Timer.PRINT = dev_mode
@@ -141,6 +145,7 @@ class StateProcess(Process):
             unlockables = Data.get_unlockables()
             num_custom = len([u for u in unlockables if u.is_custom_icon])
             print(f"using {num_custom} custom icons and {len(unlockables) - num_custom} vanilla icons")
+            print(f"using profile: {profile_id}")
             merged_base = MergedBase(character)
             pyautogui.moveTo(0, 0)
 
@@ -403,7 +408,8 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.0"
+    version = "v1.0.1"
+    pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):
         self.process = None
