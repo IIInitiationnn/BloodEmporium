@@ -3287,7 +3287,7 @@
                 "subtier": 0
             },
             "iconAddon_ExpiredBatteries_skull merchant": {
-                "tier": -2,
+                "tier": -3,
                 "subtier": 0
             },
             "iconAddon_AdvancedMovementPrediction_skull merchant": {
@@ -3295,7 +3295,7 @@
                 "subtier": 0
             },
             "iconAddon_PrototypeRotor_skull merchant": {
-                "tier": -3,
+                "tier": -2,
                 "subtier": 0
             },
             "iconAddon_IridescentUnpublishedManuscript_skull merchant": {
@@ -6815,7 +6815,7 @@
                 "subtier": 0
             },
             "iconAddon_ExpiredBatteries_skull merchant": {
-                "tier": -3,
+                "tier": -4,
                 "subtier": 0
             },
             "iconAddon_AdvancedMovementPrediction_skull merchant": {
@@ -6823,7 +6823,7 @@
                 "subtier": 0
             },
             "iconAddon_PrototypeRotor_skull merchant": {
-                "tier": -4,
+                "tier": -3,
                 "subtier": 0
             },
             "iconAddon_IridescentUnpublishedManuscript_skull merchant": {

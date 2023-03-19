@@ -44,9 +44,10 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 1.0.1
-- 6.6.2 changes to skull merchant rarities (database, default config)
+- log for main process
 
 POST 1.0.0
+- faster one-dir
 - tier slider
 - shift selection and unselection
 - maybe undo and redo last selection buttons at bottom
