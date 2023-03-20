@@ -7,7 +7,7 @@ from util.node_util import ColorUtil, NodeType
 class GraphNode:
     def __init__(self, node_id, name, value, box: Box, cls_name):
         self.node_id = node_id # number on graph 1, 2, ...
-        self.name = name.replace(".png", "") # aka unique_id # TODO does this need to replace .png?
+        self.name = name.replace(".png", "") # aka unique_id
         self.value = value
         self.x1, self.y1, self.x2, self.y2 = box.xyxy()
         self.cls_name = cls_name

@@ -248,7 +248,7 @@ class StateProcess(Process):
             else:
                 print("running in aware mode")
                 edge_detector = EdgeDetection()
-                while True: # TODO could set limit on this
+                while True:
                     if prestige_limit is not None and prestige_total == prestige_limit:
                         print("reached prestige limit. terminating")
                         self.emit("terminate")

@@ -155,7 +155,7 @@ class NodeDetection:
                                                 result.boxes.cls.numpy()[0]
             cls_name = self.CLASS_NAMES_DICT[cls]
 
-            # filter only those with sufficiently high confidence until more robust model TODO remove with better model
+            # filter only those with sufficiently high confidence until more robust model
             box = Box(round(x1), round(y1), round(x2), round(y2))
             if cls_name in [NodeType.ORIGIN, NodeType.CLAIMED, NodeType.ACCESSIBLE,
                             NodeType.INACCESSIBLE, NodeType.STOLEN, NodeType.VOID]:

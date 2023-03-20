@@ -428,7 +428,6 @@ class MainWindow(QMainWindow):
 
     def __init__(self, state_pipe_, emitter, dev_mode):
         super().__init__()
-        # TODO windows up + windows down; cursor when hovering over buttons
         self.is_maximized = False
         self.state = State(state_pipe_)
 
@@ -453,9 +452,6 @@ class MainWindow(QMainWindow):
         self.corner_grips = [QSizeGrip(self) for _ in range(4)]
         for corner_grip in self.corner_grips:
             corner_grip.setStyleSheet("background-color: transparent;")
-
-        # self.shortcut = QShortcut(QKeySequence(Qt.Key_Meta + Qt.Key_Up), self) # TODO
-        # self.shortcut.activated.connect(self.maximize)
 
         # central widget
         self.centralWidget = QWidget(self)

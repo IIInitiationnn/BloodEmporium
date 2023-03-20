@@ -13,7 +13,6 @@ from frontend.stylesheets import StyleSheets
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 from backend.config import Config
-from backend.data import Data
 from backend.util.text_util import TextUtil
 
 class SettingsPage(QWidget):
@@ -43,7 +42,7 @@ class SettingsPage(QWidget):
 
     def save_settings(self):
         path = self.pathText.text()
-        if not Data.verify_path(path):
+        if not Config.verify_path(path):
             self.show_settings_page_save_fail_text("Ensure path is an actual folder (can be empty if you are not using "
                                                    "custom icons). Changes not saved.")
             return

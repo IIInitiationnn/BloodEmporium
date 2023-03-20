@@ -258,7 +258,7 @@ class PreferencesPage(QWidget):
 
         profile = config.get_profile_by_id(profile_id)
 
-        non_integer = Data.verify_tiers(self.unlockableWidgets)
+        non_integer = Config.verify_tiers(self.unlockableWidgets)
         if len(non_integer) > 0:
             return True
 
@@ -342,7 +342,7 @@ class PreferencesPage(QWidget):
         updated_profile = Config().get_profile_by_id(profile_id).copy()
         updated_profile["notes"] = self.profileNotes.toPlainText()
 
-        non_integer = Data.verify_tiers(self.unlockableWidgets)
+        non_integer = Config.verify_tiers(self.unlockableWidgets)
         if len(non_integer) > 0:
             self.show_preferences_page_save_error(f"There are {len(non_integer)} unlockables with invalid "
                                                   "inputs. Inputs must be a number from -999 to 999. Changes "
@@ -362,7 +362,7 @@ class PreferencesPage(QWidget):
 
     def save_to_profile(self, title, label_text, ok_button_text, index=None):
         # check for invalid tiers
-        non_integer = Data.verify_tiers(self.unlockableWidgets)
+        non_integer = Config.verify_tiers(self.unlockableWidgets)
         if len(non_integer) > 0:
             self.show_preferences_page_save_error(f"There are {len(non_integer)} unlockables with "
                                                   "invalid inputs. Inputs must be a number from -999 to "

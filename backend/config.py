@@ -90,6 +90,22 @@ class Config:
                     "profiles": self.config.get("profiles", default_config["profiles"]),
                 }, output, indent=4) # to preserve order
 
+    @staticmethod
+    def verify_tiers(widgets):
+        non_integer = []
+        for widget in widgets:
+            try:
+                tier, subtier = widget.getTiers()
+                if abs(tier) > 999 or abs(subtier) > 999:
+                    non_integer.append(widget.unlockable.name)
+            except ValueError:
+                non_integer.append(widget.unlockable.name)
+        return non_integer
+
+    @staticmethod
+    def verify_path(path):
+        return os.path.isdir(path)
+
     def set_path(self, path):
         self.config["path"] = path
         self.commit_changes()
