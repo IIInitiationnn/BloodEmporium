@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, 
     QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
 from parse import parse
 
-from dialogs import UpdateDialog
+from frontend.dialogs import UpdateDialog
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
 from frontend.layouts import RowLayout
 from frontend.pages.bloodweb import BloodwebPage

@@ -12,6 +12,13 @@ Any bug reports, requests for technical support, or suggestions can be submitted
 This project is free and open-source. Any [donations](https://www.paypal.me/IIInitiationnn) are appreciated,
 but absolutely not necessary. Please consider your own financial situation before donating!
 
+## Overview
+A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a quick summary of how the app works.
+- Automatically selects optimal nodes on the Bloodweb based on user-configured preferences.
+- Uses a cost algorithm to determine optimally how to select maximal preferred unlockables and minimal undesirable ones.
+- Uses game icon files to identify nodes on the Bloodweb.
+- Should not be bannable since there are no interactions with the game's memory or process.
+
 ## Installation
 1. Download the latest release [here](https://github.com/IIInitiationnn/BloodEmporium/releases/latest) - make sure you
 download `Blood Emporium.version.zip` and not the source code.
@@ -19,12 +26,6 @@ download `Blood Emporium.version.zip` and not the source code.
 does not contain any special unicode characters (see [#5](https://github.com/IIInitiationnn/BloodEmporium/issues/5)).
 3. Run `Blood Emporium.exe` and check the `Settings` section to make sure the app is ready to run. For more information,
 see below; there is also a `Help` section in the app.
-
-## Overview
-- Automatically selects optimal nodes on the Bloodweb based on user-configured preferences.
-- Uses a cost algorithm to determine optimally how to select maximal preferred unlockables and minimal undesirable ones.
-- Uses game icon files to identify nodes on the Bloodweb.
-- Should not be bannable since there are no interactions with the game's memory or process.
 
 ## Configuration
 - You will be able to set your preferences and dislikes for certain addons, items, offerings and perks.

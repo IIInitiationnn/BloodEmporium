@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QToolButt
     QFileDialog
 
 from backend.paths import Path
-from dialogs import InputDialog, ConfirmDialog
+from frontend.dialogs import InputDialog, ConfirmDialog
 from frontend.generic import Font, TextLabel, TextInputBox, Selector, Button, CheckBoxWithFunction, CheckBox, \
     CollapsibleBox, Icons, NoShiftStyle, ScrollBar, ScrollArea, ScrollAreaContent, MultiLineTextInputBox
 from frontend.layouts import RowLayout

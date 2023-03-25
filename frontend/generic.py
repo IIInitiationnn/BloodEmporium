@@ -110,7 +110,7 @@ class MultiLineTextInputBox(QPlainTextEdit):
         self.animation = QPropertyAnimation(self, b"minimumHeight")
         self.animation.setDuration(500)
         self.animation.setStartValue(self.minimumHeight())
-        self.animation.setEndValue(self.full_height if self.height() == self.small_height else self.small_height)
+        self.animation.setEndValue(self.full_height if self.hasFocus() else self.small_height)
         self.animation.setEasingCurve(QEasingCurve.InOutQuint)
         self.animation.start()
 
