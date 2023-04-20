@@ -21,26 +21,26 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 
 ## Installation
 1. Download the latest release [here](https://github.com/IIInitiationnn/BloodEmporium/releases/latest) - make sure you
-download `Blood Emporium.version.zip` and not the source code.
+   download `Blood Emporium.version.zip` and not the source code.
 2. Extract the ZIP archive at a folder of your choice. Please make sure the path to this folder
-does not contain any special unicode characters (see [#5](https://github.com/IIInitiationnn/BloodEmporium/issues/5)).
+   does not contain any special unicode characters (see [#5](https://github.com/IIInitiationnn/BloodEmporium/issues/5)).
 3. Run `Blood Emporium.exe` and check the `Settings` section to make sure the app is ready to run. For more information,
-see below; there is also a `Help` section in the app.
+   see below; there is also a `Help` section in the app.
 
 ## Configuration
 - You will be able to set your preferences and dislikes for certain addons, items, offerings and perks.
-  - Each unlockable you configure will have a tier and subtier:
-    - The higher the tier (or subtier), the higher your preference for that unlockable.
-    - The lower the tier (or subtier), the lower your preference for that unlockable.
-    - You do not need to configure unlockables for which you have a neutral preference.
-    (tier and subtier are both automatically 0 in this case)
-      - Any unlockables not in the profile will be assumed to be neutral (tier and subtier 0).
-    - Tiers and subtiers can range from -999 to 999.
-    - Tier (A + B) unlockable is equivalent in preference to a tier A unlockable + tier B unlockable.
-      - For instance, a single tier 2 unlockable is equivalent to two tier 1 unlockables.
-      - You can use these numbers to fine tune exactly how much you want each unlockable.
-    - Similar mechanics apply with negative tiers to specify how much you dislike an unlockable.
-    - Subtier allows for preference within a tier e.g. tier 3 subtier 3 is higher priority than tier 3 subtier 2.
+    - Each unlockable you configure will have a tier and subtier:
+        - The higher the tier (or subtier), the higher your preference for that unlockable.
+        - The lower the tier (or subtier), the lower your preference for that unlockable.
+        - You do not need to configure unlockables for which you have a neutral preference.
+          (tier and subtier are both automatically 0 in this case)
+            - Any unlockables not in the profile will be assumed to be neutral (tier and subtier 0).
+        - Tiers and subtiers can range from -999 to 999.
+        - Tier (A + B) unlockable is equivalent in preference to a tier A unlockable + tier B unlockable.
+            - For instance, a single tier 2 unlockable is equivalent to two tier 1 unlockables.
+            - You can use these numbers to fine tune exactly how much you want each unlockable.
+        - Similar mechanics apply with negative tiers to specify how much you dislike an unlockable.
+        - Subtier allows for preference within a tier e.g. tier 3 subtier 3 is higher priority than tier 3 subtier 2.
 - Each profile can store a different set of preferences, for easy switching when required.
 - You can import and export profiles as `.emp` files to share with others.
 
@@ -51,7 +51,7 @@ see below; there is also a `Help` section in the app.
 - Hotkey to run / stop the program (default: Ctrl + Alt + 9).
 - Completely automatic and hands-free - and now, fast!
 
-## Issues
+## Notes
 - Icon packs with similar-looking icons are more likely to cause incorrect object recognition, which may result in
   incorrect or suboptimal selection.
 - Shaders or game filters must be disabled while using this program, as colour changes interfere with object and colour recognition.
@@ -59,6 +59,14 @@ see below; there is also a `Help` section in the app.
 ## Roadmap & Future Developments
 - Automatic termination upon depleting bloodpoints.
 - Summary of unlockables obtained after running.
+
+## Known Issues
+- Windows Defender and some other antivirus applications may be reporting a threat. This is due to a library used to
+  compile the application. You should be able to configure your antivirus to ignore these files until this is resolved.
+  To document that this software contains no malicious content, here are some threads detailing the problem:
+    - https://github.com/pyinstaller/pyinstaller/issues/6754
+    - https://www.reddit.com/r/learnpython/comments/ng3hmp/pyinstaller_create_onefile_exe_windows/
+    - https://stackoverflow.com/questions/43777106/program-made-with-pyinstaller-now-seen-as-a-trojan-horse-by-avg
 
 ## Credits
 - Icons taken from [The Noun Project](https://thenounproject.com/).

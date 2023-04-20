@@ -44,6 +44,8 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 POST 1.0.0
+- moris, reagents getting confused?
+- backup configs every time they are written to, max of 100?
 - log for main process
 - tier slider
 - shift selection and unselection
