@@ -35,7 +35,7 @@ class Data:
         print(f"error")
 
     __cursor = __connection.cursor()
-    __cursor.execute("SELECT * FROM unlockables")
+    __cursor.execute("SELECT id, name, category, rarity, notes, type FROM unlockables ORDER BY \"order\"")
     __unlockables_rows = __cursor.fetchall()
 
     __cursor.execute("SELECT * FROM killers")
