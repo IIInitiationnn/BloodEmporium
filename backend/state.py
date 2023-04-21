@@ -44,6 +44,7 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 POST 1.0.0
+- preferences page: changing profile maintains tier order (need to refresh sort when sorting by tier)
 - moris, reagents getting confused?
 - backup configs every time they are written to, max of 100?
 - log for main process
@@ -408,7 +409,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.1.0"
+    version = "v1.0.2"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):
