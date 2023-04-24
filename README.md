@@ -5,7 +5,7 @@
 A program to automatically level the Bloodweb in the game Dead by Daylight.
 
 ## Developer Notes
-Assets for icon recognition are up-to-date as of Dead by Daylight Patch 6.6.2 (CHAPTER 27: Tools of Torment).\
+Assets for icon recognition are up-to-date as of Dead by Daylight Patch 6.7.0 (CHAPTER 27: Tools of Torment).\
 To contact me about this project, or if you have any inquiries, please join the [Discord](https://discord.gg/J4KCqJJuaM).
 Any bug reports, requests for technical support, or suggestions can be submitted either through this server or
 [GitHub issues](https://github.com/IIInitiationnn/BloodEmporium/issues).\
@@ -57,10 +57,14 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 - Shaders or game filters must be disabled while using this program, as colour changes interfere with object and colour recognition.
 
 ## Roadmap & Future Developments
+- Incorporating new bloodweb features from 6.7.0.
 - Automatic termination upon depleting bloodpoints.
 - Summary of unlockables obtained after running.
 
 ## Known Issues
+- Auto-updating via the app is currently bugged. You will need to manually install new versions from the Releases page
+  until this is resolved. To migrate your profile and settings, simply copy your `config.json` file from your old
+  installation to your new one.
 - Windows Defender and some other antivirus applications may be reporting a threat. This is due to a library used to
   compile the application. You should be able to configure your antivirus to ignore these files until this is resolved.
   To document that this software contains no malicious content, here are some threads detailing the problem:
