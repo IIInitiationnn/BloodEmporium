@@ -1,6 +1,7 @@
 {
     "path": "C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons",
     "hotkey": "ctrl alt 9",
+    "interaction": "press",
     "primary_mouse": "left",
     "profiles": [
         {

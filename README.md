@@ -54,7 +54,8 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 ## Notes
 - Icon packs with similar-looking icons are more likely to cause incorrect object recognition, which may result in
   incorrect or suboptimal selection.
-- Shaders or game filters must be disabled while using this program, as colour changes interfere with object and colour recognition.
+- Shaders, game filters, and colourblind modes must be disabled while using this program,
+  as colour changes interfere with object and colour recognition.
 
 ## Roadmap & Future Developments
 - Incorporating new bloodweb features from 6.7.0.

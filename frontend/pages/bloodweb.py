@@ -74,8 +74,9 @@ class BloodwebPage(QWidget):
 
     def refresh_run_description(self):
         self.pressed_keys = Config().hotkey()
-        self.runDescription.setText("Make sure your game is open on your primary monitor, and any shaders and visual "
-                                    "effects are off.\nIf the app is not selecting unlockables in the bloodweb, try "
+        self.runDescription.setText("Make sure your game is open on your primary monitor; shaders, visual "
+                                    "effects, colourblind modes, or any other colour modifications should be disabled."
+                                    "\nIf the app is not selecting unlockables in the bloodweb, try "
                                     "running the app as an administrator.\n\nShortcut to run or terminate: " +
                                     " + ".join([TextUtil.title_case(k) for k in self.pressed_keys]) +
                                     " (can be changed in settings).")

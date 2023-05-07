@@ -15,6 +15,7 @@ from backend.edge_detection import EdgeDetection
 from backend.image import CVImage
 from backend.node_detection import NodeDetection
 from backend.util.node_util import NodeType
+from backend.util.text_util import TextUtil
 from backend.util.timer import Timer
 from debugger import Debugger
 from grapher import Grapher
@@ -51,7 +52,6 @@ POST 1.0.0
 - tier slider
 - shift selection and unselection
 - maybe undo and redo last selection buttons at bottom
-- beeline?
 - "you have unsaved changes" next to save button - profiles, settings
 - program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
 - summary on items obtained by the application
@@ -76,19 +76,22 @@ class LoggerWriter(object):
             self._msg = ""
 
 '''
-TODO possible improvements:
-- model
-    - high res 5:4 (done)
-    - low res 4:3 (done)
-    - high res 4:3 (done)
-    - mid res 8:5 (done)
-    - high res 8:9 (done)
-    - more backgrounds - scour old videos (done - could always get more)
-    - add some images containing transitions (new level) to train model to not classify them as prestiges (done)
-      may be able to retire the 0.7 arbitrary threshold after this
-    - diff icon packs?
-    - clean up remaining edges
-    - lower ui scale (esp for edges)
+hhh for new images (90% train, 10% val):
+    - 1920 x 2160 (8:9 high)
+    - 1280 x 1024 (5:4 low)
+    - 2700 x 2160 (5:4 high)
+    - 1280 x 960 (4:3 low)
+    - 2880 x 2160 (4:3 high)
+    - 1280 x 800 (8:5 low)
+    - 2560 x 1600 (8:5 high)
+    - 1280 x 720 (16:9 low)
+    - 1920 x 1080 (16:9 mid)
+    - 2560 x 1440 (16:9 high)
+    - diff icon packs
+    - with bloodpoints vs broke
+    - diff bgs if possible
+TODO
+    - clean up edges
 '''
 
 class StateProcess(Process):
@@ -97,6 +100,28 @@ class StateProcess(Process):
         self.pipe = pipe
         self.args = args
 
+    def mouse_click(self, primary_mouse, interaction):
+        pyautogui.mouseDown(button=primary_mouse)
+        if interaction == "press":
+            pyautogui.moveTo(0, 0)
+        else: # hold
+            time.sleep(0.15)
+            pyautogui.moveTo(0, 0)
+            time.sleep(0.15)
+        pyautogui.mouseUp(button=primary_mouse)
+
+    def prestige_hold(self, primary_mouse):
+        pyautogui.mouseDown(button=primary_mouse)
+        time.sleep(1.5)
+        pyautogui.mouseUp(button=primary_mouse)
+        time.sleep(4) # 4 sec to clear out until new level screen
+        pyautogui.click(button=primary_mouse)
+        time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
+        pyautogui.click(button=primary_mouse)
+        time.sleep(0.5) # 1 sec to generate
+        pyautogui.moveTo(0, 0)
+        time.sleep(0.5) # 1 sec to generate
+
     # send data to main process via pipe
     def emit(self, signal_name, payload=()):
         self.pipe.send((signal_name, payload))
@@ -104,6 +129,7 @@ class StateProcess(Process):
     def run(self):
         timestamp = datetime.now()
         config = Config()
+        interaction = config.interaction()
         primary_mouse = config.primary_mouse()
         try:
             dev_mode, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
@@ -198,21 +224,12 @@ class StateProcess(Process):
                         self.emit("prestige", (prestige_total, prestige_limit))
                         self.emit("bloodpoint", (bp_total, bp_limit))
                         pyautogui.moveTo(*centre.xy())
-                        pyautogui.mouseDown(button=primary_mouse)
-                        time.sleep(1.5)
-                        pyautogui.mouseUp(button=primary_mouse)
-                        time.sleep(4) # 4 sec to clear out until new level screen
-                        pyautogui.click(button=primary_mouse)
-                        time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
-                        pyautogui.click(button=primary_mouse)
-                        time.sleep(0.5) # 1 sec to generate
-                        pyautogui.moveTo(0, 0)
-                        time.sleep(0.5) # 1 sec to generate
+                        self.prestige_hold(primary_mouse)
                         continue
 
                     # accessible
-                    selected_unlockable = [u for u in unlockables if u.unique_id == matched_node.unique_id][0]
-                    bp_total += Data.get_cost(selected_unlockable.rarity)
+                    best_unlockable = [u for u in unlockables if u.unique_id == matched_node.unique_id][0]
+                    bp_total += Data.get_cost(best_unlockable.rarity)
                     if bp_limit is not None and bp_total > bp_limit:
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
@@ -229,11 +246,7 @@ class StateProcess(Process):
 
                     # select perk: hold on the perk for 0.3s
                     pyautogui.moveTo(*centre.xy())
-                    pyautogui.mouseDown(button=primary_mouse)
-                    time.sleep(0.15)
-                    pyautogui.moveTo(0, 0)
-                    time.sleep(0.15)
-                    pyautogui.mouseUp(button=primary_mouse)
+                    self.mouse_click(primary_mouse, interaction)
 
                     # mystery box: click
                     if "mysteryBox" in matched_node.unique_id:
@@ -292,16 +305,7 @@ class StateProcess(Process):
                         self.emit("bloodpoint", (bp_total, bp_limit))
                         centre = matched_nodes[0].box.centre()
                         pyautogui.moveTo(*centre.xy())
-                        pyautogui.mouseDown(button=primary_mouse)
-                        time.sleep(1.5)
-                        pyautogui.mouseUp(button=primary_mouse)
-                        time.sleep(4) # 4 sec to clear out until new level screen
-                        pyautogui.click(button=primary_mouse)
-                        time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
-                        pyautogui.click(button=primary_mouse)
-                        time.sleep(0.5) # 1 sec to generate
-                        pyautogui.moveTo(0, 0)
-                        time.sleep(0.5) # 1 sec to generate
+                        self.prestige_hold(primary_mouse)
                         continue
 
                     # yolov5obb: detect and link all edges
@@ -318,57 +322,65 @@ class StateProcess(Process):
                     debugger.set_base_bloodweb(bloodweb_iteration, base_bloodweb)
 
                     print("NODES")
-                    max_len = max([len(node.unique_id) for node in matched_nodes])
-                    for node_id, data in base_bloodweb.nodes.items():
-                        print(f"    {str(node_id).ljust(2, ' ')} "
-                              f"{str(data['name']).ljust(max_len, ' ')} "
-                              f"{data['cls_name']}")
+                    print(TextUtil.justify(4, [[node_id, data["name"], data["cls_name"]]
+                                               for node_id, data in base_bloodweb.nodes.items()]))
                     print("EDGES")
-                    for edge in base_bloodweb.edges:
-                        print(f"    {str(edge[0]).ljust(2, ' ')} "
-                              f"{base_bloodweb.nodes[edge[0]]['name'].ljust(max_len, ' ')} "
-                              f"{str(edge[1]).ljust(2, ' ')} "
-                              f"{base_bloodweb.nodes[edge[1]]['name']}")
+                    print(TextUtil.justify(4, [[edge[0], base_bloodweb.nodes[edge[0]]["name"], edge[1],
+                                                base_bloodweb.nodes[edge[1]]["name"]] for edge in base_bloodweb.edges]))
 
                     if dev_mode:
                         debugger.construct_and_show_images(bloodweb_iteration)
 
                     update_iteration = 0
+                    dijkstra_graphs = []
                     while True:
                         # run through optimiser
                         print("optimiser")
                         optimiser = Optimiser(base_bloodweb)
                         optimiser.run(profile_id)
                         debugger.set_dijkstra(bloodweb_iteration, update_iteration, optimiser.dijkstra_graph)
-                        print("    updated nodes")
-                        for node_id, data in optimiser.dijkstra_graph.nodes.items():
-                            print(f"        {str(node_id).ljust(2, ' ')} "
-                                  f"{str(data['name']).ljust(max_len, ' ')} "
-                                  f"{str(data['value']).ljust(10, ' ')} "
-                                  f"{data['cls_name']}")
+                        dijkstra_graphs.append(optimiser.dijkstra_graph)
+                        objs = []
+                        if update_iteration == 0: # initial dijkstra
+                            print("    initial nodes")
+                            for node_id, data in optimiser.dijkstra_graph.nodes.items():
+                                objs.append([node_id, data["name"], data["value"], data["cls_name"]])
+                        else: # updated dijkstra: any changes are shown from previous => current
+                            print("    updated nodes")
+                            last_graph = dijkstra_graphs[-2].nodes
+                            for node_id, data in optimiser.dijkstra_graph.nodes.items():
+                                last_data = last_graph[node_id]
+                                value_changed = last_data["value"] != data["value"]
+                                cls_name_changed = last_data["cls_name"] != data["cls_name"]
+                                if value_changed or cls_name_changed:
+                                    objs.append([node_id, data["name"],
+                                                 (last_data["value"] if value_changed else ""),
+                                                 ("=>" if value_changed else ""),
+                                                 data["value"],
+                                                 (last_data["cls_name"] if cls_name_changed else ""),
+                                                 ("=>" if cls_name_changed else ""),
+                                                 data["cls_name"]])
+                        print(TextUtil.justify(8, objs))
 
-                        optimal_unlockable = optimiser.select_best()
-                        selected_unlockable = [u for u in unlockables if u.unique_id == optimal_unlockable.name][0]
-                        bp_total += Data.get_cost(selected_unlockable.rarity)
+                        best_node = optimiser.select_best()
+                        best_unlockable = [u for u in unlockables if u.unique_id == best_node.name][0]
+                        bp_total += Data.get_cost(best_unlockable.rarity)
                         if bp_limit is not None and bp_total > bp_limit:
-                            print(f"{optimal_unlockable.node_id}: reached bloodpoint limit. terminating")
+                            print(f"{best_node.node_id} ({best_node.name}): reached bloodpoint limit. terminating")
                             self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                             return
 
-                        print(optimal_unlockable.node_id)
+                        print(f"{best_node.node_id} ({best_node.name})")
                         self.emit("bloodpoint", (bp_total, bp_limit))
 
-                        # select perk: hold on the perk for 0.3s
-                        pyautogui.moveTo(optimal_unlockable.x, optimal_unlockable.y)
-                        pyautogui.mouseDown(button=primary_mouse)
-                        time.sleep(0.15)
-                        pyautogui.moveTo(0, 0)
-                        time.sleep(0.15)
-                        pyautogui.mouseUp(button=primary_mouse)
+                        # select perk: press OR hold on the perk for 0.3s
+                        pyautogui.moveTo(best_node.x, best_node.y)
+                        self.mouse_click(primary_mouse, interaction)
+                        grab_time = time.time()
 
                         # mystery box: click
-                        if "mysteryBox" in optimal_unlockable.name:
+                        if "mysteryBox" in best_node.name:
                             print("mystery box selected")
                             time.sleep(0.9)
                             pyautogui.click(button=primary_mouse)
@@ -385,7 +397,7 @@ class StateProcess(Process):
                         print("yolov8: detect all nodes")
                         updated_results = node_detector.predict(updated_image.get_bgr())
                         updated_nodes = node_detector.get_nodes(updated_results)
-                        new_level = Grapher.update(base_bloodweb, updated_nodes, optimal_unlockable)
+                        new_level = Grapher.update(base_bloodweb, updated_nodes, best_node)
 
                         # new level
                         if new_level:
@@ -398,6 +410,10 @@ class StateProcess(Process):
                             pyautogui.click(button=primary_mouse)
                             time.sleep(2) # 2 secs to generate
                             break
+                        # else: # wait for bloodweb to update
+                        #     time_since_grab = time.time() - grab_time
+                        #     if time_since_grab < 0.75:
+                        #         time.sleep(0.75 - time_since_grab)
 
                         update_iteration += 1
                     bloodweb_iteration += 1
@@ -409,7 +425,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.0.2"
+    version = "v1.1.0"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):

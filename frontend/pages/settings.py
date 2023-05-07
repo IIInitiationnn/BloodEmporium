@@ -52,6 +52,7 @@ class SettingsPage(QWidget):
         config = Config()
         config.set_path(path)
         config.set_hotkey(hotkey)
+        config.set_interaction(self.interactionSelector.currentText())
         config.set_primary_mouse(self.primaryMouseSelector.currentText())
         self.config_cache = Config()
         self.bloodweb_page.refresh_run_description()
@@ -137,11 +138,21 @@ class SettingsPage(QWidget):
                                        self.stop_hotkey_listener, self.start_hotkey_listener)
 
         self.accessibilityLabel = TextLabel(self, "settingsPageAccessibilityLabel", "Accessibility Options", Font(12))
-        self.primaryMouseRow = QWidget(self)
-        self.primaryMouseRow.setObjectName("settingsPrimaryMouseRow")
-        self.primaryMouseRowLayout = RowLayout(self.primaryMouseRow, "settingsPrimaryMouseRowLayout")
 
-        self.primaryMouseDescription = TextLabel(self, "settingsPrimaryMouseDescription", "Primary Mouse Button",
+        self.interactionRow = QWidget(self)
+        self.interactionRow.setObjectName("settingsPageInteractionRow")
+        self.interactionRowLayout = RowLayout(self.interactionRow, "settingsPageInteractionRowLayout")
+
+        self.interactionDescription = TextLabel(self, "settingsPageInteractionDescription", "Bloodweb Interaction Mode",
+                                                Font(10))
+        self.interactionSelector = Selector(self, "settingsPageInteractionSelector", QSize(85, 35),
+                                            ["press", "hold"], self.config_cache.interaction())
+
+        self.primaryMouseRow = QWidget(self)
+        self.primaryMouseRow.setObjectName("settingsPagePrimaryMouseRow")
+        self.primaryMouseRowLayout = RowLayout(self.primaryMouseRow, "settingsPagePrimaryMouseRowLayout")
+
+        self.primaryMouseDescription = TextLabel(self, "settingsPagePrimaryMouseDescription", "Primary Mouse Button",
                                                  Font(10))
         self.primaryMouseSelector = Selector(self, "settingsPagePrimaryMouseSelector", QSize(80, 35),
                                              ["left", "right"], self.config_cache.primary_mouse())
@@ -162,6 +173,10 @@ class SettingsPage(QWidget):
         self.pathRowLayout.addWidget(self.pathButton)
         self.pathRowLayout.addStretch(1)
 
+        self.interactionRowLayout.addWidget(self.interactionDescription)
+        self.interactionRowLayout.addWidget(self.interactionSelector)
+        self.interactionRowLayout.addStretch(1)
+
         self.primaryMouseRowLayout.addWidget(self.primaryMouseDescription)
         self.primaryMouseRowLayout.addWidget(self.primaryMouseSelector)
         self.primaryMouseRowLayout.addStretch(1)
@@ -178,6 +193,7 @@ class SettingsPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.hotkeyDescription)
         self.scrollAreaContentLayout.addWidget(self.hotkeyInput)
         self.scrollAreaContentLayout.addWidget(self.accessibilityLabel)
+        self.scrollAreaContentLayout.addWidget(self.interactionRow)
         self.scrollAreaContentLayout.addWidget(self.primaryMouseRow)
         self.scrollAreaContentLayout.addWidget(self.saveRow)
         self.scrollAreaContentLayout.addStretch(1)

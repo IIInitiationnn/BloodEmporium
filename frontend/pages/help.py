@@ -60,8 +60,9 @@ class HelpPage(QWidget):
              "you can select a preference profile, and the app will choose unlockables according to that profile. "
              "If you do not care about what you obtain, naive mode will randomly select unlockables instead. "
              "Select a profile, character to level, run mode, set any limits you want, and run! "
-             "Make sure any shaders or game filters are off before running, and that your game is unobstructed "
-             "on your primary monitor, or the program is very likely to perform in unintended ways.</p>")
+             "Make sure any shaders, game filters, or colourblind modes are off before running, "
+             "and that your game is unobstructed on your primary monitor, "
+             "or the program is very likely to perform in unintended ways.</p>")
         self.instructionsLabel = TextLabel(self, "helpPageInstructionsLabel", "How to Use Blood Emporium", Font(12))
         self.instructionsDescription = TextLabel(self, "helpPageInstructionsDescription", d, Font(10))
         self.instructionsDescription.setWordWrap(True)

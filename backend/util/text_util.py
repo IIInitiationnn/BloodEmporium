@@ -16,3 +16,19 @@ class TextUtil:
         except AttributeError:
             key_string = str(key_string).replace("Key.", "")
         return key_string
+
+    @staticmethod
+    def justify(initial_pad, objs): # objs: list of lists
+        maxes = {}
+        for obj in objs:
+            for i, attr in enumerate(obj):
+                attr_len = len(str(attr))
+                maxes[i] = attr_len if i not in maxes else max(attr_len, maxes[i])
+
+        obj_texts = []
+        for obj in objs:
+            attr_texts = []
+            for i, attr in enumerate(obj):
+                attr_texts.append(str(attr).ljust(maxes[i], " "))
+            obj_texts.append(" " * initial_pad + " ".join(attr_texts))
+        return "\n".join(obj_texts)

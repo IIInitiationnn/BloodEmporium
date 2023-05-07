@@ -50,6 +50,9 @@ class Config:
     def hotkey(self):
         return self.config["hotkey"].split(" ")
 
+    def interaction(self):
+        return self.config["interaction"]
+
     def primary_mouse(self):
         return self.config["primary_mouse"]
 
@@ -86,6 +89,7 @@ class Config:
                 json.dump({
                     "path": self.config.get("path", default_config["path"]),
                     "hotkey": self.config.get("hotkey", default_config["hotkey"]),
+                    "interaction": self.config.get("interaction", default_config["interaction"]),
                     "primary_mouse": self.config.get("primary_mouse", default_config["primary_mouse"]),
                     "profiles": self.config.get("profiles", default_config["profiles"]),
                 }, output, indent=4) # to preserve order
@@ -112,6 +116,10 @@ class Config:
 
     def set_hotkey(self, hotkey):
         self.config["hotkey"] = " ".join(hotkey)
+        self.commit_changes()
+
+    def set_interaction(self, interaction):
+        self.config["interaction"] = interaction
         self.commit_changes()
 
     def set_primary_mouse(self, primary_mouse):
