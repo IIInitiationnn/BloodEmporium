@@ -44,6 +44,15 @@ yolov5obb edge detection
 cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
+1.1.0
+- 6.7.0 changes
+- saving runtime config
+- bloodpoint spend cost without using item rarity (top right bloodweb balance is more accurate)
+- modes: naive, aware (single-claim), aware (multi-claim)
+- speeds: slow (wait for bloodweb update) VS fast (may be one update behind)
+- auto buy for early levels IF correct origin
+- config backup or some other method of preventing config corruption when reading / writing
+
 POST 1.0.0
 - preferences page: changing profile maintains tier order (need to refresh sort when sorting by tier)
 - moris, reagents getting confused?
