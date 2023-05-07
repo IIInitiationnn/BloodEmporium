@@ -16,9 +16,10 @@ from backend.config import Config
 from backend.data import Data
 
 class BloodwebPage(QWidget):
-    def on_toggle_naive_mode(self):
-        self.profileSelector.setEnabled(not self.naiveModeCheckBox.isChecked())
-
+    def on_select_run_mode(self, mode):
+        self.naiveCheckBox.setChecked(mode == "naive")
+        self.awareCheckBox.setChecked(mode == "aware")
+        self.profileSelector.setEnabled(mode != "naive")
 
     def on_toggle_prestige_limit(self):
         if self.prestigeCheckBox.isChecked():
@@ -108,20 +109,30 @@ class BloodwebPage(QWidget):
         self.profileSelector = Selector(self, "bloodwebPageProfileSelector", QSize(250, 40), Config().profile_names())
 
         self.characterLabel = TextLabel(self, "bloodwebPageCharacterLabel", "Character", Font(12))
+        self.characterDescription = TextLabel(self, "bloodwebPageCharacterDescription",
+                                              "Select the character whose bloodweb you are levelling.")
         self.characterSelector = Selector(self, "bloodwebPageCharacterSelector", QSize(150, 40),
                                           Data.get_characters(True))
 
-        self.naiveModeLabel = TextLabel(self, "bloodwebPageNaiveModeLabel", "Naive Mode", Font(12))
+        self.runModeLabel = TextLabel(self, "bloodwebPageRunModeLabel", "Run Mode", Font(12))
 
-        self.naiveModeRow = QWidget(self)
-        self.naiveModeRow.setObjectName("bloodwebPageNaiveModeRow")
-        self.naiveModeRowLayout = RowLayout(self.naiveModeRow, "bloodwebPageNaiveModeRowLayout")
+        self.naiveRow = QWidget(self)
+        self.naiveRow.setObjectName("bloodwebPageNaiveRow")
+        self.naiveRowLayout = RowLayout(self.naiveRow, "bloodwebPageNaiveRowLayout")
+        self.naiveCheckBox = CheckBox(self.naiveRow, "bloodwebPageNaiveCheckBox")
+        self.naiveCheckBox.clicked.connect(lambda: self.on_select_run_mode("naive"))
+        self.naiveDescription = TextLabel(self.naiveRow, "bloodwebPageNaiveDescription",
+                                          "Naive mode: selected profile will be ignored and auto-buy will be used "
+                                          "where possible (use if you do not care about which items are selected).")
 
-        self.naiveModeCheckBox = CheckBox(self.naiveModeRow, "bloodwebPageNaiveModeCheckBox")
-        self.naiveModeCheckBox.clicked.connect(self.on_toggle_naive_mode)
-        self.naiveModeDescription = TextLabel(self.naiveModeRow, "bloodwebPageNaiveModeDescription",
-                                              "Enable this mode if you do not care about which items are selected "
-                                              "(the currently selected profile will be ignored).")
+        self.awareRow = QWidget(self)
+        self.awareRow.setObjectName("bloodwebPageAwareRow")
+        self.awareRowLayout = RowLayout(self.awareRow, "bloodwebPageAwareRowLayout")
+        self.awareCheckBox = CheckBox(self.awareRow, "bloodwebPageAwareCheckBox")
+        self.awareCheckBox.setChecked(True)
+        self.awareCheckBox.clicked.connect(lambda: self.on_select_run_mode("aware"))
+        self.awareDescription = TextLabel(self.awareRow, "bloodwebPageAwareDescription",
+                                          "Aware mode: items will be selected according to your preference profile.")
 
         self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
         self.limitsDescription = TextLabel(self, "bloodwebPageLimitsDescription",
@@ -193,9 +204,12 @@ class BloodwebPage(QWidget):
         self.runPrestigeProgress = TextLabel(self, "bloodwebPageRunPrestigeProgress", "", Font(10))
         self.runBloodpointProgress = TextLabel(self, "bloodwebPageRunBloodpointProgress", "", Font(10))
 
-        self.naiveModeRowLayout.addWidget(self.naiveModeCheckBox)
-        self.naiveModeRowLayout.addWidget(self.naiveModeDescription)
-        self.naiveModeRowLayout.addStretch(1)
+        self.naiveRowLayout.addWidget(self.naiveCheckBox)
+        self.naiveRowLayout.addWidget(self.naiveDescription)
+        self.naiveRowLayout.addStretch(1)
+        self.awareRowLayout.addWidget(self.awareCheckBox)
+        self.awareRowLayout.addWidget(self.awareDescription)
+        self.awareRowLayout.addStretch(1)
 
         self.prestigeRowLayout.addWidget(self.prestigeCheckBox)
         self.prestigeRowLayout.addWidget(self.prestigeLabel)
@@ -216,9 +230,11 @@ class BloodwebPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.profileLabel)
         self.scrollAreaContentLayout.addWidget(self.profileSelector)
         self.scrollAreaContentLayout.addWidget(self.characterLabel)
+        self.scrollAreaContentLayout.addWidget(self.characterDescription)
         self.scrollAreaContentLayout.addWidget(self.characterSelector)
-        self.scrollAreaContentLayout.addWidget(self.naiveModeLabel)
-        self.scrollAreaContentLayout.addWidget(self.naiveModeRow)
+        self.scrollAreaContentLayout.addWidget(self.runModeLabel)
+        self.scrollAreaContentLayout.addWidget(self.naiveRow)
+        self.scrollAreaContentLayout.addWidget(self.awareRow)
         self.scrollAreaContentLayout.addWidget(self.limitsLabel)
         self.scrollAreaContentLayout.addWidget(self.limitsDescription)
         self.scrollAreaContentLayout.addWidget(self.prestigeRow)

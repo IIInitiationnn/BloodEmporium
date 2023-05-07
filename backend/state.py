@@ -48,8 +48,7 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 - 6.7.0 changes
 - saving runtime config
 - bloodpoint spend cost without using item rarity (top right bloodweb balance is more accurate)
-- modes: naive, aware (single-claim), aware (multi-claim)
-- speeds: slow (wait for bloodweb update) VS fast (may be one update behind)
+- accuracy vs speed: accuracy (wait for bloodweb update) VS speed (may be one update behind)
 - auto buy for early levels IF correct origin
 - config backup or some other method of preventing config corruption when reading / writing
 
@@ -141,7 +140,7 @@ class StateProcess(Process):
         interaction = config.interaction()
         primary_mouse = config.primary_mouse()
         try:
-            dev_mode, write_to_output, profile_id, character, is_naive_mode, prestige_limit, bp_limit = self.args
+            dev_mode, write_to_output, profile_id, character, run_mode, prestige_limit, bp_limit = self.args
             Timer.PRINT = dev_mode
             log = logging.getLogger()
             log.setLevel(logging.DEBUG)
@@ -189,7 +188,7 @@ class StateProcess(Process):
             debugger.set_merged_base(merged_base)
 
             bloodweb_iteration = 0
-            if is_naive_mode:
+            if run_mode == "naive":
                 print("running in naive mode")
                 while True:
                     if prestige_limit is not None and prestige_total == prestige_limit:
@@ -421,8 +420,10 @@ class StateProcess(Process):
                             break
                         # else: # wait for bloodweb to update
                         #     time_since_grab = time.time() - grab_time
-                        #     if time_since_grab < 0.75:
-                        #         time.sleep(0.75 - time_since_grab)
+                        #     # press:
+                        #     # hold: after press 0.85 for colour change, 1.45 for full
+                        #     if time_since_grab < 0.85:
+                        #         time.sleep(0.85 - time_since_grab)
 
                         update_iteration += 1
                     bloodweb_iteration += 1
