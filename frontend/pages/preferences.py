@@ -670,7 +670,8 @@ class PreferencesPage(QWidget):
         self.profileSaveRow.setObjectName("preferencesPageProfileSaveRow")
         self.profileSaveRowLayout = RowLayout(self.profileSaveRow, "preferencesPageProfileSaveRowLayout")
 
-        self.profileLabel = TextLabel(self.scrollAreaContent, "preferencesPageProfileLabel", "Profile", Font(12))
+        self.profileLabel = TextLabel(self.scrollAreaContent, "preferencesPageProfileLabel", "Preference Profile",
+                                      Font(12))
 
         self.profileSelector = Selector(self.profileSaveRow, "preferencesPageProfileSelector", QSize(250, 40),
                                         config.profile_names())

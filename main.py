@@ -26,6 +26,7 @@ from frontend.stylesheets import StyleSheets
 sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 from backend.config import Config
+from backend.runtime import Runtime
 from backend.state import State
 
 # auto-update code courtesy of DAzVise#1666
@@ -326,20 +327,6 @@ class MainWindow(QMainWindow):
         self.animation.start()
 
     # bloodweb
-    def get_runtime_profile(self):
-        return self.bloodwebPage.profileSelector.currentText()
-
-    def get_runtime_character(self):
-        return self.bloodwebPage.characterSelector.currentText()
-
-    def get_runtime_mode(self):
-        if self.bloodwebPage.naiveCheckBox.isChecked():
-            return "naive"
-        elif self.bloodwebPage.awareSingleCheckBox.isChecked():
-            return "aware_single"
-        else:
-            return "aware_multi"
-
     def get_runtime_prestige_limit(self) -> str or None:
         return self.bloodwebPage.prestigeInput.text() if self.bloodwebPage.prestigeCheckBox.isChecked() else None
 
@@ -347,7 +334,7 @@ class MainWindow(QMainWindow):
         return self.bloodwebPage.bloodpointInput.text() if self.bloodwebPage.bloodpointCheckBox.isChecked() else None
 
     def run_terminate(self):
-        debug, write_to_output = self.bloodwebPage.get_run_mode()
+        debug, write_to_output = self.bloodwebPage.get_debug_options()
         if not self.state.is_active(): # run
             # check prestige limit
             prestige_limit = self.get_runtime_prestige_limit()
@@ -368,8 +355,7 @@ class MainWindow(QMainWindow):
                 if not (1 <= bp_limit):
                     return self.bloodwebPage.show_run_error("Bloodpoint limit must be a positive integer.", True)
 
-            self.state.run((debug, write_to_output, self.get_runtime_profile(), self.get_runtime_character(),
-                            self.get_runtime_mode(), prestige_limit, bp_limit))
+            self.state.run((debug, write_to_output, prestige_limit, bp_limit)) # may as well use the validated limits
             self.toggle_run_terminate_text("Running...", False, True)
         else: # terminate
             self.state.terminate()
@@ -823,6 +809,7 @@ class Emitter(QObject, Thread):
 if __name__ == "__main__":
     freeze_support() # --onedir (for exe)
     Config(True) # validate config
+    Runtime(True) # validate runtime settings
 
     os.environ["QT_DEVICE_PIXEL_RATIO"] = "0"
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"

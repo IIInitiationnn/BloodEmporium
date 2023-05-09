@@ -14,6 +14,7 @@ from backend.data import Data
 from backend.edge_detection import EdgeDetection
 from backend.image import CVImage
 from backend.node_detection import NodeDetection
+from backend.runtime import Runtime
 from backend.util.node_util import NodeType
 from backend.util.text_util import TextUtil
 from backend.util.timer import Timer
@@ -46,7 +47,6 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 
 1.1.0
 - 6.7.0 changes
-- saving runtime config
 - bloodpoint spend cost without using item rarity (top right bloodweb balance is more accurate)
 - speed: slow (wait for bloodweb update) vs medium (wait shortly) VS fast (may be one update behind)
 - auto buy for early levels IF correct origin
@@ -140,8 +140,13 @@ class StateProcess(Process):
         config = Config()
         interaction = config.interaction()
         primary_mouse = config.primary_mouse()
+
+        runtime = Runtime()
+        profile_id = runtime.profile()
+        character = runtime.character()
+        run_mode = runtime.mode()
         try:
-            dev_mode, write_to_output, profile_id, character, run_mode, prestige_limit, bp_limit = self.args
+            dev_mode, write_to_output, prestige_limit, bp_limit = self.args
             Timer.PRINT = dev_mode
             log = logging.getLogger()
             log.setLevel(logging.DEBUG)
