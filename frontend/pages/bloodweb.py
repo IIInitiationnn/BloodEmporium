@@ -18,7 +18,8 @@ from backend.data import Data
 class BloodwebPage(QWidget):
     def on_select_run_mode(self, mode):
         self.naiveCheckBox.setChecked(mode == "naive")
-        self.awareCheckBox.setChecked(mode == "aware")
+        self.awareSingleCheckBox.setChecked(mode == "aware_single")
+        self.awareMultiCheckBox.setChecked(mode == "aware_multi")
         self.profileSelector.setEnabled(mode != "naive")
 
     def on_toggle_prestige_limit(self):
@@ -35,9 +36,10 @@ class BloodwebPage(QWidget):
         self.prestigeInput.setStyleSheet(StyleSheets.prestige_input(text))
 
     def on_prestige_signal(self, prestige_total, prestige_limit):
-        self.runPrestigeProgress.setText(f"Prestige levels completed: {prestige_total} / {prestige_limit}"
-                                         if prestige_limit is not None else
-                                         f"Prestige levels completed: {prestige_total}")
+        if not self.runPrestigeProgress.isVisible():
+            self.runPrestigeProgress.setText(f"Prestige levels completed: {prestige_total} / {prestige_limit}"
+                                             if prestige_limit is not None else
+                                             f"Prestige levels completed: {prestige_total}")
 
     def on_toggle_bloodpoint_limit(self):
         if self.bloodpointCheckBox.isChecked():
@@ -53,8 +55,9 @@ class BloodwebPage(QWidget):
         self.bloodpointInput.setStyleSheet(StyleSheets.bloodpoint_input(text))
 
     def on_bloodpoint_signal(self, bp_total, bp_limit):
-        self.runBloodpointProgress.setText(f"Bloodpoints spent: {bp_total:,} / {bp_limit:,}"
-                                           if bp_limit is not None else f"Bloodpoints spent: {bp_total:,}")
+        if not self.runBloodpointProgress.isVisible():
+            self.runBloodpointProgress.setText(f"Bloodpoints spent: {bp_total:,} / {bp_limit:,}"
+                                               if bp_limit is not None else f"Bloodpoints spent: {bp_total:,}")
 
     def show_run_success(self, text, hide):
         self.runErrorText.setText(text)
@@ -125,14 +128,25 @@ class BloodwebPage(QWidget):
                                           "Naive mode: selected profile will be ignored and auto-buy will be used "
                                           "where possible (use if you do not care about which items are selected).")
 
-        self.awareRow = QWidget(self)
-        self.awareRow.setObjectName("bloodwebPageAwareRow")
-        self.awareRowLayout = RowLayout(self.awareRow, "bloodwebPageAwareRowLayout")
-        self.awareCheckBox = CheckBox(self.awareRow, "bloodwebPageAwareCheckBox")
-        self.awareCheckBox.setChecked(True)
-        self.awareCheckBox.clicked.connect(lambda: self.on_select_run_mode("aware"))
-        self.awareDescription = TextLabel(self.awareRow, "bloodwebPageAwareDescription",
-                                          "Aware mode: items will be selected according to your preference profile.")
+        self.awareSingleRow = QWidget(self)
+        self.awareSingleRow.setObjectName("bloodwebPageAwareSingleRow")
+        self.awareSingleRowLayout = RowLayout(self.awareSingleRow, "bloodwebPageAwareSingleRowLayout")
+        self.awareSingleCheckBox = CheckBox(self.awareSingleRow, "bloodwebPageAwareSingleCheckBox")
+        self.awareSingleCheckBox.clicked.connect(lambda: self.on_select_run_mode("aware_single"))
+        self.awareSingleDescription = TextLabel(self.awareSingleRow, "bloodwebPageAwareSingleDescription",
+                                                "Aware mode (single-claim): items will be selected one at a time "
+                                                "according to your preference profile.")
+
+        self.awareMultiRow = QWidget(self)
+        self.awareMultiRow.setObjectName("bloodwebPageAwareMultiRow")
+        self.awareMultiRowLayout = RowLayout(self.awareMultiRow, "bloodwebPageAwareMultiRowLayout")
+        self.awareMultiCheckBox = CheckBox(self.awareMultiRow, "bloodwebPageAwareMultiCheckBox")
+        self.awareMultiCheckBox.setChecked(True)
+        self.awareMultiCheckBox.clicked.connect(lambda: self.on_select_run_mode("aware_multi"))
+        self.awareMultiDescription = TextLabel(self.awareMultiRow, "bloodwebPageAwareMultiDescription",
+                                               "Aware mode (multi-claim): items will be selected along entire paths "
+                                               "according to your preference profile (slightly faster but entity may "
+                                               "consume some items before they are reached).")
 
         self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
         self.limitsDescription = TextLabel(self, "bloodwebPageLimitsDescription",
@@ -202,14 +216,19 @@ class BloodwebPage(QWidget):
         self.runErrorText.setVisible(False)
 
         self.runPrestigeProgress = TextLabel(self, "bloodwebPageRunPrestigeProgress", "", Font(10))
+        self.runPrestigeProgress.setVisible(False)
         self.runBloodpointProgress = TextLabel(self, "bloodwebPageRunBloodpointProgress", "", Font(10))
+        self.runBloodpointProgress.setVisible(False)
 
         self.naiveRowLayout.addWidget(self.naiveCheckBox)
         self.naiveRowLayout.addWidget(self.naiveDescription)
         self.naiveRowLayout.addStretch(1)
-        self.awareRowLayout.addWidget(self.awareCheckBox)
-        self.awareRowLayout.addWidget(self.awareDescription)
-        self.awareRowLayout.addStretch(1)
+        self.awareSingleRowLayout.addWidget(self.awareSingleCheckBox)
+        self.awareSingleRowLayout.addWidget(self.awareSingleDescription)
+        self.awareSingleRowLayout.addStretch(1)
+        self.awareMultiRowLayout.addWidget(self.awareMultiCheckBox)
+        self.awareMultiRowLayout.addWidget(self.awareMultiDescription)
+        self.awareMultiRowLayout.addStretch(1)
 
         self.prestigeRowLayout.addWidget(self.prestigeCheckBox)
         self.prestigeRowLayout.addWidget(self.prestigeLabel)
@@ -234,7 +253,8 @@ class BloodwebPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.characterSelector)
         self.scrollAreaContentLayout.addWidget(self.runModeLabel)
         self.scrollAreaContentLayout.addWidget(self.naiveRow)
-        self.scrollAreaContentLayout.addWidget(self.awareRow)
+        self.scrollAreaContentLayout.addWidget(self.awareSingleRow)
+        self.scrollAreaContentLayout.addWidget(self.awareMultiRow)
         self.scrollAreaContentLayout.addWidget(self.limitsLabel)
         self.scrollAreaContentLayout.addWidget(self.limitsDescription)
         self.scrollAreaContentLayout.addWidget(self.prestigeRow)

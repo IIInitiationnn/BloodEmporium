@@ -333,7 +333,12 @@ class MainWindow(QMainWindow):
         return self.bloodwebPage.characterSelector.currentText()
 
     def get_runtime_mode(self):
-        return "naive" if self.bloodwebPage.naiveCheckBox.isChecked() else "aware"
+        if self.bloodwebPage.naiveCheckBox.isChecked():
+            return "naive"
+        elif self.bloodwebPage.awareSingleCheckBox.isChecked():
+            return "aware_single"
+        else:
+            return "aware_multi"
 
     def get_runtime_prestige_limit(self) -> str or None:
         return self.bloodwebPage.prestigeInput.text() if self.bloodwebPage.prestigeCheckBox.isChecked() else None

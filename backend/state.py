@@ -48,7 +48,7 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 - 6.7.0 changes
 - saving runtime config
 - bloodpoint spend cost without using item rarity (top right bloodweb balance is more accurate)
-- accuracy vs speed: accuracy (wait for bloodweb update) VS speed (may be one update behind)
+- speed: slow (wait for bloodweb update) vs medium (wait shortly) VS fast (may be one update behind)
 - auto buy for early levels IF correct origin
 - config backup or some other method of preventing config corruption when reading / writing
 
@@ -108,7 +108,7 @@ class StateProcess(Process):
         self.pipe = pipe
         self.args = args
 
-    def mouse_click(self, primary_mouse, interaction):
+    def click_node(self, primary_mouse, interaction):
         pyautogui.mouseDown(button=primary_mouse)
         if interaction == "press":
             pyautogui.moveTo(0, 0)
@@ -118,9 +118,10 @@ class StateProcess(Process):
             time.sleep(0.15)
         pyautogui.mouseUp(button=primary_mouse)
 
-    def prestige_hold(self, primary_mouse):
+    def click_prestige(self, primary_mouse, interaction):
         pyautogui.mouseDown(button=primary_mouse)
-        time.sleep(1.5)
+        if interaction == "hold":
+            time.sleep(1.5)
         pyautogui.mouseUp(button=primary_mouse)
         time.sleep(4) # 4 sec to clear out until new level screen
         pyautogui.click(button=primary_mouse)
@@ -188,8 +189,8 @@ class StateProcess(Process):
             debugger.set_merged_base(merged_base)
 
             bloodweb_iteration = 0
+            print(f"run mode: {run_mode}")
             if run_mode == "naive":
-                print("running in naive mode")
                 while True:
                     if prestige_limit is not None and prestige_total == prestige_limit:
                         print("reached prestige limit. terminating")
@@ -232,7 +233,7 @@ class StateProcess(Process):
                         self.emit("prestige", (prestige_total, prestige_limit))
                         self.emit("bloodpoint", (bp_total, bp_limit))
                         pyautogui.moveTo(*centre.xy())
-                        self.prestige_hold(primary_mouse)
+                        self.click_prestige(primary_mouse, interaction)
                         continue
 
                     # accessible
@@ -254,7 +255,7 @@ class StateProcess(Process):
 
                     # select perk: hold on the perk for 0.3s
                     pyautogui.moveTo(*centre.xy())
-                    self.mouse_click(primary_mouse, interaction)
+                    self.click_node(primary_mouse, interaction)
 
                     # mystery box: click
                     if "mysteryBox" in matched_node.unique_id:
@@ -267,7 +268,6 @@ class StateProcess(Process):
                     pyautogui.moveTo(0, 0)
                     bloodweb_iteration += 1
             else:
-                print("running in aware mode")
                 edge_detector = EdgeDetection()
                 while True:
                     if prestige_limit is not None and prestige_total == prestige_limit:
@@ -313,7 +313,7 @@ class StateProcess(Process):
                         self.emit("bloodpoint", (bp_total, bp_limit))
                         centre = matched_nodes[0].box.centre()
                         pyautogui.moveTo(*centre.xy())
-                        self.prestige_hold(primary_mouse)
+                        self.click_prestige(primary_mouse, interaction)
                         continue
 
                     # yolov5obb: detect and link all edges
@@ -384,7 +384,7 @@ class StateProcess(Process):
 
                         # select perk: press OR hold on the perk for 0.3s
                         pyautogui.moveTo(best_node.x, best_node.y)
-                        self.mouse_click(primary_mouse, interaction)
+                        self.click_node(primary_mouse, interaction)
                         grab_time = time.time()
 
                         # mystery box: click
