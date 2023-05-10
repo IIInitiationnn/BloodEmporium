@@ -3,13 +3,22 @@ import json
 class Runtime:
     def __init__(self, validate=False):
         if validate:
+            # create file if not exists
             try:
                 with open("runtime.json", "x") as f:
                     f.write("{}")
             except FileExistsError:
                 pass
-            with open("runtime.json", "r") as f:
-                self.runtime = dict(json.load(f))
+
+            # validate json
+            try:
+                with open("runtime.json", "r") as f:
+                    self.runtime = dict(json.load(f))
+            except json.decoder.JSONDecodeError:
+                with open("runtime.json", "w") as f:
+                    f.write("{}")
+                    self.runtime = dict()
+
             self.commit_changes()
 
         with open("runtime.json", "r") as f:

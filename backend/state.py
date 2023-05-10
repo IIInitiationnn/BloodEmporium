@@ -56,7 +56,7 @@ POST 1.0.0
 - moris, reagents getting confused?
 - backup configs every time they are written to, max of 100?
 - log for main process
-- tier slider
+- tier range filter
 - shift selection and unselection
 - maybe undo and redo last selection buttons at bottom
 - "you have unsaved changes" next to save button - profiles, settings
