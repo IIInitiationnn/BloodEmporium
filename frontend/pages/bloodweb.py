@@ -23,6 +23,11 @@ class BloodwebPage(QWidget):
         self.profileSelector.setEnabled(mode != "naive")
         Runtime().set_mode(mode)
 
+    def on_select_speed(self, speed):
+        self.speedSlowCheckBox.setChecked(speed == "slow")
+        self.speedFastCheckBox.setChecked(speed == "fast")
+        Runtime().set_speed(speed)
+
     def on_toggle_prestige_limit(self):
         if self.prestigeCheckBox.isChecked():
             self.prestigeInput.setReadOnly(False)
@@ -137,7 +142,7 @@ class BloodwebPage(QWidget):
         self.characterSelector.currentIndexChanged.connect(
             lambda: Runtime().set_character(self.characterSelector.currentText()))
 
-        self.runModeLabel = TextLabel(self, "bloodwebPageRunModeLabel", "Run Mode", Font(12))
+        self.runModeLabel = TextLabel(self, "bloodwebPageRunModeLabel", "Selection Mode", Font(12))
 
         self.naiveRow = QWidget(self)
         self.naiveRow.setObjectName("bloodwebPageNaiveRow")
@@ -167,6 +172,30 @@ class BloodwebPage(QWidget):
                                                "according to your preference profile (slightly faster but the entity "
                                                "may consume some items before they can be reached).")
         self.on_select_run_mode(runtime.mode())
+
+        self.speedLabel = TextLabel(self, "bloodwebPageSpeedLabel", "Speed", Font(12))
+
+        self.speedSlowRow = QWidget(self)
+        self.speedSlowRow.setObjectName("bloodwebPageSpeedSlowRow")
+        self.speedSlowRowLayout = RowLayout(self.speedSlowRow, "bloodwebPageSpeedSlowRowLayout")
+        self.speedSlowCheckBox = CheckBox(self, "bloodwebPageSpeedSlowCheckBox")
+        self.speedSlowCheckBox.clicked.connect(lambda: self.on_select_speed("slow"))
+        self.speedSlowLabel = TextLabel(self, "bloodwebPageSpeedSlowLabel",
+                                        "Slow: waits for bloodweb to update visually before proceeding "
+                                        "(will more accurately select items according to availability and preference).",
+                                        Font(10))
+
+        self.speedFastRow = QWidget(self)
+        self.speedFastRow.setObjectName("bloodwebPageSpeedFastRow")
+        self.speedFastRowLayout = RowLayout(self.speedFastRow, "bloodwebPageSpeedFastRowLayout")
+        self.speedFastCheckBox = CheckBox(self, "bloodwebPageSpeedFastCheckBox")
+        self.speedFastCheckBox.clicked.connect(lambda: self.on_select_speed("fast"))
+        self.speedFastLabel = TextLabel(self, "bloodwebPageSpeedFastLabel",
+                                        "Fast: does not wait for bloodweb to update visually before proceeding "
+                                        "(may select items suboptimally since changes to the bloodweb will be "
+                                        "registered with a delay).",
+                                        Font(10))
+        self.on_select_speed(runtime.speed())
 
         self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
         self.limitsDescription = TextLabel(self, "bloodwebPageLimitsDescription",
@@ -208,7 +237,7 @@ class BloodwebPage(QWidget):
         self.bloodpointDescription = TextLabel(self.prestigeRow, "bloodwebPageBloodpointDescription",
                                                "The number of bloodpoints to spend before terminating.", Font(10))
         if dev_mode:
-            self.devLabel = TextLabel(self, "settingsPageDevLabel", "Dev Options", Font(12))
+            self.devLabel = TextLabel(self, "bloodwebPageDevLabel", "Dev Options", Font(12))
 
             self.devDebugRow = QWidget(self)
             self.devDebugRow.setObjectName("bloodwebPageDevDebugRow")
@@ -256,6 +285,14 @@ class BloodwebPage(QWidget):
         self.awareMultiRowLayout.addWidget(self.awareMultiDescription)
         self.awareMultiRowLayout.addStretch(1)
 
+        self.speedSlowRowLayout.addWidget(self.speedSlowCheckBox)
+        self.speedSlowRowLayout.addWidget(self.speedSlowLabel)
+        self.speedSlowRowLayout.addStretch(1)
+
+        self.speedFastRowLayout.addWidget(self.speedFastCheckBox)
+        self.speedFastRowLayout.addWidget(self.speedFastLabel)
+        self.speedFastRowLayout.addStretch(1)
+
         self.prestigeRowLayout.addWidget(self.prestigeCheckBox)
         self.prestigeRowLayout.addWidget(self.prestigeLabel)
         self.prestigeRowLayout.addWidget(self.prestigeInput)
@@ -281,6 +318,9 @@ class BloodwebPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.naiveRow)
         self.scrollAreaContentLayout.addWidget(self.awareSingleRow)
         self.scrollAreaContentLayout.addWidget(self.awareMultiRow)
+        self.scrollAreaContentLayout.addWidget(self.speedLabel)
+        self.scrollAreaContentLayout.addWidget(self.speedSlowRow)
+        self.scrollAreaContentLayout.addWidget(self.speedFastRow)
         self.scrollAreaContentLayout.addWidget(self.limitsLabel)
         self.scrollAreaContentLayout.addWidget(self.limitsDescription)
         self.scrollAreaContentLayout.addWidget(self.prestigeRow)

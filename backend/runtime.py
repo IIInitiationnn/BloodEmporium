@@ -24,6 +24,9 @@ class Runtime:
     def mode(self):
         return self.runtime["mode"]
 
+    def speed(self):
+        return self.runtime["speed"]
+
     def limits(self, limit, fields):
         return (self.runtime["limits"][limit][field] for field in fields)
 
@@ -32,6 +35,7 @@ class Runtime:
             "profile": "",
             "character": "survivor",
             "mode": "aware_multi",
+            "speed": "slow",
             "limits": {
                 "prestige": {
                     "enabled": False,
@@ -43,12 +47,8 @@ class Runtime:
                 }
             }
         }
-        updated_runtime = {
-            "profile": self.runtime.get("profile", default_runtime["profile"]),
-            "character": self.runtime.get("character", default_runtime["character"]),
-            "mode": self.runtime.get("mode", default_runtime["mode"]),
-            "limits": self.runtime.get("limits", default_runtime["limits"]),
-        }
+        updated_runtime = {field: self.runtime.get(field, default_runtime[field])
+                           for field in ["profile", "character", "mode", "speed", "limits"]}
         for limit in ["prestige", "bloodpoint"]:
             if limit not in updated_runtime["limits"]:
                 updated_runtime["limits"][limit] = default_runtime["limits"][limit]
@@ -69,6 +69,10 @@ class Runtime:
 
     def set_mode(self, mode):
         self.runtime["mode"] = mode
+        self.commit_changes()
+
+    def set_speed(self, speed):
+        self.runtime["speed"] = speed
         self.commit_changes()
 
     def change_limit(self, limit, **kwargs):
