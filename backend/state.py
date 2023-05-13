@@ -195,7 +195,7 @@ class StateProcess(Process):
 
             bloodweb_iteration = 0
             print(f"run mode: {run_mode}")
-            if run_mode == "naive":
+            if run_mode == "naive": # TODO slow, autobp
                 while True:
                     if prestige_limit is not None and prestige_total == prestige_limit:
                         print("reached prestige limit. terminating")
@@ -375,9 +375,16 @@ class StateProcess(Process):
                                                  data["cls_name"]])
                         print(TextUtil.justify(8, objs))
 
-                        best_node = optimiser.select_best()
-                        best_unlockable = [u for u in unlockables if u.unique_id == best_node.name][0]
-                        bp_total += Data.get_cost(best_unlockable.rarity)
+                        if run_mode == "aware_single":
+                            best_node = optimiser.select_best_single()
+                            best_nodes = [best_node]
+                            u = [u for u in unlockables if u.unique_id == best_node.name][0]
+                            bp_total += Data.get_cost(u.rarity)
+                        else:
+                            best_nodes = optimiser.select_best_multi(unlockables) # TODO incorporate into debugging
+                            best_node = best_nodes[-1]
+                            us = [[u for u in unlockables if u.unique_id == node.name][0] for node in best_nodes]
+                            bp_total += sum([Data.get_cost(u.rarity) for u in us])
                         if bp_limit is not None and bp_total > bp_limit:
                             print(f"{best_node.node_id} ({best_node.name}): reached bloodpoint limit. terminating")
                             self.emit("terminate")
@@ -405,8 +412,11 @@ class StateProcess(Process):
                         # wait if slow
                         if speed == "slow":
                             time_since_grab = time.time() - grab_time
-                            if time_since_grab < 0.8: # TODO multiclaim may be 0.8 + n * a for n nodes claimed?
-                                time.sleep(0.8 - time_since_grab)
+                            wait_time = 0.4 + 0.4 * len(best_nodes) # TODO record footage and test timing
+                            if time_since_grab < wait_time:
+                                time.sleep(wait_time - time_since_grab)
+                        # TODO fast speed may also need to wait for nodes to be consumed first, so maybe the wait
+                        #  for multiple nodes should be extrapolated outside of this function?
 
                         # take new picture and update colours
                         print("updating bloodweb")

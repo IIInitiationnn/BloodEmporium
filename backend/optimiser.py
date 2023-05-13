@@ -1,9 +1,13 @@
 import copy
 import math
 import random
+from collections import defaultdict
+from statistics import mean
+from typing import List
 
 import networkx as nx
 
+from backend.data import Data, Unlockable
 from backend.util.node_util import NodeType
 from config import Config
 from graph_node import GraphNode
@@ -71,15 +75,19 @@ class Optimiser:
             if dst_node == src_node: # ignore trivial paths
                 continue
 
-            # path must be to relevant dst (dst must be accessible, with no other accessible nodes along the way)
+            # path must be to relevant dst (dst must be accessible, path must be entirely in/accessible,
+            # with no other accessible nodes along the way)
             if heatmap.nodes[dst_node]["cls_name"] != NodeType.ACCESSIBLE:
                 continue
-            if len([1 for intermediate_node in self.shortest_paths[src_node][dst_node]
+            path = self.shortest_paths[src_node][dst_node]
+            if any([heatmap.nodes[intermediate_node]["cls_name"] not in NodeType.MULTI_UNCLAIMED
+                    for intermediate_node in path]):
+                continue
+            if len([1 for intermediate_node in path
                    if heatmap.nodes[intermediate_node]["cls_name"] == NodeType.ACCESSIBLE]) != 1:
                 continue
 
-            for i, intermediate_node in enumerate(self.shortest_paths[src_node][dst_node]):
-                print(intermediate_node)
+            for i, intermediate_node in enumerate(path):
                 # dist = 0 => divide by 1, dist = 1 => divide by 2 etc.
                 averaged_value = round(desired_value / (i + 1)) # averaged over number of nodes required to obtain
 
@@ -100,15 +108,83 @@ class Optimiser:
                                                                   value=total_data["value"] + data["value"]).get_dict())
         return total
 
-    def select_best(self) -> GraphNode:
-        min_id, min_val = [None], math.inf
+    def select_best_single(self) -> GraphNode:
+        min_node_ids, min_val = [None], math.inf
         for node_id, data in self.dijkstra_graph.nodes.items():
-            if data["cls_name"] == NodeType.ACCESSIBLE:
-                if data["value"] < min_val:
-                    min_id, min_val = [node_id], data["value"]
-                elif data["value"] == min_val:
-                    min_id.append(node_id)
-        return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_id)])
+            if data["cls_name"] != NodeType.ACCESSIBLE:
+                continue
+            if data["value"] < min_val:
+                min_node_ids, min_val = [node_id], data["value"]
+            elif data["value"] == min_val:
+                min_node_ids.append(node_id)
+        return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_node_ids)])
+
+    def select_best_multi(self, unlockables: List[Unlockable]) -> List[GraphNode]:
+        # TODO time to make sure this isnt inefficient
+        # find all relevant path (multi-claim) selections
+        paths, bp_vals, opt_vals = [], [], []
+        for src_node_id, data in self.dijkstra_graph.nodes.items():
+            if data["cls_name"] != NodeType.ACCESSIBLE:
+                continue
+            # for every path from accessible source node to a more external node on the same "branch"
+            for dst_node_id in self.shortest_paths[src_node_id].keys():
+                # path must be to relevant dst (entire path must be in/accessible; src should be only accessible node)
+                path = self.shortest_paths[src_node_id][dst_node_id]
+                if any([self.dijkstra_graph.nodes[intermediate_node]["cls_name"] not in NodeType.MULTI_UNCLAIMED
+                        for intermediate_node in path]):
+                    continue
+                if len([1 for intermediate_node in path
+                       if self.dijkstra_graph.nodes[intermediate_node]["cls_name"] == NodeType.ACCESSIBLE]) != 1:
+                    continue
+
+                path_opt_val = mean([self.dijkstra_graph.nodes[intermediate_node]["value"]
+                                     for intermediate_node in path])
+                path_bp_val = sum([
+                    Data.get_cost(
+                        [u for u in unlockables
+                         if u.unique_id == self.dijkstra_graph.nodes[intermediate_node]["name"]
+                         ][0].rarity
+                    )
+                    for intermediate_node in path
+                ])
+                paths.append(path)
+                bp_vals.append(path_bp_val)
+                opt_vals.append(path_opt_val)
+
+        # if any paths have shared destination nodes, remove the path(s) with the most bloodpoint value from the list
+        # and repeat until this condition is no longer violated
+        # this can remove all paths (e.g. all have the same bp value, two have value X and two have value Y)
+        run = True
+        while run: # repeat until no more changes
+            run = False
+            duplicates = defaultdict(list) # dict {dst_node_id: [indices]}
+            indices_to_remove = []
+            for indices, path in enumerate(paths):
+                duplicates[path[-1]].append(indices)
+            for dst_node_id, indices in duplicates.items():
+                if len(indices) > 1: # more than one path to this destination node
+                    run = True
+                    # TODO print paths for debugging
+
+                    # remove path(s) with most bloodpoint value
+                    max_bp_val = max([bp_vals[index] for index in indices])
+                    for index in indices:
+                        if bp_vals[index] == max_bp_val:
+                            indices_to_remove.append(index)
+
+            for index in sorted(indices_to_remove, reverse=True): # remove in reverse order so indices are preserved
+                paths.pop(index)
+                bp_vals.pop(index)
+                opt_vals.pop(index)
+
+        min_paths, min_val = [[]], math.inf
+        for i, path in enumerate(paths):
+            path_opt_val = opt_vals[i]
+            if path_opt_val < min_val:
+                min_paths, min_val = [path], path_opt_val
+            elif path_opt_val == min_val:
+                min_paths.append(path)
+        return [GraphNode.from_dict(self.dijkstra_graph.nodes[node]) for node in random.choice(min_paths)]
 
     def run(self, profile_id):
         config = Config()
