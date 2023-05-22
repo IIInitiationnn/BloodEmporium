@@ -39,7 +39,7 @@ venv/Lib/site-packages/torch/nn/modules/upsampling.py Class BasePredictor self.a
 
 TRAINING
 yolov8 node detection
-yolo cfg="hyperparameters nodes v3.yaml"
+yolo cfg="hyperparameters nodes v4.yaml"
 
 yolov5obb edge detection
 cd yolov5_obb
@@ -50,6 +50,7 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 - bloodpoint spend cost without using item rarity (top right bloodweb balance is more accurate)
 - auto buy for early levels IF correct origin
 - config backup or some other method of preventing config corruption when reading / writing
+- show time elapsed under bp / prestige limit + status on progress (starting, detecting bloodweb, optimising)
 
 POST 1.0.0
 - preferences page: changing profile maintains tier order (need to refresh sort when sorting by tier)
