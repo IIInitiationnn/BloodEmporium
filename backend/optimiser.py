@@ -108,6 +108,18 @@ class Optimiser:
                                                                   value=total_data["value"] + data["value"]).get_dict())
         return total
 
+    # prioritise inaccessible (select more than one node)
+    def select_random_prioritise_inaccessible(self) -> GraphNode:
+        inaccessible = [node_id for node_id, data in self.dijkstra_graph.nodes.items()
+                        if data["cls_name"] == NodeType.INACCESSIBLE]
+        accessible = [node_id for node_id, data in self.dijkstra_graph.nodes.items()
+                      if data["cls_name"] == NodeType.ACCESSIBLE]
+        if len(inaccessible) > 0:
+            random_id = random.choice(inaccessible)
+        else:
+            random_id = random.choice(accessible)
+        return GraphNode.from_dict(self.dijkstra_graph.nodes[random_id])
+
     def select_best_single(self) -> GraphNode:
         min_node_ids, min_val = [None], math.inf
         for node_id, data in self.dijkstra_graph.nodes.items():

@@ -83,6 +83,10 @@ class MatchedNode(UnmatchedNode):
         super().__init__(box, confidence, cls_name)
         self.unique_id = unique_id # same as unlockable unique id
 
+    @staticmethod
+    def from_unmatched_node(unmatched_node: UnmatchedNode, unique_id=""):
+        return MatchedNode(unmatched_node.box, unmatched_node.confidence, unmatched_node.cls_name, unique_id)
+
 class UnlinkedEdge:
     def __init__(self, position1, position2):
         self.position1 = position1

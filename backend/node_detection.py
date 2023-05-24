@@ -2,7 +2,7 @@ import math
 import random
 from math import floor
 from statistics import mode
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import cv2
 from ultralytics import YOLO
@@ -18,7 +18,7 @@ from backend.util.timer import Timer
 class NodeDetection:
     def __init__(self):
         # loads model on init
-        self.model = YOLO("assets/models/nodes v3.pt")
+        self.model = YOLO("assets/models/nodes v4.pt")
         self.model.fuse()
 
         # gets custom names from custom model
@@ -26,22 +26,6 @@ class NodeDetection:
 
     def predict(self, img_original) -> Results:
         return self.model.predict(img_original)[0]
-
-    def any_left_after(self, results):
-        num = 0
-        for result in results:
-            if self.CLASS_NAMES_DICT[result.boxes.cls.numpy()[0]] in NodeType.MULTI_UNCLAIMED:
-                num += 1
-        return num > 1
-
-    def filter_by_class(self, results, classes):
-        filtered = []
-        for result in results:
-            if self.CLASS_NAMES_DICT[result.boxes.cls.numpy()[0]] in classes:
-                filtered.append((result.boxes.xyxy.numpy()[0],
-                                 result.boxes.conf.numpy()[0],
-                                 result.boxes.cls.numpy()[0]))
-        return filtered
 
     def preprocess_unlockable(self, xyxy, screenshot, size):
         x1, y1, x2, y2 = xyxy
@@ -128,37 +112,62 @@ class NodeDetection:
         # cv2.destroyAllWindows()
         return match_unique_id
 
-    def match_accessible_or_prestige(self, results, screenshot, merged_base: MergedBase) -> Optional[MatchedNode]:
+    # deprecated
+    '''
+    def match_claimable(self, all_nodes: List[UnmatchedNode], screenshot, merged_base: MergedBase) -> List[MatchedNode]:
         timer = Timer()
-        filtered = self.filter_by_class(results, [NodeType.ACCESSIBLE, NodeType.PRESTIGE])
-        if len(filtered) > 0:
-            (x1, y1, x2, y2), confidence, cls = random.choice(filtered)
-            x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
-            cls_name = self.CLASS_NAMES_DICT[cls]
+        filtered = [node for node in all_nodes if node.cls_name in NodeType.MULTI_CLAIMABLE]
 
-            if self.CLASS_NAMES_DICT[cls] == NodeType.ACCESSIBLE:
-                match_unique_id = self.match_unlockable_template((x1, y1, x2, y2), screenshot, merged_base)
-                timer.update("match_accessible_or_prestige")
-                return MatchedNode(Box(x1, y1, x2, y2), confidence, cls_name, match_unique_id)
+        # none: return empty
+        if len(filtered) == 0:
+            timer.update("match_claimable")
+            return []
+
+        # prestige: return only prestige
+        prestige = [node for node in filtered if node.cls_name == NodeType.PRESTIGE]
+        if len(prestige) == 1:
+            timer.update("match_claimable")
+            return [MatchedNode.from_unmatched_node(prestige[0])]
+
+        claimable = []
+        for node in filtered: # origin_auto or in/accessible
+            if node.cls_name == NodeType.PRESTIGE:
+                continue
+            if node.cls_name in NodeType.MULTI_ORIGIN_AUTO:
+                claimable.append(MatchedNode.from_unmatched_node(node))
             else:
-                timer.update("match_accessible_or_prestige")
-                return MatchedNode(Box(x1, y1, x2, y2), confidence, cls_name) if confidence > 0.7 else None
-        else:
-            return None
+                match_unique_id = self.match_unlockable_template(node.xyxy(), screenshot, merged_base)
+                claimable.append(MatchedNode.from_unmatched_node(node, match_unique_id))
+        timer.update("match_claimable")
+        return claimable
+    '''
 
+    # filter only those with sufficiently high confidence until more robust model
     # TODO ensure there is origin of highest conf if output is > 1 and is not prestige
-    def get_nodes(self, results) -> List[UnmatchedNode]:
+    def get_validate_all_nodes(self, results) -> Tuple[List[UnmatchedNode], UnmatchedNode]:
         timer = Timer()
         nodes = []
+        prestige = False
+        bp_node = None
         for result in results:
-            (x1, y1, x2, y2), confidence, cls = result.boxes.xyxy.numpy()[0], result.boxes.conf.numpy()[0], \
+            (x1, y1, x2, y2), confidence, cls = result.boxes.xyxy.numpy()[0], \
+                                                result.boxes.conf.numpy()[0], \
                                                 result.boxes.cls.numpy()[0]
             cls_name = self.CLASS_NAMES_DICT[cls]
-
-            # filter only those with sufficiently high confidence until more robust model
             box = Box(round(x1), round(y1), round(x2), round(y2))
-            if cls_name in [NodeType.ORIGIN, NodeType.CLAIMED, NodeType.ACCESSIBLE,
-                            NodeType.INACCESSIBLE, NodeType.STOLEN, NodeType.VOID]:
+            if cls_name == NodeType.BLOODPOINTS:
+                if confidence > 0.7: # TODO hhh check this threshold
+                    bp_node = UnmatchedNode(box, confidence, cls_name)
+                    continue
+
+            if prestige: # prestige node has already been found, can ignore everything else except bloodpoint node
+                continue
+
+            if cls_name == NodeType.PRESTIGE:
+                if confidence > 0.7:
+                    nodes = [UnmatchedNode(box, confidence, cls_name)]
+                    prestige = True
+            else: # all origins, in/accessible, claimed, stolen, void
                 for node in nodes:
                     if box.close_to(node.box): # new node close to any existing nodes
                         if confidence > node.confidence: # if this node is more likely to be correct than existing
@@ -167,23 +176,18 @@ class NodeDetection:
                         break # close to existing node: exit out of loop and do not enter else
                 else: # new node not close to any existing nodes
                     nodes.append(UnmatchedNode(box, confidence, cls_name))
-            else: # prestige
-                if confidence > 0.7:
-                    nodes = [UnmatchedNode(box, confidence, cls_name)]
-                    break
-        timer.update("get_nodes")
-        return nodes
 
-    def match_nodes(self, results, screenshot, merged_base) -> List[MatchedNode]:
+        timer.update("get_nodes")
+        return nodes, bp_node
+
+    def match_nodes(self, all_nodes: List[UnmatchedNode], screenshot, merged_base) -> List[MatchedNode]:
         timer = Timer()
         matched = []
-        for unmatched_node in self.get_nodes(results):
-            box = unmatched_node.box
-            x1, y1, x2, y2 = box.xyxy()
+        for unmatched_node in all_nodes:
             if unmatched_node.cls_name in NodeType.MULTI_UNCLAIMED:
-                match_unique_id = self.match_unlockable_template((x1, y1, x2, y2), screenshot, merged_base)
-                matched.append(MatchedNode(box, unmatched_node.confidence, unmatched_node.cls_name, match_unique_id))
+                match_unique_id = self.match_unlockable_template(unmatched_node.xyxy(), screenshot, merged_base)
+                matched.append(MatchedNode.from_unmatched_node(unmatched_node, match_unique_id))
             else:
-                matched.append(MatchedNode(box, unmatched_node.confidence, unmatched_node.cls_name))
+                matched.append(MatchedNode.from_unmatched_node(unmatched_node))
         timer.update("match_nodes")
         return matched

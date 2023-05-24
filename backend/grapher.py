@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import networkx as nx
 
@@ -32,6 +32,7 @@ class Grapher:
         graph.add_edges_from(edges)
         return graph
 
+    # TODO check these validations with new slow/fast speed AND autobuy where you can click inaccessible
     @staticmethod
     def update(base_bloodweb, updated_nodes: List[UnmatchedNode], previously_selected_node: GraphNode) -> bool:
         if len(updated_nodes) == 0:

@@ -52,8 +52,6 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 - Completely automatic and hands-free - and now, fast!
 
 ## Notes
-- Icon packs with similar-looking icons are more likely to cause incorrect object recognition, which may result in
-  incorrect or suboptimal selection.
 - Shaders, game filters, and colourblind modes must be disabled while using this program,
   as colour changes interfere with object and colour recognition.
 
