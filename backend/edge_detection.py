@@ -55,7 +55,7 @@ class EdgeDetection:
         return processed_results
 
     def link_edges(self, results, matched_nodes: List[MatchedNode], avg_diameter) -> List[LinkedEdge]:
-        timer = Timer()
+        timer = Timer("link_edges")
         edges = []
         for x1, y1, x2, y2, x3, y3, x4, y4, confidence, cls in results: # cls not useful
             closests = []
@@ -69,5 +69,5 @@ class EdgeDetection:
                 new_edge = LinkedEdge(*closests)
                 if not any([new_edge == edge for edge in edges]):
                     edges.append(new_edge)
-        timer.update("link_edges")
+        timer.update()
         return edges

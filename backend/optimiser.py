@@ -9,6 +9,7 @@ import networkx as nx
 
 from backend.data import Data, Unlockable
 from backend.util.node_util import NodeType
+from backend.util.timer import Timer
 from config import Config
 from graph_node import GraphNode
 
@@ -88,7 +89,7 @@ class Optimiser:
                 continue
 
             for i, intermediate_node in enumerate(path):
-                # dist = 0 => divide by 1, dist = 1 => divide by 2 etc.
+                # dist = 0 => divide by 1; dist = 1 => divide by 2 etc.
                 averaged_value = round(desired_value / (i + 1)) # averaged over number of nodes required to obtain
 
                 if heatmap.nodes[intermediate_node]["value"] > averaged_value:
@@ -121,6 +122,7 @@ class Optimiser:
         return GraphNode.from_dict(self.dijkstra_graph.nodes[random_id])
 
     def select_best_single(self) -> GraphNode:
+        timer = Timer("select_best_single")
         min_node_ids, min_val = [None], math.inf
         for node_id, data in self.dijkstra_graph.nodes.items():
             if data["cls_name"] != NodeType.ACCESSIBLE:
@@ -129,10 +131,11 @@ class Optimiser:
                 min_node_ids, min_val = [node_id], data["value"]
             elif data["value"] == min_val:
                 min_node_ids.append(node_id)
+        timer.update()
         return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_node_ids)])
 
     def select_best_multi(self, unlockables: List[Unlockable]) -> List[GraphNode]:
-        # TODO time to make sure this isnt inefficient
+        timer = Timer("select_best_multi")
         # find all relevant path (multi-claim) selections
         paths, bp_vals, opt_vals = [], [], []
         for src_node_id, data in self.dijkstra_graph.nodes.items():
@@ -149,6 +152,10 @@ class Optimiser:
                        if self.dijkstra_graph.nodes[intermediate_node]["cls_name"] == NodeType.ACCESSIBLE]) != 1:
                     continue
 
+                # currently this is different from single behaviour; for path from a to c
+                # this does (a + b/2 + c/3) + (b/2 + c/3) + (c/3) = a + b + c
+                # but should do (a + b/2 + c/3) + (b + c/2) + (c) = a + 3b/2 + 11c/6 (what single does)
+                # more weight should be given to further nodes because the value they provide propagates down the path
                 path_opt_val = mean([self.dijkstra_graph.nodes[intermediate_node]["value"]
                                      for intermediate_node in path])
                 path_bp_val = sum([
@@ -196,6 +203,7 @@ class Optimiser:
                 min_paths, min_val = [path], path_opt_val
             elif path_opt_val == min_val:
                 min_paths.append(path)
+        timer.update()
         return [GraphNode.from_dict(self.dijkstra_graph.nodes[node]) for node in random.choice(min_paths)]
 
     def run(self, profile_id):

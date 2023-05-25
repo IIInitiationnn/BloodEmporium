@@ -145,7 +145,7 @@ class NodeDetection:
     # filter only those with sufficiently high confidence until more robust model
     # TODO ensure there is origin of highest conf if output is > 1 and is not prestige
     def get_validate_all_nodes(self, results) -> Tuple[List[UnmatchedNode], UnmatchedNode]:
-        timer = Timer()
+        timer = Timer("get_nodes")
         nodes = []
         prestige = False
         bp_node = None
@@ -156,7 +156,7 @@ class NodeDetection:
             cls_name = self.CLASS_NAMES_DICT[cls]
             box = Box(round(x1), round(y1), round(x2), round(y2))
             if cls_name == NodeType.BLOODPOINTS:
-                if confidence > 0.7: # TODO hhh check this threshold
+                if confidence > 0.7:
                     bp_node = UnmatchedNode(box, confidence, cls_name)
                     continue
 
@@ -177,11 +177,11 @@ class NodeDetection:
                 else: # new node not close to any existing nodes
                     nodes.append(UnmatchedNode(box, confidence, cls_name))
 
-        timer.update("get_nodes")
+        timer.update()
         return nodes, bp_node
 
     def match_nodes(self, all_nodes: List[UnmatchedNode], screenshot, merged_base) -> List[MatchedNode]:
-        timer = Timer()
+        timer = Timer("match_nodes")
         matched = []
         for unmatched_node in all_nodes:
             if unmatched_node.cls_name in NodeType.MULTI_UNCLAIMED:
@@ -189,5 +189,5 @@ class NodeDetection:
                 matched.append(MatchedNode.from_unmatched_node(unmatched_node, match_unique_id))
             else:
                 matched.append(MatchedNode.from_unmatched_node(unmatched_node))
-        timer.update("match_nodes")
+        timer.update()
         return matched

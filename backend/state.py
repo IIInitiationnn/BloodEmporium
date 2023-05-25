@@ -394,11 +394,11 @@ class StateProcess(Process):
                     print("yolov8: detect and match all nodes")
                     node_results = node_detector.predict(cv_image.get_bgr())
                     all_nodes, bp_node = node_detector.get_validate_all_nodes(node_results)
-                    matched_claimable_nodes = node_detector.match_nodes(all_nodes, cv_image.get_gray(), merged_base)
-                    debugger.set_nodes(bloodweb_iteration, matched_claimable_nodes)
+                    matched_nodes = node_detector.match_nodes(all_nodes, cv_image.get_gray(), merged_base)
+                    debugger.set_nodes(bloodweb_iteration, matched_nodes)
 
                     # nothing detected
-                    if len(matched_claimable_nodes) == 0:
+                    if len(matched_nodes) == 0:
                         print("nothing detected, trying again...")
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
@@ -407,7 +407,7 @@ class StateProcess(Process):
                         continue
 
                     # prestige
-                    elif len(matched_claimable_nodes) == 1 and matched_claimable_nodes[0].cls_name == NodeType.PRESTIGE:
+                    elif len(matched_nodes) == 1 and matched_nodes[0].cls_name == NodeType.PRESTIGE:
                         prestige_total += 1
                         bp_total += 20000
                         if dev_mode:
@@ -421,7 +421,7 @@ class StateProcess(Process):
                         print("prestige level: selecting")
                         self.emit("prestige", (prestige_total, prestige_limit))
                         self.emit("bloodpoint", (bp_total, bp_limit))
-                        centre = matched_claimable_nodes[0].box.centre()
+                        centre = matched_nodes[0].box.centre()
                         pyautogui.moveTo(*centre.xy())
                         self.click_prestige(primary_mouse, interaction)
                         continue
@@ -429,13 +429,13 @@ class StateProcess(Process):
                     # yolov5obb: detect and link all edges
                     print("yolov5obb: detect and link all edges")
                     edge_results = edge_detector.predict(cv_image.get_bgr())
-                    avg_diameter = mean([(m.box.diameter()) for m in matched_claimable_nodes])
-                    linked_edges = edge_detector.link_edges(edge_results, matched_claimable_nodes, avg_diameter) # TODO maybe also return unlinked edges
+                    avg_diameter = mean([(m.box.diameter()) for m in matched_nodes])
+                    linked_edges = edge_detector.link_edges(edge_results, matched_nodes, avg_diameter) # TODO maybe also return unlinked edges
                     debugger.set_edges(bloodweb_iteration, linked_edges)
 
                     # create networkx graph of nodes
                     print("creating networkx graph")
-                    grapher = Grapher(matched_claimable_nodes, linked_edges) # all 9999
+                    grapher = Grapher(matched_nodes, linked_edges) # all 9999
                     base_bloodweb = grapher.create()
                     debugger.set_base_bloodweb(bloodweb_iteration, base_bloodweb)
 
