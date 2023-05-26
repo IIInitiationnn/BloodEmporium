@@ -46,9 +46,8 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 1.1.0
-- 6.7.0 changes
 - bloodpoint spend cost without using item rarity (top right bloodweb balance is more accurate)
-- auto buy for early levels IF correct origin
+- bloodpoints depleted even if origin is not autobuy disabled (bp total > initial bp - current bp)
 - config backup or some other method of preventing config corruption when reading / writing
 - show time elapsed under bp / prestige limit + status on progress (starting, detecting bloodweb, optimising)
 - installer + autoupdate
@@ -153,6 +152,7 @@ class StateProcess(Process):
         if interaction == "hold":
             time.sleep(0.5)
         pyautogui.mouseUp(button=primary_mouse)
+        pyautogui.moveTo(0, 0)
         time.sleep(4 + num_nodes / 13)
 
     # send data to main process via pipe
@@ -224,8 +224,8 @@ class StateProcess(Process):
                 while True:
                     if prestige_limit is not None and prestige_total == prestige_limit:
                         print("reached prestige limit. terminating")
-                        self.emit("terminate")
                         self.emit("toggle_text", ("Prestige limit reached.", False, False))
+                        self.emit("terminate")
                         return
 
                     # screen capture
@@ -237,7 +237,7 @@ class StateProcess(Process):
                     print("yolov8: detect claimable nodes")
                     results = node_detector.predict(cv_image.get_bgr())
                     all_nodes, bp_node = node_detector.get_validate_all_nodes(results)
-                    # TODO bloodpoint balance from all_nodes
+                    # TODO bloodpoint balance
                     # TODO only match if necessary eg bp balance is much lower than limit
                     #  (use iri cost * number of unclaimed nodes)
                     matched_nodes = node_detector.match_nodes(all_nodes, cv_image.get_gray(), merged_base)
@@ -246,8 +246,12 @@ class StateProcess(Process):
                     debugger.set_nodes(bloodweb_iteration, matched_nodes)
 
                     # nothing detected
-                    if len(matched_claimable_nodes) == 0:
+                    if len(matched_claimable_nodes) == 0 or \
+                            (len(matched_claimable_nodes) == 1 and
+                             matched_claimable_nodes[0].cls_name in NodeType.MULTI_ORIGIN):
                         print("nothing detected, trying again...")
+                        if dev_mode:
+                            debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
                         pyautogui.click(button=primary_mouse)
                         continue
@@ -265,8 +269,8 @@ class StateProcess(Process):
                             debugger.construct_and_show_images(bloodweb_iteration)
                         if bp_limit is not None and bp_total > bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
-                            self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
+                            self.emit("terminate")
                             return
 
                         print("prestige level: selecting")
@@ -286,21 +290,22 @@ class StateProcess(Process):
 
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
-                        print("auto origin (enabled): selecting")
-                        self.emit("bloodpoint", (bp_total, bp_limit))
 
                         if total_bloodweb_cost > bp_limit - bp_total:
                             # manual TODO select random node repeatedly until new level, same logic as else branch
                             pass
                         else:
+                            print("auto origin (enabled): selecting")
+                            self.emit("bloodpoint", (bp_total, bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
                             pyautogui.moveTo(*centre.xy())
                             self.click_origin(primary_mouse, interaction, len(matched_claimable_nodes))
                     elif any([node.cls_name == NodeType.ORIGIN_AUTO_DISABLED for node in matched_claimable_nodes]):
                         # disabled auto origin found
                         print("bloodpoints depleted. terminating")
-                        self.emit("terminate")
                         self.emit("toggle_text", ("Bloodpoints depleted.", False, False))
+                        self.emit("terminate")
+                        return
                     else:
                         # no auto origin found: must be prestige 0; select manually
                         # create networkx graph of nodes without edges
@@ -328,8 +333,8 @@ class StateProcess(Process):
                             bp_total += Data.get_cost(random_unlockable.rarity)
                             if bp_limit is not None and bp_total > bp_limit:
                                 print(f"{random_node.name}: reached bloodpoint limit. terminating")
-                                self.emit("terminate")
                                 self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
+                                self.emit("terminate")
                                 return
 
                             print(random_node.name)
@@ -381,8 +386,8 @@ class StateProcess(Process):
                 while True:
                     if prestige_limit is not None and prestige_total == prestige_limit:
                         print("reached prestige limit. terminating")
-                        self.emit("terminate")
                         self.emit("toggle_text", ("Prestige limit reached.", False, False))
+                        self.emit("terminate")
                         return
 
                     # screen capture
@@ -398,7 +403,8 @@ class StateProcess(Process):
                     debugger.set_nodes(bloodweb_iteration, matched_nodes)
 
                     # nothing detected
-                    if len(matched_nodes) == 0:
+                    if len(matched_nodes) == 0 or \
+                            (len(matched_nodes) == 1 and matched_nodes[0].cls_name in NodeType.MULTI_ORIGIN):
                         print("nothing detected, trying again...")
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
@@ -406,16 +412,24 @@ class StateProcess(Process):
                         pyautogui.click(button=primary_mouse)
                         continue
 
+                    prestige = [node for node in matched_nodes if node.cls_name == NodeType.PRESTIGE]
+                    origin_auto_enabled = [node for node in matched_nodes
+                                           if node.cls_name == NodeType.ORIGIN_AUTO_ENABLED]
+
+                    # fast-forward levels with <= 6 nodes (excl. origin): autobuy if possible
+                    fast_forward = len([node for node in matched_nodes
+                                        if node.cls_name not in NodeType.MULTI_ORIGIN]) <= 6
+
                     # prestige
-                    elif len(matched_nodes) == 1 and matched_nodes[0].cls_name == NodeType.PRESTIGE:
+                    if len(prestige) > 0:
                         prestige_total += 1
                         bp_total += 20000
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         if bp_limit is not None and bp_total > bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
-                            self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
+                            self.emit("terminate")
                             return
 
                         print("prestige level: selecting")
@@ -425,6 +439,33 @@ class StateProcess(Process):
                         pyautogui.moveTo(*centre.xy())
                         self.click_prestige(primary_mouse, interaction)
                         continue
+                    elif fast_forward and len(origin_auto_enabled) > 0:
+                        # enabled auto origin found
+                        total_bloodweb_cost = 0
+                        for node in matched_nodes:
+                            if node.cls_name in NodeType.MULTI_UNCLAIMED:
+                                unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
+                                total_bloodweb_cost += Data.get_cost(unlockable.rarity)
+
+                        if dev_mode:
+                            debugger.construct_and_show_images(bloodweb_iteration)
+
+                        if total_bloodweb_cost > bp_limit - bp_total:
+                            # manual: start edge detection and optimal non-auto selection
+                            pass
+                        else:
+                            print("auto origin (enabled): selecting")
+                            self.emit("bloodpoint", (bp_total, bp_limit))
+                            centre = origin_auto_enabled[0].box.centre()
+                            pyautogui.moveTo(*centre.xy())
+                            self.click_origin(primary_mouse, interaction, len(matched_nodes))
+                            continue
+                    elif any([node.cls_name == NodeType.ORIGIN_AUTO_DISABLED for node in matched_nodes]):
+                        # disabled auto origin found
+                        print("bloodpoints depleted. terminating")
+                        self.emit("toggle_text", ("Bloodpoints depleted.", False, False))
+                        self.emit("terminate")
+                        return
 
                     # yolov5obb: detect and link all edges
                     print("yolov5obb: detect and link all edges")
@@ -492,8 +533,8 @@ class StateProcess(Process):
                             bp_total += sum([Data.get_cost(u.rarity) for u in us])
                         if bp_limit is not None and bp_total > bp_limit:
                             print(f"{best_node.node_id} ({best_node.name}): reached bloodpoint limit. terminating")
-                            self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
+                            self.emit("terminate")
                             return
 
                         print(f"{best_node.node_id} ({best_node.name})")
@@ -541,10 +582,10 @@ class StateProcess(Process):
                     bloodweb_iteration += 1
         except:
             traceback.print_exc()
-            self.emit("terminate")
             self.emit("toggle_text", (f"An error occurred. Please check "
                                       f"debug-{timestamp.strftime('%y-%m-%d %H-%M-%S')}.log for additional details.",
                                       True, False))
+            self.emit("terminate")
 
 class State:
     version = "v1.1.0"
