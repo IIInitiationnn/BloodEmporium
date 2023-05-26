@@ -419,6 +419,7 @@ class StateProcess(Process):
                     # fast-forward levels with <= 6 nodes (excl. origin): autobuy if possible
                     fast_forward = len([node for node in matched_nodes
                                         if node.cls_name not in NodeType.MULTI_ORIGIN]) <= 6
+                    override_slow = False
 
                     # prestige
                     if len(prestige) > 0:
@@ -451,8 +452,8 @@ class StateProcess(Process):
                             debugger.construct_and_show_images(bloodweb_iteration)
 
                         if total_bloodweb_cost > bp_limit - bp_total:
-                            # manual: start edge detection and optimal non-auto selection
-                            pass
+                            # manual: start edge detection and optimal non-auto selection but without waiting
+                            override_slow = True
                         else:
                             print("auto origin (enabled): selecting")
                             self.emit("bloodpoint", (bp_total, bp_limit))
@@ -556,7 +557,7 @@ class StateProcess(Process):
                         pyautogui.moveTo(0, 0)
 
                         # wait if slow
-                        if speed == "slow":
+                        if speed == "slow" and not override_slow:
                             self.wait_slow(grab_time, len(best_nodes))
                         # TODO fast speed may also need to wait for nodes to be consumed first, so maybe the wait
                         #  for multiple nodes should be extrapolated outside of this function? ie theres a base time
