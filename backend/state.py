@@ -232,30 +232,20 @@ class StateProcess(Process):
                     # screen capture
                     print("capturing screen")
                     cv_img = CVImage.screen_capture()
+                    image_gray = cv_img.get_gray()
                     debugger.set_image(bloodweb_iteration, cv_img)
 
                     # yolov8: detect claimable nodes
                     print("yolov8: detect claimable nodes")
                     results = node_detector.predict(cv_img.get_bgr())
                     all_nodes, bp_node = node_detector.get_validate_all_nodes(results)
-                    image_gray = cv_img.get_gray()
 
-                    current_bp_balance = node_detector.calculate_bloodpoints(bp_node, image_gray)
-                    if bloodweb_iteration == 0:
-                        initial_bp_balance = current_bp_balance
-                    bp_total = initial_bp_balance - current_bp_balance
                     # TODO only match if necessary eg bp balance is much lower than limit
                     #  (use iri cost * number of unclaimed nodes)
                     matched_nodes = node_detector.match_nodes(all_nodes, image_gray, merged_base)
                     matched_claimable_nodes = [node for node in matched_nodes
                                                if node.cls_name in NodeType.MULTI_CLAIMABLE]
                     debugger.set_nodes(bloodweb_iteration, matched_nodes)
-
-                    total_bloodweb_cost = 0
-                    for node in matched_claimable_nodes:
-                        if node.cls_name in NodeType.MULTI_UNCLAIMED:
-                            unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
-                            total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
 
                     # nothing detected
                     if len(matched_claimable_nodes) == 0 or \
@@ -267,6 +257,18 @@ class StateProcess(Process):
                         time.sleep(0.5) # try again
                         pyautogui.click(button=primary_mouse)
                         continue
+
+                    current_bp_balance = node_detector.calculate_bloodpoints(bp_node, image_gray)
+                    if bloodweb_iteration == 0:
+                        initial_bp_balance = current_bp_balance
+                    bp_total = initial_bp_balance - current_bp_balance
+                    self.emit("bloodpoint", (bp_total, bp_limit))
+
+                    total_bloodweb_cost = 0
+                    for node in matched_claimable_nodes:
+                        if node.cls_name in NodeType.MULTI_UNCLAIMED:
+                            unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
+                            total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
 
                     prestige = [node for node in matched_nodes if node.cls_name == NodeType.PRESTIGE]
                     origin_auto_enabled = [node for node in matched_nodes
@@ -308,7 +310,6 @@ class StateProcess(Process):
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
 
-                        print("total: ", total_bloodweb_cost)
                         if bp_limit is not None and total_bloodweb_cost > bp_limit - bp_total:
                             # manual
                             pass
@@ -402,6 +403,7 @@ class StateProcess(Process):
                         current_bp_balance = node_detector.calculate_bloodpoints(updated_bp_node,
                                                                                  updated_img.get_gray())
                         bp_total = initial_bp_balance - current_bp_balance
+                        self.emit("bloodpoint", (bp_total, bp_limit))
 
                         # new level
                         if new_level:
@@ -426,13 +428,14 @@ class StateProcess(Process):
                     # screen capture
                     print("capturing screen")
                     cv_img = CVImage.screen_capture()
+                    image_gray = cv_img.get_gray()
                     debugger.set_image(bloodweb_iteration, cv_img)
 
                     # yolov8: detect and match all nodes
                     print("yolov8: detect and match all nodes")
                     node_results = node_detector.predict(cv_img.get_bgr())
                     all_nodes, bp_node = node_detector.get_validate_all_nodes(node_results)
-                    matched_nodes = node_detector.match_nodes(all_nodes, cv_img.get_gray(), merged_base)
+                    matched_nodes = node_detector.match_nodes(all_nodes, image_gray, merged_base)
                     debugger.set_nodes(bloodweb_iteration, matched_nodes)
 
                     # nothing detected
@@ -444,6 +447,12 @@ class StateProcess(Process):
                         time.sleep(0.5) # try again
                         pyautogui.click(button=primary_mouse)
                         continue
+
+                    current_bp_balance = node_detector.calculate_bloodpoints(bp_node, image_gray)
+                    if bloodweb_iteration == 0:
+                        initial_bp_balance = current_bp_balance
+                    bp_total = initial_bp_balance - current_bp_balance
+                    self.emit("bloodpoint", (bp_total, bp_limit))
 
                     prestige = [node for node in matched_nodes if node.cls_name == NodeType.PRESTIGE]
                     origin_auto_enabled = [node for node in matched_nodes
@@ -457,10 +466,9 @@ class StateProcess(Process):
                     # prestige
                     if len(prestige) > 0:
                         prestige_total += 1
-                        bp_total += 20000
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
-                        if bp_limit is not None and bp_total > bp_limit:
+                        if bp_limit is not None and bp_total + 20000 > bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
                             self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
@@ -468,7 +476,7 @@ class StateProcess(Process):
 
                         print("prestige level: selecting")
                         self.emit("prestige", (prestige_total, prestige_limit))
-                        self.emit("bloodpoint", (bp_total, bp_limit))
+                        self.emit("bloodpoint", (bp_total + 20000, bp_limit))
                         centre = matched_nodes[0].box.centre()
                         pyautogui.moveTo(*centre.xy())
                         self.click_prestige(primary_mouse, interaction)
@@ -559,20 +567,20 @@ class StateProcess(Process):
                             best_node = optimiser.select_best_single()
                             best_nodes = [best_node]
                             u = [u for u in unlockables if u.unique_id == best_node.name][0]
-                            bp_total += Data.get_cost(u.rarity, u.type)
+                            cost = Data.get_cost(u.rarity, u.type)
                         else:
                             best_nodes = optimiser.select_best_multi(unlockables) # TODO incorporate into debugging
                             best_node = best_nodes[-1]
                             us = [[u for u in unlockables if u.unique_id == node.name][0] for node in best_nodes]
-                            bp_total += sum([Data.get_cost(u.rarity, u.type) for u in us])
-                        if bp_limit is not None and bp_total > bp_limit:
+                            cost = sum([Data.get_cost(u.rarity, u.type) for u in us])
+                        if bp_limit is not None and bp_total + cost > bp_limit:
                             print(f"{best_node.node_id} ({best_node.name}): reached bloodpoint limit. terminating")
                             self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                             return
 
                         print(f"{best_node.node_id} ({best_node.name})")
-                        self.emit("bloodpoint", (bp_total, bp_limit))
+                        self.emit("bloodpoint", (bp_total + cost, bp_limit))
 
                         # select perk: press OR hold on the perk for 0.3s
                         pyautogui.moveTo(best_node.x, best_node.y)
@@ -605,6 +613,10 @@ class StateProcess(Process):
                         updated_results = node_detector.predict(updated_img.get_bgr())
                         updated_nodes, updated_bp_node = node_detector.get_validate_all_nodes(updated_results)
                         new_level = Grapher.update(base_bloodweb, updated_nodes, best_node)
+                        current_bp_balance = node_detector.calculate_bloodpoints(updated_bp_node,
+                                                                                 updated_img.get_gray())
+                        bp_total = initial_bp_balance - current_bp_balance
+                        self.emit("bloodpoint", (bp_total, bp_limit))
 
                         # new level
                         if new_level:

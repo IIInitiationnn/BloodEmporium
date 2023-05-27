@@ -200,7 +200,7 @@ class NodeDetection:
         bp_image = screenshot[y1:y2, x1:x2]
         # bp_image = cv2.GaussianBlur(bp_image, (3, 3), 0)
         bp_image = 255 - bp_image
-        _, bp_image = cv2.threshold(bp_image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        _, bp_image = cv2.threshold(bp_image, 50, 255, cv2.THRESH_BINARY)
 
         # cv2.imshow("bp", bp_image)
         # cv2.waitKey(0)
