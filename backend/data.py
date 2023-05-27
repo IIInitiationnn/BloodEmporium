@@ -143,17 +143,19 @@ class Data:
     def get_rarities():
         return ["common", "uncommon", "rare", "very_rare", "ultra_rare", "event", "varies"]
 
+    __costs = {
+        "common": 2000,
+        "uncommon": 2500,
+        "rare": 3250,
+        "very_rare": 4000,
+        "ultra_rare": 5000,
+        "event": 2000,
+        "varies": 5000, # assume worst case
+    }
+
     @staticmethod
-    def get_cost(rarity):
-        return {
-            "common": 2000,
-            "uncommon": 2500,
-            "rare": 3250,
-            "very_rare": 4000,
-            "ultra_rare": 5000,
-            "event": 2000,
-            "varies": 5000, # assume worst case
-        }[rarity]
+    def get_cost(rarity, unlockable_type):
+        return 4000 if unlockable_type == "perk" else Data.__costs[rarity]
 
     @staticmethod
     def get_sorts():

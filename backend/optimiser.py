@@ -158,14 +158,10 @@ class Optimiser:
                 # more weight should be given to further nodes because the value they provide propagates down the path
                 path_opt_val = mean([self.dijkstra_graph.nodes[intermediate_node]["value"]
                                      for intermediate_node in path])
-                path_bp_val = sum([
-                    Data.get_cost(
-                        [u for u in unlockables
-                         if u.unique_id == self.dijkstra_graph.nodes[intermediate_node]["name"]
-                         ][0].rarity
-                    )
-                    for intermediate_node in path
-                ])
+                path_unlockables = [[u for u in unlockables
+                                    if u.unique_id == self.dijkstra_graph.nodes[intermediate_node]["name"]][0]
+                                    for intermediate_node in path]
+                path_bp_val = sum([Data.get_cost(u.rarity, u.type) for u in path_unlockables])
                 paths.append(path)
                 bp_vals.append(path_bp_val)
                 opt_vals.append(path_opt_val)

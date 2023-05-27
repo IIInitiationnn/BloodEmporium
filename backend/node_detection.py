@@ -1,10 +1,10 @@
 import math
-import random
 from math import floor
 from statistics import mode
 from typing import List, Optional, Tuple
 
 import cv2
+import pytesseract
 from ultralytics import YOLO
 from ultralytics.yolo.engine.results import Results
 
@@ -14,6 +14,7 @@ from backend.shapes import UnmatchedNode, MatchedNode, Box
 from backend.util.node_util import NodeType
 from backend.util.timer import Timer
 
+pytesseract.pytesseract.tesseract_cmd = r"C:\Users\Admin\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
 
 class NodeDetection:
     def __init__(self):
@@ -191,3 +192,22 @@ class NodeDetection:
                 matched.append(MatchedNode.from_unmatched_node(unmatched_node))
         timer.update()
         return matched
+
+    def calculate_bloodpoints(self, bp_node: UnmatchedNode, screenshot):
+        timer = Timer("calculate_bloodpoints")
+        x1, y1, x2, y2 = bp_node.xyxy()
+        x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
+        bp_image = screenshot[y1:y2, x1:x2]
+        # bp_image = cv2.GaussianBlur(bp_image, (3, 3), 0)
+        bp_image = 255 - bp_image
+        _, bp_image = cv2.threshold(bp_image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+        # cv2.imshow("bp", bp_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+
+        bp_num = int(pytesseract.image_to_string(bp_image, config="-c tessedit_char_whitelist=0123456789"))
+        print(bp_num)
+
+        timer.update()
+        return bp_num

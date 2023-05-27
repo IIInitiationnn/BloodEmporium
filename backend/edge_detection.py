@@ -54,6 +54,7 @@ class EdgeDetection:
 
         return processed_results
 
+    # TODO maybe also return unlinked edges
     def link_edges(self, results, matched_nodes: List[MatchedNode], avg_diameter) -> List[LinkedEdge]:
         timer = Timer("link_edges")
         edges = []
