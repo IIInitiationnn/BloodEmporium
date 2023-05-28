@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 from PyQt5.QtCore import QSize, QTimer
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGridLayout
@@ -73,6 +74,21 @@ class BloodwebPage(QWidget):
         self.runBloodpointProgress.setText(f"Bloodpoints spent: {bp_total:,} / {bp_limit:,}"
                                            if bp_limit is not None else f"Bloodpoints spent: {bp_total:,}")
 
+    def start_time(self):
+        if not self.runTimeProgress.isVisible():
+            self.runTimeProgress.setVisible(True)
+        self.starting_time = time.time()
+        self.timer.start(100)
+        print("started timetime")
+
+    def update_time(self):
+        if self.starting_time is not None:
+            self.runTimeProgress.setText(f"Time elapsed: {TextUtil.format_time(time.time() - self.starting_time)}")
+
+    def stop_time(self):
+        self.starting_time = None
+        self.timer.stop()
+
     def show_run_success(self, text, hide):
         self.runErrorText.setText(text)
         self.runErrorText.setStyleSheet(StyleSheets.pink_text)
@@ -108,6 +124,9 @@ class BloodwebPage(QWidget):
         runtime = Runtime()
         self.dev_mode = dev_mode
         self.setObjectName("bloodwebPage")
+        self.starting_time = None
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_time)
 
         self.layout = QGridLayout(self)
         self.layout.setObjectName("bloodwebPageLayout")
@@ -274,6 +293,8 @@ class BloodwebPage(QWidget):
         self.runPrestigeProgress.setVisible(False)
         self.runBloodpointProgress = TextLabel(self, "bloodwebPageRunBloodpointProgress", "", Font(10))
         self.runBloodpointProgress.setVisible(False)
+        self.runTimeProgress = TextLabel(self, "bloodwebPageRunTimeProgress", "", Font(10))
+        self.runTimeProgress.setVisible(False)
 
         self.naiveRowLayout.addWidget(self.naiveCheckBox)
         self.naiveRowLayout.addWidget(self.naiveDescription)
@@ -334,6 +355,7 @@ class BloodwebPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.runRow)
         self.scrollAreaContentLayout.addWidget(self.runPrestigeProgress)
         self.scrollAreaContentLayout.addWidget(self.runBloodpointProgress)
+        self.scrollAreaContentLayout.addWidget(self.runTimeProgress)
         self.scrollAreaContentLayout.addStretch(1)
 
         self.layout.addWidget(self.scrollArea)

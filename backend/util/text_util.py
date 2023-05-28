@@ -1,3 +1,6 @@
+import math
+
+
 class TextUtil:
     @staticmethod
     def camel_case(text: str):
@@ -32,3 +35,10 @@ class TextUtil:
                 attr_texts.append(str(attr).ljust(maxes[i], " "))
             obj_texts.append(" " * initial_pad + " ".join(attr_texts))
         return "\n".join(obj_texts)
+
+    @staticmethod
+    def format_time(s):
+        secs = math.floor(s % 60)
+        mins = math.floor((s / 60) % 60)
+        hrs = math.floor((s / 3600))
+        return f"{f'{hrs}h ' if hrs > 0 else ''}{f'{mins}m ' if hrs > 0 or mins > 0 else ''}{secs}s"

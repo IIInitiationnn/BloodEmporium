@@ -46,24 +46,24 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 1.1.0
-- bloodpoint spend cost without using item rarity (top right bloodweb balance is more accurate)
-- bloodpoints depleted even if origin is not autobuy disabled (bp total > initial bp - current bp)
-- config backup or some other method of preventing config corruption when reading / writing
-- show time elapsed under bp / prestige limit + status on progress (starting, detecting bloodweb, optimising)
 - installer + autoupdate
 - antivirus false positive
+- bloodpoints depleted even if origin is not autobuy disabled (bp total > initial bp - current bp)
+- program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
+    - abstract limit checks to functions in state: make bp_total => self.bp_total etc for easy access
+    - also do the same for modes, speeds etc
 
-POST 1.0.0
+POST 1.1.0
+- status on progress (starting, detecting bloodweb, optimising)
+- config backup or some other method of preventing config corruption when reading / writing
 - preferences page: changing profile maintains tier order (need to refresh sort when sorting by tier)
 - moris, reagents getting confused?
-- backup configs every time they are written to, max of 100?
 - log for main process
 - tier range filter
 - shift selection and unselection
 - maybe undo and redo last selection buttons at bottom
 - "you have unsaved changes" next to save button - profiles, settings
-- program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
-- summary on items obtained by the application
+- summary on items obtained by the application (aware only)
 """
 
 # https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python

@@ -357,9 +357,11 @@ class MainWindow(QMainWindow):
 
             self.state.run((debug, write_to_output, prestige_limit, bp_limit)) # may as well use the validated limits
             self.toggle_run_terminate_text("Running...", False, True)
+            self.bloodwebPage.start_time()
         else: # terminate
             self.state.terminate()
             self.toggle_run_terminate_text("Manually terminated.", False, True)
+            self.bloodwebPage.stop_time()
 
     def toggle_run_terminate_text(self, text, is_error, hide):
         self.bloodwebPage.hide_run_text()
