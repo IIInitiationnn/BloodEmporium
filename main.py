@@ -333,6 +333,10 @@ class MainWindow(QMainWindow):
     def get_runtime_bloodpoint_limit(self) -> str or None:
         return self.bloodwebPage.bloodpointInput.text() if self.bloodwebPage.bloodpointCheckBox.isChecked() else None
 
+    def terminate(self):
+        self.state.terminate()
+        self.bloodwebPage.stop_time()
+
     def run_terminate(self):
         debug, write_to_output = self.bloodwebPage.get_debug_options()
         if not self.state.is_active(): # run
@@ -359,9 +363,8 @@ class MainWindow(QMainWindow):
             self.toggle_run_terminate_text("Running...", False, True)
             self.bloodwebPage.start_time()
         else: # terminate
-            self.state.terminate()
+            self.terminate()
             self.toggle_run_terminate_text("Manually terminated.", False, True)
-            self.bloodwebPage.stop_time()
 
     def toggle_run_terminate_text(self, text, is_error, hide):
         self.bloodwebPage.hide_run_text()
@@ -773,7 +776,7 @@ class MainWindow(QMainWindow):
 
         self.emitter.prestige.connect(self.bloodwebPage.on_prestige_signal)
         self.emitter.bloodpoint.connect(self.bloodwebPage.on_bloodpoint_signal)
-        self.emitter.terminate.connect(self.state.terminate)
+        self.emitter.terminate.connect(self.terminate)
         self.emitter.toggle_text.connect(self.toggle_run_terminate_text)
 
 # https://stackoverflow.com/questions/26746379/how-to-signal-slots-in-a-gui-from-a-different-process

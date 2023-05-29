@@ -157,7 +157,7 @@ class NodeDetection:
             cls_name = self.CLASS_NAMES_DICT[cls]
             box = Box(round(x1), round(y1), round(x2), round(y2))
             if cls_name == NodeType.BLOODPOINTS:
-                if confidence > 0.7:
+                if confidence > 0.3: # TODO hhh set this back to 0.7 after more training on screenshots with low bp
                     bp_node = UnmatchedNode(box, confidence, cls_name)
                     continue
 
@@ -206,7 +206,10 @@ class NodeDetection:
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
 
-        bp_num = int(pytesseract.image_to_string(bp_image, config="-c tessedit_char_whitelist=0123456789"))
+        try:
+            bp_num = int(pytesseract.image_to_string(bp_image, config="-c tessedit_char_whitelist=0123456789"))
+        except ValueError:
+            bp_num = None # TODO figure out a systematic way of accurately determining bp as failsafe eg blur, resize
         print(bp_num)
 
         timer.update()

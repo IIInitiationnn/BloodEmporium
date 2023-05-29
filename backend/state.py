@@ -48,10 +48,9 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 1.1.0
 - installer + autoupdate
 - antivirus false positive
-- bloodpoints depleted even if origin is not autobuy disabled (bp total > initial bp - current bp)
-- program termination upon reaching insufficient bloodpoints (bloodpoint tracking should also use nums in top right to verify if item was selected)
-    - abstract limit checks to functions in state: make bp_total => self.bp_total etc for easy access
-    - also do the same for modes, speeds etc
+- systematic failsafe for bp if tesseract fails
+- more training images with 1-3 digit bloodpoint counts
+- discord issues (perk matching)
 
 POST 1.1.0
 - status on progress (starting, detecting bloodweb, optimising)
@@ -115,43 +114,43 @@ class StateProcess(Process):
         if time_since_grab < wait_time:
             time.sleep(wait_time - time_since_grab)
 
-    def wait_level_cleared(self, primary_mouse):
+    def wait_level_cleared(self):
         time.sleep(1) # 1 sec to clear out until new level screen
-        pyautogui.click(button=primary_mouse)
+        pyautogui.click(button=self.primary_mouse)
         time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-        pyautogui.click(button=primary_mouse)
+        pyautogui.click(button=self.primary_mouse)
         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-        pyautogui.click(button=primary_mouse)
+        pyautogui.click(button=self.primary_mouse)
         time.sleep(2) # 2 secs to generate
 
-    def click_node(self, primary_mouse, interaction):
-        pyautogui.mouseDown(button=primary_mouse)
-        if interaction == "press":
+    def click_node(self):
+        pyautogui.mouseDown(button=self.primary_mouse)
+        if self.interaction == "press":
             pyautogui.moveTo(0, 0)
         else: # hold
             time.sleep(0.15)
             pyautogui.moveTo(0, 0)
             time.sleep(0.15)
-        pyautogui.mouseUp(button=primary_mouse)
+        pyautogui.mouseUp(button=self.primary_mouse)
 
-    def click_prestige(self, primary_mouse, interaction):
-        pyautogui.mouseDown(button=primary_mouse)
-        if interaction == "hold":
+    def click_prestige(self):
+        pyautogui.mouseDown(button=self.primary_mouse)
+        if self.interaction == "hold":
             time.sleep(1.5)
-        pyautogui.mouseUp(button=primary_mouse)
+        pyautogui.mouseUp(button=self.primary_mouse)
         time.sleep(4) # 4 sec to clear out until new level screen
-        pyautogui.click(button=primary_mouse)
+        pyautogui.click(button=self.primary_mouse)
         time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
-        pyautogui.click(button=primary_mouse)
+        pyautogui.click(button=self.primary_mouse)
         time.sleep(0.5) # 1 sec to generate
         pyautogui.moveTo(0, 0)
         time.sleep(0.5) # 1 sec to generate
 
-    def click_origin(self, primary_mouse, interaction, num_nodes):
-        pyautogui.mouseDown(button=primary_mouse)
-        if interaction == "hold":
+    def click_origin(self, num_nodes):
+        pyautogui.mouseDown(button=self.primary_mouse)
+        if self.interaction == "hold":
             time.sleep(0.5)
-        pyautogui.mouseUp(button=primary_mouse)
+        pyautogui.mouseUp(button=self.primary_mouse)
         pyautogui.moveTo(0, 0)
         time.sleep(4 + num_nodes / 13)
 
@@ -162,8 +161,8 @@ class StateProcess(Process):
     def run(self):
         timestamp = datetime.now()
         config = Config()
-        interaction = config.interaction()
-        primary_mouse = config.primary_mouse()
+        self.interaction = config.interaction()
+        self.primary_mouse = config.primary_mouse()
 
         runtime = Runtime()
         profile_id = runtime.profile()
@@ -171,7 +170,7 @@ class StateProcess(Process):
         run_mode = runtime.mode()
         speed = runtime.speed()
         try:
-            dev_mode, write_to_output, prestige_limit, bp_limit = self.args
+            dev_mode, write_to_output, self.prestige_limit, self.bp_limit = self.args
             Timer.PRINT = dev_mode
             log = logging.getLogger()
             log.setLevel(logging.DEBUG)
@@ -201,10 +200,10 @@ class StateProcess(Process):
 
             node_detector = NodeDetection()
 
-            prestige_total = 0
-            bp_total = 0
-            self.emit("prestige", (prestige_total, prestige_limit))
-            self.emit("bloodpoint", (bp_total, bp_limit))
+            self.prestige_total = 0
+            self.bp_total = 0
+            self.emit("prestige", (self.prestige_total, self.prestige_limit))
+            self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
             # initialisation: merged base for template matching
             print(f"merging")
@@ -223,7 +222,7 @@ class StateProcess(Process):
             print(f"run mode: {run_mode}")
             if run_mode == "naive":
                 while True:
-                    if prestige_limit is not None and prestige_total == prestige_limit:
+                    if self.prestige_limit is not None and self.prestige_total == self.prestige_limit:
                         print("reached prestige limit. terminating")
                         self.emit("terminate")
                         self.emit("toggle_text", ("Prestige limit reached.", False, False))
@@ -255,14 +254,14 @@ class StateProcess(Process):
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
-                        pyautogui.click(button=primary_mouse)
+                        pyautogui.click(button=self.primary_mouse)
                         continue
 
                     current_bp_balance = node_detector.calculate_bloodpoints(bp_node, image_gray)
                     if bloodweb_iteration == 0:
                         initial_bp_balance = current_bp_balance
-                    bp_total = initial_bp_balance - current_bp_balance
-                    self.emit("bloodpoint", (bp_total, bp_limit))
+                    self.bp_total = initial_bp_balance - current_bp_balance
+                    self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
                     total_bloodweb_cost = 0
                     for node in matched_claimable_nodes:
@@ -283,22 +282,27 @@ class StateProcess(Process):
 
                     if len(prestige) > 0:
                         # prestige node found
-                        prestige_total += 1
+                        self.prestige_total += 1
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
-                        if bp_limit is not None and bp_total + 20000 > bp_limit:
+                        if self.bp_limit is not None and self.bp_total + 20000 > self.bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
                             self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                             return
+                        if 20000 > current_bp_balance:
+                            print("prestige level: bloodpoints depleted. terminating")
+                            self.emit("terminate")
+                            self.emit("toggle_text", ("Bloodpoints depleted.", False, False))
+                            return
 
                         print("prestige level: selecting")
-                        self.emit("prestige", (prestige_total, prestige_limit))
-                        self.emit("bloodpoint", (bp_total + 20000, bp_limit))
+                        self.emit("prestige", (self.prestige_total, self.prestige_limit))
+                        self.emit("bloodpoint", (self.bp_total + 20000, self.bp_limit))
 
                         centre = prestige[0].box.centre()
                         pyautogui.moveTo(*centre.xy())
-                        self.click_prestige(primary_mouse, interaction)
+                        self.click_prestige()
 
                         # move mouse again in case it didn't the first time
                         pyautogui.moveTo(0, 0)
@@ -310,17 +314,17 @@ class StateProcess(Process):
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
 
-                        if bp_limit is not None and total_bloodweb_cost > bp_limit - bp_total:
+                        if self.bp_limit is not None and total_bloodweb_cost > self.bp_limit - self.bp_total:
                             # manual
                             pass
                         else:
                             print("auto origin (enabled): selecting")
-                            self.emit("bloodpoint", (bp_total, bp_limit))
+                            self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
                             pyautogui.moveTo(*centre.xy())
-                            self.click_origin(primary_mouse, interaction, len(matched_claimable_nodes))
+                            self.click_origin(len(matched_claimable_nodes))
 
-                        # move mouse again in case it didn't the first time
+                            # move mouse again in case it didn't the first time
                             pyautogui.moveTo(0, 0)
                             bloodweb_iteration += 1
                             continue
@@ -362,25 +366,30 @@ class StateProcess(Process):
                         random_node = optimiser.select_random_prioritise_inaccessible()
                         random_unlockable = [u for u in unlockables if u.unique_id == random_node.name][0]
                         cost = Data.get_cost(random_unlockable.rarity, random_unlockable.type) # TODO need to do for entire path
-                        if bp_limit is not None and bp_total + cost > bp_limit:
-                            print(f"{random_node.name}: reached bloodpoint limit. terminating")
+                        if self.bp_limit is not None and self.bp_total + cost > self.bp_limit:
+                            print(f"{random_node.node_id} {random_node.name}: reached bloodpoint limit. terminating")
                             self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                             return
+                        if cost > current_bp_balance:
+                            print(f"{random_node.node_id} {random_node.name}: bloodpoints depleted. terminating")
+                            self.emit("terminate")
+                            self.emit("toggle_text", ("Bloodpoints depleted.", False, False))
+                            return
 
                         print(random_node.name)
-                        self.emit("bloodpoint", (bp_total + cost, bp_limit))
+                        self.emit("bloodpoint", (self.bp_total + cost, self.bp_limit))
 
                         # select perk
                         pyautogui.moveTo(random_node.x, random_node.y)
-                        self.click_node(primary_mouse, interaction)
+                        self.click_node()
                         grab_time = time.time()
 
                         # mystery box: click TODO may have to move outside of this branch?
                         if "mysteryBox" in random_node.name:
                             print("mystery box selected")
                             time.sleep(0.9)
-                            pyautogui.click(button=primary_mouse)
+                            pyautogui.click(button=self.primary_mouse)
                             time.sleep(0.2)
 
                         # wait if slow
@@ -402,13 +411,13 @@ class StateProcess(Process):
                         new_level = Grapher.update(base_bloodweb, updated_nodes, random_node)
                         current_bp_balance = node_detector.calculate_bloodpoints(updated_bp_node,
                                                                                  updated_img.get_gray())
-                        bp_total = initial_bp_balance - current_bp_balance
-                        self.emit("bloodpoint", (bp_total, bp_limit))
+                        self.bp_total = initial_bp_balance - current_bp_balance
+                        self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
                         # new level
                         if new_level:
                             print("level cleared")
-                            self.wait_level_cleared(primary_mouse)
+                            self.wait_level_cleared()
                             break
 
                         update_iteration += 1
@@ -419,7 +428,7 @@ class StateProcess(Process):
             else:
                 edge_detector = EdgeDetection()
                 while True:
-                    if prestige_limit is not None and prestige_total == prestige_limit:
+                    if self.prestige_limit is not None and self.prestige_total == self.prestige_limit:
                         print("reached prestige limit. terminating")
                         self.emit("terminate")
                         self.emit("toggle_text", ("Prestige limit reached.", False, False))
@@ -445,14 +454,14 @@ class StateProcess(Process):
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
-                        pyautogui.click(button=primary_mouse)
+                        pyautogui.click(button=self.primary_mouse)
                         continue
 
                     current_bp_balance = node_detector.calculate_bloodpoints(bp_node, image_gray)
                     if bloodweb_iteration == 0:
                         initial_bp_balance = current_bp_balance
-                    bp_total = initial_bp_balance - current_bp_balance
-                    self.emit("bloodpoint", (bp_total, bp_limit))
+                    self.bp_total = initial_bp_balance - current_bp_balance
+                    self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
                     prestige = [node for node in matched_nodes if node.cls_name == NodeType.PRESTIGE]
                     origin_auto_enabled = [node for node in matched_nodes
@@ -465,21 +474,26 @@ class StateProcess(Process):
 
                     # prestige
                     if len(prestige) > 0:
-                        prestige_total += 1
+                        self.prestige_total += 1
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
-                        if bp_limit is not None and bp_total + 20000 > bp_limit:
+                        if self.bp_limit is not None and self.bp_total + 20000 > self.bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
                             self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                             return
+                        if 20000 > current_bp_balance:
+                            print("prestige level: bloodpoints depleted. terminating")
+                            self.emit("terminate")
+                            self.emit("toggle_text", ("Bloodpoints depleted.", False, False))
+                            return
 
                         print("prestige level: selecting")
-                        self.emit("prestige", (prestige_total, prestige_limit))
-                        self.emit("bloodpoint", (bp_total + 20000, bp_limit))
+                        self.emit("prestige", (self.prestige_total, self.prestige_limit))
+                        self.emit("bloodpoint", (self.bp_total + 20000, self.bp_limit))
                         centre = matched_nodes[0].box.centre()
                         pyautogui.moveTo(*centre.xy())
-                        self.click_prestige(primary_mouse, interaction)
+                        self.click_prestige()
                         continue
                     elif fast_forward and len(origin_auto_enabled) > 0:
                         # enabled auto origin found
@@ -492,15 +506,15 @@ class StateProcess(Process):
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
 
-                        if bp_limit is not None and total_bloodweb_cost > bp_limit - bp_total:
+                        if self.bp_limit is not None and total_bloodweb_cost > self.bp_limit - self.bp_total:
                             # manual: start edge detection and optimal non-auto selection but without waiting
                             override_slow = True
                         else:
                             print("auto origin (enabled): selecting")
-                            self.emit("bloodpoint", (bp_total, bp_limit))
+                            self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
                             pyautogui.moveTo(*centre.xy())
-                            self.click_origin(primary_mouse, interaction, len(matched_nodes))
+                            self.click_origin(len(matched_nodes))
                             continue
                     elif any([node.cls_name == NodeType.ORIGIN_AUTO_DISABLED for node in matched_nodes]):
                         # disabled auto origin found
@@ -573,25 +587,30 @@ class StateProcess(Process):
                             best_node = best_nodes[-1]
                             us = [[u for u in unlockables if u.unique_id == node.name][0] for node in best_nodes]
                             cost = sum([Data.get_cost(u.rarity, u.type) for u in us])
-                        if bp_limit is not None and bp_total + cost > bp_limit:
+                        if self.bp_limit is not None and self.bp_total + cost > self.bp_limit:
                             print(f"{best_node.node_id} ({best_node.name}): reached bloodpoint limit. terminating")
                             self.emit("terminate")
                             self.emit("toggle_text", ("Bloodpoint limit reached.", False, False))
                             return
+                        if cost > current_bp_balance:
+                            print(f"{best_node.node_id} ({best_node.name}): bloodpoints depleted. terminating")
+                            self.emit("terminate")
+                            self.emit("toggle_text", ("Bloodpoints depleted.", False, False))
+                            return
 
                         print(f"{best_node.node_id} ({best_node.name})")
-                        self.emit("bloodpoint", (bp_total + cost, bp_limit))
+                        self.emit("bloodpoint", (self.bp_total + cost, self.bp_limit))
 
                         # select perk: press OR hold on the perk for 0.3s
                         pyautogui.moveTo(best_node.x, best_node.y)
-                        self.click_node(primary_mouse, interaction)
+                        self.click_node()
                         grab_time = time.time()
 
                         # mystery box: click
                         if "mysteryBox" in best_node.name:
                             print("mystery box selected")
                             time.sleep(0.9)
-                            pyautogui.click(button=primary_mouse)
+                            pyautogui.click(button=self.primary_mouse)
                             time.sleep(0.2)
 
                         # move mouse again in case it didn't the first time
@@ -615,13 +634,13 @@ class StateProcess(Process):
                         new_level = Grapher.update(base_bloodweb, updated_nodes, best_node)
                         current_bp_balance = node_detector.calculate_bloodpoints(updated_bp_node,
                                                                                  updated_img.get_gray())
-                        bp_total = initial_bp_balance - current_bp_balance
-                        self.emit("bloodpoint", (bp_total, bp_limit))
+                        self.bp_total = initial_bp_balance - current_bp_balance
+                        self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
                         # new level
                         if new_level:
                             print("level cleared")
-                            self.wait_level_cleared(primary_mouse)
+                            self.wait_level_cleared()
                             break
 
                         update_iteration += 1
