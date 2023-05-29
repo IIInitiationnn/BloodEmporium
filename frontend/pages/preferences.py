@@ -52,7 +52,8 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         self.filterButtonsRowLayout.addWidget(self.clearFiltersButton)
         self.filterButtonsRowLayout.addWidget(self.killersFiltersButton)
         self.filterButtonsRowLayout.addStretch(1)
-        self.filtersLayout.addWidget(self.filterButtonsRow, 0, 0, 2, 999)
+        self.filtersLayout.addWidget(self.filterButtonsRow, 0, 0, 2, 10)
+        # 10 is bandaid; should really fix filtersLayout to have 0 horizontal spacing and add gap between boxes and txt
 
         # character
         self.num_per_row = 10

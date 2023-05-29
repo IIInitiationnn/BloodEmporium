@@ -12,9 +12,11 @@ Please download the non-source-code archive from https://github.com/IIInitiation
   - ~~output directory: E:\Coding Projects\Blood Emporium Output~~
   - ~~add empty logs\ folder~~
   - ~~IF DEV: add empty output\ folder~~
-- .\compile.sh \<version> <optional: "dev"> OR .\compile-onefile.sh \<version> <optional: "dev">
+- .\compile-onedir.sh \<version> <optional: "dev"> OR .\compile-onefile.sh \<version> <optional: "dev">
 - deactivate
 - Set-ExecutionPolicy Restricted -Scope CurrentUser
+
+remove torch/lib/dnnl.lib
 
 # New Content
 - add to killers in db

@@ -31,6 +31,8 @@ Items     | Survivor          | Square  | C:/Program Files (x86)/Steam/steamapps
 Perks     | Killer + Survivor | Diamond | C:/Program Files (x86)/Steam/steamapps/common/Dead by Daylight/DeadByDaylight/Content/UI/Icons/Perks
 
 MODULE PATCHES
+Compile Pyinstaller: https://python.plainenglish.io/pyinstaller-exe-false-positive-trojan-virus-resolved-b33842bd3184
+
 venv/Lib/site-packages/ultralytics/hub/utils.py Class Traces early return on __init__ and __call__
 venv/Lib/site-packages/ultralytics/yolo/engine/predictor.py Class BasePredictor self.args.verbose = False
 
@@ -653,7 +655,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.1.0"
+    version = "v1.1.0-alpha.0"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):

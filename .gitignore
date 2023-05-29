@@ -25,6 +25,7 @@ training_data/
 logs/
 logs backup/
 output/
+pyinstaller-5.11.0/
 investigate/
 references/
 yolov5_obb/
