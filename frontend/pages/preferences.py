@@ -9,7 +9,6 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QVBoxLayout, QToolButton, QInputDialog, QMessageBox, \
     QFileDialog
 
-from backend.paths import Path
 from frontend.dialogs import InputDialog, ConfirmDialog
 from frontend.generic import Font, TextLabel, TextInputBox, Selector, Button, CheckBoxWithFunction, CheckBox, \
     CollapsibleBox, Icons, NoShiftStyle, ScrollBar, ScrollArea, ScrollAreaContent, MultiLineTextInputBox
@@ -20,6 +19,7 @@ sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 
 from backend.config import Config
 from backend.data import Data, Unlockable
+from backend.paths import Path
 from backend.util.text_util import TextUtil
 
 
@@ -529,6 +529,9 @@ class PreferencesPage(QWidget):
             self.ignore_profile_signals = False
             self.switch_edit_profile()
 
+    def open_exports_folder(self):
+        os.startfile(f"{os.getcwd()}\\exports")
+
     def show_preferences_page_save_success(self, text):
         self.saveSuccessText.setText(text)
         self.saveSuccessText.setStyleSheet(StyleSheets.pink_text)
@@ -714,6 +717,10 @@ class PreferencesPage(QWidget):
                                    QSize(165, 35))
         self.importButton.clicked.connect(self.import_profile)
 
+        self.openExportsButton = Button(self.profileExchangeRow, "preferencesPageOpenExportsButton",
+                                        "Open Folder to Exported Profiles", QSize(220, 35))
+        self.openExportsButton.clicked.connect(self.open_exports_folder)
+
         self.profileNotes = MultiLineTextInputBox(self.scrollAreaContent, "preferencesPageProfileNotes",
                                                   450, 100, 150, "Notes for this profile")
         self.profileNotes.setPlainText(Config().notes_by_id(self.get_edit_profile()))
@@ -871,6 +878,7 @@ class PreferencesPage(QWidget):
 
         self.profileExchangeRowLayout.addWidget(self.exportButton)
         self.profileExchangeRowLayout.addWidget(self.importButton)
+        self.profileExchangeRowLayout.addWidget(self.openExportsButton)
         self.profileExchangeRowLayout.addStretch(1)
 
         self.searchSortRowLayout.addWidget(self.searchBar)

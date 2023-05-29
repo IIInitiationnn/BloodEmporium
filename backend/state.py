@@ -49,7 +49,9 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 
 1.1.0
 - installer + autoupdate
-- antivirus false positive
+    - make sure works on another pc without tesseract installed
+    - make sure autoupdate works (need to modify main.py)
+    - file name association
 - systematic failsafe for bp if tesseract fails
 - more training images with 1-3 digit bloodpoint counts
 - discord issues (perk matching)

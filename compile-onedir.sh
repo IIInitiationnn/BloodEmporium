@@ -1,5 +1,6 @@
 pyinstaller --noconfirm --distpath "../Blood Emporium Output" "onedir.spec"
 mkdir "../Blood Emporium Output/Blood Emporium/logs"
+mkdir "../Blood Emporium Output/Blood Emporium/exports"
 
 if [ "$2" == "dev" ]; then
     mkdir "../Blood Emporium Output/Blood Emporium/output"

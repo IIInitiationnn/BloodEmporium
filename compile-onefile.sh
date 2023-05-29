@@ -2,6 +2,7 @@ mkdir "../Blood Emporium Output/Blood Emporium ${1}"
 pyinstaller --noconfirm --distpath "../Blood Emporium Output/Blood Emporium ${1}" "onefile.spec"
 cp -r "assets" "../Blood Emporium Output/Blood Emporium ${1}/assets"
 mkdir "../Blood Emporium Output/Blood Emporium ${1}/logs"
+mkdir "../Blood Emporium Output/Blood Emporium ${1}/exports"
 
 if [ "$2" == "dev" ]; then
     mkdir "../Blood Emporium Output/Blood Emporium ${1}/output"

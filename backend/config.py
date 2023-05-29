@@ -181,5 +181,5 @@ class Config:
         if profile_id is None:
             return
         profile = self.get_profile_by_id(profile_id)
-        with open(f"{profile_id}.emp", "w") as file:
+        with open(f"exports/{profile_id}.emp", "w") as file:
             file.write(json.dumps(profile))
