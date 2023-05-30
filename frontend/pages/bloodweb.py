@@ -79,7 +79,6 @@ class BloodwebPage(QWidget):
             self.runTimeProgress.setVisible(True)
         self.starting_time = time.time()
         self.timer.start(100)
-        print("started timetime")
 
     def update_time(self):
         if self.starting_time is not None:

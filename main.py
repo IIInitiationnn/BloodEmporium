@@ -1,18 +1,13 @@
 import atexit
 import os
-import subprocess
 import sys
-from io import BytesIO
 from multiprocessing import freeze_support, Pipe
 from threading import Thread
-from zipfile import ZipFile
 
-import requests
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
-from parse import parse
 
 from frontend.dialogs import UpdateDialog
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
@@ -28,48 +23,8 @@ sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 from backend.config import Config
 from backend.runtime import Runtime
 from backend.state import State
+from backend.updater import Updater, get_latest_update
 
-# auto-update code courtesy of DAzVise#1666
-def get_latest_update():
-    resp = requests.get("https://api.github.com/repos/IIInitiationnn/BloodEmporium/releases/latest")
-
-    if resp.status_code == 200:
-        data = resp.json()
-        old_version = State.version
-        new_version = data["tag_name"]
-
-        # compare version numbers MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-alpha.PRERELEASE
-        if "alpha" in old_version:
-            old_maj, old_min, old_patch, old_prerelease = parse("v{:n}.{:n}.{:n}-alpha.{:n}", old_version)
-        else:
-            old_maj, old_min, old_patch = parse("v{:n}.{:n}.{:n}", old_version)
-            old_prerelease = None
-        new_maj, new_min, new_patch = parse("v{:n}.{:n}.{:n}", new_version)
-        if old_maj < new_maj or \
-                (old_maj == new_maj and old_min < new_min) or \
-                (old_maj == new_maj and old_min == new_min and old_patch < new_patch) or \
-                (old_maj == new_maj and old_min == new_min and old_patch == new_patch and old_prerelease is not None):
-            return data
-
-def install_update(update):
-    download = requests.get(update["assets"][0]["browser_download_url"])
-    zipped = ZipFile(BytesIO(download.content))
-
-    os.rename(sys.argv[0], f"Blood Emporium Old ({State.version}).exe")
-    # TODO uninstall? (not sure if necessary with inno) then run - also ensure exports, logs, config and runtime are preserved
-    zipped.extractall(path=".")
-
-def handle_updates():
-    if os.path.isfile(f"Blood Emporium Old ({State.version}).exe"):
-        os.remove(f"Blood Emporium Old ({State.version}).exe")
-
-    if getattr(sys, "frozen", False):
-        update = get_latest_update()
-
-        if update is not None:
-            install_update(update)
-            subprocess.Popen("Blood Emporium.exe")
-            sys.exit()
 
 class TopBar(QFrame):
     def __init__(self, parent):
@@ -834,13 +789,14 @@ if __name__ == "__main__":
     # auto update
     try:
         try_update = get_latest_update()
-        if try_update is not None:
-            dialog = UpdateDialog(State.version, try_update["tag_name"])
-            selection = dialog.exec()
-            if selection == QMessageBox.AcceptRole:
-                handle_updates()
-    except:
-        pass
+    except Exception:
+        try_update = None
+    if try_update is not None:
+        dialog = UpdateDialog(State.version, try_update["tag_name"])
+        selection = dialog.exec()
+        if selection == QMessageBox.AcceptRole:
+            Updater().run()
+            sys.exit()
 
     @atexit.register
     def shutdown():

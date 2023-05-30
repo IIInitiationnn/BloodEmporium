@@ -48,10 +48,7 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 1.1.0
-- installer + autoupdate
-    - make sure works on another pc without tesseract installed
-    - make sure autoupdate works (need to modify main.py)
-    - file name association
+- make sure works on another pc without tesseract installed
 - systematic failsafe for bp if tesseract fails
 - more training images with 1-3 digit bloodpoint counts
 - discord issues (perk matching)
