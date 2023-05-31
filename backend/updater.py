@@ -36,7 +36,7 @@ class UpdaterProcess(Process):
         Process.__init__(self)
 
     def run(self):
-        if True or getattr(sys, "frozen", False):
+        if getattr(sys, "frozen", False):
             update = get_latest_update()
 
             if update is not None:

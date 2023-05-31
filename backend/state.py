@@ -48,7 +48,6 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 1.1.0
-- make sure works on another pc without tesseract installed
 - systematic failsafe for bp if tesseract fails
 - more training images with 1-3 digit bloodpoint counts
 - discord issues (perk matching)
@@ -649,7 +648,7 @@ class StateProcess(Process):
         except:
             traceback.print_exc()
             self.emit("terminate")
-            self.emit("toggle_text", (f"An error occurred. Please check "
+            self.emit("toggle_text", (f"An error occurred. Please check {os.getcwd()}\\"
                                       f"debug-{timestamp.strftime('%y-%m-%d %H-%M-%S')}.log for additional details.",
                                       True, False))
 
