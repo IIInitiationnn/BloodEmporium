@@ -4,7 +4,8 @@ from statistics import mode
 from typing import List, Optional, Tuple
 
 import cv2
-import pytesseract
+import easyocr
+# import pytesseract
 from ultralytics import YOLO
 from ultralytics.yolo.engine.results import Results
 
@@ -14,7 +15,10 @@ from backend.shapes import UnmatchedNode, MatchedNode, Box
 from backend.util.node_util import NodeType
 from backend.util.timer import Timer
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Users\Admin\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+
+# https://stackoverflow.com/questions/59829470/pyinstaller-and-tesseract-ocr
+# https://stackoverflow.com/questions/66470878/tesseract-ocr-doesnt-work-when-python-script-is-converted-to-exe-without-consol
+# pytesseract.pytesseract.tesseract_cmd = os.getcwd() + r"\tesseract\tesseract.exe"
 
 class NodeDetection:
     def __init__(self):
@@ -24,6 +28,8 @@ class NodeDetection:
 
         # gets custom names from custom model
         self.CLASS_NAMES_DICT = self.model.names
+
+        self.reader = easyocr.Reader([])
 
     def predict(self, img_original) -> Results:
         return self.model.predict(img_original)[0]
@@ -199,15 +205,16 @@ class NodeDetection:
         x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
         bp_image = screenshot[y1:y2, x1:x2]
         # bp_image = cv2.GaussianBlur(bp_image, (3, 3), 0)
-        bp_image = 255 - bp_image
-        _, bp_image = cv2.threshold(bp_image, 50, 255, cv2.THRESH_BINARY)
+        # bp_image = 255 - bp_image # pytesseract better to invert, easyocr better to have white text black bg
+        # _, bp_image = cv2.threshold(bp_image, 50, 255, cv2.THRESH_BINARY)
 
         # cv2.imshow("bp", bp_image)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
 
         try:
-            bp_num = int(pytesseract.image_to_string(bp_image, config="-c tessedit_char_whitelist=0123456789"))
+            bp_num = int(self.reader.readtext(bp_image, allowlist="0123456789")[0][1])
+            # bp_num = int(pytesseract.image_to_string(bp_image, config="-c tessedit_char_whitelist=0123456789"))
         except ValueError:
             bp_num = None # TODO figure out a systematic way of accurately determining bp as failsafe eg blur, resize
         print(bp_num)

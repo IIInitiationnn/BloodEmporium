@@ -30,6 +30,7 @@ OutputBaseFilename=BloodEmporiumInstaller-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 SetupIconFile=E:\Coding Projects\Blood Emporium\references\inspo1.ico
+UpdateUninstallLogAppName=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

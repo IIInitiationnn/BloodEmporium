@@ -9,6 +9,7 @@ compile.json
 config.json
 config backup.json
 config_mine.json
+installation_script_old.iss
 runtime.json
 fast.txt
 
@@ -25,7 +26,7 @@ training_data/
 logs/
 logs backup/
 output/
-pyinstaller-5.11.0/
+pyinstaller-5.3/
 investigate/
 references/
 yolov5_obb/
