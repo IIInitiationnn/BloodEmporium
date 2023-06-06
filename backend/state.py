@@ -47,9 +47,9 @@ yolov5obb edge detection
 cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
-1.1.0
-- systematic failsafe for bp if tesseract fails
-- more training images with 1-3 digit bloodpoint counts
+1.1.0 in order
+- more training images with 1-3 digit bloodpoint counts and retrain nodes
+- systematic failsafe for bp if easyocr fails (actually verify node region is correct, then verify ocr; diff res/aspect)
 - discord issues (perk matching)
 
 POST 1.1.0
@@ -653,7 +653,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.1.0-alpha.0"
+    version = "v1.1.0-alpha.1"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):

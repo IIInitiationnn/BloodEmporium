@@ -46,8 +46,6 @@ class BloodwebPage(QWidget):
         Runtime().change_limit("prestige", value=text)
 
     def on_prestige_signal(self, prestige_total, prestige_limit):
-        if not self.runPrestigeProgress.isVisible():
-            self.runPrestigeProgress.setVisible(True)
         self.runPrestigeProgress.setText(f"Prestige levels completed: {prestige_total} / {prestige_limit}"
                                          if prestige_limit is not None else
                                          f"Prestige levels completed: {prestige_total}")
@@ -69,14 +67,10 @@ class BloodwebPage(QWidget):
         Runtime().change_limit("bloodpoint", value=text)
 
     def on_bloodpoint_signal(self, bp_total, bp_limit):
-        if not self.runBloodpointProgress.isVisible():
-            self.runBloodpointProgress.setVisible(True)
         self.runBloodpointProgress.setText(f"Bloodpoints spent: {bp_total:,} / {bp_limit:,}"
                                            if bp_limit is not None else f"Bloodpoints spent: {bp_total:,}")
 
     def start_time(self):
-        if not self.runTimeProgress.isVisible():
-            self.runTimeProgress.setVisible(True)
         self.starting_time = time.time()
         self.timer.start(100)
 
@@ -291,11 +285,11 @@ class BloodwebPage(QWidget):
         self.runErrorText.setVisible(False)
 
         self.runPrestigeProgress = TextLabel(self, "bloodwebPageRunPrestigeProgress", "", Font(10))
-        self.runPrestigeProgress.setVisible(False)
         self.runBloodpointProgress = TextLabel(self, "bloodwebPageRunBloodpointProgress", "", Font(10))
-        self.runBloodpointProgress.setVisible(False)
         self.runTimeProgress = TextLabel(self, "bloodwebPageRunTimeProgress", "", Font(10))
-        self.runTimeProgress.setVisible(False)
+        self.on_prestige_signal(0, None)
+        self.on_bloodpoint_signal(0, None)
+        self.runTimeProgress.setText(f"Time elapsed: 0s")
 
         self.naiveRowLayout.addWidget(self.naiveCheckBox)
         self.naiveRowLayout.addWidget(self.naiveDescription)

@@ -18,7 +18,7 @@ from yolov5_obb.utils.rboxs_utils import rbox2poly
 class EdgeDetection:
     def __init__(self):
         # load model on init
-        self.model = DetectMultiBackend("assets/models/edges v2.pt")
+        self.model = DetectMultiBackend("assets/models/edges v3.pt")
         self.model.float()
 
         # get custom names from custom model
