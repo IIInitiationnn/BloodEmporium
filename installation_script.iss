@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Blood Emporium"
-#define MyAppVersion "1.1.0-alpha.0"
+#define MyAppVersion "1.1.0-alpha.1"
 #define MyAppPublisher "IIInitiationnn"
 #define MyAppURL "https://github.com/IIInitiationnn/BloodEmporium"
 #define MyAppExeName "Blood Emporium.exe"
@@ -39,8 +39,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "E:\Coding Projects\Blood Emporium Output\Blood Emporium 1.1.0-alpha.0\Blood Emporium.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\Coding Projects\Blood Emporium Output\Blood Emporium 1.1.0-alpha.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "E:\Coding Projects\Blood Emporium Output\Blood Emporium 1.1.0-alpha.1\Blood Emporium.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\Coding Projects\Blood Emporium Output\Blood Emporium 1.1.0-alpha.1\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

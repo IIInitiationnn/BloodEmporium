@@ -8,7 +8,7 @@ a = Analysis(
     ['main.py'],
     pathex=['backend', 'yolov5_obb'], # yolov5_obb not strictly needed, dont know about backend
     binaries=[],
-    datas=[('assets', 'assets/'), ('venv/Lib/site-packages/ultralytics', 'ultralytics/'), ('yolov5_obb', 'yolov5_obb/')],
+    datas=[('assets', 'assets/'), ('venv/Lib/site-packages/ultralytics', 'ultralytics/'), ('yolov5_obb', 'yolov5_obb/'), ('tesseract', 'tesseract/')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
