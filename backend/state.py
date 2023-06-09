@@ -494,6 +494,7 @@ class StateProcess(Process):
                         centre = matched_nodes[0].box.centre()
                         pyautogui.moveTo(*centre.xy())
                         self.click_prestige()
+                        bloodweb_iteration += 1
                         continue
                     elif fast_forward and len(origin_auto_enabled) > 0:
                         # enabled auto origin found
@@ -515,6 +516,7 @@ class StateProcess(Process):
                             centre = origin_auto_enabled[0].box.centre()
                             pyautogui.moveTo(*centre.xy())
                             self.click_origin(len(matched_nodes))
+                            bloodweb_iteration += 1
                             continue
                     elif any([node.cls_name == NodeType.ORIGIN_AUTO_DISABLED for node in matched_nodes]):
                         # disabled auto origin found
