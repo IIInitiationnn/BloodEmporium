@@ -12,6 +12,7 @@ from ultralytics.yolo.engine.results import Results
 from backend.image import Image
 from backend.mergedbase import MergedBase
 from backend.shapes import UnmatchedNode, MatchedNode, Box
+from backend.util.image_util import ImageUtil
 from backend.util.node_util import NodeType
 from backend.util.timer import Timer
 
@@ -163,9 +164,10 @@ class NodeDetection:
             cls_name = self.CLASS_NAMES_DICT[cls]
             box = Box(round(x1), round(y1), round(x2), round(y2))
             if cls_name == NodeType.BLOODPOINTS:
-                if confidence > 0.3: # TODO hhh set this back to 0.7 after more training on screenshots with low bp
-                    bp_node = UnmatchedNode(box, confidence, cls_name)
-                    continue
+                if confidence > 0.3: # TODO hhh set this back to 0.5 or 0.6 after more training on screenshots with low bp
+                    if bp_node is None or confidence > bp_node.confidence:
+                        bp_node = UnmatchedNode(box, confidence, cls_name)
+                        continue
 
             if prestige: # prestige node has already been found, can ignore everything else except bloodpoint node
                 continue
@@ -205,6 +207,7 @@ class NodeDetection:
         x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
         bp_image = screenshot[y1:y2, x1:x2]
 
+        bp_image = ImageUtil.resize(bp_image, new_height=30)
         bp_image = cv2.GaussianBlur(bp_image, (3, 3), 0)
         bp_image = 255 - bp_image # pytesseract better to invert, easyocr better to have white text black bg
         _, bp_image = cv2.threshold(bp_image, 50, 255, cv2.THRESH_BINARY)

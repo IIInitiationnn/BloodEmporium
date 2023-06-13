@@ -48,7 +48,7 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 1.1.0 in order
-- more training images with 1-3 digit bloodpoint counts and retrain nodes
+- more training images with 1-3 digit bloodpoint counts and retrain nodes (new bg too)
 - systematic failsafe for bp if easyocr fails (actually verify node region is correct, then verify ocr; diff res/aspect)
 - discord issues (perk matching)
 
@@ -655,7 +655,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.1.0-alpha.1"
+    version = "v1.1.0-alpha.2"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):
