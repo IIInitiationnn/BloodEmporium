@@ -49,6 +49,7 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 
 1.1.0 in order
 - more training images with 1-3 digit bloodpoint counts and retrain nodes (new bg too)
+- more images with bp bonus
 - systematic failsafe for bp if easyocr fails (actually verify node region is correct, then verify ocr; diff res/aspect)
 - discord issues (perk matching)
 

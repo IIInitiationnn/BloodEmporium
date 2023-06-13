@@ -1,6 +1,7 @@
 import subprocess
 import sys
 from multiprocessing import Process
+from pprint import pprint
 
 import requests
 from parse import parse
@@ -8,28 +9,81 @@ from parse import parse
 from backend.state import State
 
 
-# auto-update code courtesy of DAzVise#1666
+# contributions to auto-update code courtesy of DAzVise#1666
 # https://stackoverflow.com/questions/52127046/how-can-i-pull-private-repo-data-using-github-api
 def get_latest_update():
     resp = requests.get("https://api.github.com/repos/IIInitiationnn/BloodEmporium/releases/latest")
+    if resp.status_code != 200:
+        return
 
-    if resp.status_code == 200:
-        data = resp.json()
-        old_version = State.version
-        new_version = data["tag_name"]
+    data = resp.json()
+    current_version = Version(State.version)
+    latest_version = Version(data["tag_name"])
 
-        # compare version numbers MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-alpha.PRERELEASE
-        if "alpha" in old_version:
-            old_maj, old_min, old_patch, old_prerelease = parse("v{:n}.{:n}.{:n}-alpha.{:n}", old_version)
+    if current_version.prerelease is not None: # current version is alpha
+        resp2 = requests.get("https://api.github.com/repos/IIInitiationnn/BloodEmporium/releases")
+        if resp2.status_code != 200:
+            return
+        data2 = resp2.json()
+
+        latest_alpha_version = None
+        latest_alpha_data = None
+        for release in data2:
+            if release["prerelease"]:
+                latest_alpha_data = release
+                latest_alpha_version = Version(release["tag_name"])
+                break
+
+        if latest_alpha_version is None:
+            if current_version < latest_version:
+                return data
+        elif current_version == latest_alpha_version:
+            if current_version < latest_version:
+                return data
         else:
-            old_maj, old_min, old_patch = parse("v{:n}.{:n}.{:n}", old_version)
-            old_prerelease = None
-        new_maj, new_min, new_patch = parse("v{:n}.{:n}.{:n}", new_version)
-        if old_maj < new_maj or \
-                (old_maj == new_maj and old_min < new_min) or \
-                (old_maj == new_maj and old_min == new_min and old_patch < new_patch) or \
-                (old_maj == new_maj and old_min == new_min and old_patch == new_patch and old_prerelease is not None):
+            if latest_alpha_version < latest_version:
+                return data
+            if latest_version < latest_alpha_version:
+                return latest_alpha_data
+    else:
+        if current_version < latest_version:
             return data
+
+class Version:
+    def __init__(self, version_string):
+        if "alpha" in version_string:
+            self.maj, self.min, self.patch, self.prerelease = parse("v{:n}.{:n}.{:n}-alpha.{:n}", version_string)
+        else:
+            self.maj, self.min, self.patch = parse("v{:n}.{:n}.{:n}", version_string)
+            self.prerelease = None
+
+    # compare version numbers MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-alpha.PRERELEASE
+    def __eq__(self, other):
+        return (self.maj == other.maj and self.min == other.min and self.patch == other.patch and
+                self.prerelease == other.prerelease)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __lt__(self, other):
+        return (self.maj < other.maj or
+                (self.maj == other.maj and self.min < other.min) or
+                (self.maj == other.maj and self.min == other.min and self.patch < other.patch) or
+                (self.maj == other.maj and self.min == other.min and self.patch == other.patch and
+                 (self.prerelease is not None or self.prerelease < other.prerelease)))
+
+    def __le__(self, other):
+        return self < other or self == other
+
+    def __gt__(self, other):
+        return not (self <= other)
+
+    def __ge__(self, other):
+        return not (self < other)
+
+    def __str__(self):
+        return f"v{self.maj}.{self.min}.{self.patch}" + \
+               (f"-alpha.{self.prerelease}" if self.prerelease is not None else "")
 
 class UpdaterProcess(Process):
     def __init__(self):
