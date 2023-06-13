@@ -1,7 +1,6 @@
 import subprocess
 import sys
 from multiprocessing import Process
-from pprint import pprint
 
 import requests
 from parse import parse
