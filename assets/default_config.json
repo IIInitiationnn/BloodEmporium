@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 6.7.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.0.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -3354,11 +3354,99 @@
             "iconAddon_gauseRoll_survivor": {
                 "tier": -1,
                 "subtier": 0
+            },
+            "iconAddon_nutritionalSlurry_singularity": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_kidsBallGlove_singularity": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_heavyWater_singularity": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_brokenSecurityKey_singularity": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_spentOxygenTank_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_liveWires_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_hyperawarenessSpray_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_hologramGenerator_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_foreignPlantFibers_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_nanomachineGel_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_diagnosticToolConstruction_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_deniedRequisitionForm_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_crewManifest_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_somaFamilyPhoto_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_iridiscentCrystalShard_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconFavors_alienFlora_universal": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "IconPerks_GeneticLimits_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "IconPerks_ForcedHesitation_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "IconPerks_SelfAware_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "IconPerks_troubleshooter_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "IconPerks_madeForThis_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "IconPerks_scavenger_survivor": {
+                "tier": -2,
+                "subtier": 1
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 6.7.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.0.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -6878,6 +6966,98 @@
             "iconItems_flashlight_anniversary2022_survivor": {
                 "tier": 0,
                 "subtier": 1
+            },
+            "iconAddon_ultrasonicSensor_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_diagnosticToolRepair_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_cryoGel_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_crematedRemains_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_androidArm_singularity": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_spentOxygenTank_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_liveWires_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_hyperawarenessSpray_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_hologramGenerator_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_foreignPlantFibers_singularity": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_nanomachineGel_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_diagnosticToolConstruction_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_deniedRequisitionForm_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_crewManifest_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_somaFamilyPhoto_singularity": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconAddon_iridiscentCrystalShard_singularity": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconFavors_alienFlora_universal": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "IconPerks_GeneticLimits_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "IconPerks_ForcedHesitation_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "IconPerks_SelfAware_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "IconPerks_troubleshooter_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "IconPerks_madeForThis_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "IconPerks_scavenger_survivor": {
+                "tier": 15,
+                "subtier": 0
             }
         },
         {
