@@ -1,11 +1,12 @@
 [![Blood Emporium](assets/images/splash.png)](https://github.com/IIInitiationnn/BloodEmporium/releases/latest)
 
-[Releases](https://github.com/IIInitiationnn/BloodEmporium/releases)
+[Releases](https://github.com/IIInitiationnn/BloodEmporium/releases) \
+[Latest Release](https://github.com/IIInitiationnn/BloodEmporium/releases/latest)
 
 A program to automatically level the Bloodweb in the game Dead by Daylight.
 
 ## Developer Notes
-Assets for icon recognition are up-to-date as of Dead by Daylight Patch 6.7.0 (CHAPTER 27: Tools of Torment).\
+Assets for icon recognition are up-to-date as of Dead by Daylight Patch 7.0.1 (CHAPTER 28: End Transmission).\
 To contact me about this project, or if you have any inquiries, please join the [Discord](https://discord.gg/J4KCqJJuaM).
 Any bug reports, requests for technical support, or suggestions can be submitted either through this server or
 [GitHub issues](https://github.com/IIInitiationnn/BloodEmporium/issues).\
@@ -17,14 +18,13 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 - Automatically selects optimal nodes on the Bloodweb based on user-configured preferences.
 - Uses a cost algorithm to determine optimally how to select maximal preferred unlockables and minimal undesirable ones.
 - Uses game icon files to identify nodes on the Bloodweb.
-- Should not be bannable since there are no interactions with the game's memory or process.
+- Should not be bannable since there are no interactions with the game's memory or process, and the entire procedure
+  occurs outside game matches. There have been no verified reported bans as of yet.
 
 ## Installation
 1. Download the latest release [here](https://github.com/IIInitiationnn/BloodEmporium/releases/latest) - make sure you
-   download `Blood Emporium.version.zip` and not the source code.
-2. Extract the ZIP archive at a folder of your choice. Please make sure the path to this folder
-   does not contain any special unicode characters (see [#5](https://github.com/IIInitiationnn/BloodEmporium/issues/5)).
-3. Run `Blood Emporium.exe` and check the `Settings` section to make sure the app is ready to run. For more information,
+   download `BloodEmporiumInstaller-version.exe` and not the source code. Install.
+2. Run `Blood Emporium.exe` and check the `Settings` section to make sure the app is ready to run. For more information,
    see below; there is also a `Help` section in the app.
 
 ## Configuration
@@ -46,8 +46,11 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 
 ## Features
 - Allows user to configure which unlockables are preferred or undesirable.
-- Two modes: NAIVE (select any available item) and AWARE (select items according to preference).
+- Three modes: naive (select randomly), aware (select items according to preference, either one at a time or along a 
+  path).
+- Two speeds: slow and fast.
 - Bloodpoint spend limit / prestige level limit.
+- Automatic termination upon bloodpoint depletion.
 - Hotkey to run / stop the program (default: Ctrl + Alt + 9).
 - Completely automatic and hands-free - and now, fast!
 
@@ -56,16 +59,11 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
   as colour changes interfere with object and colour recognition.
 
 ## Roadmap & Future Developments
-- Incorporating new bloodweb features from 6.7.0.
-- Automatic termination upon depleting bloodpoints.
 - Summary of unlockables obtained after running.
 
 ## Known Issues
-- Auto-updating via the app is currently bugged. You will need to manually install new versions from the Releases page
-  until this is resolved. To migrate your profile and settings, simply copy your `config.json` file from your old
-  installation to your new one.
-- Windows Defender and some other antivirus applications may be reporting a threat. This is due to a library used to
-  compile the application. You should be able to configure your antivirus to ignore these files until this is resolved.
+- Windows Defender and some other antivirus applications may report a threat. This is due to a library used to
+  compile the application. You should be able to configure your antivirus to ignore this.
   To document that this software contains no malicious content, here are some threads detailing the problem:
     - https://github.com/pyinstaller/pyinstaller/issues/6754
     - https://www.reddit.com/r/learnpython/comments/ng3hmp/pyinstaller_create_onefile_exe_windows/

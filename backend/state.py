@@ -48,13 +48,13 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 1.1.0 in order
-- more training images with 1-3 digit bloodpoint counts and retrain nodes (new bg too)
-- more images with bp bonus
-- systematic failsafe for bp if easyocr fails (actually verify node region is correct, then verify ocr; diff res/aspect)
-- discord issues (perk matching)
+- train bp balance
+- retrain (create into new dataset)
 
 POST 1.1.0
 - status on progress (starting, detecting bloodweb, optimising)
+- systematic failsafe for bp if easyocr fails? (actually verify node region is correct, then verify ocr; diff res/aspect)
+- issue 56: velyix pack on zooku's 2nd video
 - config backup or some other method of preventing config corruption when reading / writing
 - preferences page: changing profile maintains tier order (need to refresh sort when sorting by tier)
 - moris, reagents getting confused?
@@ -152,8 +152,15 @@ class StateProcess(Process):
         if self.interaction == "hold":
             time.sleep(0.5)
         pyautogui.mouseUp(button=self.primary_mouse)
+        time.sleep(2 + num_nodes / 13)
+
+        pyautogui.click(button=self.primary_mouse)
+        time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
+        pyautogui.click(button=self.primary_mouse)
+        time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
+        pyautogui.click(button=self.primary_mouse)
         pyautogui.moveTo(0, 0)
-        time.sleep(4 + num_nodes / 13)
+        time.sleep(2) # 2 secs to generate
 
     # send data to main process via pipe
     def emit(self, signal_name, payload=()):
@@ -221,6 +228,7 @@ class StateProcess(Process):
             bloodweb_iteration = 0
             initial_bp_balance = 0
             print(f"run mode: {run_mode}")
+            print(f"speed: {speed}")
             if run_mode == "naive":
                 while True:
                     if self.prestige_limit is not None and self.prestige_total == self.prestige_limit:
@@ -656,7 +664,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.1.0-alpha.3"
+    version = "v1.1.0"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):
