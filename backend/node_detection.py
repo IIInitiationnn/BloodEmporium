@@ -41,7 +41,7 @@ class NodeDetection:
         height, width = y2 - y1, x2 - x1 # original dim
 
         # cut out border
-        margin_fraction = 4.5 # (1 / margin_fraction) around each side cut out
+        margin_fraction = 4.2 # (1 / margin_fraction) around each side cut out
         margin_y, margin_x = round(height / margin_fraction), round(width / margin_fraction)
         height, width = height - 2 * margin_y, width - 2 * margin_x # dim after removing margins
         unlockable = screenshot[(y1 + margin_y):(y2 - margin_y), (x1 + margin_x):(x2 - margin_x)]

@@ -3446,6 +3446,10 @@
             "iconsFavors_7thAnniversary_universal": {
                 "tier": 6,
                 "subtier": 10
+            },
+            "iconHelp_mysteryBoxAnniversary_universal": {
+                "tier": 1,
+                "subtier": 0
             }
         },
         {
@@ -9978,6 +9982,10 @@
             "iconAddon_HighCurrentUpgrade_skull merchant": {
                 "tier": -3,
                 "subtier": 0
+            },
+            "iconsFavors_7thAnniversary_universal": {
+                "tier": 4,
+                "subtier": 10
             }
         },
         {
@@ -12890,6 +12898,10 @@
             "iconPerks_BackgroundPlayer_survivor": {
                 "tier": 20,
                 "subtier": 0
+            },
+            "iconsFavors_7thAnniversary_universal": {
+                "tier": 4,
+                "subtier": 10
             }
         }
     ]

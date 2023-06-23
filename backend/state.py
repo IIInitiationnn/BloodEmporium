@@ -664,7 +664,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.1.0"
+    version = "v1.1.1"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):
