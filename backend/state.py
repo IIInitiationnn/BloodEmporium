@@ -652,6 +652,12 @@ class StateProcess(Process):
                         #                                                          updated_img.get_gray())
                         # self.bp_total = initial_bp_balance - current_bp_balance
                         # self.emit("bloodpoint", (self.bp_total, self.bp_limit))
+                        if any([node.cls_name == NodeType.ORIGIN_AUTO_DISABLED for node in updated_nodes]):
+                            # disabled auto origin found
+                            print("bloodpoints depleted. terminating")
+                            self.emit("terminate")
+                            self.emit("toggle_text", ("Bloodpoints depleted.", False, False))
+                            return
 
                         # new level
                         if new_level:
