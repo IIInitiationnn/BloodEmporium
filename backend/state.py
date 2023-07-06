@@ -659,12 +659,12 @@ class StateProcess(Process):
         except:
             traceback.print_exc()
             self.emit("terminate")
-            self.emit("toggle_text", (f"An error occurred. Please check {os.getcwd()}\\"
+            self.emit("toggle_text", (f"An error occurred. Please check {os.getcwd()}\\logs\\"
                                       f"debug-{timestamp.strftime('%y-%m-%d %H-%M-%S')}.log for additional details.",
                                       True, False))
 
 class State:
-    version = "v1.1.1"
+    version = "v1.1.2"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):
