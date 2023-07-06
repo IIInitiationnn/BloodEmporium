@@ -32,7 +32,7 @@ class Grapher:
         graph.add_edges_from(edges)
         return graph
 
-    # TODO check these validations with new slow/fast speed AND autobuy where you can click inaccessible
+    # updated_nodes does not contain bp node
     @staticmethod
     def update(base_bloodweb, updated_nodes: List[UnmatchedNode], previously_selected_node: GraphNode) -> bool:
         if len(updated_nodes) == 0:
@@ -40,10 +40,14 @@ class Grapher:
 
         if len(updated_nodes) == 1:
             if updated_nodes[0].cls_name in [NodeType.ORIGIN, NodeType.PRESTIGE]:
-                return True # just origin or new prestige (which shouldn't happen but just in case)
+                return True # just origin or new prestige (former can happen between levels; latter shouldn't happen)
 
         num_mismatches = 0 # another potential error checking mechanism
         for updated_node in updated_nodes:
+            if updated_node.cls_name == NodeType.VOID:
+                # voids appear as new, so this error check will think it was previously undetected; must skip
+                continue
+
             for node_id, data in base_bloodweb.nodes.items():
                 if updated_node.box.close_to_xy(int(data["x"]), int(data["y"])):
                     if updated_node.cls_name in NodeType.MULTI_UNCLAIMED and data["name"] == "":
@@ -63,8 +67,10 @@ class Grapher:
                                                                               x1=x1, y1=y1, x2=x2, y2=y2).get_dict())
                     break # no need to keep iterating
             else: # for else: didn't break means previously undetected TODO match and add?
+                print(updated_node.xyxy())
                 num_mismatches += 1
 
+        print(f"{num_mismatches} mismatches")
         if num_mismatches > 1:
             return True # unlikely to be more than 1 mismatch
 
