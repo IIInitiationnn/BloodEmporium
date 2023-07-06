@@ -67,10 +67,10 @@ class Grapher:
                                                                               x1=x1, y1=y1, x2=x2, y2=y2).get_dict())
                     break # no need to keep iterating
             else: # for else: didn't break means previously undetected TODO match and add?
-                print(updated_node.xyxy())
+                # print(updated_node.xyxy())
                 num_mismatches += 1
 
-        print(f"{num_mismatches} mismatches")
+        # print(f"{num_mismatches} mismatches")
         if num_mismatches > 1:
             return True # unlikely to be more than 1 mismatch
 

@@ -177,14 +177,15 @@ class NodeDetection:
                     nodes = [UnmatchedNode(box, confidence, cls_name)]
                     prestige = True
             else: # all origins, in/accessible, claimed, stolen, void
-                for node in nodes:
-                    if box.close_to(node.box): # new node close to any existing nodes
-                        if confidence > node.confidence: # if this node is more likely to be correct than existing
-                            nodes.remove(node)
-                            nodes.append(UnmatchedNode(box, confidence, cls_name))
-                        break # close to existing node: exit out of loop and do not enter else
-                else: # new node not close to any existing nodes
-                    nodes.append(UnmatchedNode(box, confidence, cls_name))
+                if confidence > 0.5: # sometimes junk with ~0.3 confidence slips through
+                    for node in nodes:
+                        if box.close_to(node.box): # new node close to any existing nodes
+                            if confidence > node.confidence: # if this node is more likely to be correct than existing
+                                nodes.remove(node)
+                                nodes.append(UnmatchedNode(box, confidence, cls_name))
+                            break # close to existing node: exit out of loop and do not enter else
+                    else: # new node not close to any existing nodes
+                        nodes.append(UnmatchedNode(box, confidence, cls_name))
 
         timer.update()
         return nodes, bp_node
