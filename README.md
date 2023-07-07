@@ -6,7 +6,7 @@
 A program to automatically level the Bloodweb in the game Dead by Daylight.
 
 ## Developer Notes
-Assets for icon recognition are up-to-date as of Dead by Daylight Patch 7.0.1 (CHAPTER 28: End Transmission).\
+Assets for icon recognition are up-to-date as of Dead by Daylight Patch 7.0.2 (CHAPTER 28: End Transmission).\
 To contact me about this project, or if you have any inquiries, please join the [Discord](https://discord.gg/J4KCqJJuaM).
 Any bug reports, requests for technical support, or suggestions can be submitted either through this server or
 [GitHub issues](https://github.com/IIInitiationnn/BloodEmporium/issues).\
@@ -50,7 +50,7 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
   path).
 - Two speeds: slow and fast.
 - Bloodpoint spend limit / prestige level limit.
-- Automatic termination upon bloodpoint depletion.
+- Automatic termination upon bloodpoint depletion (only for prestige 1 and higher).
 - Hotkey to run / stop the program (default: Ctrl + Alt + 9).
 - Completely automatic and hands-free - and now, fast!
 
@@ -60,6 +60,7 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 
 ## Roadmap & Future Developments
 - Summary of unlockables obtained after running.
+- Auto-purchase when all unlockables in a bloodweb are below a certain tier / subtier threshold.
 
 ## Known Issues
 - Windows Defender and some other antivirus applications may report a threat. This is due to a library used to
