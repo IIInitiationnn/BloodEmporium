@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.0.2.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.1.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -3450,11 +3450,23 @@
             "iconHelp_mysteryBoxAnniversary_universal": {
                 "tier": 1,
                 "subtier": 0
+            },
+            "iconPerks_Dramaturgy_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_ScenePartner_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_PlotTwist_survivor": {
+                "tier": -2,
+                "subtier": 1
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.0.2.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.1.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -7070,11 +7082,23 @@
             "iconsFavors_7thAnniversary_universal": {
                 "tier": 5,
                 "subtier": 10
+            },
+            "iconPerks_Dramaturgy_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_ScenePartner_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_PlotTwist_survivor": {
+                "tier": 15,
+                "subtier": 0
             }
         },
         {
             "id": "otz's tier list (ignores perks)",
-            "notes": "A bundled profile to maximise useful add-ons and items, regardless of bloodpoint cost. This variant does not focus on obtaining perks. Map offerings have been left neutral to allow for user customisation based on map preference. Flashlight tiers have also been modified.\nValues adapted from:\n- [6.7.0] (killer add-ons) https://otzdarva.com/addons\n- [4.4.2] (survivor items and add-ons) https://imgur.com/9pWvHjN\n- [6.2.0] (offerings) https://media.discordapp.net/attachments/799329201459167282/1020377565430562887/OFFERING_TIERLISTS.jpg\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to maximise useful add-ons and items, regardless of bloodpoint cost. This variant does not focus on obtaining perks. Map offerings have been left neutral to allow for user customisation based on map preference.\nValues adapted from:\n- [6.7.0] (killer add-ons) https://otzdarva.com/addons\n- [4.4.2] (survivor items and add-ons) https://imgur.com/9pWvHjN\n- [6.2.0] (offerings) https://media.discordapp.net/attachments/799329201459167282/1020377565430562887/OFFERING_TIERLISTS.jpg\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 4,
                 "subtier": 10
@@ -7558,18 +7582,6 @@
             "iconItems_partyPopper_survivor": {
                 "tier": 6,
                 "subtier": 10
-            },
-            "iconItems_flashlight_survivor": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconItems_flashlightSport_survivor": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconItems_flashlightUtility_survivor": {
-                "tier": 6,
-                "subtier": 0
             },
             "iconItems_flashlightHalloween_survivor": {
                 "tier": 6,
@@ -9986,11 +9998,35 @@
             "iconsFavors_7thAnniversary_universal": {
                 "tier": 4,
                 "subtier": 10
+            },
+            "IconPerks_troubleshooter_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "IconPerks_madeForThis_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "IconPerks_scavenger_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_Dramaturgy_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_ScenePartner_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_PlotTwist_survivor": {
+                "tier": -6,
+                "subtier": 0
             }
         },
         {
             "id": "otz's tier list (prioritises perks)",
-            "notes": "A bundled profile to maximise useful add-ons and items, regardless of bloodpoint cost. This variant priorities perks over all else. Map offerings have been left neutral to allow for user customisation based on map preference. Flashlight tiers have also been modified.\nValues adapted from:\n- [6.7.0] (killer add-ons) https://otzdarva.com/addons\n- [4.4.2] (survivor items and add-ons) https://imgur.com/9pWvHjN\n- [6.2.0] (offerings) https://media.discordapp.net/attachments/799329201459167282/1020377565430562887/OFFERING_TIERLISTS.jpg\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to maximise useful add-ons and items, regardless of bloodpoint cost. This variant priorities perks over all else. Map offerings have been left neutral to allow for user customisation based on map preference.\nValues adapted from:\n- [6.7.0] (killer add-ons) https://otzdarva.com/addons\n- [4.4.2] (survivor items and add-ons) https://imgur.com/9pWvHjN\n- [6.2.0] (offerings) https://media.discordapp.net/attachments/799329201459167282/1020377565430562887/OFFERING_TIERLISTS.jpg\nMade for Blood Emporium by IIInitiationnn.",
             "iconAddon_blightedSerum_killer": {
                 "tier": 1,
                 "subtier": 1
@@ -11503,18 +11539,6 @@
                 "tier": 6,
                 "subtier": 10
             },
-            "iconItems_flashlight_survivor": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconItems_flashlightSport_survivor": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconItems_flashlightUtility_survivor": {
-                "tier": 6,
-                "subtier": 0
-            },
             "iconItems_flashlightHalloween_survivor": {
                 "tier": 6,
                 "subtier": 10
@@ -12902,6 +12926,30 @@
             "iconsFavors_7thAnniversary_universal": {
                 "tier": 4,
                 "subtier": 10
+            },
+            "IconPerks_troubleshooter_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "IconPerks_madeForThis_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "IconPerks_scavenger_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_Dramaturgy_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_ScenePartner_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_PlotTwist_survivor": {
+                "tier": 20,
+                "subtier": 0
             }
         }
     ]
