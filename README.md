@@ -1,7 +1,8 @@
 [![Blood Emporium](assets/images/splash.png)](https://github.com/IIInitiationnn/BloodEmporium/releases/latest)
 
-[Releases](https://github.com/IIInitiationnn/BloodEmporium/releases) \
-[Latest Release](https://github.com/IIInitiationnn/BloodEmporium/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/IIInitiationnn/BloodEmporium?label=latest%20release)](https://github.com/IIInitiationnn/BloodEmporium/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/IIInitiationnn/BloodEmporium/total)](https://github.com/IIInitiationnn/BloodEmporium/releases)
+[![Discord](https://img.shields.io/discord/1016471051187802333?logo=discord&label=discord)](https://discord.gg/J4KCqJJuaM)
 
 A program to automatically level the Bloodweb in the game Dead by Daylight.
 
