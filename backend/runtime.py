@@ -1,6 +1,27 @@
 import json
 
 class Runtime:
+    default = {
+        "profile": "",
+        "character": "survivor",
+        "mode": "aware_multi",
+        "speed": "slow",
+        "auto_purchase_threshold": {
+            "enabled": False,
+            "tier": 0,
+            "subtier": 0,
+        },
+        "limits": {
+            "prestige": {
+                "enabled": False,
+                "value": "1"
+            },
+            "bloodpoint": {
+                "enabled": False,
+                "value": "69420"
+            }
+        }
+    }
     def __init__(self, validate=False):
         if validate:
             # create file if not exists
@@ -36,34 +57,25 @@ class Runtime:
     def speed(self):
         return self.runtime["speed"]
 
+    def auto_purchase_threshold(self):
+        return (self.runtime["auto_purchase_threshold"][field]
+                for field in self.runtime["auto_purchase_threshold"].keys())
+
     def limits(self, limit, fields):
         return (self.runtime["limits"][limit][field] for field in fields)
 
     def commit_changes(self):
-        default_runtime = {
-            "profile": "",
-            "character": "survivor",
-            "mode": "aware_multi",
-            "speed": "slow",
-            "limits": {
-                "prestige": {
-                    "enabled": False,
-                    "value": "1"
-                },
-                "bloodpoint": {
-                    "enabled": False,
-                    "value": "69420"
-                }
-            }
-        }
-        updated_runtime = {field: self.runtime.get(field, default_runtime[field])
-                           for field in ["profile", "character", "mode", "speed", "limits"]}
+        updated_runtime = {field: self.runtime.get(field, Runtime.default[field])
+                           for field in ["profile", "character", "mode", "speed", "auto_purchase_threshold", "limits"]}
+        for field in ["enabled", "tier", "subtier"]:
+            if field not in updated_runtime["auto_purchase_threshold"]:
+                updated_runtime["auto_purchase_threshold"][field] = Runtime.default["auto_purchase_threshold"][field]
         for limit in ["prestige", "bloodpoint"]:
             if limit not in updated_runtime["limits"]:
-                updated_runtime["limits"][limit] = default_runtime["limits"][limit]
+                updated_runtime["limits"][limit] = Runtime.default["limits"][limit]
             for field in ["enabled", "value"]:
                 if field not in updated_runtime["limits"][limit]:
-                    updated_runtime["limits"][limit][field] = default_runtime["limits"][limit][field]
+                    updated_runtime["limits"][limit][field] = Runtime.default["limits"][limit][field]
 
         with open("runtime.json", "w") as output:
             json.dump(updated_runtime, output, indent=4) # to preserve order
@@ -82,6 +94,11 @@ class Runtime:
 
     def set_speed(self, speed):
         self.runtime["speed"] = speed
+        self.commit_changes()
+
+    def change_auto_purchase_threshold(self, **kwargs):
+        for k, v in kwargs.items():
+            self.runtime["auto_purchase_threshold"][k] = v
         self.commit_changes()
 
     def change_limit(self, limit, **kwargs):

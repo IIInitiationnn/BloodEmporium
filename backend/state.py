@@ -177,7 +177,8 @@ class StateProcess(Process):
         run_mode = runtime.mode()
         speed = runtime.speed()
         try:
-            dev_mode, write_to_output, self.prestige_limit, self.bp_limit = self.args
+            dev_mode, write_to_output, self.threshold_tier, self.threshold_subtier, \
+                self.prestige_limit, self.bp_limit = self.args
             Timer.PRINT = dev_mode
             log = logging.getLogger()
             log.setLevel(logging.DEBUG)
@@ -675,7 +676,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.1.3"
+    version = "v1.2.0"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):

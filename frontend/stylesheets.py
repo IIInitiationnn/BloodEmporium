@@ -218,6 +218,18 @@ class StyleSheets:
         }}"""
 
     @staticmethod
+    def threshold_input(threshold):
+        try:
+            threshold = int(threshold)
+        except ValueError:
+            return StyleSheets.text_box_invalid
+
+        if abs(threshold) > 999:
+            return StyleSheets.text_box_invalid
+        else:
+            return StyleSheets.text_box
+
+    @staticmethod
     def prestige_input(prestige_limit):
         try:
             prestige_limit = int(prestige_limit)

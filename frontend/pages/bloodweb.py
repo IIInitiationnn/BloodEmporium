@@ -29,6 +29,32 @@ class BloodwebPage(QWidget):
         self.speedFastCheckBox.setChecked(speed == "fast")
         Runtime().set_speed(speed)
 
+    def on_toggle_auto_purchase_threshold(self):
+        if self.thresholdCheckBox.isChecked():
+            tier = self.thresholdTierInput.text()
+            subtier = self.thresholdSubtierInput.text()
+            self.thresholdTierInput.setReadOnly(False)
+            self.thresholdTierInput.setStyleSheet(StyleSheets.threshold_input(tier))
+            self.thresholdSubtierInput.setReadOnly(False)
+            self.thresholdSubtierInput.setStyleSheet(StyleSheets.threshold_input(subtier))
+            Runtime().change_auto_purchase_threshold(enabled=True)
+        else:
+            self.thresholdTierInput.setReadOnly(True)
+            self.thresholdTierInput.setStyleSheet(StyleSheets.text_box_read_only)
+            self.thresholdSubtierInput.setReadOnly(True)
+            self.thresholdSubtierInput.setStyleSheet(StyleSheets.text_box_read_only)
+            Runtime().change_auto_purchase_threshold(enabled=False)
+
+    def on_edit_auto_purchase_threshold_tier(self):
+        tier = self.thresholdTierInput.text()
+        self.thresholdTierInput.setStyleSheet(StyleSheets.threshold_input(tier))
+        Runtime().change_auto_purchase_threshold(tier=tier)
+
+    def on_edit_auto_purchase_threshold_subtier(self):
+        subtier = self.thresholdSubtierInput.text()
+        self.thresholdSubtierInput.setStyleSheet(StyleSheets.threshold_input(subtier))
+        Runtime().change_auto_purchase_threshold(subtier=subtier)
+
     def on_toggle_prestige_limit(self):
         if self.prestigeCheckBox.isChecked():
             self.prestigeInput.setReadOnly(False)
@@ -211,6 +237,28 @@ class BloodwebPage(QWidget):
                                         Font(10))
         self.on_select_speed(runtime.speed())
 
+        self.thresholdLabel = TextLabel(self, "bloodwebPageThresholdLabel", "Auto-Purchase Threshold", Font(12))
+        self.thresholdRow = QWidget(self)
+        self.thresholdRow.setObjectName("bloodwebPageThresholdRow")
+        self.thresholdRowLayout = RowLayout(self.thresholdRow, "bloodwebPageThresholdRowLayout")
+
+        t_enabled, t_tier, t_subtier = runtime.auto_purchase_threshold()
+        self.thresholdCheckBox = CheckBoxWithFunction(self.thresholdRow, "bloodwebPageThresholdCheckBox",
+                                                      self.on_toggle_auto_purchase_threshold)
+        self.thresholdCheckBox.setChecked(t_enabled)
+        self.thresholdTierLabel = TextLabel(self.thresholdRow, "bloodwebPageThresholdTierLabel", "Tier")
+        self.thresholdTierInput = TextInputBox(self.thresholdRow, "bloodwebPageThresholdTierInput", QSize(110, 40),
+                                               "Enter tier", str(t_tier))
+        self.thresholdSubtierLabel = TextLabel(self.thresholdRow, "bloodwebPageThresholdSubtierLabel", "Subtier")
+        self.thresholdSubtierInput = TextInputBox(self.thresholdRow, "bloodwebPageThresholdSubtierInput",
+                                                  QSize(110, 40), "Enter subtier", str(t_subtier))
+        self.on_toggle_auto_purchase_threshold()
+        self.thresholdTierInput.textEdited.connect(self.on_edit_auto_purchase_threshold_tier)
+        self.thresholdSubtierInput.textEdited.connect(self.on_edit_auto_purchase_threshold_subtier)
+        self.thresholdDescription = TextLabel(self.thresholdRow, "bloodwebPageThresholdDescription",
+                                              "If all remaining unlockables on the bloodweb are below the specified "
+                                              "tier and subtier threshold, auto-purchase will be used.", Font(10))
+
         self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
         self.limitsDescription = TextLabel(self, "bloodwebPageLimitsDescription",
                                            "If multiple of the following limits are selected, the program "
@@ -225,9 +273,8 @@ class BloodwebPage(QWidget):
                                                      self.on_toggle_prestige_limit)
         self.prestigeCheckBox.setChecked(p_enabled)
         self.prestigeLabel = TextLabel(self.prestigeRow, "bloodwebPagePrestigeLabel", "Prestige Limit")
-        self.prestigeInput = TextInputBox(self.prestigeRow, "bloodwebPagePrestigeInput", QSize(94, 40), "Enter levels",
+        self.prestigeInput = TextInputBox(self.prestigeRow, "bloodwebPagePrestigeInput", QSize(110, 40), "Enter levels",
                                           p_value)
-        self.prestigeInput.setReadOnly(not p_enabled)
         self.on_toggle_prestige_limit()
         self.prestigeInput.textEdited.connect(self.on_edit_prestige_limit_input)
         self.prestigeDescription = TextLabel(self.prestigeRow, "bloodwebPagePrestigeDescription",
@@ -243,13 +290,13 @@ class BloodwebPage(QWidget):
                                                        self.on_toggle_bloodpoint_limit)
         self.bloodpointCheckBox.setChecked(b_enabled)
         self.bloodpointLabel = TextLabel(self.prestigeRow, "bloodwebPageBloodpointLabel", "Bloodpoint Limit")
-        self.bloodpointInput = TextInputBox(self.prestigeRow, "bloodwebPageBloodpointInput", QSize(142, 40),
+        self.bloodpointInput = TextInputBox(self.prestigeRow, "bloodwebPageBloodpointInput", QSize(140, 40),
                                             "Enter bloodpoints", b_value)
-        self.bloodpointInput.setReadOnly(not b_enabled)
         self.on_toggle_bloodpoint_limit()
         self.bloodpointInput.textEdited.connect(self.on_edit_bloodpoint_limit_input)
         self.bloodpointDescription = TextLabel(self.prestigeRow, "bloodwebPageBloodpointDescription",
-                                               "The number of bloodpoints to spend before terminating.", Font(10))
+                                               "The number of bloodpoints to spend before terminating "
+                                               "(may not be 100% accurate).", Font(10))
         if dev_mode:
             self.devLabel = TextLabel(self, "bloodwebPageDevLabel", "Dev Options", Font(12))
 
@@ -309,6 +356,14 @@ class BloodwebPage(QWidget):
         self.speedFastRowLayout.addWidget(self.speedFastLabel)
         self.speedFastRowLayout.addStretch(1)
 
+        self.thresholdRowLayout.addWidget(self.thresholdCheckBox)
+        self.thresholdRowLayout.addWidget(self.thresholdTierLabel)
+        self.thresholdRowLayout.addWidget(self.thresholdTierInput)
+        self.thresholdRowLayout.addWidget(self.thresholdSubtierLabel)
+        self.thresholdRowLayout.addWidget(self.thresholdSubtierInput)
+        self.thresholdRowLayout.addWidget(self.thresholdDescription)
+        self.thresholdRowLayout.addStretch(1)
+
         self.prestigeRowLayout.addWidget(self.prestigeCheckBox)
         self.prestigeRowLayout.addWidget(self.prestigeLabel)
         self.prestigeRowLayout.addWidget(self.prestigeInput)
@@ -337,6 +392,8 @@ class BloodwebPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.speedLabel)
         self.scrollAreaContentLayout.addWidget(self.speedSlowRow)
         self.scrollAreaContentLayout.addWidget(self.speedFastRow)
+        self.scrollAreaContentLayout.addWidget(self.thresholdLabel)
+        self.scrollAreaContentLayout.addWidget(self.thresholdRow)
         self.scrollAreaContentLayout.addWidget(self.limitsLabel)
         self.scrollAreaContentLayout.addWidget(self.limitsDescription)
         self.scrollAreaContentLayout.addWidget(self.prestigeRow)

@@ -3,6 +3,7 @@ import os
 import sys
 from multiprocessing import freeze_support, Pipe
 from threading import Thread
+from typing import Tuple
 
 from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QColor
@@ -281,6 +282,10 @@ class MainWindow(QMainWindow):
         self.animation.start()
 
     # bloodweb
+    def get_runtime_auto_purchase_threshold(self) -> Tuple[str, str] or None:
+        return (self.bloodwebPage.thresholdTierInput.text(), self.bloodwebPage.thresholdSubtierInput) \
+            if self.bloodwebPage.thresholdCheckBox.isChecked() else None
+
     def get_runtime_prestige_limit(self) -> str or None:
         return self.bloodwebPage.prestigeInput.text() if self.bloodwebPage.prestigeCheckBox.isChecked() else None
 
@@ -294,6 +299,27 @@ class MainWindow(QMainWindow):
     def run_terminate(self):
         debug, write_to_output = self.bloodwebPage.get_debug_options()
         if not self.state.is_active(): # run
+            # check auto-purchase tier and subtier threshold
+            tier, subtier = None, None
+            threshold = self.get_runtime_auto_purchase_threshold()
+            if threshold is not None:
+                tier, subtier = threshold
+                try:
+                    tier = int(tier)
+                except:
+                    return self.bloodwebPage.show_run_error("Threshold tier must be an integer from -999 to 999.", True)
+                if abs(tier) > 999:
+                    return self.bloodwebPage.show_run_error("Threshold tier must be an integer from -999 to 999.", True)
+
+                try:
+                    subtier = int(subtier)
+                except:
+                    return self.bloodwebPage.show_run_error("Threshold subtier must be an integer from -999 to 999.",
+                                                            True)
+                if abs(subtier) > 999:
+                    return self.bloodwebPage.show_run_error("Threshold subtier must be an integer from -999 to 999.",
+                                                            True)
+
             # check prestige limit
             prestige_limit = self.get_runtime_prestige_limit()
             if prestige_limit is not None:
@@ -313,7 +339,8 @@ class MainWindow(QMainWindow):
                 if not (1 <= bp_limit):
                     return self.bloodwebPage.show_run_error("Bloodpoint limit must be a positive integer.", True)
 
-            self.state.run((debug, write_to_output, prestige_limit, bp_limit)) # may as well use the validated limits
+            # may as well use the validated thresholds & limits
+            self.state.run((debug, write_to_output, tier, subtier, prestige_limit, bp_limit))
             self.toggle_run_terminate_text("Running...", False, True)
             self.bloodwebPage.start_time()
         else: # terminate
