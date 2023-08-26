@@ -97,6 +97,15 @@ class StyleSheets:
             image: url("assets/images/icons/icon_selected_all.png");
         }}"""
 
+    check_box_read_only = f"""
+        QCheckBox::indicator {{
+            width: 15px;
+            height: 15px;
+            background-color: {background};
+            border: 3px solid {background};
+            border-radius: 5px;
+        }}"""
+
     top_bar_button = f"""
         QPushButton {{
             background-color: transparent;

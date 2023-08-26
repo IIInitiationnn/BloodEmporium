@@ -22,6 +22,12 @@ class BloodwebPage(QWidget):
         self.awareSingleCheckBox.setChecked(mode == "aware_single")
         self.awareMultiCheckBox.setChecked(mode == "aware_multi")
         self.profileSelector.setEnabled(mode != "naive")
+        self.thresholdCheckBox.setEnabled(mode != "naive")
+        self.thresholdTierInput.setReadOnly(mode == "naive" or not self.thresholdCheckBox.isChecked())
+        self.thresholdSubtierInput.setReadOnly(mode == "naive" or not self.thresholdCheckBox.isChecked())
+        if mode != "naive" and self.thresholdCheckBox.isChecked():
+            self.thresholdTierInput.setStyleSheet(StyleSheets.threshold_input(self.thresholdTierInput.text()))
+            self.thresholdSubtierInput.setStyleSheet(StyleSheets.threshold_input(self.thresholdSubtierInput.text()))
         Runtime().set_mode(mode)
 
     def on_select_speed(self, speed):
@@ -40,9 +46,7 @@ class BloodwebPage(QWidget):
             Runtime().change_auto_purchase_threshold(enabled=True)
         else:
             self.thresholdTierInput.setReadOnly(True)
-            self.thresholdTierInput.setStyleSheet(StyleSheets.text_box_read_only)
             self.thresholdSubtierInput.setReadOnly(True)
-            self.thresholdSubtierInput.setStyleSheet(StyleSheets.text_box_read_only)
             Runtime().change_auto_purchase_threshold(enabled=False)
 
     def on_edit_auto_purchase_threshold_tier(self):
@@ -63,7 +67,6 @@ class BloodwebPage(QWidget):
             Runtime().change_limit("prestige", enabled=True)
         else:
             self.prestigeInput.setReadOnly(True)
-            self.prestigeInput.setStyleSheet(StyleSheets.text_box_read_only)
             Runtime().change_limit("prestige", enabled=False)
 
     def on_edit_prestige_limit_input(self):
@@ -84,7 +87,6 @@ class BloodwebPage(QWidget):
             Runtime().change_limit("bloodpoint", enabled=True)
         else:
             self.bloodpointInput.setReadOnly(True)
-            self.bloodpointInput.setStyleSheet(StyleSheets.text_box_read_only)
             Runtime().change_limit("bloodpoint", enabled=False)
 
     def on_edit_bloodpoint_limit_input(self):
@@ -211,7 +213,6 @@ class BloodwebPage(QWidget):
                                                "Aware mode (multi-claim): items will be selected along entire paths "
                                                "according to your preference profile (slightly faster but the entity "
                                                "may consume some items before they can be reached).")
-        self.on_select_run_mode(runtime.mode())
 
         self.speedLabel = TextLabel(self, "bloodwebPageSpeedLabel", "Speed", Font(12))
 
@@ -237,7 +238,8 @@ class BloodwebPage(QWidget):
                                         Font(10))
         self.on_select_speed(runtime.speed())
 
-        self.thresholdLabel = TextLabel(self, "bloodwebPageThresholdLabel", "Auto-Purchase Threshold", Font(12))
+        self.thresholdLabel = TextLabel(self, "bloodwebPageThresholdLabel",
+                                        "Auto-Purchase Threshold (Aware-Mode Only)", Font(12))
         self.thresholdRow = QWidget(self)
         self.thresholdRow.setObjectName("bloodwebPageThresholdRow")
         self.thresholdRowLayout = RowLayout(self.thresholdRow, "bloodwebPageThresholdRowLayout")
@@ -258,6 +260,7 @@ class BloodwebPage(QWidget):
         self.thresholdDescription = TextLabel(self.thresholdRow, "bloodwebPageThresholdDescription",
                                               "If all remaining unlockables on the bloodweb are below the specified "
                                               "tier and subtier threshold, auto-purchase will be used.", Font(10))
+        self.on_select_run_mode(runtime.mode())
 
         self.limitsLabel = TextLabel(self, "bloodwebPageLimitsLabel", "Limits", Font(12))
         self.limitsDescription = TextLabel(self, "bloodwebPageLimitsDescription",

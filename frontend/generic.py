@@ -66,6 +66,10 @@ class TextInputBox(QLineEdit):
         super().focusOutEvent(event)
         TextInputBox.on_focus_out_callback()
 
+    def setReadOnly(self, a0: bool) -> None:
+        super().setReadOnly(a0)
+        self.setStyleSheet(StyleSheets.text_box if not a0 else StyleSheets.text_box_read_only)
+
 class MultiLineTextInputBox(QPlainTextEdit):
     def __init__(self, parent, object_name, width, height, full_height, placeholder_text, text=None, font=Font(10),
                  style_sheet=StyleSheets.multiline_text_box):
@@ -121,6 +125,10 @@ class CheckBox(QCheckBox):
             self.setObjectName(object_name)
         self.setAutoFillBackground(False)
         self.setStyleSheet(style_sheet)
+
+    def setEnabled(self, a0: bool) -> None:
+        super().setEnabled(a0)
+        self.setStyleSheet(StyleSheets.check_box if a0 else StyleSheets.check_box_read_only)
 
 class Selector(QComboBox):
     def __init__(self, parent, object_name, size, items, active_item=None):

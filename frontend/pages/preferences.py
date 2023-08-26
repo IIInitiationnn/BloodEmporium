@@ -601,7 +601,6 @@ class PreferencesPage(QWidget):
             self.editDropdownContentTierInput.setStyleSheet(StyleSheets.tiers_input(text))
         else:
             self.editDropdownContentTierInput.setReadOnly(True)
-            self.editDropdownContentTierInput.setStyleSheet(StyleSheets.text_box_read_only)
 
     def on_edit_dropdown_subtier(self):
         if self.editDropdownContentSubtierCheckBox.isChecked():
@@ -610,7 +609,6 @@ class PreferencesPage(QWidget):
             self.editDropdownContentSubtierInput.setStyleSheet(StyleSheets.tiers_input(text))
         else:
             self.editDropdownContentSubtierInput.setReadOnly(True)
-            self.editDropdownContentSubtierInput.setStyleSheet(StyleSheets.text_box_read_only)
 
     def on_edit_dropdown_tier_input(self):
         text = self.editDropdownContentTierInput.text()
