@@ -214,6 +214,7 @@ class StateProcess(Process):
             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
             # initialisation: merged base for template matching
+            print(f"initialising ({State.version})")
             print(f"merging")
             unlockables = Data.get_unlockables()
             num_custom = len([u for u in unlockables if u.is_custom_icon])
@@ -484,12 +485,6 @@ class StateProcess(Process):
                                         if node.cls_name not in NodeType.MULTI_ORIGIN]) <= 6
                     override_slow = False
 
-                    total_bloodweb_cost = 0
-                    for node in matched_nodes:
-                        if node.cls_name in NodeType.MULTI_UNCLAIMED:
-                            unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
-                            total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
-
                     # prestige
                     if len(prestige) > 0:
                         self.prestige_total += 1
@@ -517,6 +512,11 @@ class StateProcess(Process):
                         continue
                     elif fast_forward and len(origin_auto_enabled) > 0:
                         # enabled auto origin found
+                        total_bloodweb_cost = 0
+                        for node in matched_nodes:
+                            if node.cls_name in NodeType.MULTI_UNCLAIMED:
+                                unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
+                                total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
 
@@ -594,18 +594,25 @@ class StateProcess(Process):
                         print(TextUtil.justify(8, objs))
 
                         # auto-purchase from all unlockables same sub/tier OR below threshold (if applicable)
+                        remaining_bloodweb_cost = 0
+                        num_remaining_nodes = 0
+                        for data in base_bloodweb.nodes.values():
+                            if data["cls_name"] in NodeType.MULTI_UNCLAIMED:
+                                unlockable = [u for u in unlockables if u.unique_id == data["name"]][0]
+                                remaining_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
+                                num_remaining_nodes += 1
                         if len(origin_auto_enabled) > 0 and \
                                 optimiser.can_auto_purchase(profile_id, self.threshold_tier,
                                                             self.threshold_subtier) and \
-                                (self.bp_limit is None or total_bloodweb_cost <= self.bp_limit - self.bp_total):
+                                (self.bp_limit is None or remaining_bloodweb_cost <= self.bp_limit - self.bp_total):
                             print("auto origin (enabled) from auto purchase: selecting")
-                            self.bp_total += total_bloodweb_cost
+                            self.bp_total += remaining_bloodweb_cost
                             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
                             pyautogui.moveTo(*centre.xy())
-                            self.click_origin(len(matched_nodes))
-                            bloodweb_iteration += 1
-                            continue
+                            self.click_origin(num_remaining_nodes)
+                            print("level cleared")
+                            break
 
                         if run_mode == "aware_single":
                             best_node = optimiser.select_best_single()
