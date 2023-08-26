@@ -283,8 +283,9 @@ class MainWindow(QMainWindow):
 
     # bloodweb
     def get_runtime_auto_purchase_threshold(self) -> Tuple[str, str] or None:
-        return (self.bloodwebPage.thresholdTierInput.text(), self.bloodwebPage.thresholdSubtierInput) \
-            if self.bloodwebPage.thresholdCheckBox.isChecked() else None
+        return (self.bloodwebPage.thresholdTierInput.text(), self.bloodwebPage.thresholdSubtierInput.text()) \
+            if (self.bloodwebPage.thresholdCheckBox.isEnabled() and self.bloodwebPage.thresholdCheckBox.isChecked()) \
+            else None
 
     def get_runtime_prestige_limit(self) -> str or None:
         return self.bloodwebPage.prestigeInput.text() if self.bloodwebPage.prestigeCheckBox.isChecked() else None

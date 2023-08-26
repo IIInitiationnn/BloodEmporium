@@ -484,6 +484,12 @@ class StateProcess(Process):
                                         if node.cls_name not in NodeType.MULTI_ORIGIN]) <= 6
                     override_slow = False
 
+                    total_bloodweb_cost = 0
+                    for node in matched_nodes:
+                        if node.cls_name in NodeType.MULTI_UNCLAIMED:
+                            unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
+                            total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
+
                     # prestige
                     if len(prestige) > 0:
                         self.prestige_total += 1
@@ -511,12 +517,6 @@ class StateProcess(Process):
                         continue
                     elif fast_forward and len(origin_auto_enabled) > 0:
                         # enabled auto origin found
-                        total_bloodweb_cost = 0
-                        for node in matched_nodes:
-                            if node.cls_name in NodeType.MULTI_UNCLAIMED:
-                                unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
-                                total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
-
                         if dev_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
 
@@ -524,7 +524,7 @@ class StateProcess(Process):
                             # manual: start edge detection and optimal non-auto selection but without waiting
                             override_slow = True
                         else:
-                            print("auto origin (enabled): selecting")
+                            print("auto origin (enabled) from fast forward: selecting")
                             self.bp_total += total_bloodweb_cost
                             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
@@ -592,6 +592,20 @@ class StateProcess(Process):
                                                  ("=>" if cls_name_changed else ""),
                                                  data["cls_name"]])
                         print(TextUtil.justify(8, objs))
+
+                        # auto-purchase from all unlockables same sub/tier OR below threshold (if applicable)
+                        if len(origin_auto_enabled) > 0 and \
+                                optimiser.can_auto_purchase(profile_id, self.threshold_tier,
+                                                            self.threshold_subtier) and \
+                                (self.bp_limit is None or total_bloodweb_cost <= self.bp_limit - self.bp_total):
+                            print("auto origin (enabled) from auto purchase: selecting")
+                            self.bp_total += total_bloodweb_cost
+                            self.emit("bloodpoint", (self.bp_total, self.bp_limit))
+                            centre = origin_auto_enabled[0].box.centre()
+                            pyautogui.moveTo(*centre.xy())
+                            self.click_origin(len(matched_nodes))
+                            bloodweb_iteration += 1
+                            continue
 
                         if run_mode == "aware_single":
                             best_node = optimiser.select_best_single()

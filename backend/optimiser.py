@@ -222,3 +222,27 @@ class Optimiser:
             graphs = [self.base_graph]
 
         self.dijkstra_graph = self.add_graphs(graphs)
+
+    def can_auto_purchase(self, profile_id, threshold_tier=None, threshold_subtier=None):
+        # two ways to auto-purchase
+        # A: all tiers and subtiers of all items are the same
+        # B: all tiers and subtiers fall below threshold (if threshold is enabled)
+        # check A, then B
+
+        config = Config()
+        tiers, subtiers = set(), set()
+        for data in self.base_graph.nodes.values():
+            if data["cls_name"] not in NodeType.MULTI_UNCLAIMED:
+                continue
+            tier, subtier = config.preference_by_id(data["name"], profile_id)
+            tiers.add(tier)
+            subtiers.add(subtier)
+
+        # A
+        if len(tiers) == 1 and len(subtiers) == 1:
+            return True
+        if threshold_tier is None:
+            return False
+
+        # B
+        return max(tiers) < threshold_tier and max(subtiers) < threshold_subtier
