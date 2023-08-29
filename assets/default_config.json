@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.1.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.2.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -3462,11 +3462,99 @@
             "iconPerks_PlotTwist_survivor": {
                 "tier": -2,
                 "subtier": 1
+            },
+            "iconAddon_ripleysWatch_xenomorph": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_ovomorph_xenomorph": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_drinkingBird_xenomorph": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_CerealRations_xenomorph": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_parkersHeadband_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_multipurposeHatchet_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_moltedSkin_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_kanesHelmet_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_emergencyHelmet_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_semioticKeyboard_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_selfDestructBolt_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_harpoonGun_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_catCarrier_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_improvisedCattleProd_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_acidicBlood_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconFavors_airlockDoors_universal": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconPerks_RapidBrutality_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_AlienInstinct_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_UltimateWeapon_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_ChemicalTrap_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_LightFooted_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_LuckyStar_survivor": {
+                "tier": -2,
+                "subtier": 1
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.1.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.2.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -7092,6 +7180,98 @@
                 "subtier": 0
             },
             "iconPerks_PlotTwist_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconAddon_lightWand_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_lambertsStarMap_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_brettsCap_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_crewHeadset_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_ashsInnards_xenomorph": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_parkersHeadband_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_multipurposeHatchet_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_moltedSkin_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_kanesHelmet_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_emergencyHelmet_xenomorph": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_semioticKeyboard_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_selfDestructBolt_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_harpoonGun_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_catCarrier_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_improvisedCattleProd_xenomorph": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconAddon_acidicBlood_xenomorph": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconFavors_airlockDoors_universal": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconPerks_RapidBrutality_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_AlienInstinct_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_UltimateWeapon_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_ChemicalTrap_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_LightFooted_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_LuckyStar_survivor": {
                 "tier": 15,
                 "subtier": 0
             }
