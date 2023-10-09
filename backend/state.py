@@ -48,8 +48,10 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 TODOs
+- put path in settings under "custom icons" checkbox so vanilla users dont have to do anything
+- stranger things checkbox in settings so app can use correct icons
 - train bp balance ocr (maybe easyocr quicker?)
-- retrain nodes (create into new dataset)
+- in future, make a note on which batch each model has been trained on
 - timer stops sometimes
 - status on progress (starting, detecting bloodweb, optimising)
 - systematic failsafe for bp if easyocr fails? (actually verify node region is correct, then verify ocr; diff res/aspect)
