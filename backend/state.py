@@ -401,11 +401,11 @@ class StateProcess(Process):
                         grab_time = time.time()
 
                         # mystery box: click TODO may have to move outside of this branch?
-                        if "mysteryBox" in random_node.name:
-                            print("mystery box selected")
-                            time.sleep(0.9)
-                            pyautogui.click(button=self.primary_mouse)
-                            time.sleep(0.2)
+                        # if "mysteryBox" in random_node.name:
+                        #     print("mystery box selected")
+                        #     time.sleep(0.9)
+                        #     pyautogui.click(button=self.primary_mouse)
+                        #     time.sleep(0.2)
 
                         # wait if slow
                         if speed == "slow":
@@ -647,11 +647,11 @@ class StateProcess(Process):
                         grab_time = time.time()
 
                         # mystery box: click
-                        if "mysteryBox" in best_node.name:
-                            print("mystery box selected")
-                            time.sleep(0.9)
-                            pyautogui.click(button=self.primary_mouse)
-                            time.sleep(0.2)
+                        # if "mysteryBox" in best_node.name:
+                        #     print("mystery box selected")
+                        #     time.sleep(0.9)
+                        #     pyautogui.click(button=self.primary_mouse)
+                        #     time.sleep(0.2)
 
                         # move mouse again in case it didn't the first time
                         pyautogui.moveTo(0, 0)
