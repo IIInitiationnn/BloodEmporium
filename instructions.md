@@ -28,5 +28,6 @@ remove torch/lib/dnnl.lib
 - add perks to assets/killer and assets/survivor
 ### Others
 - new maps (offerings), generic perks etc to look out for
+- mystery boxes scaled to 0.8
 
 - update preference profiles
