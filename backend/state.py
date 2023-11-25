@@ -49,7 +49,6 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 
 TODOs
 - put path in settings under "custom icons" checkbox so vanilla users dont have to do anything
-- stranger things checkbox in settings so app can use correct icons
 - train bp balance ocr (maybe easyocr quicker?)
 - in future, make a note on which batch each model has been trained on
 - timer stops sometimes
@@ -699,7 +698,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.1"
+    version = "v1.2.2"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):
