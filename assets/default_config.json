@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.3.2.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.3.3.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -3554,11 +3554,15 @@
             "iconHelp_mysteryBoxHalloween2023_universal": {
                 "tier": 1,
                 "subtier": 0
+            },
+            "iconFavors_hawkinsNationalLaboratoryID_universal": {
+                "tier": -1,
+                "subtier": 0
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.3.2.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.3.3.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -7278,6 +7282,10 @@
             "iconPerks_LuckyStar_survivor": {
                 "tier": 15,
                 "subtier": 0
+            },
+            "iconFavors_hawkinsNationalLaboratoryID_universal": {
+                "tier": -2,
+                "subtier": 0
             }
         },
         {
@@ -8801,10 +8809,6 @@
             },
             "iconPerks_VittoriosGambit_survivor": {
                 "tier": -6,
-                "subtier": 0
-            },
-            "iconFavors_BeefTallowMixture_universal": {
-                "tier": -1,
                 "subtier": 0
             },
             "iconAddon_InfaredUpgrade_skull merchant": {
@@ -12038,10 +12042,6 @@
             "iconFavors_wardSacrificial_universal": {
                 "tier": 4,
                 "subtier": 6
-            },
-            "iconFavors_BeefTallowMixture_universal": {
-                "tier": -1,
-                "subtier": 0
             },
             "iconFavors_hollowShell_killer": {
                 "tier": 2,

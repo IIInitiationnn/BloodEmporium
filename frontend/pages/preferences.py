@@ -201,7 +201,7 @@ Type: {TextUtil.title_case(unlockable.type)}""")
         self.layout.addWidget(self.subtierLabel)
 
         self.subtierInput = TextInputBox(self, f"{name}SubtierInput", QSize(110, 40), "Enter subtier", str(subtier),
-                                         style_sheet=StyleSheets.tiers_input(tier))
+                                         style_sheet=StyleSheets.tiers_input(subtier))
         self.subtierInput.textEdited.connect(self.on_subtier_update)
         self.layout.addWidget(self.subtierInput)
 
