@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.3.3.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.4.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -3558,11 +3558,83 @@
             "iconFavors_hawkinsNationalLaboratoryID_universal": {
                 "tier": -1,
                 "subtier": 0
+            },
+            "iconAddon_dollEyes_good guy": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_goodGuyBox_good guy": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_strobingLight_good guy": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_tinyScalpel_good guy": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_portableTV_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_ratPoison_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_runningShoes_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_silkPillow_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_yardstick_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_mirrorShards_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_pileOfNails_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_plasticBag_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_straightRazor_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_hardHat_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_iridescentAmulet_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconPerks_twoCanPlay_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_friendsTillTheEnd_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_batteriesIncluded_killer": {
+                "tier": -2,
+                "subtier": 1
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.3.3.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.4.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -7286,6 +7358,82 @@
             "iconFavors_hawkinsNationalLaboratoryID_universal": {
                 "tier": -2,
                 "subtier": 0
+            },
+            "iconPerks_twoCanPlay_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_friendsTillTheEnd_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_batteriesIncluded_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconAddon_automaticScrewdriver_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_electricCarvingKnife_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_flamingHairSpray_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_jumpRope_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_powerDrill_good guy": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_portableTV_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_ratPoison_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_runningShoes_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_silkPillow_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_yardstick_good guy": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_mirrorShards_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_pileOfNails_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_plasticBag_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_straightRazor_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_hardHat_good guy": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconAddon_iridescentAmulet_good guy": {
+                "tier": -4,
+                "subtier": 0
             }
         },
         {
@@ -10210,6 +10358,54 @@
             "iconPerks_PlotTwist_survivor": {
                 "tier": -6,
                 "subtier": 0
+            },
+            "IconPerks_GeneticLimits_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "IconPerks_ForcedHesitation_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "IconPerks_SelfAware_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_RapidBrutality_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_AlienInstinct_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_UltimateWeapon_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_twoCanPlay_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_friendsTillTheEnd_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_batteriesIncluded_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_ChemicalTrap_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_LightFooted_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_LuckyStar_survivor": {
+                "tier": -6,
+                "subtier": 0
             }
         },
         {
@@ -13132,6 +13328,54 @@
                 "subtier": 0
             },
             "iconPerks_PlotTwist_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "IconPerks_GeneticLimits_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "IconPerks_ForcedHesitation_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "IconPerks_SelfAware_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_RapidBrutality_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_AlienInstinct_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_UltimateWeapon_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_twoCanPlay_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_friendsTillTheEnd_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_batteriesIncluded_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_ChemicalTrap_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_LightFooted_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_LuckyStar_survivor": {
                 "tier": 20,
                 "subtier": 0
             }
