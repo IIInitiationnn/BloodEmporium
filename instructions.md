@@ -1,5 +1,5 @@
 If you are a user reading this file, you are in the wrong place!
-Please download the non-source-code archive from https://github.com/IIInitiationnn/BloodEmporium/releases/latest
+Please download the installer from https://github.com/IIInitiationnn/BloodEmporium/releases/latest
 
 # Compilation (Powershell)
 (Update state version)
