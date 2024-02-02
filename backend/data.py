@@ -4,13 +4,6 @@ import sqlite3
 from config import Config
 from paths import Path
 
-replace = {
-    "iconPerks_situationalAwareness": ("iconPerks_betterTogether", "retired"),
-    "iconPerks_survivalInstincts": ("iconPerks_innerStrength", "retired"),
-    "iconPerks_guardian": ("iconPerks_babySitter", "retired"),
-    "iconPerks_pushThroughIt": ("iconPerks_secondWind", "retired"),
-}
-
 class Unlockable:
     @staticmethod
     def generate_unique_id(unlockable_id, category):
@@ -57,8 +50,7 @@ class Data:
         all_files = [(subdir, file) for subdir, dirs, files in os.walk(Config().path()) for file in files]
         icons = {}
         for row in Data.__unlockables_rows:
-            og_u_id, _, og_u_category, _, _, _, _ = row
-            u_id, u_category = replace.get(og_u_id, (og_u_id, og_u_category))
+            u_id, _, u_category, _, _, _, _ = row
 
             # search in user's folder
             u_image_path = None
@@ -86,7 +78,7 @@ class Data:
                     continue
 
             if u_image_path is not None:
-                icons[Unlockable.generate_unique_id(og_u_id, og_u_category)] = {
+                icons[Unlockable.generate_unique_id(u_id, u_category)] = {
                     "image_path": u_image_path,
                     "is_custom_icon": u_is_custom_icon,
                 }
@@ -98,8 +90,7 @@ class Data:
         all_files = [(subdir, file) for subdir, dirs, files in os.walk(Config().path()) for file in files]
         unlockables = []
         for row in Data.__unlockables_rows:
-            og_u_id, u_name, og_u_category, u_rarity, u_notes, u_type, u_order = row
-            u_id, u_category = replace.get(og_u_id, (og_u_id, og_u_category))
+            u_id, u_name, u_category, u_rarity, u_notes, u_type, u_order = row
 
             # search in user's folder
             u_image_path = None
@@ -127,7 +118,7 @@ class Data:
                     continue
 
             if u_image_path is not None:
-                unlockables.append(Unlockable(og_u_id, u_name, og_u_category, u_rarity, u_notes, u_type, u_order, u_image_path,
+                unlockables.append(Unlockable(u_id, u_name, u_category, u_rarity, u_notes, u_type, u_order, u_image_path,
                                               u_is_custom_icon))
 
         return unlockables
