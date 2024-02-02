@@ -48,6 +48,13 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 TODOs
+- v1.2.3:
+    - cheapskate for 7.5.0 (new perks, hillbilly addons)
+    - config migration for old billy addons
+    - verify icons are correct for iconAddon_chainsBloody and addon order is correct for
+    - otz tier lists (issue #46)
+    - mark oni paper lantern bug as resolved
+    - close issue #43
 - put path in settings under "custom icons" checkbox so vanilla users dont have to do anything
 - train bp balance ocr (maybe easyocr quicker?)
 - in future, make a note on which batch each model has been trained on

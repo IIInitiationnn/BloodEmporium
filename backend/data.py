@@ -64,11 +64,11 @@ class Data:
             u_is_custom_icon = None
             for subdir, file in all_files:
                 if u_id in file:
-                    # bubba and hillbilly share an addon with the same name
-                    if u_category == "bubba" and u_id == "iconAddon_speedLimiter" and "Xipre" in subdir:
-                        continue
-                    elif u_category == "hillbilly" and u_id == "iconAddon_speedLimiter" and "Xipre" not in subdir:
-                        continue
+                    # bubba and hillbilly share an addon with the same name TODO what is location of iconAddon_chainsBloody for hillbilly? does it use bubba asset
+                    # if u_category == "bubba" and u_id == "iconAddon_chainsBloody" and "Xipre" in subdir:
+                    #     continue
+                    # elif u_category == "hillbilly" and u_id == "iconAddon_chainsBloody" and "Xipre" not in subdir:
+                    #     continue
 
                     u_image_path = os.path.normpath(os.path.join(subdir, file))
                     u_is_custom_icon = True
@@ -106,10 +106,10 @@ class Data:
             for subdir, file in all_files:
                 if u_id in file:
                     # bubba and hillbilly share an addon with the same name
-                    if u_category == "bubba" and u_id == "iconAddon_speedLimiter" and "Xipre" in subdir:
-                        continue
-                    elif u_category == "hillbilly" and u_id == "iconAddon_speedLimiter" and "Xipre" not in subdir:
-                        continue
+                    # if u_category == "bubba" and u_id == "iconAddon_chainsBloody" and "Xipre" in subdir:
+                    #     continue
+                    # elif u_category == "hillbilly" and u_id == "iconAddon_chainsBloody" and "Xipre" not in subdir:
+                    #     continue
 
                     u_image_path = os.path.normpath(os.path.join(subdir, file))
                     u_is_custom_icon = True
