@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.4.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.5.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -411,27 +411,11 @@
                 "tier": -2,
                 "subtier": 1
             },
-            "iconPerks_situationalAwareness_survivor": {
-                "tier": -2,
-                "subtier": 1
-            },
             "iconPerks_fixated_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
-            "iconPerks_survivalInstincts_survivor": {
-                "tier": -2,
-                "subtier": 1
-            },
-            "iconPerks_guardian_survivor": {
-                "tier": -2,
-                "subtier": 1
-            },
             "iconPerks_camaraderie_survivor": {
-                "tier": -2,
-                "subtier": 1
-            },
-            "iconPerks_pushThroughIt_survivor": {
                 "tier": -2,
                 "subtier": 1
             },
@@ -843,28 +827,8 @@
                 "tier": 1,
                 "subtier": 0
             },
-            "iconAddon_junkyardAirFilter_hillbilly": {
-                "tier": 1,
-                "subtier": 0
-            },
-            "iconAddon_heavyClutch_hillbilly": {
-                "tier": 1,
-                "subtier": 0
-            },
-            "iconAddon_speedLimiter_hillbilly": {
-                "tier": 1,
-                "subtier": 0
-            },
             "iconAddon_tunedCarburetor_hillbilly": {
-                "tier": -2,
-                "subtier": 0
-            },
-            "iconAddon_spikedBoots_hillbilly": {
-                "tier": -2,
-                "subtier": 0
-            },
-            "iconAddon_pighouseGloves_hillbilly": {
-                "tier": -2,
+                "tier": -3,
                 "subtier": 0
             },
             "iconAddon_lowProChains_hillbilly": {
@@ -872,11 +836,7 @@
                 "subtier": 0
             },
             "iconAddon_apexMuffler_hillbilly": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_iridescentBrick_hillbilly": {
-                "tier": -3,
+                "tier": -2,
                 "subtier": 0
             },
             "iconAddon_woodenHorse_nurse": {
@@ -2603,23 +2563,7 @@
                 "tier": -1,
                 "subtier": 0
             },
-            "iconAddon_mothersHelpers_hillbilly": {
-                "tier": -1,
-                "subtier": 0
-            },
             "iconAddon_lowKickbackChains_hillbilly": {
-                "tier": -1,
-                "subtier": 0
-            },
-            "iconAddon_leafyMash_hillbilly": {
-                "tier": -1,
-                "subtier": 0
-            },
-            "iconAddon_doomEngravings_hillbilly": {
-                "tier": -1,
-                "subtier": 0
-            },
-            "iconAddon_blackGrease_hillbilly": {
                 "tier": -1,
                 "subtier": 0
             },
@@ -3630,11 +3574,79 @@
             "iconPerks_batteriesIncluded_killer": {
                 "tier": -2,
                 "subtier": 1
+            },
+            "iconPerks_betterTogether_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_innerStrength_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_babySitter_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_secondWind_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_counterweight_hillbilly": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_crackedPrimerBulb_hillbilly": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_discardedAirFilter_hillbilly": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_raggedEngine_hillbilly": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_iridescentEngravings_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_theThompsonsMix_hillbilly": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_highSpeedIdlerScrew_hillbilly": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_filthySlippers_hillbilly": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_dadsBoots_hillbilly": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_chainsBloody_hillbilly": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconsPerks_Illumination_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconsPerks_ChampionOfLight_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconsPerks_Deadline_survivor": {
+                "tier": -2,
+                "subtier": 1
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.4.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.5.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -4503,27 +4515,11 @@
                 "tier": 15,
                 "subtier": 0
             },
-            "iconPerks_situationalAwareness_survivor": {
-                "tier": 15,
-                "subtier": 0
-            },
             "iconPerks_fixated_survivor": {
                 "tier": 15,
                 "subtier": 0
             },
-            "iconPerks_survivalInstincts_survivor": {
-                "tier": 15,
-                "subtier": 0
-            },
-            "iconPerks_guardian_survivor": {
-                "tier": 15,
-                "subtier": 0
-            },
             "iconPerks_camaraderie_survivor": {
-                "tier": 15,
-                "subtier": 0
-            },
-            "iconPerks_pushThroughIt_survivor": {
                 "tier": 15,
                 "subtier": 0
             },
@@ -4939,36 +4935,16 @@
                 "tier": -4,
                 "subtier": 0
             },
-            "iconAddon_mothersHelpers_hillbilly": {
-                "tier": -2,
-                "subtier": 0
-            },
             "iconAddon_lowKickbackChains_hillbilly": {
                 "tier": -2,
                 "subtier": 0
             },
-            "iconAddon_leafyMash_hillbilly": {
-                "tier": -2,
-                "subtier": 0
-            },
-            "iconAddon_doomEngravings_hillbilly": {
-                "tier": -2,
-                "subtier": 0
-            },
-            "iconAddon_blackGrease_hillbilly": {
-                "tier": -2,
-                "subtier": 0
-            },
             "iconAddon_tunedCarburetor_hillbilly": {
-                "tier": -3,
+                "tier": -4,
                 "subtier": 0
             },
             "iconAddon_spikedBoots_hillbilly": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_pighouseGloves_hillbilly": {
-                "tier": -3,
+                "tier": -1,
                 "subtier": 0
             },
             "iconAddon_lowProChains_hillbilly": {
@@ -4976,11 +4952,7 @@
                 "subtier": 0
             },
             "iconAddon_apexMuffler_hillbilly": {
-                "tier": -4,
-                "subtier": 0
-            },
-            "iconAddon_iridescentBrick_hillbilly": {
-                "tier": -4,
+                "tier": -3,
                 "subtier": 0
             },
             "iconAddon_spasmodicBreath_nurse": {
@@ -6407,23 +6379,7 @@
                 "tier": -1,
                 "subtier": 0
             },
-            "iconAddon_dadsBoots_hillbilly": {
-                "tier": -1,
-                "subtier": 0
-            },
-            "iconAddon_puncturedMuffler_hillbilly": {
-                "tier": -1,
-                "subtier": 0
-            },
             "iconAddon_offBrandMotorOil_hillbilly": {
-                "tier": -1,
-                "subtier": 0
-            },
-            "iconAddon_deathEngravings_hillbilly": {
-                "tier": -1,
-                "subtier": 0
-            },
-            "iconAddon_bigBuckle_hillbilly": {
                 "tier": -1,
                 "subtier": 0
             },
@@ -7434,6 +7390,74 @@
             "iconAddon_iridescentAmulet_good guy": {
                 "tier": -4,
                 "subtier": 0
+            },
+            "iconPerks_betterTogether_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_innerStrength_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_babySitter_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_secondWind_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconAddon_thermalCasing_hillbilly": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_cloggedIntake_hillbilly": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_chainsBloody_hillbilly": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_discardedAirFilter_hillbilly": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_raggedEngine_hillbilly": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_iridescentEngravings_hillbilly": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconAddon_theThompsonsMix_hillbilly": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_highSpeedIdlerScrew_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_filthySlippers_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_greasedThrottle_hillbilly": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconsPerks_Illumination_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconsPerks_ChampionOfLight_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconsPerks_Deadline_survivor": {
+                "tier": 15,
+                "subtier": 0
             }
         },
         {
@@ -8187,27 +8211,11 @@
                 "tier": -6,
                 "subtier": 0
             },
-            "iconPerks_situationalAwareness_survivor": {
-                "tier": -6,
-                "subtier": 0
-            },
             "iconPerks_fixated_survivor": {
                 "tier": -6,
                 "subtier": 0
             },
-            "iconPerks_survivalInstincts_survivor": {
-                "tier": -6,
-                "subtier": 0
-            },
-            "iconPerks_guardian_survivor": {
-                "tier": -6,
-                "subtier": 0
-            },
             "iconPerks_camaraderie_survivor": {
-                "tier": -6,
-                "subtier": 0
-            },
-            "iconPerks_pushThroughIt_survivor": {
                 "tier": -6,
                 "subtier": 0
             },
@@ -8540,10 +8548,6 @@
                 "subtier": 0
             },
             "iconAddon_sootTheHound_wraith": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_speedLimiter_hillbilly": {
                 "tier": -3,
                 "subtier": 0
             },
@@ -8919,10 +8923,6 @@
                 "tier": -6,
                 "subtier": 0
             },
-            "iconAddon_bigBuckle_hillbilly": {
-                "tier": -3,
-                "subtier": 0
-            },
             "iconAddon_pocketWatch_nurse": {
                 "tier": -3,
                 "subtier": 0
@@ -9056,10 +9056,6 @@
                 "subtier": 0
             },
             "iconAddon_dadsBoots_hillbilly": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_doomEngravings_hillbilly": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -10498,6 +10494,46 @@
             "iconAddon_iridescentAmulet_good guy": {
                 "tier": 3,
                 "subtier": 0
+            },
+            "iconPerks_betterTogether_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_innerStrength_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_babySitter_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_secondWind_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconAddon_crackedPrimerBulb_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_chainsBloody_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_iridescentEngravings_hillbilly": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconsPerks_Illumination_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconsPerks_ChampionOfLight_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconsPerks_Deadline_survivor": {
+                "tier": -6,
+                "subtier": 0
             }
         },
         {
@@ -10607,19 +10643,7 @@
                 "tier": 3,
                 "subtier": 0
             },
-            "iconAddon_speedLimiter_hillbilly": {
-                "tier": -3,
-                "subtier": 0
-            },
             "iconAddon_dadsBoots_hillbilly": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_bigBuckle_hillbilly": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_doomEngravings_hillbilly": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -12691,27 +12715,11 @@
                 "tier": 20,
                 "subtier": 0
             },
-            "iconPerks_situationalAwareness_survivor": {
-                "tier": 20,
-                "subtier": 0
-            },
             "iconPerks_fixated_survivor": {
                 "tier": 20,
                 "subtier": 0
             },
-            "iconPerks_survivalInstincts_survivor": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_guardian_survivor": {
-                "tier": 20,
-                "subtier": 0
-            },
             "iconPerks_camaraderie_survivor": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_pushThroughIt_survivor": {
                 "tier": 20,
                 "subtier": 0
             },
@@ -13561,6 +13569,46 @@
             },
             "iconAddon_iridescentAmulet_good guy": {
                 "tier": 3,
+                "subtier": 0
+            },
+            "iconPerks_betterTogether_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_innerStrength_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_babySitter_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_secondWind_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconAddon_crackedPrimerBulb_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_chainsBloody_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_iridescentEngravings_hillbilly": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconsPerks_Illumination_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconsPerks_ChampionOfLight_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconsPerks_Deadline_survivor": {
+                "tier": 20,
                 "subtier": 0
             }
         }

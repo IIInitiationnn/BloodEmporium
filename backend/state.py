@@ -49,7 +49,6 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 
 TODOs
 - v1.2.3:
-    - cheapskate for 7.5.0 (new perks, hillbilly addons)
     - otz tier lists (issue #46)
     - mark oni paper lantern bug as resolved
     - close issue #43
@@ -704,7 +703,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.3"
+    version = "v1.2.3-alpha.0"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):
