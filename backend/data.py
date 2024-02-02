@@ -16,7 +16,7 @@ class Unlockable:
     def generate_unique_id(unlockable_id, category):
         return f"{unlockable_id}_{category}"
 
-    def __init__(self, unlockable_id, name, category, rarity, notes, unlockable_type, image_path, is_custom_icon):
+    def __init__(self, unlockable_id, name, category, rarity, notes, unlockable_type, order, image_path, is_custom_icon):
         self.unique_id = Unlockable.generate_unique_id(unlockable_id, category)
         self.id = unlockable_id
         self.name = name
@@ -24,6 +24,7 @@ class Unlockable:
         self.rarity = rarity
         self.notes = notes
         self.type = unlockable_type
+        self.order = order
         self.image_path = image_path
         self.is_custom_icon = is_custom_icon
 
@@ -42,7 +43,7 @@ class Data:
         print(f"error")
 
     __cursor = __connection.cursor()
-    __cursor.execute("SELECT id, name, category, rarity, notes, type FROM unlockables ORDER BY \"order\"")
+    __cursor.execute("SELECT id, name, category, rarity, notes, type, \"order\" FROM unlockables ORDER BY \"order\"")
     __unlockables_rows = __cursor.fetchall()
 
     __cursor.execute("SELECT * FROM killers")
@@ -56,7 +57,7 @@ class Data:
         all_files = [(subdir, file) for subdir, dirs, files in os.walk(Config().path()) for file in files]
         icons = {}
         for row in Data.__unlockables_rows:
-            og_u_id, _, og_u_category, _, _, _ = row
+            og_u_id, _, og_u_category, _, _, _, _ = row
             u_id, u_category = replace.get(og_u_id, (og_u_id, og_u_category))
 
             # search in user's folder
@@ -97,7 +98,7 @@ class Data:
         all_files = [(subdir, file) for subdir, dirs, files in os.walk(Config().path()) for file in files]
         unlockables = []
         for row in Data.__unlockables_rows:
-            og_u_id, u_name, og_u_category, u_rarity, u_notes, u_type = row
+            og_u_id, u_name, og_u_category, u_rarity, u_notes, u_type, u_order = row
             u_id, u_category = replace.get(og_u_id, (og_u_id, og_u_category))
 
             # search in user's folder
@@ -126,7 +127,7 @@ class Data:
                     continue
 
             if u_image_path is not None:
-                unlockables.append(Unlockable(og_u_id, u_name, og_u_category, u_rarity, u_notes, u_type, u_image_path,
+                unlockables.append(Unlockable(og_u_id, u_name, og_u_category, u_rarity, u_notes, u_type, u_order, u_image_path,
                                               u_is_custom_icon))
 
         return unlockables
@@ -168,14 +169,16 @@ class Data:
 
     @staticmethod
     def get_sorts():
-        return ["name", "character", "rarity", "type", "tier"]
+        return ["default", "name", "character", "rarity", "type", "tier"]
 
     @staticmethod
     def filter(unlockable_widgets, name, categories, rarities, types, sort_by=None):
         # category = character
 
         sorted_widgets = unlockable_widgets.copy()
-        if sort_by == "name":
+        if sort_by == "default":
+            sorted_widgets.sort(key=lambda widget: widget.unlockable.order)
+        elif sort_by == "name":
             sorted_widgets.sort(key=lambda widget: widget.unlockable.name.replace("\"", ""))
         elif sort_by == "character":
             sorted_widgets.sort(key=lambda widget: widget.unlockable.category)

@@ -50,8 +50,6 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 TODOs
 - v1.2.3:
     - cheapskate for 7.5.0 (new perks, hillbilly addons)
-    - config migration for old billy addons
-    - verify icons are correct for iconAddon_chainsBloody and addon order is correct for
     - otz tier lists (issue #46)
     - mark oni paper lantern bug as resolved
     - close issue #43

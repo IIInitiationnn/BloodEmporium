@@ -4,6 +4,21 @@ from shutil import copyfile
 
 from exceptions import ConfigError
 
+migrations = [
+    # 7.5.0 hillbilly changes
+    ("iconAddon_junkyardAirFilter_hillbilly", "iconAddon_greasedThrottle_hillbilly"),
+    ("iconAddon_heavyClutch_hillbilly",       "iconAddon_counterweight_hillbilly"),
+    ("iconAddon_speedLimiter_hillbilly",      "iconAddon_crackedPrimerBulb_hillbilly"),
+    ("iconAddon_puncturedMuffler_hillbilly",  "iconAddon_thermalCasing_hillbilly"),
+    ("iconAddon_deathEngravings_hillbilly",   "iconAddon_cloggedIntake_hillbilly"),
+    ("iconAddon_bigBuckle_hillbilly",         "iconAddon_chainsBloody_hillbilly"),
+    ("iconAddon_mothersHelpers_hillbilly",    "iconAddon_discardedAirFilter_hillbilly"),
+    ("iconAddon_leafyMash_hillbilly",         "iconAddon_raggedEngine_hillbilly"),
+    ("iconAddon_doomEngravings_hillbilly",    "iconAddon_iridescentEngravings_hillbilly"),
+    ("iconAddon_blackGrease_hillbilly",       "iconAddon_theThompsonsMix_hillbilly"),
+    ("iconAddon_pighouseGloves_hillbilly",    "iconAddon_highSpeedIdlerScrew_hillbilly"),
+    ("iconAddon_iridescentBrick_hillbilly",   "iconAddon_filthySlippers_hillbilly"),
+]
 
 class Config:
     def __init__(self, validate=False):
@@ -39,7 +54,13 @@ class Config:
                     if "subtier" not in v:
                         invalid_unlockables.append(unique_id)
                         continue
+
             [profile.pop(invalid_unlockable) for invalid_unlockable in invalid_unlockables]
+
+            for migration_src, migration_dst in migrations:
+                if migration_src in profile:
+                    profile[migration_dst] = profile[migration_src]
+                    profile.pop(migration_src)
 
     def top_left(self):
         return self.config["capture"]["top_left_x"], self.config["capture"]["top_left_y"]

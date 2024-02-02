@@ -931,4 +931,4 @@ class PreferencesPage(QWidget):
         self.layout.setRowStretch(0, 1)
         self.layout.setColumnStretch(0, 1)
 
-        self.sortSelector.setCurrentIndex(1) # self.lastSortedBy becomes "character"
+        self.sortSelector.setCurrentIndex(0) # self.lastSortedBy becomes "default"
