@@ -63,11 +63,6 @@ class Config:
 
             [profile.pop(invalid_unlockable) for invalid_unlockable in invalid_unlockables]
 
-            for migration_src, migration_dst in migrations:
-                if migration_src in profile:
-                    profile[migration_dst] = profile[migration_src]
-                    profile.pop(migration_src)
-
     def top_left(self):
         return self.config["capture"]["top_left_x"], self.config["capture"]["top_left_y"]
 
@@ -112,6 +107,8 @@ class Config:
     def commit_changes(self):
         with open("assets/default_config.json", "r") as default:
             default_config = dict(json.load(default))
+            for profile in self.config.get("profiles", []):
+                Config.migrate_profile(profile)
             with open("config.json", "w") as output:
                 json.dump({
                     "path": self.config.get("path", default_config["path"]),
@@ -210,3 +207,10 @@ class Config:
         profile = self.get_profile_by_id(profile_id)
         with open(f"exports/{profile_id}.emp", "w") as file:
             file.write(json.dumps(profile))
+
+    @staticmethod
+    def migrate_profile(profile):
+        for migration_src, migration_dst in migrations:
+            if migration_src in profile:
+                profile[migration_dst] = profile[migration_src]
+                profile.pop(migration_src)
