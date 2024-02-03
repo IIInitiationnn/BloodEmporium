@@ -7462,7 +7462,7 @@
         },
         {
             "id": "otz's tier list (ignores perks)",
-            "notes": "A bundled profile to maximise useful add-ons and items, regardless of bloodpoint cost. This variant does not focus on obtaining perks. Map offerings have been left neutral to allow for user customisation based on map preference.\nValues adapted from:\n- [7.4.0] (killer add-ons) https://otzdarva.com/addons\n- [4.4.2] (survivor items and add-ons) https://imgur.com/9pWvHjN\n- [6.2.0] (offerings) https://media.discordapp.net/attachments/799329201459167282/1020377565430562887/OFFERING_TIERLISTS.jpg\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to maximise useful add-ons and items, regardless of bloodpoint cost. This variant does not focus on obtaining perks. Map offerings have been left neutral to allow for user customisation based on map preference.\nValues adapted from:\n- [7.4.0] (killer add-ons) https://otzdarva.com/addons\n- [7.5.0] (survivor items) https://sp-cdn.streamlabs.com/img/03b6b1234c40a1f6d76b01415ba68836/WrFDGURrjbluMQNKIYVqmoMKoHwZ204u7F2wQwHB.png\n- [7.5.0] (survivor add-ons) https://sp-cdn.streamlabs.com/img/03b6b1234c40a1f6d76b01415ba68836/hWy9lKczzw14jjGK3ry5qr7W1fGqWooSyDW28Zxc.png\n- [7.4.0] (offerings) https://i.imgur.com/yZimdhM.jpg\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 4,
                 "subtier": 10
@@ -7496,24 +7496,24 @@
                 "subtier": 0
             },
             "iconFavors_bloodiedBlueprint_universal": {
-                "tier": 2,
-                "subtier": 7
-            },
-            "iconFavors_murkyReagent_universal": {
-                "tier": 2,
-                "subtier": 10
-            },
-            "iconFavors_annotatedBlueprint_universal": {
-                "tier": 4,
-                "subtier": 5
-            },
-            "iconFavors_vigosBlueprint_universal": {
                 "tier": 4,
                 "subtier": 4
             },
-            "iconFavors_wardSacrificial_universal": {
+            "iconFavors_murkyReagent_universal": {
+                "tier": 2,
+                "subtier": 6
+            },
+            "iconFavors_annotatedBlueprint_universal": {
+                "tier": 4,
+                "subtier": 7
+            },
+            "iconFavors_vigosBlueprint_universal": {
                 "tier": 4,
                 "subtier": 6
+            },
+            "iconFavors_wardSacrificial_universal": {
+                "tier": 4,
+                "subtier": 8
             },
             "iconFavors_survivorPudding_killer": {
                 "tier": 4,
@@ -7540,28 +7540,24 @@
                 "subtier": 0
             },
             "iconFavors_cutCoin_killer": {
-                "tier": -2,
-                "subtier": -2
-            },
-            "iconFavors_rottenOak_killer": {
                 "tier": 2,
                 "subtier": 8
             },
-            "iconFavors_putridOak_killer": {
-                "tier": 4,
-                "subtier": 2
-            },
-            "iconFavors_momentoMoriIvory_killer": {
+            "iconFavors_rottenOak_killer": {
                 "tier": 2,
                 "subtier": 4
             },
-            "iconFavors_momentoMoriEbony_killer": {
+            "iconFavors_putridOak_killer": {
                 "tier": 2,
-                "subtier": 6
+                "subtier": 9
             },
-            "iconFavors_wardBlack_killer": {
-                "tier": -2,
-                "subtier": 0
+            "iconFavors_momentoMoriIvory_killer": {
+                "tier": 4,
+                "subtier": 1
+            },
+            "iconFavors_momentoMoriEbony_killer": {
+                "tier": 4,
+                "subtier": 2
             },
             "iconPerks_bitterMurmur_killer": {
                 "tier": -6,
@@ -7936,24 +7932,24 @@
                 "subtier": 0
             },
             "iconItems_chineseFirecracker_survivor": {
-                "tier": 6,
-                "subtier": 10
+                "tier": 3,
+                "subtier": 0
             },
             "iconItems_winterEventFirecracker_survivor": {
-                "tier": 6,
-                "subtier": 10
+                "tier": 3,
+                "subtier": 0
             },
             "iconItems_partyPopper_survivor": {
-                "tier": 6,
-                "subtier": 10
+                "tier": 3,
+                "subtier": 0
             },
             "iconItems_flashlightHalloween_survivor": {
-                "tier": 6,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
             },
             "iconItems_flashlight_anniversary2020_survivor": {
-                "tier": 6,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
             },
             "iconAddon_leatherGrip_survivor": {
                 "tier": -3,
@@ -7964,7 +7960,7 @@
                 "subtier": 0
             },
             "iconAddon_longLifeBattery_survivor": {
-                "tier": 6,
+                "tier": 5,
                 "subtier": 0
             },
             "iconAddon_intenseHalogen_survivor": {
@@ -7973,29 +7969,25 @@
             },
             "iconAddon_highEndSapphireLens_survivor": {
                 "tier": 6,
-                "subtier": 0
+                "subtier": 1
             },
             "iconAddon_oddBulb_survivor": {
                 "tier": 3,
                 "subtier": 0
             },
             "iconAddon_brokenFlashlightBulb_survivor": {
-                "tier": 0,
-                "subtier": 1
+                "tier": 3,
+                "subtier": 0
             },
             "iconItems_brokenKey_survivor": {
-                "tier": -3,
+                "tier": -1,
                 "subtier": 0
             },
             "iconItems_key_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_prayerRope_survivor": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_tokenGold_survivor": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -8016,7 +8008,7 @@
                 "subtier": 0
             },
             "iconItems_rainbowMap_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_mapAddendum_survivor": {
@@ -8032,20 +8024,20 @@
                 "subtier": 0
             },
             "iconItems_medkit_survivor": {
-                "tier": 6,
+                "tier": 5,
                 "subtier": 0
             },
             "iconItems_rangersAidKit_survivor": {
-                "tier": 3,
+                "tier": 6,
                 "subtier": 0
             },
             "iconItems_medkitHalloween_survivor": {
-                "tier": 3,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
             },
             "iconItems_medkit_anniversary2020_survivor": {
-                "tier": 3,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
             },
             "iconAddon_gloves_survivor": {
                 "tier": -3,
@@ -8060,11 +8052,7 @@
                 "subtier": 0
             },
             "iconAddon_gelDressings_survivor": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_abdominalDressing_survivor": {
-                "tier": -3,
+                "tier": 6,
                 "subtier": 0
             },
             "iconAddon_stypticAgent_survivor": {
@@ -8076,7 +8064,7 @@
                 "subtier": 0
             },
             "iconAddon_blightedSyringe_survivor": {
-                "tier": 3,
+                "tier": 2,
                 "subtier": 0
             },
             "iconItems_toolboxCommodious_survivor": {
@@ -8084,20 +8072,16 @@
                 "subtier": 0
             },
             "iconItems_toolboxEngineers_survivor": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconItems_toolboxAlexs_survivor": {
-                "tier": -3,
+                "tier": 5,
                 "subtier": 0
             },
             "iconItems_toolbox_anniversary2021_survivor": {
                 "tier": 6,
-                "subtier": 10
+                "subtier": 5
             },
             "iconItems_toolboxLunar_survivor": {
                 "tier": 6,
-                "subtier": 10
+                "subtier": 5
             },
             "iconAddon_scraps_survivor": {
                 "tier": 3,
@@ -8132,12 +8116,12 @@
                 "subtier": 0
             },
             "iconFavors_ivoryChalkPouch_survivor": {
-                "tier": 2,
-                "subtier": 3
+                "tier": 0,
+                "subtier": 9
             },
             "iconFavors_jarOfSaltyLips_survivor": {
                 "tier": 4,
-                "subtier": 3
+                "subtier": 5
             },
             "iconFavors_shinyCoin_survivor": {
                 "tier": 2,
@@ -8145,15 +8129,11 @@
             },
             "iconFavors_petrifiedOak_survivor": {
                 "tier": 4,
-                "subtier": 1
+                "subtier": 3
             },
             "iconFavors_shroudOfBinding_survivor": {
                 "tier": -4,
                 "subtier": -1
-            },
-            "iconFavors_wardWhite_survivor": {
-                "tier": -2,
-                "subtier": 0
             },
             "iconPerks_darkSense_survivor": {
                 "tier": -6,
@@ -9848,7 +9828,7 @@
                 "subtier": 0
             },
             "iconAddon_heavyDutyBattery_survivor": {
-                "tier": 6,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_focusLens_survivor": {
@@ -9856,7 +9836,7 @@
                 "subtier": 0
             },
             "iconAddon_threadedFilament_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_prayerBeads_survivor": {
@@ -9872,27 +9852,27 @@
                 "subtier": 0
             },
             "iconItems_firstAidKit_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_selfAdherentWrap_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_gauseRoll_survivor": {
                 "tier": 3,
-                "subtier": 0
+                "subtier": 1
             },
             "iconItems_toolbox_survivor": {
-                "tier": 3,
+                "tier": 2,
                 "subtier": 0
             },
             "iconAddon_spoolOfWire_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_socketSwivels_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_rubberGrip_survivor": {
@@ -9921,19 +9901,19 @@
             },
             "iconFavors_hazyReagent_universal": {
                 "tier": 2,
-                "subtier": 9
+                "subtier": 5
             },
             "iconFavors_moldyOak_killer": {
                 "tier": 2,
-                "subtier": 5
+                "subtier": 3
             },
             "iconFavors_vigosShroud_survivor": {
-                "tier": 2,
-                "subtier": 1
+                "tier": 0,
+                "subtier": 10
             },
             "iconFavors_scratchedCoin_killer": {
-                "tier": -2,
-                "subtier": -3
+                "tier": 2,
+                "subtier": 7
             },
             "iconFavors_shroudOfSeparation_killer": {
                 "tier": -4,
@@ -9948,16 +9928,16 @@
                 "subtier": 0
             },
             "iconItems_medkit_anniversary2022_survivor": {
-                "tier": 3,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
             },
             "iconItems_toolbox_anniversary2022_survivor": {
                 "tier": 6,
-                "subtier": 10
+                "subtier": 5
             },
             "iconItems_flashlight_anniversary2022_survivor": {
-                "tier": 6,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
             },
             "iconFavors_tanagerWreath_killer": {
                 "tier": -2,
@@ -10534,11 +10514,91 @@
             "iconsPerks_Deadline_survivor": {
                 "tier": -6,
                 "subtier": 0
+            },
+            "iconFavors_tornBlueprint_universal": {
+                "tier": 0,
+                "subtier": 6
+            },
+            "iconFavors_clearReagent_universal": {
+                "tier": 0,
+                "subtier": 1
+            },
+            "iconFavors_faintReagent_universal": {
+                "tier": 0,
+                "subtier": 7
+            },
+            "iconFavors_chalkPouch_survivor": {
+                "tier": 0,
+                "subtier": 2
+            },
+            "iconFavors_creamChalkPouch_survivor": {
+                "tier": 0,
+                "subtier": 4
+            },
+            "iconFavors_saltPouch_survivor": {
+                "tier": 0,
+                "subtier": 3
+            },
+            "iconFavors_blackSaltStatuette_survivor": {
+                "tier": 0,
+                "subtier": 8
+            },
+            "iconFavors_tarnishedCoin_survivor": {
+                "tier": 2,
+                "subtier": 1
+            },
+            "iconFavors_momentoMoriCypress_killer": {
+                "tier": 0,
+                "subtier": 5
+            },
+            "iconItems_flashlight_survivor": {
+                "tier": 4,
+                "subtier": 0
+            },
+            "iconItems_flashlightSport_survivor": {
+                "tier": 5,
+                "subtier": 0
+            },
+            "iconItems_flashlightUtility_survivor": {
+                "tier": 6,
+                "subtier": 0
+            },
+            "iconItems_dullKey_survivor": {
+                "tier": 2,
+                "subtier": 0
+            },
+            "iconItems_map_survivor": {
+                "tier": 2,
+                "subtier": 0
+            },
+            "iconItems_rundownAidKit_survivor": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconItems_toolboxWornOut_survivor": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconItems_toolboxMechanics_survivor": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_needAndThread_survivor": {
+                "tier": 2,
+                "subtier": 0
+            },
+            "iconAddon_scissors_survivor": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_surgicalSuture_survivor": {
+                "tier": 5,
+                "subtier": 0
             }
         },
         {
             "id": "otz's tier list (prioritises perks)",
-            "notes": "A bundled profile to maximise useful add-ons and items, regardless of bloodpoint cost. This variant priorities perks over all else. Map offerings have been left neutral to allow for user customisation based on map preference.\nValues adapted from:\n- [7.4.0] (killer add-ons) https://otzdarva.com/addons\n- [4.4.2] (survivor items and add-ons) https://imgur.com/9pWvHjN\n- [6.2.0] (offerings) https://media.discordapp.net/attachments/799329201459167282/1020377565430562887/OFFERING_TIERLISTS.jpg\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to maximise useful add-ons and items, regardless of bloodpoint cost. This variant priorities perks over all else. Map offerings have been left neutral to allow for user customisation based on map preference.\nValues adapted from:\n- [7.4.0] (killer add-ons) https://otzdarva.com/addons\n- [7.5.0] (survivor items) https://sp-cdn.streamlabs.com/img/03b6b1234c40a1f6d76b01415ba68836/WrFDGURrjbluMQNKIYVqmoMKoHwZ204u7F2wQwHB.png\n- [7.5.0] (survivor add-ons) https://sp-cdn.streamlabs.com/img/03b6b1234c40a1f6d76b01415ba68836/hWy9lKczzw14jjGK3ry5qr7W1fGqWooSyDW28Zxc.png\n- [7.4.0] (offerings) https://i.imgur.com/yZimdhM.jpg\nMade for Blood Emporium by IIInitiationnn.",
             "iconAddon_blightedSerum_killer": {
                 "tier": 1,
                 "subtier": 1
@@ -10561,6 +10621,14 @@
             },
             "iconAddon_serratedJaws_trapper": {
                 "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_coffeeGrinds_trapper": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_trapperBag_trapper": {
+                "tier": 3,
                 "subtier": 0
             },
             "iconAddon_secondaryCoil_trapper": {
@@ -10588,6 +10656,10 @@
                 "subtier": 0
             },
             "iconAddon_sootTheHound_wraith": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_sootTheBeast_wraith": {
                 "tier": -3,
                 "subtier": 0
             },
@@ -10643,12 +10715,24 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_crackedPrimerBulb_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
             "iconAddon_dadsBoots_hillbilly": {
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_chainsBloody_hillbilly": {
+                "tier": -3,
+                "subtier": 0
+            },
             "iconAddon_lowProChains_hillbilly": {
                 "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_iridescentEngravings_hillbilly": {
+                "tier": 3,
                 "subtier": 0
             },
             "iconAddon_woodenHorse_nurse": {
@@ -10656,6 +10740,10 @@
                 "subtier": 0
             },
             "iconAddon_whiteNitComb_nurse": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_plaidFlannel_nurse": {
                 "tier": -3,
                 "subtier": 0
             },
@@ -10683,7 +10771,27 @@
                 "tier": 6,
                 "subtier": 0
             },
+            "iconAddon_ataxicRespiration_nurse": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_anxiousGasp_nurse": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_jennersLastBreath_nurse": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_campbellsLastBreath_nurse": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_badMansLastBreath_nurse": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_tornBookmark_nurse": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -10807,6 +10915,10 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_mintRag_hag": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_moldyElectrode_doctor": {
                 "tier": 3,
                 "subtier": 0
@@ -10879,6 +10991,10 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_venomousConcoction_huntress": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_rustyHead_huntress": {
                 "tier": 3,
                 "subtier": 0
@@ -10903,6 +11019,14 @@
                 "tier": -3,
                 "subtier": 0
             },
+            "iconAddon_iridescentHead_huntress": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_vegetableOil_bubba": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_sparkPlug_bubba": {
                 "tier": 3,
                 "subtier": 0
@@ -10916,6 +11040,10 @@
                 "subtier": 0
             },
             "iconAddon_primerBulb_bubba": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_knifeScratches_bubba": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -10971,6 +11099,14 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_pillBottle_freddy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_zBlock_freddy": {
+                "tier": -3,
+                "subtier": 0
+            },
             "iconAddon_redPaintBrush_freddy": {
                 "tier": 6,
                 "subtier": 0
@@ -10985,6 +11121,10 @@
             },
             "iconAddon_combatStraps_pig": {
                 "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_utilityBlades_pig": {
+                "tier": -3,
                 "subtier": 0
             },
             "iconAddon_jigsawsAnnotatedPlan_pig": {
@@ -11063,12 +11203,20 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_zori_spirit": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_giftedBambooComb_spirit": {
                 "tier": 3,
                 "subtier": 0
             },
             "iconAddon_whiteHairRibbon_spirit": {
                 "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_rinsBrokenWatch_spirit": {
+                "tier": 3,
                 "subtier": 0
             },
             "iconAddon_muddySportCap_spirit": {
@@ -11111,6 +11259,18 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_etchedRuler_legion": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_defacedSmileyButton_legion": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_nastyBlade_legion": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_joeysMixtape_legion": {
                 "tier": -3,
                 "subtier": 0
@@ -11132,6 +11292,10 @@
                 "subtier": 0
             },
             "iconAddon_prayerTabletFragment_plague": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_limestoneSeal_plague": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -11199,12 +11363,20 @@
                 "tier": -3,
                 "subtier": 0
             },
+            "iconAddon_markedMap_ghostface": {
+                "tier": -3,
+                "subtier": 0
+            },
             "iconAddon_olsensWallet_ghostface": {
                 "tier": 3,
                 "subtier": 0
             },
             "iconAddon_knifeBeltClip_ghostface": {
                 "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_nightvisionMoncular_ghostface": {
+                "tier": 3,
                 "subtier": 0
             },
             "iconAddon_dropLegKnifeSheath_ghostface": {
@@ -11235,12 +11407,20 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_ratTail_demogorgon": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_mewsGuts_demogorgon": {
                 "tier": 3,
                 "subtier": 0
             },
             "iconAddon_barbsGlasses_demogorgon": {
                 "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_deerLung_demogorgon": {
+                "tier": -3,
                 "subtier": 0
             },
             "iconAddon_lifeguardWhistle_demogorgon": {
@@ -11252,6 +11432,10 @@
                 "subtier": 0
             },
             "iconAddon_leproseLichen_demogorgon": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_redMoss_demogorgon": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -11383,6 +11567,10 @@
                 "tier": 6,
                 "subtier": 0
             },
+            "iconAddon_scarletEgg_pyramidhead": {
+                "tier": -3,
+                "subtier": 0
+            },
             "iconAddon_obsidianGoblet_pyramidhead": {
                 "tier": -3,
                 "subtier": 0
@@ -11417,6 +11605,14 @@
             },
             "iconAddon_adrenalineVial_blight": {
                 "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_vigosJournal_blight": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_summoningStone_blight": {
+                "tier": 3,
                 "subtier": 0
             },
             "iconAddon_alchemistsRing_blight": {
@@ -11467,6 +11663,10 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_iridescentPendant_twins": {
+                "tier": 3,
+                "subtier": 0
+            },
             "icons_Addon_TrickPouch_trickster": {
                 "tier": 3,
                 "subtier": 0
@@ -11475,11 +11675,23 @@
                 "tier": 6,
                 "subtier": 0
             },
+            "icons_Addon_TequilaMoonrock_trickster": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "icons_Addon_LuckyBlade_trickster": {
+                "tier": 3,
+                "subtier": 0
+            },
             "icons_Addon_JiWoonsAutograph_trickster": {
                 "tier": -3,
                 "subtier": 0
             },
             "icons_Addon_CagedHeartShoes_trickster": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "icons_Addon_WaitingForYouWatch_trickster": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -11507,11 +11719,19 @@
                 "tier": -3,
                 "subtier": 0
             },
+            "iconAddon_damagedSyringe_nemesis": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_marvinsBlood_nemesis": {
                 "tier": 3,
                 "subtier": 0
             },
             "iconAddon_adminWristband_nemesis": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_TVirusSample_nemesis": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -11521,6 +11741,10 @@
             },
             "iconAddon_lickerTongue_nemesis": {
                 "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_depletedInkRibbon_nemesis": {
+                "tier": 3,
                 "subtier": 0
             },
             "iconAddon_brokenRecoveryCoin_nemesis": {
@@ -11563,6 +11787,10 @@
                 "tier": 6,
                 "subtier": 0
             },
+            "iconAddon_iridescentLamentConfiguration_cenobite": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_ThickTar_artist": {
                 "tier": 6,
                 "subtier": 0
@@ -11572,6 +11800,10 @@
                 "subtier": 0
             },
             "iconAddon_VelvetFabric_artist": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_UntitledAgony_artist": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -11603,6 +11835,10 @@
                 "tier": 6,
                 "subtier": 0
             },
+            "iconAddon_GardenofRot_artist": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_OldNewspaper_onryo": {
                 "tier": 3,
                 "subtier": 0
@@ -11621,6 +11857,10 @@
             },
             "iconAddon_WellWater_onryo": {
                 "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_MothersComb_onryo": {
+                "tier": 6,
                 "subtier": 0
             },
             "iconAddon_BloodyFingernail_onryo": {
@@ -11683,6 +11923,10 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_SacrificialKnife_dredge": {
+                "tier": -3,
+                "subtier": 0
+            },
             "iconAddon_jewelBeetle_mastermind": {
                 "tier": 6,
                 "subtier": 0
@@ -11707,8 +11951,28 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_portableSafe_mastermind": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_maidenMedalliom_mastermind": {
+                "tier": -3,
+                "subtier": 0
+            },
             "iconAddon_videoConferenceDevice_mastermind": {
                 "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_goldenEgg_mastermind": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_greenHerb_mastermind": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_labPhoto_mastermind": {
+                "tier": 3,
                 "subtier": 0
             },
             "iconAddon_iridescentUroborosVial_mastermind": {
@@ -11719,8 +11983,16 @@
                 "tier": -3,
                 "subtier": 0
             },
+            "iconAddon_PillagedMead_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
             "iconAddon_MapoftheRealms_knight": {
                 "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_GrittyLump_knight": {
+                "tier": -3,
                 "subtier": 0
             },
             "iconAddon_DriedHorsemeat_knight": {
@@ -11735,12 +12007,36 @@
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_IronworkerTongs_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_ChainmailFragment_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_BlacksmithHammer_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_KnightContract_knight": {
+                "tier": 3,
+                "subtier": 0
+            },
             "iconAddon_UltrasonicTrapSpeaker_skull merchant": {
                 "tier": 6,
                 "subtier": 0
             },
             "iconAddon_LowPowerMode_skull merchant": {
                 "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_AdaptiveLighting_skull merchant": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_VitalTargetingProcessor_skull merchant": {
+                "tier": 3,
                 "subtier": 0
             },
             "iconAddon_GeographicalReadout_skull merchant": {
@@ -11755,68 +12051,240 @@
                 "tier": 3,
                 "subtier": 0
             },
-            "iconItems_chineseFirecracker_survivor": {
-                "tier": 6,
-                "subtier": 10
-            },
-            "iconItems_winterEventFirecracker_survivor": {
-                "tier": 6,
-                "subtier": 10
-            },
-            "iconItems_partyPopper_survivor": {
-                "tier": 6,
-                "subtier": 10
-            },
-            "iconItems_flashlightHalloween_survivor": {
-                "tier": 6,
-                "subtier": 10
-            },
-            "iconItems_flashlight_anniversary2020_survivor": {
-                "tier": 6,
-                "subtier": 10
-            },
-            "iconItems_flashlight_anniversary2022_survivor": {
-                "tier": 6,
-                "subtier": 10
-            },
-            "iconItems_brokenKey_survivor": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconItems_key_survivor": {
+            "iconAddon_nutritionalSlurry_singularity": {
                 "tier": 3,
                 "subtier": 0
             },
+            "iconAddon_kidsBallGlove_singularity": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_ultrasonicSensor_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_cryoGel_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_androidArm_singularity": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_liveWires_singularity": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_somaFamilyPhoto_singularity": {
+                "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_crewManifest_singularity": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_deniedRequisitionForm_singularity": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_CerealRations_xenomorph": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_lambertsStarMap_xenomorph": {
+                "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_brettsCap_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_crewHeadset_xenomorph": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_ashsInnards_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_moltedSkin_xenomorph": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_kanesHelmet_xenomorph": {
+                "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_emergencyHelmet_xenomorph": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_semioticKeyboard_xenomorph": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_selfDestructBolt_xenomorph": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_harpoonGun_xenomorph": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_improvisedCattleProd_xenomorph": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_strobingLight_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_tinyScalpel_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_automaticScrewdriver_good guy": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_flamingHairSpray_good guy": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_jumpRope_good guy": {
+                "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_powerDrill_good guy": {
+                "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_portableTV_good guy": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_ratPoison_good guy": {
+                "tier": 6,
+                "subtier": 0
+            },
+            "iconAddon_silkPillow_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_yardstick_good guy": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_plasticBag_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_straightRazor_good guy": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconAddon_hardHat_good guy": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_iridescentAmulet_good guy": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconItems_chineseFirecracker_survivor": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconItems_winterEventFirecracker_survivor": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconItems_partyPopper_survivor": {
+                "tier": 3,
+                "subtier": 0
+            },
+            "iconItems_flashlight_survivor": {
+                "tier": 4,
+                "subtier": 0
+            },
+            "iconItems_flashlightSport_survivor": {
+                "tier": 5,
+                "subtier": 0
+            },
+            "iconItems_flashlightUtility_survivor": {
+                "tier": 6,
+                "subtier": 0
+            },
+            "iconItems_flashlightHalloween_survivor": {
+                "tier": 4,
+                "subtier": 5
+            },
+            "iconItems_flashlight_anniversary2020_survivor": {
+                "tier": 4,
+                "subtier": 5
+            },
+            "iconItems_flashlight_anniversary2022_survivor": {
+                "tier": 4,
+                "subtier": 5
+            },
+            "iconItems_brokenKey_survivor": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconItems_dullKey_survivor": {
+                "tier": 2,
+                "subtier": 0
+            },
+            "iconItems_key_survivor": {
+                "tier": 4,
+                "subtier": 0
+            },
+            "iconItems_map_survivor": {
+                "tier": 2,
+                "subtier": 0
+            },
             "iconItems_rainbowMap_survivor": {
+                "tier": 4,
+                "subtier": 0
+            },
+            "iconItems_rundownAidKit_survivor": {
                 "tier": 3,
                 "subtier": 0
             },
             "iconItems_firstAidKit_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconItems_medkit_survivor": {
-                "tier": 6,
+                "tier": 5,
                 "subtier": 0
             },
             "iconItems_rangersAidKit_survivor": {
-                "tier": 3,
+                "tier": 6,
                 "subtier": 0
             },
             "iconItems_medkitHalloween_survivor": {
-                "tier": 3,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
             },
             "iconItems_medkit_anniversary2020_survivor": {
-                "tier": 3,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
             },
             "iconItems_medkit_anniversary2022_survivor": {
-                "tier": 3,
-                "subtier": 10
+                "tier": 4,
+                "subtier": 5
+            },
+            "iconItems_toolboxWornOut_survivor": {
+                "tier": -2,
+                "subtier": 0
             },
             "iconItems_toolbox_survivor": {
-                "tier": 3,
+                "tier": 2,
+                "subtier": 0
+            },
+            "iconItems_toolboxMechanics_survivor": {
+                "tier": -1,
                 "subtier": 0
             },
             "iconItems_toolboxCommodious_survivor": {
@@ -11824,24 +12292,20 @@
                 "subtier": 0
             },
             "iconItems_toolboxEngineers_survivor": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconItems_toolboxAlexs_survivor": {
-                "tier": -3,
+                "tier": 5,
                 "subtier": 0
             },
             "iconItems_toolbox_anniversary2021_survivor": {
                 "tier": 6,
-                "subtier": 10
+                "subtier": 5
             },
             "iconItems_toolboxLunar_survivor": {
                 "tier": 6,
-                "subtier": 10
+                "subtier": 5
             },
             "iconItems_toolbox_anniversary2022_survivor": {
                 "tier": 6,
-                "subtier": 10
+                "subtier": 5
             },
             "iconAddon_leatherGrip_survivor": {
                 "tier": -3,
@@ -11856,11 +12320,11 @@
                 "subtier": 0
             },
             "iconAddon_threadedFilament_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_heavyDutyBattery_survivor": {
-                "tier": 6,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_focusLens_survivor": {
@@ -11868,7 +12332,7 @@
                 "subtier": 0
             },
             "iconAddon_longLifeBattery_survivor": {
-                "tier": 6,
+                "tier": 5,
                 "subtier": 0
             },
             "iconAddon_intenseHalogen_survivor": {
@@ -11877,25 +12341,21 @@
             },
             "iconAddon_highEndSapphireLens_survivor": {
                 "tier": 6,
-                "subtier": 0
+                "subtier": 1
             },
             "iconAddon_oddBulb_survivor": {
                 "tier": 3,
                 "subtier": 0
             },
             "iconAddon_brokenFlashlightBulb_survivor": {
-                "tier": 0,
-                "subtier": 1
+                "tier": 3,
+                "subtier": 0
             },
             "iconAddon_prayerRope_survivor": {
                 "tier": 3,
                 "subtier": 0
             },
             "iconAddon_prayerBeads_survivor": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_tokenGold_survivor": {
                 "tier": 3,
                 "subtier": 0
             },
@@ -11960,23 +12420,31 @@
                 "subtier": 0
             },
             "iconAddon_selfAdherentWrap_survivor": {
-                "tier": 3,
+                "tier": 4,
+                "subtier": 0
+            },
+            "iconAddon_needAndThread_survivor": {
+                "tier": 2,
+                "subtier": 0
+            },
+            "iconAddon_scissors_survivor": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_surgicalSuture_survivor": {
+                "tier": 5,
                 "subtier": 0
             },
             "iconAddon_gauseRoll_survivor": {
                 "tier": 3,
-                "subtier": 0
+                "subtier": 1
             },
             "iconAddon_stypticAgent_survivor": {
                 "tier": 6,
                 "subtier": 0
             },
-            "iconAddon_abdominalDressing_survivor": {
-                "tier": -3,
-                "subtier": 0
-            },
             "iconAddon_gelDressings_survivor": {
-                "tier": 3,
+                "tier": 6,
                 "subtier": 0
             },
             "iconAddon_syringe_survivor": {
@@ -11984,7 +12452,7 @@
                 "subtier": 0
             },
             "iconAddon_blightedSyringe_survivor": {
-                "tier": 3,
+                "tier": 2,
                 "subtier": 0
             },
             "iconAddon_scraps_survivor": {
@@ -12000,7 +12468,7 @@
                 "subtier": 0
             },
             "iconAddon_spoolOfWire_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_springClamp_survivor": {
@@ -12008,7 +12476,7 @@
                 "subtier": 0
             },
             "iconAddon_socketSwivels_survivor": {
-                "tier": 3,
+                "tier": 4,
                 "subtier": 0
             },
             "iconAddon_protectiveGloves_survivor": {
@@ -12039,6 +12507,10 @@
                 "tier": 4,
                 "subtier": 10
             },
+            "iconsFavors_7thAnniversary_universal": {
+                "tier": 4,
+                "subtier": 10
+            },
             "iconFavors_CursedSeed_universal": {
                 "tier": 4,
                 "subtier": 0
@@ -12060,28 +12532,40 @@
                 "subtier": 0
             },
             "iconFavors_bloodiedBlueprint_universal": {
-                "tier": 2,
-                "subtier": 7
-            },
-            "iconFavors_annotatedBlueprint_universal": {
-                "tier": 4,
-                "subtier": 5
-            },
-            "iconFavors_vigosBlueprint_universal": {
                 "tier": 4,
                 "subtier": 4
             },
+            "iconFavors_tornBlueprint_universal": {
+                "tier": 0,
+                "subtier": 6
+            },
+            "iconFavors_annotatedBlueprint_universal": {
+                "tier": 4,
+                "subtier": 7
+            },
+            "iconFavors_vigosBlueprint_universal": {
+                "tier": 4,
+                "subtier": 6
+            },
+            "iconFavors_clearReagent_universal": {
+                "tier": 0,
+                "subtier": 1
+            },
+            "iconFavors_faintReagent_universal": {
+                "tier": 0,
+                "subtier": 7
+            },
             "iconFavors_hazyReagent_universal": {
                 "tier": 2,
-                "subtier": 9
+                "subtier": 5
             },
             "iconFavors_murkyReagent_universal": {
                 "tier": 2,
-                "subtier": 10
+                "subtier": 6
             },
             "iconFavors_wardSacrificial_universal": {
                 "tier": 4,
-                "subtier": 6
+                "subtier": 8
             },
             "iconFavors_hollowShell_killer": {
                 "tier": 2,
@@ -12124,40 +12608,40 @@
                 "subtier": 0
             },
             "iconFavors_scratchedCoin_killer": {
-                "tier": -2,
-                "subtier": -3
+                "tier": 2,
+                "subtier": 7
             },
             "iconFavors_cutCoin_killer": {
-                "tier": -2,
-                "subtier": -2
-            },
-            "iconFavors_moldyOak_killer": {
-                "tier": 2,
-                "subtier": 5
-            },
-            "iconFavors_rottenOak_killer": {
                 "tier": 2,
                 "subtier": 8
             },
-            "iconFavors_putridOak_killer": {
-                "tier": 4,
-                "subtier": 2
+            "iconFavors_moldyOak_killer": {
+                "tier": 2,
+                "subtier": 3
             },
-            "iconFavors_momentoMoriIvory_killer": {
+            "iconFavors_rottenOak_killer": {
                 "tier": 2,
                 "subtier": 4
             },
-            "iconFavors_momentoMoriEbony_killer": {
+            "iconFavors_putridOak_killer": {
                 "tier": 2,
-                "subtier": 6
+                "subtier": 9
+            },
+            "iconFavors_momentoMoriCypress_killer": {
+                "tier": 0,
+                "subtier": 5
+            },
+            "iconFavors_momentoMoriIvory_killer": {
+                "tier": 4,
+                "subtier": 1
+            },
+            "iconFavors_momentoMoriEbony_killer": {
+                "tier": 4,
+                "subtier": 2
             },
             "iconFavors_shroudOfSeparation_killer": {
                 "tier": -4,
                 "subtier": -2
-            },
-            "iconFavors_wardBlack_killer": {
-                "tier": -2,
-                "subtier": 0
             },
             "iconFavors_escapeCake_survivor": {
                 "tier": 4,
@@ -12203,13 +12687,33 @@
                 "tier": 2,
                 "subtier": 0
             },
+            "iconFavors_chalkPouch_survivor": {
+                "tier": 0,
+                "subtier": 2
+            },
+            "iconFavors_creamChalkPouch_survivor": {
+                "tier": 0,
+                "subtier": 4
+            },
             "iconFavors_ivoryChalkPouch_survivor": {
-                "tier": 2,
+                "tier": 0,
+                "subtier": 9
+            },
+            "iconFavors_saltPouch_survivor": {
+                "tier": 0,
                 "subtier": 3
+            },
+            "iconFavors_blackSaltStatuette_survivor": {
+                "tier": 0,
+                "subtier": 8
             },
             "iconFavors_jarOfSaltyLips_survivor": {
                 "tier": 4,
-                "subtier": 3
+                "subtier": 5
+            },
+            "iconFavors_tarnishedCoin_survivor": {
+                "tier": 2,
+                "subtier": 1
             },
             "iconFavors_shinyCoin_survivor": {
                 "tier": 2,
@@ -12217,23 +12721,19 @@
             },
             "iconFavors_petrifiedOak_survivor": {
                 "tier": 4,
-                "subtier": 1
+                "subtier": 3
             },
             "iconFavors_shroudOfUnion_survivor": {
                 "tier": -2,
                 "subtier": -1
             },
             "iconFavors_vigosShroud_survivor": {
-                "tier": 2,
-                "subtier": 1
+                "tier": 0,
+                "subtier": 10
             },
             "iconFavors_shroudOfBinding_survivor": {
                 "tier": -4,
                 "subtier": -1
-            },
-            "iconFavors_wardWhite_survivor": {
-                "tier": -2,
-                "subtier": 0
             },
             "iconPerks_bitterMurmur_killer": {
                 "tier": 20,
@@ -12659,6 +13159,42 @@
                 "tier": 20,
                 "subtier": 0
             },
+            "IconPerks_GeneticLimits_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "IconPerks_ForcedHesitation_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "IconPerks_SelfAware_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_RapidBrutality_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_AlienInstinct_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_UltimateWeapon_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_twoCanPlay_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_friendsTillTheEnd_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_batteriesIncluded_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
             "iconPerks_darkSense_survivor": {
                 "tier": 20,
                 "subtier": 0
@@ -12715,11 +13251,27 @@
                 "tier": 20,
                 "subtier": 0
             },
+            "iconPerks_betterTogether_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
             "iconPerks_fixated_survivor": {
                 "tier": 20,
                 "subtier": 0
             },
+            "iconPerks_innerStrength_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_babySitter_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
             "iconPerks_camaraderie_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_secondWind_survivor": {
                 "tier": 20,
                 "subtier": 0
             },
@@ -13131,10 +13683,6 @@
                 "tier": 20,
                 "subtier": 0
             },
-            "iconsFavors_7thAnniversary_universal": {
-                "tier": 4,
-                "subtier": 10
-            },
             "IconPerks_troubleshooter_survivor": {
                 "tier": 20,
                 "subtier": 0
@@ -13159,42 +13707,6 @@
                 "tier": 20,
                 "subtier": 0
             },
-            "IconPerks_GeneticLimits_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "IconPerks_ForcedHesitation_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "IconPerks_SelfAware_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_RapidBrutality_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_AlienInstinct_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_UltimateWeapon_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_twoCanPlay_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_friendsTillTheEnd_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_batteriesIncluded_killer": {
-                "tier": 20,
-                "subtier": 0
-            },
             "iconPerks_ChemicalTrap_survivor": {
                 "tier": 20,
                 "subtier": 0
@@ -13205,398 +13717,6 @@
             },
             "iconPerks_LuckyStar_survivor": {
                 "tier": 20,
-                "subtier": 0
-            },
-            "iconAddon_coffeeGrinds_trapper": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_trapperBag_trapper": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_sootTheBeast_wraith": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_plaidFlannel_nurse": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_ataxicRespiration_nurse": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_anxiousGasp_nurse": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_jennersLastBreath_nurse": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_badMansLastBreath_nurse": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_tornBookmark_nurse": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_mintRag_hag": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_venomousConcoction_huntress": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_iridescentHead_huntress": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_vegetableOil_bubba": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_knifeScratches_bubba": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_pillBottle_freddy": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_zBlock_freddy": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_utilityBlades_pig": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_zori_spirit": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_rinsBrokenWatch_spirit": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_etchedRuler_legion": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_defacedSmileyButton_legion": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_nastyBlade_legion": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_limestoneSeal_plague": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_markedMap_ghostface": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_nightvisionMoncular_ghostface": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_ratTail_demogorgon": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_deerLung_demogorgon": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_redMoss_demogorgon": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_scarletEgg_pyramidhead": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_vigosJournal_blight": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_summoningStone_blight": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_iridescentPendant_twins": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "icons_Addon_TequilaMoonrock_trickster": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "icons_Addon_LuckyBlade_trickster": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "icons_Addon_WaitingForYouWatch_trickster": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_damagedSyringe_nemesis": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_TVirusSample_nemesis": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_depletedInkRibbon_nemesis": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_iridescentLamentConfiguration_cenobite": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_UntitledAgony_artist": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_GardenofRot_artist": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_MothersComb_onryo": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconAddon_SacrificialKnife_dredge": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_portableSafe_mastermind": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_maidenMedalliom_mastermind": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_goldenEgg_mastermind": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_greenHerb_mastermind": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_labPhoto_mastermind": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_PillagedMead_knight": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_GrittyLump_knight": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_IronworkerTongs_knight": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_ChainmailFragment_knight": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_BlacksmithHammer_knight": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_KnightContract_knight": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_AdaptiveLighting_skull merchant": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_VitalTargetingProcessor_skull merchant": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_nutritionalSlurry_singularity": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_kidsBallGlove_singularity": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_ultrasonicSensor_singularity": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_cryoGel_singularity": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_androidArm_singularity": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_liveWires_singularity": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_somaFamilyPhoto_singularity": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconAddon_crewManifest_singularity": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_deniedRequisitionForm_singularity": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_CerealRations_xenomorph": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_lambertsStarMap_xenomorph": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconAddon_brettsCap_xenomorph": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_crewHeadset_xenomorph": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_ashsInnards_xenomorph": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_moltedSkin_xenomorph": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_kanesHelmet_xenomorph": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconAddon_emergencyHelmet_xenomorph": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_semioticKeyboard_xenomorph": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_selfDestructBolt_xenomorph": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_harpoonGun_xenomorph": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_improvisedCattleProd_xenomorph": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_strobingLight_good guy": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_tinyScalpel_good guy": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_automaticScrewdriver_good guy": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_flamingHairSpray_good guy": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_jumpRope_good guy": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconAddon_powerDrill_good guy": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconAddon_portableTV_good guy": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_ratPoison_good guy": {
-                "tier": 6,
-                "subtier": 0
-            },
-            "iconAddon_silkPillow_good guy": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_yardstick_good guy": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_plasticBag_good guy": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_straightRazor_good guy": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconAddon_hardHat_good guy": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_iridescentAmulet_good guy": {
-                "tier": 3,
-                "subtier": 0
-            },
-            "iconPerks_betterTogether_survivor": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_innerStrength_survivor": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_babySitter_survivor": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconPerks_secondWind_survivor": {
-                "tier": 20,
-                "subtier": 0
-            },
-            "iconAddon_crackedPrimerBulb_hillbilly": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_chainsBloody_hillbilly": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_iridescentEngravings_hillbilly": {
-                "tier": 3,
                 "subtier": 0
             },
             "iconsPerks_Illumination_survivor": {

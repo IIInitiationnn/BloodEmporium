@@ -49,9 +49,8 @@ python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/robo
 
 TODOs
 - v1.2.3:
-    - otz tier lists (issue #46)
     - mark oni paper lantern bug as resolved
-    - close issue #43
+    - close issue #43, #46
 - reorder steve and nancy perks between ash and yui instead of being in generic position
 - put path in settings under "custom icons" checkbox so vanilla users dont have to do anything
 - train bp balance ocr (maybe easyocr quicker?)
@@ -703,7 +702,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.3-alpha.0"
+    version = "v1.2.3"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):

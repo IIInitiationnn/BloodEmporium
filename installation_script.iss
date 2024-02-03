@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Blood Emporium"
-#define MyAppVersion "1.2.3-alpha.0"
+#define MyAppVersion "1.2.3"
 #define MyAppPublisher "IIInitiationnn"
 #define MyAppURL "https://github.com/IIInitiationnn/BloodEmporium"
 #define MyAppExeName "Blood Emporium.exe"

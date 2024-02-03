@@ -720,7 +720,7 @@ class PreferencesPage(QWidget):
         self.openExportsButton.clicked.connect(self.open_exports_folder)
 
         self.profileNotes = MultiLineTextInputBox(self.scrollAreaContent, "preferencesPageProfileNotes",
-                                                  450, 100, 150, "Notes for this profile")
+                                                  565, 125, 250, "Notes for this profile")
         self.profileNotes.setPlainText(Config().notes_by_id(self.get_edit_profile()))
 
         # filters
