@@ -48,9 +48,6 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 TODOs
-- v1.2.3:
-    - mark oni paper lantern bug as resolved
-    - close issue #43, #46
 - reorder steve and nancy perks between ash and yui instead of being in generic position
 - put path in settings under "custom icons" checkbox so vanilla users dont have to do anything
 - train bp balance ocr (maybe easyocr quicker?)
