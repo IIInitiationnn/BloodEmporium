@@ -7,7 +7,7 @@
 A program to automatically level the Bloodweb in the game Dead by Daylight.
 
 ## Developer Notes
-Assets for icon recognition are up-to-date as of Dead by Daylight Patch 7.5.0 (CHAPTER 30.5: Alan Wake).\
+Assets for icon recognition are up-to-date as of Dead by Daylight Patch 7.6.0 (CHAPTER 31: All Things Wicked).\
 To contact me about this project, or if you have any inquiries, please join the [Discord](https://discord.gg/J4KCqJJuaM).
 Any bug reports, requests for technical support, or suggestions can be submitted either through this server or
 [GitHub issues](https://github.com/IIInitiationnn/BloodEmporium/issues).\

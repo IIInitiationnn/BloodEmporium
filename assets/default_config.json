@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.5.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.6.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -3642,11 +3642,95 @@
             "iconsPerks_Deadline_survivor": {
                 "tier": -2,
                 "subtier": 1
+            },
+            "iconAddon_blurryPhoto_unknown": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_puncturedEyeball_unknown": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_rabbitsFoot_unknown": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_sketchAttempt_unknown": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_b-moviePoster_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_footprintCast_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_frontPageArticle_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_hypnotistsWatch_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_vanishingBox_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_discardedMilkCarton_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_homemadeMask_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_obscureGameCartridge_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_serumVial_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_capturedByTheDark_unknown": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_iridescentOSSReport_unknown": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconsPerks_InvocationWeavingSpiders_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconsPerks_StrengthInShadows_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconsPerks_Wicked_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_Unbound_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_Undone_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_Unforeseen_killer": {
+                "tier": -2,
+                "subtier": 1
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.5.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.6.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -7458,6 +7542,94 @@
             "iconsPerks_Deadline_survivor": {
                 "tier": 15,
                 "subtier": 0
+            },
+            "iconAddon_deviceOfUndisclosedOrigin_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_lastKnownRecording_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_notebookOfTheories_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_slashedBackpack_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_victimsMap_unknown": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_b-moviePoster_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_footprintCast_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_frontPageArticle_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_hypnotistsWatch_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_vanishingBox_unknown": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_discardedMilkCarton_unknown": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_homemadeMask_unknown": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_obscureGameCartridge_unknown": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_serumVial_unknown": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_capturedByTheDark_unknown": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconAddon_iridescentOSSReport_unknown": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconPerks_Unbound_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_Undone_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_Unforeseen_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconsPerks_InvocationWeavingSpiders_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconsPerks_StrengthInShadows_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconsPerks_Wicked_survivor": {
+                "tier": 15,
+                "subtier": 0
             }
         },
         {
@@ -10594,6 +10766,30 @@
             "iconAddon_surgicalSuture_survivor": {
                 "tier": 5,
                 "subtier": 0
+            },
+            "iconPerks_Unbound_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_Undone_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_Unforeseen_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconsPerks_InvocationWeavingSpiders_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconsPerks_StrengthInShadows_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconsPerks_Wicked_survivor": {
+                "tier": -6,
+                "subtier": 0
             }
         },
         {
@@ -13728,6 +13924,30 @@
                 "subtier": 0
             },
             "iconsPerks_Deadline_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_Unbound_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_Undone_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_Unforeseen_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconsPerks_InvocationWeavingSpiders_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconsPerks_StrengthInShadows_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconsPerks_Wicked_survivor": {
                 "tier": 20,
                 "subtier": 0
             }

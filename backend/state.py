@@ -48,6 +48,8 @@ cd yolov5_obb
 python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 TODOs
+- included profiles immutable (https://discord.com/channels/1016471051187802333/1205957357763301456)
+- issues with black smokey pack (https://discord.com/channels/1016471051187802333/1208286052054470676)
 - reorder steve and nancy perks between ash and yui instead of being in generic position
 - put path in settings under "custom icons" checkbox so vanilla users dont have to do anything
 - train bp balance ocr (maybe easyocr quicker?)
@@ -699,7 +701,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.3"
+    version = "v1.2.4"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):

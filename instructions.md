@@ -31,3 +31,5 @@ remove torch/lib/dnnl.lib
 - mystery boxes scaled to 0.8
 
 - update preference profiles
+- update README
+- update app version if necessary
