@@ -56,7 +56,7 @@ class Data:
             u_image_path = None
             u_is_custom_icon = None
             for subdir, file in all_files:
-                if u_id in file:
+                if u_id.lower() in file.lower(): # in case pack has recapitalised files
                     # bubba and hillbilly share an addon with the same name TODO what is location of iconAddon_chainsBloody for hillbilly? does it use bubba asset
                     # if u_category == "bubba" and u_id == "iconAddon_chainsBloody" and "Xipre" in subdir:
                     #     continue
@@ -96,7 +96,7 @@ class Data:
             u_image_path = None
             u_is_custom_icon = None
             for subdir, file in all_files:
-                if u_id in file:
+                if u_id.lower() in file.lower(): # in case pack has recapitalised files
                     # bubba and hillbilly share an addon with the same name
                     # if u_category == "bubba" and u_id == "iconAddon_chainsBloody" and "Xipre" in subdir:
                     #     continue

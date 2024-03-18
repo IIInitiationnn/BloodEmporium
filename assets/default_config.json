@@ -1881,7 +1881,7 @@
             },
             "iconFavors_ArcaneDowsingRod_universal": {
                 "tier": 1,
-                "subtier": 0
+                "subtier": 1
             },
             "iconHelp_mysteryBoxHalloween2022_universal": {
                 "tier": 1,
@@ -3725,6 +3725,14 @@
             },
             "iconPerks_Unforeseen_killer": {
                 "tier": -2,
+                "subtier": 1
+            },
+            "iconItems_bloodMap_survivor": {
+                "tier": 1,
+                "subtier": 1
+            },
+            "iconFavors_bloodshotEye_universal": {
+                "tier": 1,
                 "subtier": 1
             }
         },
@@ -7630,6 +7638,18 @@
             "iconsPerks_Wicked_survivor": {
                 "tier": 15,
                 "subtier": 0
+            },
+            "iconItems_bloodMap_survivor": {
+                "tier": 0,
+                "subtier": 1
+            },
+            "iconFavors_ArcaneDowsingRod_universal": {
+                "tier": 0,
+                "subtier": 1
+            },
+            "iconFavors_bloodshotEye_universal": {
+                "tier": 0,
+                "subtier": 1
             }
         },
         {
@@ -10790,6 +10810,14 @@
             "iconsPerks_Wicked_survivor": {
                 "tier": -6,
                 "subtier": 0
+            },
+            "iconFavors_bloodshotEye_universal": {
+                "tier": 4,
+                "subtier": 0
+            },
+            "iconItems_bloodMap_survivor": {
+                "tier": 4,
+                "subtier": 5
             }
         },
         {
@@ -13949,6 +13977,14 @@
             },
             "iconsPerks_Wicked_survivor": {
                 "tier": 20,
+                "subtier": 0
+            },
+            "iconItems_bloodMap_survivor": {
+                "tier": 4,
+                "subtier": 5
+            },
+            "iconFavors_bloodshotEye_universal": {
+                "tier": 4,
                 "subtier": 0
             }
         }
