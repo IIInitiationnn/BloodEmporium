@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 7.6.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 8.0.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -3734,11 +3734,95 @@
             "iconFavors_bloodshotEye_universal": {
                 "tier": 1,
                 "subtier": 1
+            },
+            "iconPerks_DarkArrogance_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_LanguidTouch_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_WeaveAttunement_killer": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_BardicInspiration_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_MirroredIllusion_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_StillSight_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconAddon_CrystalBall_lich": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_RavensFeather_lich": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_TatteredHeadband_lich": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_TrickstersGlove_lich": {
+                "tier": 1,
+                "subtier": 0
+            },
+            "iconAddon_BootsOfSpeed_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_CloakOfElvenkind_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_OrnateHorn_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_PearlOfPower_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_StaffOfWithering_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_BagOfHolding_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_CloakOfInvisibility_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_DragontoothDagger_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_RobeOfEyes_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_IridescentBookOfVileDarkness_lich": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_SwordOfKass_lich": {
+                "tier": -3,
+                "subtier": 0
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 7.6.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 8.0.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -7650,6 +7734,94 @@
             "iconFavors_bloodshotEye_universal": {
                 "tier": 0,
                 "subtier": 1
+            },
+            "iconAddon_GlassEye_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_LanternOfRevealing_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_PotionOfSpeed_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_RingOfSpellStoring_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_RingOfTelekinesis_lich": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_BootsOfSpeed_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_CloakOfElvenkind_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_OrnateHorn_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_PearlOfPower_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_StaffOfWithering_lich": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_BagOfHolding_lich": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_CloakOfInvisibility_lich": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_DragontoothDagger_lich": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_RobeOfEyes_lich": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconAddon_IridescentBookOfVileDarkness_lich": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconAddon_SwordOfKass_lich": {
+                "tier": -4,
+                "subtier": 0
+            },
+            "iconPerks_DarkArrogance_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_LanguidTouch_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_WeaveAttunement_killer": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_BardicInspiration_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_MirroredIllusion_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_StillSight_survivor": {
+                "tier": 15,
+                "subtier": 0
             }
         },
         {
@@ -10818,6 +10990,30 @@
             "iconItems_bloodMap_survivor": {
                 "tier": 4,
                 "subtier": 5
+            },
+            "iconPerks_DarkArrogance_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_LanguidTouch_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_WeaveAttunement_killer": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_BardicInspiration_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_MirroredIllusion_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_StillSight_survivor": {
+                "tier": -6,
+                "subtier": 0
             }
         },
         {
@@ -13985,6 +14181,30 @@
             },
             "iconFavors_bloodshotEye_universal": {
                 "tier": 4,
+                "subtier": 0
+            },
+            "iconPerks_DarkArrogance_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_LanguidTouch_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_WeaveAttunement_killer": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_BardicInspiration_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_MirroredIllusion_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_StillSight_survivor": {
+                "tier": 20,
                 "subtier": 0
             }
         }
