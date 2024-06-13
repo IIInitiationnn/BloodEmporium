@@ -3818,6 +3818,10 @@
             "iconAddon_SwordOfKass_lich": {
                 "tier": -3,
                 "subtier": 0
+            },
+            "iconsFavors_8thAnniversary_universal": {
+                "tier": 6,
+                "subtier": 10
             }
         },
         {
@@ -7822,6 +7826,10 @@
             "iconPerks_StillSight_survivor": {
                 "tier": 15,
                 "subtier": 0
+            },
+            "iconsFavors_8thAnniversary_universal": {
+                "tier": 5,
+                "subtier": 10
             }
         },
         {
@@ -11014,6 +11022,10 @@
             "iconPerks_StillSight_survivor": {
                 "tier": -6,
                 "subtier": 0
+            },
+            "iconsFavors_8thAnniversary_universal": {
+                "tier": 4,
+                "subtier": 10
             }
         },
         {
@@ -14206,6 +14218,10 @@
             "iconPerks_StillSight_survivor": {
                 "tier": 20,
                 "subtier": 0
+            },
+            "iconsFavors_8thAnniversary_universal": {
+                "tier": 4,
+                "subtier": 10
             }
         }
     ]
