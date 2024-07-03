@@ -61,6 +61,7 @@ class SettingsPage(QWidget):
     def revert_settings(self):
         self.pathText.setText(self.config_cache.path())
         self.hotkeyInput.set_keys(self.config_cache.hotkey())
+        self.interactionSelector.setCurrentIndex(self.interactionSelector.findText(self.config_cache.interaction()))
         self.primaryMouseSelector.setCurrentIndex(self.primaryMouseSelector.findText(self.config_cache.primary_mouse()))
         self.show_settings_page_save_success_text("Settings reverted to last saved state.")
 

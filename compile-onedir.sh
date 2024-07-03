@@ -7,7 +7,10 @@ if [ "$2" == "dev" ]; then
 fi
 
 rm -r build
-mv "../Blood Emporium Output/Blood Emporium" "../Blood Emporium Output/Blood Emporium ${1}"
+
+if [ -n "$1" ]; then
+  mv "../Blood Emporium Output/Blood Emporium" "../Blood Emporium Output/Blood Emporium ${1}"
+fi
 
 echo "Press any button to continue..."
 read -n1
