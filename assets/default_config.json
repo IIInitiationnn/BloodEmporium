@@ -6,7 +6,7 @@
     "profiles": [
         {
             "id": "cheapskate (ignores perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 8.0.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant does not focus on obtaining perks. Up to date as of 8.1.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_gruesomeGateau_universal": {
                 "tier": 6,
                 "subtier": 10
@@ -3119,16 +3119,8 @@
                 "tier": -1,
                 "subtier": 0
             },
-            "iconAddon_ChainmailFragment_knight": {
-                "tier": -1,
-                "subtier": 0
-            },
             "iconAddon_BrokenHilt_knight": {
                 "tier": -1,
-                "subtier": 0
-            },
-            "iconAddon_LightweightGreaves_knight": {
-                "tier": -2,
                 "subtier": 0
             },
             "iconAddon_HealingPoultice_knight": {
@@ -3822,11 +3814,31 @@
             "iconsFavors_8thAnniversary_universal": {
                 "tier": 6,
                 "subtier": 10
+            },
+            "iconAddon_SharpenedMount_knight": {
+                "tier": -1,
+                "subtier": 0
+            },
+            "iconAddon_JailersChimes_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconPerks_Finesse_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_Hardened_survivor": {
+                "tier": -2,
+                "subtier": 1
+            },
+            "iconPerks_Specialist_survivor": {
+                "tier": -2,
+                "subtier": 1
             }
         },
         {
             "id": "cheapskate (prioritises perks)",
-            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 8.0.0.\nMade for Blood Emporium by IIInitiationnn.",
+            "notes": "A bundled profile to minimise bloodpoint costs, focusing on low rarity and bloodpoint-boosting unlockables. This variant priorities perks over all else. Up to date as of 8.1.0.\nMade for Blood Emporium by IIInitiationnn.",
             "iconFavors_bloodyPartyStreamers_universal": {
                 "tier": 5,
                 "subtier": 5
@@ -7119,16 +7131,8 @@
                 "tier": -2,
                 "subtier": 0
             },
-            "iconAddon_ChainmailFragment_knight": {
-                "tier": -2,
-                "subtier": 0
-            },
             "iconAddon_BrokenHilt_knight": {
                 "tier": -2,
-                "subtier": 0
-            },
-            "iconAddon_LightweightGreaves_knight": {
-                "tier": -3,
                 "subtier": 0
             },
             "iconAddon_HealingPoultice_knight": {
@@ -7830,6 +7834,26 @@
             "iconsFavors_8thAnniversary_universal": {
                 "tier": 5,
                 "subtier": 10
+            },
+            "iconAddon_SharpenedMount_knight": {
+                "tier": -2,
+                "subtier": 0
+            },
+            "iconAddon_JailersChimes_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconPerks_Finesse_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_Hardened_survivor": {
+                "tier": 15,
+                "subtier": 0
+            },
+            "iconPerks_Specialist_survivor": {
+                "tier": 15,
+                "subtier": 0
             }
         },
         {
@@ -10687,10 +10711,6 @@
                 "tier": -3,
                 "subtier": 0
             },
-            "iconAddon_ChainmailFragment_knight": {
-                "tier": -3,
-                "subtier": 0
-            },
             "iconAddon_BlacksmithHammer_knight": {
                 "tier": -3,
                 "subtier": 0
@@ -11026,6 +11046,22 @@
             "iconsFavors_8thAnniversary_universal": {
                 "tier": 4,
                 "subtier": 10
+            },
+            "iconAddon_SharpenedMount_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconPerks_Finesse_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_Hardened_survivor": {
+                "tier": -6,
+                "subtier": 0
+            },
+            "iconPerks_Specialist_survivor": {
+                "tier": -6,
+                "subtier": 0
             }
         },
         {
@@ -12440,10 +12476,6 @@
                 "subtier": 0
             },
             "iconAddon_IronworkerTongs_knight": {
-                "tier": -3,
-                "subtier": 0
-            },
-            "iconAddon_ChainmailFragment_knight": {
                 "tier": -3,
                 "subtier": 0
             },
@@ -14222,6 +14254,22 @@
             "iconsFavors_8thAnniversary_universal": {
                 "tier": 4,
                 "subtier": 10
+            },
+            "iconAddon_SharpenedMount_knight": {
+                "tier": -3,
+                "subtier": 0
+            },
+            "iconPerks_Finesse_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_Hardened_survivor": {
+                "tier": 20,
+                "subtier": 0
+            },
+            "iconPerks_Specialist_survivor": {
+                "tier": 20,
+                "subtier": 0
             }
         }
     ]

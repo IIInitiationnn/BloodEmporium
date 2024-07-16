@@ -24,6 +24,10 @@ migrations = [
     ("iconAddon_blackGrease_hillbilly",         "iconAddon_theThompsonsMix_hillbilly"),
     ("iconAddon_pighouseGloves_hillbilly",      "iconAddon_highSpeedIdlerScrew_hillbilly"),
     ("iconAddon_iridescentBrick_hillbilly",     "iconAddon_filthySlippers_hillbilly"),
+
+    # 8.1.0 knight changes
+    ("iconAddon_ChainmailFragment_knight",      "iconAddon_SharpenedMount_knight"),
+    ("iconAddon_LightweightGreaves_knight",     "iconAddon_JailersChimes_knight"),
 ]
 
 class Config:
