@@ -231,12 +231,18 @@ class Optimiser:
 
         config = Config()
         tiers, subtiers = set(), set()
+        highest = None # tier, subtier of highest (tier 2 subtier -999 is higher than tier 1 subtier 999)
+        # alternatively can also just use Optimiser.TIER_VALUE * tier + Optimiser.SUBTIER_VALUE * subtier and sort
         for data in self.base_graph.nodes.values():
             if data["cls_name"] not in NodeType.MULTI_UNCLAIMED:
                 continue
             tier, subtier = config.preference_by_id(data["name"], profile_id)
             tiers.add(tier)
             subtiers.add(subtier)
+            if highest is None or \
+                (tier > highest[0]) or \
+                (tier == highest[0] and subtier > highest[1]):
+                highest = (tier, subtier)
 
         # A
         if len(tiers) == 1 and len(subtiers) == 1:
@@ -245,4 +251,6 @@ class Optimiser:
             return False
 
         # B
-        return max(tiers) < threshold_tier and max(subtiers) < threshold_subtier
+        # return max(tiers) < threshold_tier and max(subtiers) < threshold_subtier
+        # ^this doesnt work: tier 2 subtier -999 is higher than tier 1 subtier 999 so we record highest overall instead of highest of both
+        return highest[0] < threshold_tier or (highest[0] == threshold_tier and highest[1] < threshold_subtier)
