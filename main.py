@@ -798,9 +798,8 @@ if __name__ == "__main__":
     Config(True) # validate config
     Runtime(True) # validate runtime settings
 
-    os.environ["QT_DEVICE_PIXEL_RATIO"] = "0"
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
+    os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough" # https://stackoverflow.com/questions/49277657/qt-creator-too-big-on-3840x2160-and-150-scaling-on-windows-10 / https://github.com/COVESA/dlt-viewer/issues/205
     os.environ["QT_SCALE_FACTOR"] = "1"
 
     main_pipe, state_pipe = Pipe() # emit from state pipe to main pipe. main can receive, state can send
