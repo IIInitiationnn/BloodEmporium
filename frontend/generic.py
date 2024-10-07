@@ -265,10 +265,16 @@ class HotkeyInput(QPushButton):
 
     def on_key_down(self, key):
         key = TextUtil.pynput_to_key_string(self.listener, key)
+        if key is None:
+            return
         self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
         self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
 
     def on_key_up(self, key):
+        key = TextUtil.pynput_to_key_string(self.listener, key)
+        if key is None:
+            return
+
         self.setText(" + ".join([TextUtil.title_case(k) for k in self.pressed_keys]))
 
         self.active = False
