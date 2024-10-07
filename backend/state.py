@@ -223,7 +223,7 @@ class StateProcess(Process):
             unlockables = Data.get_unlockables()
             num_custom = len([u for u in unlockables if u.is_custom_icon])
             print(f"using {num_custom} custom icons and {len(unlockables) - num_custom} vanilla icons")
-            print(f"using profile: {profile_id}")
+            print(f"using profile: {profile_id} for character {character}")
             merged_base = MergedBase(character)
             pyautogui.moveTo(0, 0)
 
@@ -701,7 +701,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.9"
+    version = "v1.2.10"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):

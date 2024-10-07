@@ -173,16 +173,18 @@ class BloodwebPage(QWidget):
             set_profile()
         self.profileSelector.currentIndexChanged.connect(set_profile)
 
+        killer_names = Data.get_killer_full_name()
+        characters = {killer_names.get(character_id, character_id).lower(): character_id for character_id in Data.get_characters(True)}
         self.characterLabel = TextLabel(self, "bloodwebPageCharacterLabel", "Character", Font(12))
         self.characterDescription = TextLabel(self, "bloodwebPageCharacterDescription",
                                               "Select the character whose bloodweb you are levelling.")
-        self.characterSelector = Selector(self, "bloodwebPageCharacterSelector", QSize(150, 40),
-                                          Data.get_characters(True))
+        self.characterSelector = Selector(self, "bloodwebPageCharacterSelector", QSize(225, 40),
+                                          list(characters.keys()))
         index = self.characterSelector.findText(runtime.character())
         if index != -1:
             self.characterSelector.setCurrentIndex(index)
         self.characterSelector.currentIndexChanged.connect(
-            lambda: Runtime().set_character(self.characterSelector.currentText()))
+            lambda: Runtime().set_character(characters[self.characterSelector.currentText()]))
 
         self.runModeLabel = TextLabel(self, "bloodwebPageRunModeLabel", "Selection Mode", Font(12))
 

@@ -14,7 +14,7 @@ class MergedBase:
         """
 
         categories = ["universal"]
-        if category in Data.get_killers(False):
+        if category in [killer_id for killer_id, _, _ in Data.get_killers(False)]:
             # particular killer
             categories.append("killer")
             categories.append(category)

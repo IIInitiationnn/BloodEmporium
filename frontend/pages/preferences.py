@@ -58,6 +58,7 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         # character
         self.num_per_row = 10
         categories = Data.get_categories(True)
+        killer_aliases = Data.get_killer_alias()
         num_character_columns = math.ceil(len(categories) / self.num_per_row) * 2 + 1 # extra 1 for a gap
         self.characterHeading = TextLabel(self.filters, "characterHeading", "Character")
         self.filtersLayout.addWidget(self.characterHeading, 2, 0, 1, num_character_columns)
@@ -71,7 +72,7 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
             self.filtersLayout.addWidget(checkbox, (i % self.num_per_row + 3), (i // self.num_per_row) * 2, 1, 1)
 
             label = TextLabel(self.filters, f"{TextUtil.camel_case(character)}CharacterFilterLabel",
-                              TextUtil.title_case(character))
+                              killer_aliases.get(character, TextUtil.title_case(character)))
             self.filtersLayout.addWidget(label, (i % self.num_per_row + 3), (i // self.num_per_row) * 2 + 1, 1, 1)
 
         # rarity
@@ -141,7 +142,7 @@ class FilterOptionsCollapsibleBox(CollapsibleBox):
         self.on_click()
 
     def filter_killers(self):
-        killers = Data.get_killers(False)
+        killers = [killer_id for killer_id, _, _ in Data.get_killers(False)]
         for character, checkbox in self.characterCheckBoxes.items():
             if character in killers:
                 checkbox.setChecked(True)
@@ -162,12 +163,13 @@ class UnlockableWidget(QWidget):
         self.checkBox.clicked.connect(on_unlockable_select)
         self.layout.addWidget(self.checkBox)
 
+        killer_names = Data.get_killer_full_name(True)
         self.image = QLabel(self)
         self.image.setObjectName(f"{name}Image")
         self.image.setFixedSize(QSize(75, 75))
         self.refresh_icon()
         self.image.setScaledContents(True)
-        self.image.setToolTip(f"""Character: {TextUtil.title_case(unlockable.category)}
+        self.image.setToolTip(f"""Character: {killer_names.get(unlockable.category, TextUtil.title_case(unlockable.category))}
 Rarity: {TextUtil.title_case(unlockable.rarity)}
 Type: {TextUtil.title_case(unlockable.type)}""")
         self.layout.addWidget(self.image)
