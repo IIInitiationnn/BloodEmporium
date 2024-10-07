@@ -76,6 +76,8 @@ class SettingsPage(QWidget):
     def on_key_down(self, key):
         if self.hotkey_listener is not None:
             key = TextUtil.pynput_to_key_string(self.hotkey_listener, key)
+            if key is None:
+                return
             self.pressed_keys = list(dict.fromkeys(self.pressed_keys + [key]))
             if sorted(self.pressed_keys) == sorted(Config().hotkey()):
                 self.run_terminate()
@@ -83,6 +85,8 @@ class SettingsPage(QWidget):
     def on_key_up(self, key):
         if self.hotkey_listener is not None:
             key = TextUtil.pynput_to_key_string(self.hotkey_listener, key)
+            if key is None:
+                return
             try:
                 self.pressed_keys.remove(key)
             except ValueError:
