@@ -165,7 +165,7 @@ class BloodwebPage(QWidget):
 
         config = Config()
         self.profileLabel = TextLabel(self, "bloodwebPageProfileLabel", "Preference Profile", Font(12))
-        self.profileSelector = Selector(self, "bloodwebPageProfileSelector", QSize(250, 40),
+        self.profileSelector = Selector(self, "bloodwebPageProfileSelector", QSize(350, 40),
                                         config.profile_names(True) + config.profile_names(False))
         index = self.profileSelector.findText(runtime.profile()[0]) # TODO what if bundled and personal have same name?
         set_profile = lambda: Runtime().set_profile(self.profileSelector.currentText(), self.profileSelector.currentIndex() < len(config.bundled_profiles))

@@ -5,8 +5,8 @@ from multiprocessing import freeze_support, Pipe
 from threading import Thread
 from typing import Tuple
 
-from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QObject, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap, QColor
+from PyQt5.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QPoint, QRect, QObject, pyqtSignal, QUrl
+from PyQt5.QtGui import QIcon, QPixmap, QColor, QDesktopServices
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
 
@@ -24,7 +24,7 @@ sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 from backend.config import Config
 from backend.runtime import Runtime
 from backend.state import State
-from backend.updater import Updater, get_latest_update
+from backend.updater import get_latest_update, UpdaterProcess
 
 
 class TopBar(QFrame):
@@ -639,8 +639,12 @@ class MainWindow(QMainWindow):
         self.bottomBarLayout = RowLayout(self.bottomBar, "bottomBarLayout")
         self.bottomBarLayout.setContentsMargins(10, 0, 10, 0)
 
-        self.authorLabel = HyperlinkTextLabel(self.bottomBar, "authorLabel", "Made by IIInitiationnn",
-                                              "https://github.com/IIInitiationnn/BloodEmporium", Font(8))
+        self.authorButton = QPushButton("Made by IIInitiationnn", self.bottomBar)
+        self.authorButton.setObjectName("authorButton")
+        self.authorButton.setFont(Font(8))
+        self.authorButton.setStyleSheet(StyleSheets.text_only_button)
+        self.authorButton.setCursor(Qt.PointingHandCursor)
+        self.authorButton.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/IIInitiationnn/BloodEmporium")))
         self.versionLabel = TextLabel(self.bottomBar, "versionLabel", State.version, Font(8))
 
         """
@@ -716,12 +720,13 @@ class MainWindow(QMainWindow):
 
         """
         bottomBar
-            -> authorLabel
+            -> authorButton
+            -> updateButton (if necessary - see add_available_update_button())
             -> versionLabel
         """
-        self.bottomBarLayout.addWidget(self.authorLabel)
+        self.bottomBarLayout.addWidget(self.authorButton)
+        self.bottomBarLayout.addStretch(1)
         self.bottomBarLayout.addWidget(self.versionLabel)
-        self.bottomBarLayout.setStretch(0, 1)
 
         """
         contentPage
@@ -760,6 +765,18 @@ class MainWindow(QMainWindow):
         self.emitter.bloodpoint.connect(self.bloodwebPage.on_bloodpoint_signal)
         self.emitter.terminate.connect(self.terminate)
         self.emitter.toggle_text.connect(self.toggle_run_terminate_text)
+
+    def add_available_update_button(self):
+        self.updateButton = QPushButton("An update is available", self.bottomBar)
+        self.updateButton.setObjectName("updateButton")
+        self.updateButton.setFont(Font(8))
+        self.updateButton.setStyleSheet(StyleSheets.text_only_button)
+        self.updateButton.setCursor(Qt.PointingHandCursor)
+        self.updateButton.clicked.connect(update)
+
+        self.bottomBarLayout.removeWidget(self.versionLabel)
+        self.bottomBarLayout.addWidget(self.updateButton)
+        self.bottomBarLayout.addWidget(self.versionLabel)
 
 # https://stackoverflow.com/questions/26746379/how-to-signal-slots-in-a-gui-from-a-different-process
 # https://stackoverflow.com/questions/34525750/mainwindow-object-has-no-attribute-connect
@@ -818,6 +835,25 @@ class UpdaterEmitter(QObject, Thread):
             else:
                 self.emit(*data)
 
+def update():
+    dialog = UpdateDialog(State.version, try_update["tag_name"])
+    selection = dialog.exec()
+    if selection == QMessageBox.AcceptRole:
+        this_pipe, updater_pipe = Pipe() # this can receive, updater can send
+        this_emitter = UpdaterEmitter(this_pipe)
+        this_emitter.start()
+
+        dialog = UpdatingDialog(try_update["tag_name"])
+        this_emitter.progress.connect(dialog.setProgress)
+        this_emitter.completion.connect(sys.exit)
+
+        updater = UpdaterProcess(updater_pipe)
+        updater.start()
+
+        selection = dialog.exec()
+        if selection == QMessageBox.AcceptRole:
+            updater.terminate()
+
 if __name__ == "__main__":
     freeze_support() # --onedir (for exe)
     Config(True) # validate config
@@ -844,23 +880,8 @@ if __name__ == "__main__":
     except Exception:
         try_update = None
     if try_update is not None:
-        dialog = UpdateDialog(State.version, try_update["tag_name"])
-        selection = dialog.exec()
-        if selection == QMessageBox.AcceptRole:
-            this_pipe, updater_pipe = Pipe() # this can receive, updater can send
-            this_emitter = UpdaterEmitter(this_pipe)
-            this_emitter.start()
-
-            dialog = UpdatingDialog(try_update["tag_name"])
-            this_emitter.progress.connect(dialog.setProgress)
-            this_emitter.completion.connect(sys.exit)
-
-            updater = Updater()
-            updater.run(updater_pipe)
-
-            selection = dialog.exec()
-            if selection == QMessageBox.AcceptRole:
-                updater.terminate()
+        window.add_available_update_button()
+        update()
 
     @atexit.register
     def shutdown():

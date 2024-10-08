@@ -108,16 +108,3 @@ class UpdaterProcess(Process):
                 self.pipe.send(("completion", ()))
                 # installer.wait()
                 # os.remove("updater.exe")
-
-class Updater:
-    def __init__(self):
-        self.process = None
-
-    def run(self, pipe: Pipe):
-        if self.process is None:
-            self.process = UpdaterProcess(pipe)
-            self.process.start()
-
-    def terminate(self):
-        if self.process is not None:
-            self.process.terminate()

@@ -710,7 +710,7 @@ class PreferencesPage(QWidget):
         self.profileLabel = TextLabel(self.scrollAreaContent, "preferencesPageProfileLabel", "Preference Profile",
                                       Font(12))
 
-        self.profileSelector = Selector(self.profileSaveRow, "preferencesPageProfileSelector", QSize(250, 40),
+        self.profileSelector = Selector(self.profileSaveRow, "preferencesPageProfileSelector", QSize(350, 40),
                                         config.profile_names(True) + config.profile_names(False))
         self.profileSelectorIsBundled = self.get_edit_profile_index() < len(config.bundled_profiles) # whether currently selected preset is bundled
         self.profileSelector.currentIndexChanged.connect(self.switch_edit_profile)

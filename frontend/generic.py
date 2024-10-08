@@ -30,6 +30,7 @@ class TextLabel(QLabel):
         self.setStyleSheet(style_sheet)
         self.setAlignment(Qt.AlignVCenter)
 
+# TODO could remove this and replace with what authorButton and updateButton are using (should make a class for it)
 class HyperlinkTextLabel(QLabel):
     def __init__(self, parent, object_name, text, link, font):
         super().__init__(parent)
@@ -143,6 +144,12 @@ class Selector(QComboBox):
 
         self.setObjectName(object_name)
         self.setFont(Font(10))
+        # # size is either QSize or integer for height (with auto sizing width)
+        # if isinstance(size, int):
+        #     self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        #     self.setFixedHeight(size)
+        # else:
+        #     self.setFixedSize(size)
         self.setFixedSize(size)
         self.addItems(items)
         if active_item is not None:

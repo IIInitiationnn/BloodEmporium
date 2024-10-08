@@ -438,6 +438,17 @@ class StyleSheets:
             border: none;
         }}"""
 
+    text_only_button = f"""
+        QPushButton {{
+            color: rgb(255, 255, 255);
+            background-color: transparent;
+            border: none;
+        }}
+        QPushButton:hover {{
+            color: {purple};
+            border: none;
+        }}"""
+
     button = f"""
         QPushButton {{
             color: rgb(255, 255, 255);
