@@ -10,7 +10,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QMainWindow, QFrame, QPushButton, QGridLayout, QVBoxLayout, \
     QGraphicsDropShadowEffect, QStackedWidget, QSizeGrip, QMessageBox, QSplashScreen
 
-from frontend.dialogs import UpdateDialog
+from frontend.dialogs import UpdateDialog, UpdatingDialog
 from frontend.generic import Font, TextLabel, HyperlinkTextLabel, TextInputBox, Icons
 from frontend.layouts import RowLayout
 from frontend.pages.bloodweb import BloodwebPage
@@ -793,6 +793,31 @@ class Emitter(QObject, Thread):
             else:
                 self.emit(*data)
 
+class UpdaterEmitter(QObject, Thread):
+    progress = pyqtSignal(int)
+    completion = pyqtSignal()
+
+    def __init__(self, pipe):
+        QObject.__init__(self)
+        Thread.__init__(self)
+        self.daemon = True # shut down when main window is closed
+        self.pipe = pipe
+
+    def emit(self, signature, args):
+        {
+            "progress": lambda: self.progress.emit(*args),
+            "completion": lambda: self.completion.emit(*args),
+        }[signature]()
+
+    def run(self):
+        while True:
+            try:
+                data = self.pipe.recv()
+            except EOFError:
+                break
+            else:
+                self.emit(*data)
+
 if __name__ == "__main__":
     freeze_support() # --onedir (for exe)
     Config(True) # validate config
@@ -822,8 +847,20 @@ if __name__ == "__main__":
         dialog = UpdateDialog(State.version, try_update["tag_name"])
         selection = dialog.exec()
         if selection == QMessageBox.AcceptRole:
-            Updater().run()
-            sys.exit()
+            this_pipe, updater_pipe = Pipe() # this can receive, updater can send
+            this_emitter = UpdaterEmitter(this_pipe)
+            this_emitter.start()
+
+            dialog = UpdatingDialog(try_update["tag_name"])
+            this_emitter.progress.connect(dialog.setProgress)
+            this_emitter.completion.connect(sys.exit)
+
+            updater = Updater()
+            updater.run(updater_pipe)
+
+            selection = dialog.exec()
+            if selection == QMessageBox.AcceptRole:
+                updater.terminate()
 
     @atexit.register
     def shutdown():
