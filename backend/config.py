@@ -67,6 +67,12 @@ class Config:
 
             [profile.pop(invalid_unlockable) for invalid_unlockable in invalid_unlockables]
 
+        self.bundled_profiles = []
+        if os.path.isdir("assets/presets"):
+            for file in os.listdir("assets/presets"):
+                with open(f"assets/presets/{file}", "r") as f:
+                    self.bundled_profiles.append(json.load(f))
+
     def top_left(self):
         return self.config["capture"]["top_left_x"], self.config["capture"]["top_left_y"]
 
@@ -82,31 +88,32 @@ class Config:
     def primary_mouse(self):
         return self.config["primary_mouse"]
 
-    def __profiles(self):
-        return self.config["profiles"]
+    def __profiles(self, bundled=False):
+        return self.bundled_profiles if bundled else self.config["profiles"]
 
-    def get_profile_by_id(self, profile_id):
+    def get_profile_by_id(self, profile_id, bundled=False):
         if profile_id is None:
             return {"id": None, "notes": ""}
-        profiles = self.__profiles()
+        profiles = self.__profiles(bundled)
         return [p for p in profiles if p["id"] == profile_id].pop(0) if len(profiles) > 0 else {"id": None, "notes": ""}
 
-    def notes_by_id(self, profile_id):
+    def notes_by_id(self, profile_id, bundled=False):
         if profile_id is None:
             return ""
-        return self.get_profile_by_id(profile_id).get("notes", "")
+        return self.get_profile_by_id(profile_id, bundled).get("notes", "")
 
-    def preference_by_id(self, unlockable_id, profile_id):
+    def preference_by_id(self, unlockable_id, profile_id, bundled=False):
         if profile_id is None:
             return 0, 0
-        return self.preference_by_profile(unlockable_id, self.get_profile_by_id(profile_id))
+        return Config.preference_by_profile(unlockable_id, self.get_profile_by_id(profile_id, bundled))
 
-    def preference_by_profile(self, unlockable_id, profile):
-        p = profile.get(unlockable_id, {})
+    @staticmethod
+    def preference_by_profile(unlockable_id, profile_data):
+        p = profile_data.get(unlockable_id, {})
         return p.get("tier", 0), p.get("subtier", 0)
 
-    def profile_names(self):
-        return [profile["id"] for profile in self.__profiles()]
+    def profile_names(self, bundled=False):
+        return [profile["id"] for profile in (self.bundled_profiles if bundled else self.__profiles())]
 
     def commit_changes(self):
         with open("assets/default_config.json", "r") as default:

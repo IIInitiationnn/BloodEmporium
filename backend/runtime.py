@@ -3,6 +3,7 @@ import json
 class Runtime:
     default = {
         "profile": "",
+        "bundled": False,
         "character": "survivor",
         "mode": "aware_multi",
         "speed": "slow",
@@ -46,7 +47,7 @@ class Runtime:
             self.runtime = dict(json.load(f))
 
     def profile(self):
-        return self.runtime["profile"]
+        return self.runtime["profile"], self.runtime["bundled"]
 
     def character(self):
         return self.runtime["character"]
@@ -66,7 +67,7 @@ class Runtime:
 
     def commit_changes(self):
         updated_runtime = {field: self.runtime.get(field, Runtime.default[field])
-                           for field in ["profile", "character", "mode", "speed", "auto_purchase_threshold", "limits"]}
+                           for field in ["profile", "bundled", "character", "mode", "speed", "auto_purchase_threshold", "limits"]}
         for field in ["enabled", "tier", "subtier"]:
             if field not in updated_runtime["auto_purchase_threshold"]:
                 updated_runtime["auto_purchase_threshold"][field] = Runtime.default["auto_purchase_threshold"][field]
@@ -80,8 +81,9 @@ class Runtime:
         with open("runtime.json", "w") as output:
             json.dump(updated_runtime, output, indent=4) # to preserve order
 
-    def set_profile(self, profile):
+    def set_profile(self, profile, bundled):
         self.runtime["profile"] = profile
+        self.runtime["bundled"] = bundled
         self.commit_changes()
 
     def set_character(self, character):

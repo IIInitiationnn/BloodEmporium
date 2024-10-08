@@ -184,6 +184,41 @@ class StyleSheets:
             border: none;
         }}"""
 
+    multiline_text_box_read_only = f"""
+        QPlainTextEdit {{
+            background-color: {background};
+            color: rgb(125, 125, 125);
+            border-radius: 5px;
+            border: 2px solid rgba(0, 0, 0, 0);
+            padding: 10px 10px 0 10px;
+            selection-background-color: {purple};
+        }}
+
+        QPlainTextEdit:hover {{
+            border: 2px solid {selection};
+        }}
+
+        QScrollBar:vertical {{
+            background: {selection};
+            width: 4px;
+            border: 0px solid white;
+            margin: 10px 0 10px 0;
+            border-radius: 4px;
+        }}
+
+        QScrollBar::handle:vertical {{
+            background: {purple};
+            border-radius: 2px;
+        }}
+
+        QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
+            background: none;
+        }}
+
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            border: none;
+        }}"""
+
     tiers_input_positive = f"""
         QLineEdit {{
             background-color: #323543;
@@ -417,6 +452,9 @@ class StyleSheets:
         QPushButton:pressed {{
             background-color: {light_selection};
             border: none;
+        }}
+        QPushButton:disabled {{
+            color: {selection};
         }}"""
 
     button_recording = f"""

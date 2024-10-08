@@ -176,7 +176,7 @@ class StateProcess(Process):
         self.primary_mouse = config.primary_mouse()
 
         runtime = Runtime()
-        profile_id = runtime.profile()
+        profile_id, bundled = runtime.profile()
         character = runtime.character()
         run_mode = runtime.mode()
         speed = runtime.speed()
@@ -223,7 +223,7 @@ class StateProcess(Process):
             unlockables = Data.get_unlockables()
             num_custom = len([u for u in unlockables if u.is_custom_icon])
             print(f"using {num_custom} custom icons and {len(unlockables) - num_custom} vanilla icons")
-            print(f"using profile: {profile_id} for character {character}")
+            print(f"using profile: {profile_id} (bundled: {bundled}) for character {character}")
             merged_base = MergedBase(character)
             pyautogui.moveTo(0, 0)
 
@@ -572,7 +572,7 @@ class StateProcess(Process):
                         # run through optimiser
                         print("optimiser")
                         optimiser = Optimiser(base_bloodweb)
-                        optimiser.run(profile_id)
+                        optimiser.run(profile_id, bundled)
                         debugger.set_dijkstra(bloodweb_iteration, update_iteration, optimiser.dijkstra_graph)
                         dijkstra_graphs.append(optimiser.dijkstra_graph)
                         objs = []
@@ -606,7 +606,7 @@ class StateProcess(Process):
                                 remaining_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
                                 num_remaining_nodes += 1
                         if len(origin_auto_enabled) > 0 and \
-                                optimiser.can_auto_purchase(profile_id, self.threshold_tier,
+                                optimiser.can_auto_purchase(profile_id, bundled, self.threshold_tier,
                                                             self.threshold_subtier) and \
                                 (self.bp_limit is None or remaining_bloodweb_cost <= self.bp_limit - self.bp_total):
                             print("auto origin (enabled) from auto purchase: selecting")

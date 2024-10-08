@@ -243,17 +243,23 @@ class PreferencesPage(QWidget):
     def get_edit_profile(self):
         return self.profileSelector.currentText() if self.profileSelector.count() > 0 else None
 
+    def get_edit_profile_index(self):
+        return self.profileSelector.currentIndex() # -1 if empty
+
     def update_profiles_from_config(self):
         config = Config()
         while self.profileSelector.count() > 0:
             self.profileSelector.removeItem(0)
-        self.profileSelector.addItems(config.profile_names())
+        self.profileSelector.addItems(config.profile_names(True) + config.profile_names(False))
 
         while self.bloodwebPage.profileSelector.count() > 0:
             self.bloodwebPage.profileSelector.removeItem(0)
-        self.bloodwebPage.profileSelector.addItems(config.profile_names())
+        self.bloodwebPage.profileSelector.addItems(config.profile_names(True) + config.profile_names(False))
 
     def has_unsaved_changes(self):
+        if self.profileSelectorIsBundled:
+            return False
+
         config = Config()
         profile_id = self.get_edit_profile()
         if profile_id is None:
@@ -267,7 +273,7 @@ class PreferencesPage(QWidget):
 
         for widget in self.unlockableWidgets:
             tier, subtier = widget.getTiers()
-            config_tier, config_subtier = config.preference_by_profile(widget.unlockable.unique_id, profile)
+            config_tier, config_subtier = Config.preference_by_profile(widget.unlockable.unique_id, profile)
             if tier != config_tier or subtier != config_subtier:
                 return True
 
@@ -310,10 +316,22 @@ class PreferencesPage(QWidget):
         if not self.ignore_profile_signals:
             # TODO prompt: unsaved changes (save or discard) - override profile selector currentindexchanged method?
             config = Config()
+            self.profileSelectorIsBundled = self.get_edit_profile_index() < len(config.bundled_profiles)
             profile_id = self.get_edit_profile()
+
             for widget in self.unlockableWidgets:
-                widget.setTiers(*config.preference_by_id(widget.unlockable.unique_id, profile_id))
-            self.profileNotes.setPlainText(config.notes_by_id(profile_id))
+                widget.setTiers(*config.preference_by_id(widget.unlockable.unique_id, profile_id, self.profileSelectorIsBundled))
+            self.profileNotes.setPlainText(config.notes_by_id(profile_id, self.profileSelectorIsBundled))
+
+            self.saveButton.setEnabled(not self.profileSelectorIsBundled)
+            self.renameButton.setEnabled(not self.profileSelectorIsBundled)
+            self.deleteButton.setEnabled(not self.profileSelectorIsBundled)
+            self.profileNotes.setReadOnly(self.profileSelectorIsBundled)
+
+            for widget in self.unlockableWidgets:
+                widget.tierInput.setReadOnly(self.profileSelectorIsBundled)
+                widget.subtierInput.setReadOnly(self.profileSelectorIsBundled)
+            self.editDropdownContentApplyButton.setEnabled(not self.profileSelectorIsBundled)
 
     def new_profile(self):
         if not self.ignore_profile_signals:
@@ -339,9 +357,15 @@ class PreferencesPage(QWidget):
             self.switch_edit_profile()
 
     def save_profile(self):
+        # if self.profileSelectorIsBundled:
+        #     self.show_preferences_page_save_error(f"You cannot modify a bundled profile. Please save your own version "
+        #                                           "of this preset and make changes in that profile instead.")
+        #     return
+
         profile_id = self.get_edit_profile()
         if profile_id is None:
             return
+
         updated_profile = Config().get_profile_by_id(profile_id).copy()
         updated_profile["notes"] = self.profileNotes.toPlainText()
 
@@ -415,6 +439,11 @@ class PreferencesPage(QWidget):
 
     def rename_profile(self):
         if not self.ignore_profile_signals:
+            # if self.profileSelectorIsBundled:
+            #     self.show_preferences_page_save_error(f"You cannot modify a bundled profile. Please save your own version "
+            #                                           "of this preset and make changes in that profile instead.")
+            #     return
+
             self.ignore_profile_signals = True
 
             old_profile_id = self.get_edit_profile()
@@ -445,6 +474,10 @@ class PreferencesPage(QWidget):
 
     def delete_profile(self):
         if not self.ignore_profile_signals:
+            # if self.profileSelectorIsBundled:
+            #     self.show_preferences_page_save_error(f"You cannot delete a bundled profile.")
+            #     return
+
             self.ignore_profile_signals = True
             profile_id = self.get_edit_profile()
             if profile_id is None:
@@ -678,7 +711,8 @@ class PreferencesPage(QWidget):
                                       Font(12))
 
         self.profileSelector = Selector(self.profileSaveRow, "preferencesPageProfileSelector", QSize(250, 40),
-                                        config.profile_names())
+                                        config.profile_names(True) + config.profile_names(False))
+        self.profileSelectorIsBundled = self.get_edit_profile_index() < len(config.bundled_profiles) # whether currently selected preset is bundled
         self.profileSelector.currentIndexChanged.connect(self.switch_edit_profile)
 
         self.saveSuccessText = TextLabel(self.profileSaveRow, "preferencesPageSaveSuccessText", "", Font(10))
@@ -723,7 +757,7 @@ class PreferencesPage(QWidget):
 
         self.profileNotes = MultiLineTextInputBox(self.scrollAreaContent, "preferencesPageProfileNotes",
                                                   565, 125, 250, "Notes for this profile")
-        self.profileNotes.setPlainText(Config().notes_by_id(self.get_edit_profile()))
+        self.profileNotes.setPlainText(Config().notes_by_id(self.get_edit_profile(), self.profileSelectorIsBundled))
 
         # filters
         self.filtersBox = FilterOptionsCollapsibleBox(self.scrollAreaContent, "preferencesPageFiltersBox",
@@ -749,7 +783,8 @@ class PreferencesPage(QWidget):
         # all unlockables
         self.unlockableWidgets = [UnlockableWidget(self.scrollAreaContent, unlockable,
                                                    *config.preference_by_id(unlockable.unique_id,
-                                                                            self.get_edit_profile()),
+                                                                            self.get_edit_profile(),
+                                                                            self.profileSelectorIsBundled),
                                                    self.on_unlockable_select)
                                   for unlockable in Data.get_unlockables()
                                   if unlockable.category not in ["unused", "retired"]]
@@ -934,3 +969,4 @@ class PreferencesPage(QWidget):
         self.layout.setColumnStretch(0, 1)
 
         self.sortSelector.setCurrentIndex(0) # self.lastSortedBy becomes "default"
+        self.switch_edit_profile() # initialise all read only stuff etc

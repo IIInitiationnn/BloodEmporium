@@ -202,13 +202,13 @@ class Optimiser:
         timer.update()
         return [GraphNode.from_dict(self.dijkstra_graph.nodes[node]) for node in random.choice(min_paths)]
 
-    def run(self, profile_id):
+    def run(self, profile_id, bundled):
         config = Config()
         graphs = []
         for node_id, data in self.base_graph.nodes.items():
             if data["cls_name"] not in NodeType.MULTI_UNCLAIMED:
                 continue
-            tier, subtier = config.preference_by_id(data["name"], profile_id)
+            tier, subtier = config.preference_by_id(data["name"], profile_id, bundled)
             if tier > 0 or (tier == 0 and subtier > 0): # desirable and unclaimed
                 graphs.append(self.dijkstra_multiplier(node_id, tier, subtier))
             elif tier < 0 or (tier == 0 and subtier < 0): # undesirable and unclaimed
@@ -223,7 +223,7 @@ class Optimiser:
 
         self.dijkstra_graph = self.add_graphs(graphs)
 
-    def can_auto_purchase(self, profile_id, threshold_tier=None, threshold_subtier=None):
+    def can_auto_purchase(self, profile_id, bundled, threshold_tier=None, threshold_subtier=None):
         # two ways to auto-purchase
         # A: all tiers and subtiers of all items are the same
         # B: all tiers and subtiers fall below threshold (if threshold is enabled)
@@ -236,7 +236,7 @@ class Optimiser:
         for data in self.base_graph.nodes.values():
             if data["cls_name"] not in NodeType.MULTI_UNCLAIMED:
                 continue
-            tier, subtier = config.preference_by_id(data["name"], profile_id)
+            tier, subtier = config.preference_by_id(data["name"], profile_id, bundled)
             tiers.add(tier)
             subtiers.add(subtier)
             if highest is None or \

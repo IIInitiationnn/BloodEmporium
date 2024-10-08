@@ -85,6 +85,11 @@ class MultiLineTextInputBox(QPlainTextEdit):
         self.setFont(font)
         self.setStyleSheet(style_sheet)
 
+    def setReadOnly(self, a0: bool) -> None:
+        super().setReadOnly(a0)
+        self.setStyleSheet(StyleSheets.multiline_text_box_read_only if a0 else StyleSheets.multiline_text_box)
+        # self.viewport().setCursor(Qt.ForbiddenCursor if a0 else Qt.IBeamCursor)
+
     def wheelEvent(self, e: QtGui.QWheelEvent) -> None:
         current = self.verticalScrollBar().value()
         minimum = self.verticalScrollBar().minimum()
@@ -157,6 +162,9 @@ class Button(QPushButton):
         self.setText(text)
         self.setStyleSheet(StyleSheets.button)
         self.setCursor(QCursor(Qt.PointingHandCursor))
+
+    def setEnabled(self, enabled: bool) -> None:
+        super().setEnabled(enabled)
 
 class CheckBoxWithFunction(CheckBox):
     def __init__(self, parent, object_name, on_click, style_sheet=StyleSheets.check_box):

@@ -163,10 +163,12 @@ class BloodwebPage(QWidget):
         self.scrollAreaContentLayout.setContentsMargins(0, 0, 0, 0)
         self.scrollAreaContentLayout.setSpacing(15)
 
+        config = Config()
         self.profileLabel = TextLabel(self, "bloodwebPageProfileLabel", "Preference Profile", Font(12))
-        self.profileSelector = Selector(self, "bloodwebPageProfileSelector", QSize(250, 40), Config().profile_names())
-        index = self.profileSelector.findText(runtime.profile())
-        set_profile = lambda: Runtime().set_profile(self.profileSelector.currentText())
+        self.profileSelector = Selector(self, "bloodwebPageProfileSelector", QSize(250, 40),
+                                        config.profile_names(True) + config.profile_names(False))
+        index = self.profileSelector.findText(runtime.profile()[0]) # TODO what if bundled and personal have same name?
+        set_profile = lambda: Runtime().set_profile(self.profileSelector.currentText(), self.profileSelector.currentIndex() < len(config.bundled_profiles))
         if index != -1:
             self.profileSelector.setCurrentIndex(index)
         else:
