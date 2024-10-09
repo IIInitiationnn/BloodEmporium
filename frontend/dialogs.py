@@ -3,6 +3,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QInputDialog, QDialog, QProgressBar
 
 from frontend.generic import Icons
+from frontend.stylesheets import StyleSheets
+
 
 class Dialog(QDialog):
     def __init__(self, title, object_name):
@@ -26,10 +28,17 @@ class UpdateDialog(QMessageBox, Dialog):
 
 # https://stackoverflow.com/questions/19917232/how-to-subclass-qmessagebox-and-add-a-progress-bar-in-pyside
 class UpdatingDialog(QMessageBox, Dialog):
-    def __init__(self, new_version):
-        super().__init__(f"Downloading installer for {new_version}", "updatingDialog")
+    def __init__(self, text):
+        super().__init__(text, "updatingDialog")
         self.progressBar = QProgressBar(self)
         self.progressBar.setFixedSize(300, 15)
+        self.progressBar.setStyleSheet(f"""
+            QProgressBar {{
+                text-align: center;
+            }}
+            QProgressBar::chunk {{
+                background-color: {StyleSheets.purple};
+            }}""")
         layout = self.layout()
         layout.addWidget(self.progressBar, 0, 0, 1, layout.columnCount(), Qt.AlignHCenter)
         self.progressBar.setMinimum(0)

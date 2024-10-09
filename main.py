@@ -1,5 +1,6 @@
 import atexit
 import os
+import subprocess
 import sys
 from multiprocessing import freeze_support, Pipe
 from threading import Thread
@@ -24,7 +25,7 @@ sys.path.append(os.path.dirname(os.path.realpath("backend/state.py")))
 from backend.config import Config
 from backend.runtime import Runtime
 from backend.state import State
-from backend.updater import get_latest_update, UpdaterProcess
+from backend.updater import get_latest_update, UpdaterProcess, AssetUpdaterProcess, get_latest_assets
 
 
 class TopBar(QFrame):
@@ -843,7 +844,7 @@ def update():
         this_emitter = UpdaterEmitter(this_pipe)
         this_emitter.start()
 
-        dialog = UpdatingDialog(try_update["tag_name"])
+        dialog = UpdatingDialog(f"Downloading installer for {try_update['tag_name']}")
         this_emitter.progress.connect(dialog.setProgress)
         this_emitter.completion.connect(sys.exit)
 
@@ -854,6 +855,26 @@ def update():
         if selection == QMessageBox.AcceptRole:
             updater.terminate()
 
+def update_assets():
+    this_pipe, updater_pipe = Pipe() # this can receive, updater can send
+    this_emitter = UpdaterEmitter(this_pipe)
+    this_emitter.start()
+
+    dialog = UpdatingDialog("Downloading new assets")
+    this_emitter.progress.connect(dialog.setProgress)
+    this_emitter.completion.connect(restart)
+
+    updater = AssetUpdaterProcess(updater_pipe)
+    updater.start()
+
+    selection = dialog.exec()
+    if selection == QMessageBox.AcceptRole:
+        updater.terminate()
+
+def restart():
+    subprocess.Popen([sys.executable] + sys.argv)
+    sys.exit()
+
 if __name__ == "__main__":
     freeze_support() # --onedir (for exe)
     Config(True) # validate config
@@ -862,6 +883,7 @@ if __name__ == "__main__":
     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
     os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough" # https://stackoverflow.com/questions/49277657/qt-creator-too-big-on-3840x2160-and-150-scaling-on-windows-10 / https://github.com/COVESA/dlt-viewer/issues/205
     os.environ["QT_SCALE_FACTOR"] = "1"
+    # TODO blurry images when high dpi scaling
 
     main_pipe, state_pipe = Pipe() # emit from state pipe to main pipe. main can receive, state can send
     main_emitter = Emitter(main_pipe)
@@ -882,6 +904,14 @@ if __name__ == "__main__":
     if try_update is not None:
         window.add_available_update_button()
         update()
+
+    # auto update assets
+    try:
+        try_update_assets = get_latest_assets()
+    except Exception:
+        try_update_assets = None
+    if try_update_assets is not None:
+        update_assets()
 
     @atexit.register
     def shutdown():

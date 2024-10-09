@@ -30,6 +30,7 @@ remove torch/lib/dnnl.lib
 - new maps (offerings), generic perks etc to look out for
 - mystery boxes scaled to 0.8
 
-- update preference profiles
+- update preference profiles (to assets folder as emps)
 - update README
+- zip updated assets & updated asset metadata version
 - update app version if necessary

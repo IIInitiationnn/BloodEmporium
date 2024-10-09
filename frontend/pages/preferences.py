@@ -436,6 +436,7 @@ class PreferencesPage(QWidget):
             self.ignore_profile_signals = True # saving as new profile; don't trigger
             self.save_to_profile("Save As", "Enter your new profile name:", "Save")
             self.ignore_profile_signals = False
+            self.switch_edit_profile()
 
     def rename_profile(self):
         if not self.ignore_profile_signals:
