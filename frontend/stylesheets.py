@@ -233,10 +233,38 @@ class StyleSheets:
             border: 2px solid {selection};
         }}"""
 
+    tiers_input_positive_read_only = f"""
+        QLineEdit {{
+            background-color: #323543;
+            color: rgb(125, 125, 125);
+            border-radius: 5px;
+            border: 2px solid rgba(0, 0, 0, 0);
+            padding: 0 10px 0 10px;
+            selection-background-color: {purple};
+        }}
+        
+        QLineEdit:hover {{
+            border: 2px solid {selection};
+        }}"""
+
     tiers_input_negative = f"""
         QLineEdit {{
             background-color: #1e1f29;
             color: rgb(255, 255, 255);
+            border-radius: 5px;
+            border: 2px solid rgba(0, 0, 0, 0);
+            padding: 0 10px 0 10px;
+            selection-background-color: {purple};
+        }}
+        
+        QLineEdit:hover {{
+            border: 2px solid {selection};
+        }}"""
+
+    tiers_input_negative_read_only = f"""
+        QLineEdit {{
+            background-color: #1e1f29;
+            color: rgb(125, 125, 125);
             border-radius: 5px;
             border: 2px solid rgba(0, 0, 0, 0);
             padding: 0 10px 0 10px;
@@ -297,7 +325,7 @@ class StyleSheets:
         return StyleSheets.text_box_invalid if bloodpoint_limit <= 0 else StyleSheets.text_box
 
     @staticmethod
-    def tiers_input(tier):
+    def tiers_input(tier, read_only=False):
         try:
             tier = int(tier)
         except ValueError:
@@ -306,11 +334,11 @@ class StyleSheets:
         if abs(tier) > 999:
             return StyleSheets.text_box_invalid
         elif tier > 0:
-            return StyleSheets.tiers_input_positive
+            return StyleSheets.tiers_input_negative_read_only if read_only else StyleSheets.tiers_input_positive
         elif tier < 0:
-            return StyleSheets.tiers_input_negative
+            return StyleSheets.tiers_input_negative_read_only if read_only else StyleSheets.tiers_input_negative
         else:
-            return StyleSheets.text_box
+            return StyleSheets.text_box_read_only if read_only else StyleSheets.text_box
 
     @staticmethod
     def settings_input(path):

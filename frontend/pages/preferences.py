@@ -210,18 +210,18 @@ Type: {TextUtil.title_case(unlockable.type)}""")
         self.layout.addStretch(1)
 
     def on_tier_update(self):
-        self.tierInput.setStyleSheet(StyleSheets.tiers_input(self.tierInput.text()))
+        self.tierInput.setStyleSheet(StyleSheets.tiers_input(self.tierInput.text(), self.tierInput.isReadOnly()))
 
     def on_subtier_update(self):
-        self.subtierInput.setStyleSheet(StyleSheets.tiers_input(self.subtierInput.text()))
+        self.subtierInput.setStyleSheet(StyleSheets.tiers_input(self.subtierInput.text(), self.subtierInput.isReadOnly()))
 
     def setTiers(self, tier=None, subtier=None):
         if tier is not None:
             self.tierInput.setText(str(tier))
-            self.tierInput.setStyleSheet(StyleSheets.tiers_input(tier))
+            self.tierInput.setStyleSheet(StyleSheets.tiers_input(tier, self.tierInput.isReadOnly()))
         if subtier is not None:
             self.subtierInput.setText(str(subtier))
-            self.subtierInput.setStyleSheet(StyleSheets.tiers_input(subtier))
+            self.subtierInput.setStyleSheet(StyleSheets.tiers_input(subtier, self.subtierInput.isReadOnly()))
 
     def getTiers(self):
         return int(self.tierInput.text()), int(self.subtierInput.text())
@@ -319,10 +319,6 @@ class PreferencesPage(QWidget):
             self.profileSelectorIsBundled = self.get_edit_profile_index() < len(config.bundled_profiles)
             profile_id = self.get_edit_profile()
 
-            for widget in self.unlockableWidgets:
-                widget.setTiers(*config.preference_by_id(widget.unlockable.unique_id, profile_id, self.profileSelectorIsBundled))
-            self.profileNotes.setPlainText(config.notes_by_id(profile_id, self.profileSelectorIsBundled))
-
             self.saveButton.setEnabled(not self.profileSelectorIsBundled)
             self.renameButton.setEnabled(not self.profileSelectorIsBundled)
             self.deleteButton.setEnabled(not self.profileSelectorIsBundled)
@@ -332,6 +328,10 @@ class PreferencesPage(QWidget):
                 widget.tierInput.setReadOnly(self.profileSelectorIsBundled)
                 widget.subtierInput.setReadOnly(self.profileSelectorIsBundled)
             self.editDropdownContentApplyButton.setEnabled(not self.profileSelectorIsBundled)
+
+            for widget in self.unlockableWidgets:
+                widget.setTiers(*config.preference_by_id(widget.unlockable.unique_id, profile_id, self.profileSelectorIsBundled))
+            self.profileNotes.setPlainText(config.notes_by_id(profile_id, self.profileSelectorIsBundled))
 
     def new_profile(self):
         if not self.ignore_profile_signals:
