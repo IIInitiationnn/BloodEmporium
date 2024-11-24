@@ -113,7 +113,7 @@ class Config:
         return p.get("tier", 0), p.get("subtier", 0)
 
     def profile_names(self, bundled=False):
-        return [profile["id"] for profile in (self.bundled_profiles if bundled else self.__profiles())]
+        return [profile["id"] for profile in self.__profiles(bundled)]
 
     def commit_changes(self):
         with open("assets/default_config.json", "r") as default:
@@ -212,10 +212,10 @@ class Config:
         self.config["profiles"].remove(to_be_removed)
         self.commit_changes()
 
-    def export_profile(self, profile_id):
+    def export_profile(self, profile_id, bundled=False):
         if profile_id is None:
             return
-        profile = self.get_profile_by_id(profile_id)
+        profile = self.get_profile_by_id(profile_id, bundled)
         with open(f"exports/{profile_id}.emp", "w") as file:
             file.write(json.dumps(profile))
 

@@ -515,7 +515,7 @@ class PreferencesPage(QWidget):
                 return
 
         profile_id = self.get_edit_profile()
-        Config().export_profile(profile_id)
+        Config().export_profile(profile_id, self.profileSelectorIsBundled)
         self.show_preferences_page_save_success(f"Profile exported to \"{profile_id}.emp\". Share it with friends!")
 
     def import_profile(self):
