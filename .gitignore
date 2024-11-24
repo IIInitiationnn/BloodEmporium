@@ -1,6 +1,6 @@
 \*.html
 *.spec
-*.emp
+/*.emp
 
 !onedir.spec
 !onefile.spec
