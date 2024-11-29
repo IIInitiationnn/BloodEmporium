@@ -906,12 +906,12 @@ if __name__ == "__main__":
         update()
 
     # auto update assets
-    try:
-        try_update_assets = get_latest_assets()
-    except Exception:
-        try_update_assets = None
-    if try_update_assets is not None:
-        update_assets()
+    # try:
+    #     try_update_assets = get_latest_assets()
+    # except Exception:
+    #     try_update_assets = None
+    # if try_update_assets is not None:
+    #     update_assets()
 
     @atexit.register
     def shutdown():
