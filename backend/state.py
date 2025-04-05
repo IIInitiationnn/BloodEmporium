@@ -181,9 +181,9 @@ class StateProcess(Process):
         run_mode = runtime.mode()
         speed = runtime.speed()
         try:
-            dev_mode, write_to_output, self.threshold_tier, self.threshold_subtier, \
+            debug_mode, write_to_output, self.threshold_tier, self.threshold_subtier, \
                 self.prestige_limit, self.bp_limit = self.args
-            Timer.PRINT = dev_mode
+            Timer.PRINT = debug_mode
             log = logging.getLogger()
             log.setLevel(logging.DEBUG)
             log.handlers = []
@@ -265,7 +265,7 @@ class StateProcess(Process):
                             (len(matched_claimable_nodes) == 1 and
                              matched_claimable_nodes[0].cls_name in NodeType.MULTI_ORIGIN):
                         print("nothing detected, trying again...")
-                        if dev_mode:
+                        if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
                         pyautogui.click(button=self.primary_mouse)
@@ -297,7 +297,7 @@ class StateProcess(Process):
                     if len(prestige) > 0:
                         # prestige node found
                         self.prestige_total += 1
-                        if dev_mode:
+                        if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         if self.bp_limit is not None and self.bp_total + 20000 > self.bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
@@ -326,7 +326,7 @@ class StateProcess(Process):
 
                     if len(origin_auto_enabled) > 0:
                         # enabled auto origin found
-                        if dev_mode:
+                        if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
 
                         if self.bp_limit is not None and total_bloodweb_cost > self.bp_limit - self.bp_total:
@@ -369,7 +369,7 @@ class StateProcess(Process):
                     print(TextUtil.justify(4, [[edge[0], base_bloodweb.nodes[edge[0]]["name"], edge[1],
                                                 base_bloodweb.nodes[edge[1]]["name"]] for edge in base_bloodweb.edges]))
 
-                    if dev_mode:
+                    if debug_mode:
                         debugger.construct_and_show_images(bloodweb_iteration)
 
                     update_iteration = 0
@@ -468,7 +468,7 @@ class StateProcess(Process):
                     if len(matched_nodes) == 0 or \
                             (len(matched_nodes) == 1 and matched_nodes[0].cls_name in NodeType.MULTI_ORIGIN):
                         print("nothing detected, trying again...")
-                        if dev_mode:
+                        if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
                         pyautogui.click(button=self.primary_mouse)
@@ -492,7 +492,7 @@ class StateProcess(Process):
                     # prestige
                     if len(prestige) > 0:
                         self.prestige_total += 1
-                        if dev_mode:
+                        if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         if self.bp_limit is not None and self.bp_total + 20000 > self.bp_limit:
                             print("prestige level: reached bloodpoint limit. terminating")
@@ -521,7 +521,7 @@ class StateProcess(Process):
                             if node.cls_name in NodeType.MULTI_UNCLAIMED:
                                 unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
                                 total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
-                        if dev_mode:
+                        if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
 
                         if self.bp_limit is not None and total_bloodweb_cost > self.bp_limit - self.bp_total:
@@ -563,7 +563,7 @@ class StateProcess(Process):
                     print(TextUtil.justify(4, [[edge[0], base_bloodweb.nodes[edge[0]]["name"], edge[1],
                                                 base_bloodweb.nodes[edge[1]]["name"]] for edge in base_bloodweb.edges]))
 
-                    if dev_mode:
+                    if debug_mode:
                         debugger.construct_and_show_images(bloodweb_iteration)
 
                     update_iteration = 0
@@ -701,7 +701,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.12"
+    version = "v1.2.13"
     pyautogui.FAILSAFE = False
 
     def __init__(self, pipe):

@@ -39,6 +39,8 @@ class NodeDetection:
         x1, y1, x2, y2 = xyxy
         x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
         height, width = y2 - y1, x2 - x1 # original dim
+        print(y2 - y1)
+        print(x2 - x1)
 
         # cut out border
         margin_fraction = 4.2 # (1 / margin_fraction) around each side cut out
@@ -47,9 +49,9 @@ class NodeDetection:
         unlockable = screenshot[(y1 + margin_y):(y2 - margin_y), (x1 + margin_x):(x2 - margin_x)]
 
         # (assuming size = 64) resize to (64, x) or (x, 64) where x <= 64
-        size = (size, round(size / height * width)) if height > width else \
+        rescaled = (size, round(size / height * width)) if height > width else \
             (round(size / width * height), size)
-        return cv2.resize(unlockable, size, interpolation=Image.interpolation)
+        return cv2.resize(unlockable, rescaled, interpolation=Image.interpolation)
 
     def match_unlockable_sift(self, xyxy, screenshot, merged_base: MergedBase) -> Optional[MatchedNode]:
         size = merged_base.size
@@ -95,7 +97,10 @@ class NodeDetection:
         overall_max_val = -math.inf
         overall_max_loc = None
         tried_shapes = []
+        # TODO urgent this is the biggest timewaster - rescaling and matching is reallllly inefficient
         # apply template matching
+        timer = Timer("test")
+        print("new matching begun")
         for ratio in [0.8, 1, 0.9, 0.95, 0.85, 0.875, 0.975, 0.925, 0.825]: # TODO accuracy isnt perfect
             h, w = unlockable.shape
             h, w = round(ratio * h), round(ratio * w)
@@ -109,6 +114,7 @@ class NodeDetection:
                 overall_max_loc = max_loc
             if overall_max_val > 0.8:
                 break
+            timer.update()
 
         index = floor(overall_max_loc[1] / size)
         match_unique_id = merged_base.names[index]

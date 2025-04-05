@@ -892,7 +892,7 @@ if __name__ == "__main__":
     splash = QSplashScreen(QPixmap(Icons.app_splash))
     splash.show()
 
-    window = MainWindow(state_pipe, main_emitter, len(sys.argv) > 1 and "--dev" in sys.argv[1:])
+    window = MainWindow(state_pipe, main_emitter, len(sys.argv) > 1 and "--dev" in sys.argv)
     splash.finish(window)
     window.show()
 
