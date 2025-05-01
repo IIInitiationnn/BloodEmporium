@@ -14,7 +14,7 @@ class CVImage:
     @staticmethod
     def screen_capture():
         screenshot = pyautogui.screenshot()
-        screenshot = np.array(screenshot)[:, :, :: -1].copy()
+        screenshot = np.array(screenshot)[:, :, :: -1]
         return CVImage(screenshot)
 
     @staticmethod

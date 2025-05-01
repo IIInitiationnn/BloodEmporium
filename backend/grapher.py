@@ -75,4 +75,10 @@ class Grapher:
             return True # unlikely to be more than 1 mismatch
 
         # no accessible nodes
-        return not any([data["cls_name"] == NodeType.ACCESSIBLE for data in base_bloodweb.nodes.values()])
+        return not any([data["cls_name"] in NodeType.MULTI_UNCLAIMED for data in base_bloodweb.nodes.values()])
+
+    @staticmethod
+    def update_guess(base_bloodweb, nodes: List[GraphNode]) -> None:
+        for node in nodes:
+            node.set_claimed(True)
+            nx.set_node_attributes(base_bloodweb, node.get_dict())
