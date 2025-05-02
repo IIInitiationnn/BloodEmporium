@@ -103,6 +103,13 @@ class Data:
                     # elif u_category == "hillbilly" and u_id == "iconAddon_chainsBloody" and "Xipre" not in subdir:
                     #     continue
 
+                    # nurse and dracula share an addon with the same name
+                    if u_id.lower() == "iconAddon_PocketWatch".lower():
+                        if u_category == "dark lord" and "Eclair" not in subdir:
+                            continue # this is nurse's addon, ignore it for dracula
+                        if u_category == "nurse" and "Eclair" in subdir:
+                            continue # this is dracula's addon, ignore it for nurse
+
                     u_image_path = os.path.normpath(os.path.join(subdir, file))
                     u_is_custom_icon = True
                     break

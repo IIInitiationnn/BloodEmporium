@@ -39,8 +39,6 @@ class NodeDetection:
         x1, y1, x2, y2 = xyxy
         x1, y1, x2, y2 = round(x1), round(y1), round(x2), round(y2)
         height, width = y2 - y1, x2 - x1 # original dim
-        print(y2 - y1)
-        print(x2 - x1)
 
         # cut out border
         margin_fraction = 4.2 # (1 / margin_fraction) around each side cut out
@@ -98,6 +96,8 @@ class NodeDetection:
         overall_max_loc = None
         tried_shapes = []
         # TODO urgent this is the biggest timewaster - rescaling and matching is reallllly inefficient
+        # in the first run, try all scales, find the best scale (highest match accuracy), cache and use for rest of runtime
+        # gather data on the first few runs until enough nodes have been seen to confidently determine the best scale value, and then speed through all the remaining bloodwebs using this calculated scale value. if at any point after, scale value is too inaccurate, it will try to recalibrate. 99% of the time this should just mean the first 1-2 bloodwebs will be about the same speed as it is currently, then start saving about 3 seconds every bloodweb, compared to the current version
         # apply template matching
         timer = Timer("test")
         print("new matching begun")
