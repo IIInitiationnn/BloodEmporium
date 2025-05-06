@@ -42,7 +42,7 @@ class MergedBase:
 
         colors = {
             "common": (60, 60, 60),
-            "uncommon": (100, 100, 100),
+            "uncommon": (75, 75, 75),
             "rare": (75, 75, 75),
             "very_rare": (45, 45, 45),
             "ultra_rare": (40, 40, 40),

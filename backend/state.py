@@ -121,13 +121,15 @@ class StateProcess(Process):
     def wait_level_cleared(self, num_nodes):
         time.sleep(1) # 1 sec to clear out until new level screen
         pyautogui.click(button=self.primary_mouse)
+
+        # dont think this is necessary, all this just for one check at p0 seems like a waste of time in the long run
         # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes
-        if num_nodes == 4 or 5 or 9:
-            time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-            pyautogui.click(button=self.primary_mouse)
-            if num_nodes == 9:
-                time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-                pyautogui.click(button=self.primary_mouse)
+        # if num_nodes == 4 or 5 or 9:
+        #     time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
+        #     pyautogui.click(button=self.primary_mouse)
+        #     if num_nodes == 9:
+        #         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
+        #         pyautogui.click(button=self.primary_mouse)
         time.sleep(2) # 2 secs to generate
 
     def click_node(self):
@@ -161,13 +163,14 @@ class StateProcess(Process):
         time.sleep(2 + num_nodes / 13)
 
         pyautogui.click(button=self.primary_mouse)
+        # dont think this is necessary, all this just for one check at p0 seems like a waste of time in the long run
         # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes
-        if num_nodes == 4 or 5 or 9:
-            time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-            pyautogui.click(button=self.primary_mouse)
-            if num_nodes == 9:
-                time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-                pyautogui.click(button=self.primary_mouse)
+        # if num_nodes == 4 or 5 or 9:
+        #     time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
+        #     pyautogui.click(button=self.primary_mouse)
+        #     if num_nodes == 9:
+        #         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
+        #         pyautogui.click(button=self.primary_mouse)
         pyautogui.moveTo(0, 0, _pause=False)
         time.sleep(2) # 2 secs to generate
 
