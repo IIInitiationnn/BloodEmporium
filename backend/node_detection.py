@@ -5,6 +5,7 @@ from statistics import mode
 from typing import List, Optional, Tuple
 
 import cv2
+import numpy as np
 import pytesseract
 from ultralytics import YOLO
 from ultralytics.yolo.engine.results import Results
@@ -22,6 +23,8 @@ from backend.util.timer import Timer
 pytesseract.pytesseract.tesseract_cmd = os.getcwd() + r"\tesseract\tesseract.exe"
 
 class NodeDetection:
+    NUM_CALIBRATIONS = 25
+
     def __init__(self):
         # loads model on init
         self.model = YOLO("assets/models/nodes v4.pt")
@@ -31,6 +34,7 @@ class NodeDetection:
         self.CLASS_NAMES_DICT = self.model.names
 
         # self.reader = easyocr.Reader([])
+        self.ratios: List[float] = []
 
     def predict(self, img_original) -> Results:
         return self.model.predict(img_original)[0]
@@ -47,9 +51,15 @@ class NodeDetection:
         unlockable = screenshot[(y1 + margin_y):(y2 - margin_y), (x1 + margin_x):(x2 - margin_x)]
 
         # (assuming size = 64) resize to (64, x) or (x, 64) where x <= 64
-        rescaled = (size, round(size / height * width)) if height > width else \
-            (round(size / width * height), size)
-        return cv2.resize(unlockable, rescaled, interpolation=Image.interpolation)
+        # if height > width:
+        #     ratio = size / height
+        #     rescaled = (size, round(ratio * width))
+        # else:
+        #     ratio = size / width
+        #     rescaled = (round(ratio * height), size)
+        # return cv2.resize(unlockable, rescaled, interpolation=Image.interpolation)
+
+        return unlockable
 
     def match_unlockable_sift(self, xyxy, screenshot, merged_base: MergedBase) -> Optional[MatchedNode]:
         size = merged_base.size
@@ -88,33 +98,56 @@ class NodeDetection:
         # cv2.destroyAllWindows()
         return match_unique_id
 
-    def match_unlockable_template(self, xyxy, screenshot, merged_base: MergedBase):
+    def match_unlockable_template(self, xyxy, screenshot, merged_base: MergedBase) -> Tuple[str, float]:
         size = merged_base.size
-        unlockable = self.preprocess_unlockable(xyxy, screenshot, merged_base.size)
+        unlockable = self.preprocess_unlockable(xyxy, screenshot, size)
 
         overall_max_val = -math.inf
         overall_max_loc = None
+        best_ratio = None
+        best_size = None
         tried_shapes = []
-        # TODO urgent this is the biggest timewaster - rescaling and matching is reallllly inefficient
-        # in the first run, try all scales, find the best scale (highest match accuracy), cache and use for rest of runtime
-        # gather data on the first few runs until enough nodes have been seen to confidently determine the best scale value, and then speed through all the remaining bloodwebs using this calculated scale value. if at any point after, scale value is too inaccurate, it will try to recalibrate. 99% of the time this should just mean the first 1-2 bloodwebs will be about the same speed as it is currently, then start saving about 3 seconds every bloodweb, compared to the current version
+
         # apply template matching
-        timer = Timer("test")
-        print("new matching begun")
-        for ratio in [0.8, 1, 0.9, 0.95, 0.85, 0.875, 0.975, 0.925, 0.825]: # TODO accuracy isnt perfect
+        if len(self.ratios) < NodeDetection.NUM_CALIBRATIONS:
+            # needs calibration to find best ratio until we have a good sample size
+            for ratio in [0.8, 1, 0.9, 0.95, 0.85, 0.875, 0.975, 0.925, 0.825]: # TODO accuracy isnt perfect
+                # assuming operating these ratios on (64, x) or (x, 64), ie 0.8 would make it (51, x) or (x, 51)
+                # the ratio we are interested in (final_ratio) is the one that gets us from the original size to the best size
+                # if it is 128x128 to 64x64, then it will be 96x96 to 48x48
+
+                # (assuming size = 64) resize to (64, x) or (x, 64) where x <= 64
+                h, w = unlockable.shape
+                if h > w:
+                    final_ratio = size / h * ratio
+                    rescaled = (round(size * ratio), round(final_ratio * w))
+                else:
+                    final_ratio = size / w * ratio
+                    rescaled = (round(final_ratio * h), round(size * ratio))
+                if rescaled in tried_shapes:
+                    continue
+
+                rescaled_unlockable = cv2.resize(unlockable, rescaled)
+
+                result = cv2.matchTemplate(merged_base.images, rescaled_unlockable, cv2.TM_CCOEFF_NORMED)
+                _, max_val, _, max_loc = cv2.minMaxLoc(result)
+                tried_shapes.append((h, w))
+                if max_val > overall_max_val:
+                    overall_max_val = max_val
+                    overall_max_loc = max_loc
+                    best_ratio = final_ratio
+                    best_size = rescaled
+
+            # print(f"{best_ratio} {best_size} {overall_max_val}")
+            self.ratios.append(best_ratio)
+        else:
+            # use calibrated ratio for rest of runtime until termination
+            best_ratio = np.median(self.ratios)
             h, w = unlockable.shape
-            h, w = round(ratio * h), round(ratio * w)
-            if (h, w) in tried_shapes:
-                continue
-            result = cv2.matchTemplate(merged_base.images, cv2.resize(unlockable, (h, w)), cv2.TM_CCOEFF_NORMED)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-            tried_shapes.append((h, w))
-            if max_val > overall_max_val:
-                overall_max_val = max_val
-                overall_max_loc = max_loc
-            if overall_max_val > 0.8:
-                break
-            timer.update()
+            rescaled = (round(h * best_ratio), round(w * best_ratio))
+            rescaled_unlockable = cv2.resize(unlockable, rescaled)
+            result = cv2.matchTemplate(merged_base.images, rescaled_unlockable, cv2.TM_CCOEFF_NORMED)
+            _, overall_max_val, _, overall_max_loc = cv2.minMaxLoc(result)
 
         index = floor(overall_max_loc[1] / size)
         match_unique_id = merged_base.names[index]
@@ -124,7 +157,7 @@ class NodeDetection:
         # cv2.imshow("matched unlockable", matched_unlockable)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
-        return match_unique_id
+        return match_unique_id, overall_max_val
 
     # deprecated
     '''
@@ -196,15 +229,30 @@ class NodeDetection:
         timer.update()
         return nodes, bp_node
 
-    def match_nodes(self, all_nodes: List[UnmatchedNode], screenshot, merged_base) -> List[MatchedNode]:
-        timer = Timer("match_nodes")
+    def __match_nodes(self, all_nodes: List[UnmatchedNode], screenshot, merged_base) -> Tuple[List[MatchedNode], float]:
         matched = []
+        accuracies = []
         for unmatched_node in all_nodes:
             if unmatched_node.cls_name in NodeType.MULTI_UNCLAIMED:
-                match_unique_id = self.match_unlockable_template(unmatched_node.xyxy(), screenshot, merged_base)
+                match_unique_id, accuracy = self.match_unlockable_template(unmatched_node.xyxy(), screenshot, merged_base)
+                accuracies.append(accuracy)
                 matched.append(MatchedNode.from_unmatched_node(unmatched_node, match_unique_id))
             else:
                 matched.append(MatchedNode.from_unmatched_node(unmatched_node))
+        return matched, np.median(accuracies)
+
+    def match_nodes(self, all_nodes: List[UnmatchedNode], screenshot, merged_base) -> List[MatchedNode]:
+        timer = Timer("match_nodes")
+
+        is_initialisation_run = len(self.ratios) < NodeDetection.NUM_CALIBRATIONS
+        matched, accuracy = self.__match_nodes(all_nodes, screenshot, merged_base)
+        print(f"accuracy: {accuracy}")
+        # need to recalibrate: highly unlikely will ever be necessary but just in case
+        if not is_initialisation_run and accuracy < 0.7:
+            self.ratios.clear()
+            matched, accuracy = self.__match_nodes(all_nodes, screenshot, merged_base)
+            print(f"recalibration accuracy: {accuracy}")
+
         timer.update()
         return matched
 

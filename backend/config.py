@@ -1,6 +1,7 @@
 import json
 import os
 from shutil import copyfile
+from typing import Dict, List, Any
 
 from exceptions import ConfigError
 
@@ -37,7 +38,7 @@ class Config:
                 copyfile("assets/default_config.json", "config.json")
 
             with open("config.json", "r") as f:
-                self.config = dict(json.load(f))
+                self.config: Dict[str, Any] = dict(json.load(f))
             self.commit_changes() # ensure all necessary keys are in (essentially copying missing values)
 
         with open("config.json", "r") as f:
@@ -88,7 +89,7 @@ class Config:
     def primary_mouse(self):
         return self.config["primary_mouse"]
 
-    def __profiles(self, bundled=False):
+    def __profiles(self, bundled=False) -> List[Dict[str, Any]]:
         return self.bundled_profiles if bundled else self.config["profiles"]
 
     def get_profile_by_id(self, profile_id, bundled=False):

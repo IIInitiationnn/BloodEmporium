@@ -118,13 +118,16 @@ class StateProcess(Process):
         if time_since_grab < wait_time:
             time.sleep(wait_time - time_since_grab)
 
-    def wait_level_cleared(self):
+    def wait_level_cleared(self, num_nodes):
         time.sleep(1) # 1 sec to clear out until new level screen
         pyautogui.click(button=self.primary_mouse)
-        time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-        pyautogui.click(button=self.primary_mouse)
-        time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-        pyautogui.click(button=self.primary_mouse)
+        # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes
+        if num_nodes == 4 or 5 or 9:
+            time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
+            pyautogui.click(button=self.primary_mouse)
+            if num_nodes == 9:
+                time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
+                pyautogui.click(button=self.primary_mouse)
         time.sleep(2) # 2 secs to generate
 
     def click_node(self):
@@ -158,10 +161,13 @@ class StateProcess(Process):
         time.sleep(2 + num_nodes / 13)
 
         pyautogui.click(button=self.primary_mouse)
-        time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-        pyautogui.click(button=self.primary_mouse)
-        time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-        pyautogui.click(button=self.primary_mouse)
+        # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes
+        if num_nodes == 4 or 5 or 9:
+            time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
+            pyautogui.click(button=self.primary_mouse)
+            if num_nodes == 9:
+                time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
+                pyautogui.click(button=self.primary_mouse)
         pyautogui.moveTo(0, 0, _pause=False)
         time.sleep(2) # 2 secs to generate
 
@@ -430,7 +436,8 @@ class StateProcess(Process):
                         # new level
                         if new_level:
                             print("level cleared")
-                            self.wait_level_cleared()
+                            num_actual_nodes = len([node for node in matched_nodes if node.cls_name not in NodeType.MULTI_ORIGIN])
+                            self.wait_level_cleared(num_actual_nodes)
                             break
 
                         update_iteration += 1
@@ -481,8 +488,8 @@ class StateProcess(Process):
                                            if node.cls_name == NodeType.ORIGIN_AUTO_ENABLED]
 
                     # fast-forward levels with <= 6 nodes (excl. origin): autobuy if possible
-                    fast_forward = len([node for node in matched_nodes
-                                        if node.cls_name not in NodeType.MULTI_ORIGIN]) <= 6
+                    num_actual_nodes = len([node for node in matched_nodes if node.cls_name not in NodeType.MULTI_ORIGIN])
+                    fast_forward = num_actual_nodes <= 6
                     ignore_slow = False
 
                     # prestige
@@ -618,14 +625,14 @@ class StateProcess(Process):
                             best_node = optimiser.select_best_single()
                             best_nodes = [best_node]
                             if len(best_nodes) == 0:
-                                self.wait_level_cleared()
+                                self.wait_level_cleared(num_actual_nodes)
                                 break
                             u = [u for u in unlockables if u.unique_id == best_node.name][0]
                             cost = Data.get_cost(u.rarity, u.type)
                         else:
                             best_nodes = optimiser.select_best_multi(unlockables) # TODO incorporate into debugging
                             if len(best_nodes) == 0:
-                                self.wait_level_cleared()
+                                self.wait_level_cleared(num_actual_nodes)
                                 break
                             best_node = best_nodes[-1]
                             us = [[u for u in unlockables if u.unique_id == node.name][0] for node in best_nodes]
@@ -706,7 +713,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.13"
+    version = "v1.2.14"
     pyautogui.FAILSAFE = False
     pyautogui.PAUSE = 0.03
 
