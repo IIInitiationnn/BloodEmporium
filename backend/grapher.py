@@ -9,8 +9,8 @@ from shapes import LinkedEdge, MatchedNode, UnmatchedNode
 
 class Grapher:
     def __init__(self, nodes: List[MatchedNode], edges: List[LinkedEdge]):
-        self.nodes = nodes
-        self.edges = edges
+        self.nodes: List[MatchedNode] = nodes
+        self.edges: List[LinkedEdge] = edges
 
     def create(self):
         nodes = []
@@ -82,3 +82,4 @@ class Grapher:
         for node in nodes:
             node.set_claimed(True)
             nx.set_node_attributes(base_bloodweb, node.get_dict())
+            # TODO urgent find all neighbours and set any inaccessible to accessible

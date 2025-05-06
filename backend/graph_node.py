@@ -1,4 +1,5 @@
 from pprint import pprint
+from typing import Dict, Any
 
 from backend.shapes import Box
 from util.node_util import ColorUtil, NodeType
@@ -15,7 +16,7 @@ class GraphNode:
         self.x, self.y = box.centre().xy() # for networkx positioning
 
     @staticmethod
-    def from_dict(data, **kwargs):
+    def from_dict(data: Dict[str, Any], **kwargs):
         box = Box(int(data["x1"]), int(data["y1"]), int(data["x2"]), int(data["y2"]))
         node = GraphNode(data["node_id"], data["name"], data["value"], box, data["cls_name"])
         for attribute, val in kwargs.items():

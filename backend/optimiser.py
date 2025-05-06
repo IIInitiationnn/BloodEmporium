@@ -200,11 +200,13 @@ class Optimiser:
             elif path_opt_val == min_val:
                 min_paths.append(path)
         timer.update()
-        return [GraphNode.from_dict(self.dijkstra_graph.nodes[node]) for node in random.choice(min_paths)]
+        return [GraphNode.from_dict(self.base_graph.nodes[node]) for node in random.choice(min_paths)]
 
     def run(self, profile_id, bundled):
         config = Config()
         graphs = []
+        for node_id, data in self.base_graph.nodes.items():
+            print(data["value"])
         for node_id, data in self.base_graph.nodes.items():
             if data["cls_name"] not in NodeType.MULTI_UNCLAIMED:
                 continue
