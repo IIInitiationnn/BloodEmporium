@@ -79,7 +79,14 @@ class Grapher:
 
     @staticmethod
     def update_guess(base_bloodweb, nodes: List[GraphNode]) -> None:
+        neighbors = set()
         for node in nodes:
             node.set_claimed(True)
             nx.set_node_attributes(base_bloodweb, node.get_dict())
-            # TODO urgent find all neighbours and set any inaccessible to accessible
+
+            for neighbor in base_bloodweb.neighbors(node.node_id):
+                neighbors.add(base_bloodweb.nodes[neighbor]["node_id"])
+
+        for neighbor_id in neighbors:
+            if base_bloodweb.nodes[neighbor_id]["cls_name"] == NodeType.INACCESSIBLE:
+                nx.set_node_attributes(base_bloodweb, GraphNode.from_dict(base_bloodweb.nodes[neighbor_id], cls_name=NodeType.ACCESSIBLE).get_dict())

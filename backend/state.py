@@ -716,7 +716,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.14"
+    version = "v1.2.15"
     pyautogui.FAILSAFE = False
     pyautogui.PAUSE = 0.05
 
