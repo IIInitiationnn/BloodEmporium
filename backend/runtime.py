@@ -6,7 +6,7 @@ class Runtime:
         "bundled": False,
         "character": "survivor",
         "mode": "aware_multi",
-        "speed": "slow",
+        "speed": "fast",
         "auto_purchase_threshold": {
             "enabled": False,
             "tier": 0,

@@ -218,7 +218,7 @@ class StateProcess(Process):
             sys.stderr = LoggerWriter(log.warning)
 
             pyautogui.FAILSAFE = False
-            pyautogui.PAUSE = 0.03
+            pyautogui.PAUSE = 0.05
 
             node_detector = NodeDetection()
 
@@ -697,7 +697,7 @@ class StateProcess(Process):
                         # new level
                         if new_level:
                             print("level cleared")
-                            self.wait_level_cleared()
+                            self.wait_level_cleared(num_actual_nodes)
                             break
 
                         # wait when aware fast: we do it after the screenshot+update because we wont have to wait as long
@@ -718,7 +718,7 @@ class StateProcess(Process):
 class State:
     version = "v1.2.14"
     pyautogui.FAILSAFE = False
-    pyautogui.PAUSE = 0.03
+    pyautogui.PAUSE = 0.05
 
     def __init__(self, pipe):
         self.process = None

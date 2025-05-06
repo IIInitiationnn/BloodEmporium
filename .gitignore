@@ -10,6 +10,7 @@ config.json
 config backup.json
 config_mine.json
 installation_script_old.iss
+BloodEmporiumInstaller-*.exe
 runtime.json
 fast.txt
 
