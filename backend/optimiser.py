@@ -132,7 +132,7 @@ class Optimiser:
             elif data["value"] == min_val:
                 min_node_ids.append(node_id)
         timer.update()
-        return GraphNode.from_dict(self.dijkstra_graph.nodes[random.choice(min_node_ids)])
+        return GraphNode.from_dict(self.base_graph.nodes[random.choice(min_node_ids)])
 
     def select_best_multi(self, unlockables: List[Unlockable]) -> List[GraphNode]:
         timer = Timer("select_best_multi")
@@ -205,8 +205,6 @@ class Optimiser:
     def run(self, profile_id, bundled):
         config = Config()
         graphs = []
-        for node_id, data in self.base_graph.nodes.items():
-            print(data["value"])
         for node_id, data in self.base_graph.nodes.items():
             if data["cls_name"] not in NodeType.MULTI_UNCLAIMED:
                 continue
