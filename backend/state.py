@@ -6,8 +6,11 @@ import traceback
 from datetime import datetime
 from multiprocessing import Process, Pipe
 
+# import mouse
 import pyautogui
+# import pydirectinput
 from numpy import mean
+# from pynput.mouse import Controller, Button
 
 from backend.config import Config
 from backend.data import Data
@@ -38,14 +41,6 @@ venv/Lib/site-packages/ultralytics/yolo/engine/predictor.py Class BasePredictor 
 
 https://github.com/ultralytics/yolov5/issues/6948#issuecomment-1075528897
 venv/Lib/site-packages/torch/nn/modules/upsampling.py Class BasePredictor self.args.verbose = False
-
-TRAINING
-yolov8 node detection
-yolo cfg="hyperparameters nodes v4.yaml"
-
-yolov5obb edge detection
-cd yolov5_obb
-python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam 
 
 TODOs
 - included profiles immutable (https://discord.com/channels/1016471051187802333/1205957357763301456)
@@ -120,69 +115,128 @@ class StateProcess(Process):
 
     def wait_level_cleared(self, num_nodes):
         time.sleep(1) # 1 sec to clear out until new level screen
-        pyautogui.click(button=self.primary_mouse)
+        self.click()
 
         # dont think this is necessary, all this just for one check at p0 seems like a waste of time in the long run
         # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes
         # if num_nodes == 4 or 5 or 9:
         #     time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-        #     pyautogui.click(button=self.primary_mouse)
+        #     self.click()
         #     if num_nodes == 9:
         #         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-        #         pyautogui.click(button=self.primary_mouse)
+        #         self.click()
         time.sleep(2) # 2 secs to generate
 
     def click_node(self):
-        pyautogui.mouseDown(button=self.primary_mouse)
         if self.interaction == "press":
-            pyautogui.moveTo(0, 0, _pause=False)
+            self.click()
+            self.move_to(1, 1)
         else: # hold
+            self.mouse_down()
             time.sleep(0.15)
-            pyautogui.moveTo(0, 0, _pause=False)
+            self.move_to(1, 1)
             time.sleep(0.15)
-        pyautogui.mouseUp(button=self.primary_mouse, _pause=False)
+            self.mouse_up()
 
     def click_prestige(self):
-        pyautogui.mouseDown(button=self.primary_mouse)
-        if self.interaction == "hold":
+        if self.interaction == "press":
+            self.click()
+        else:
+            self.mouse_down()
             time.sleep(1.5)
-        pyautogui.mouseUp(button=self.primary_mouse, _pause=False)
+            self.mouse_up()
         time.sleep(4) # 4 sec to clear out until new level screen
-        pyautogui.click(button=self.primary_mouse)
+        self.click()
         time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
-        pyautogui.click(button=self.primary_mouse)
+        self.click()
         time.sleep(0.5) # 1 sec to generate
-        pyautogui.moveTo(0, 0, _pause=False)
+        self.move_to(1, 1)
         time.sleep(0.5) # 1 sec to generate
 
     def click_origin(self, num_nodes):
-        pyautogui.mouseDown(button=self.primary_mouse)
-        if self.interaction == "hold":
+        if self.interaction == "press":
+            self.click()
+        else:
+            self.mouse_down()
             time.sleep(0.5)
-        pyautogui.mouseUp(button=self.primary_mouse, _pause=False)
+            self.mouse_up()
         time.sleep(2 + num_nodes / 13)
 
-        pyautogui.click(button=self.primary_mouse)
+        self.click()
         # dont think this is necessary, all this just for one check at p0 seems like a waste of time in the long run
         # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes
         # if num_nodes == 4 or 5 or 9:
         #     time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-        #     pyautogui.click(button=self.primary_mouse)
+        #     self.click()
         #     if num_nodes == 9:
         #         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-        #         pyautogui.click(button=self.primary_mouse)
-        pyautogui.moveTo(0, 0, _pause=False)
+        #         self.click()
+        self.move_to(1, 1)
         time.sleep(2) # 2 secs to generate
 
     # send data to main process via pipe
     def emit(self, signal_name, payload=()):
         self.pipe.send((signal_name, payload))
 
+    def click(self):
+        test = Timer("click")
+        pyautogui.click(button=self.primary_mouse)
+        # if self.controller == "pag":
+        #     pyautogui.click(button=self.primary_mouse)
+        # elif self.controller == "pp":
+        #     self.mouse.click(button=Button.left if self.primary_mouse == "left" else Button.right)
+        # elif self.controller == "pdi":
+        #     pydirectinput.click(button=self.primary_mouse)
+        # elif self.controller == "m":
+        #     mouse.click(self.primary_mouse)
+        test.update()
+
+    def mouse_down(self):
+        test = Timer("mouse_down")
+        pyautogui.mouseDown(button=self.primary_mouse)
+        # if self.controller == "pag":
+        #     pyautogui.mouseDown(button=self.primary_mouse)
+        # elif self.controller == "pp":
+        #     self.mouse.press(button=Button.left if self.primary_mouse == "left" else Button.right)
+        # elif self.controller == "pdi":
+        #     pydirectinput.mouseDown(button=self.primary_mouse)
+        # elif self.controller == "m":
+        #     mouse.press(self.primary_mouse)
+        test.update()
+
+    def mouse_up(self):
+        test = Timer("mouse_up")
+        pyautogui.mouseUp(button=self.primary_mouse)
+        # if self.controller == "pag":
+        #     pyautogui.mouseUp(button=self.primary_mouse)
+        # elif self.controller == "pp":
+        #     self.mouse.release(button=Button.left if self.primary_mouse == "left" else Button.right)
+        # elif self.controller == "pdi":
+        #     pydirectinput.mouseUp(button=self.primary_mouse)
+        # elif self.controller == "m":
+        #     mouse.release(button=self.primary_mouse)
+        test.update()
+
+    def move_to(self, x, y):
+        test = Timer("move_to")
+        pyautogui.moveTo(x, y)
+        # if self.controller == "pag":
+        #     pyautogui.moveTo(x, y)
+        # elif self.controller == "pp":
+        #     self.mouse.position = (x, y)
+        # elif self.controller == "pdi":
+        #     pydirectinput.moveTo(x, y)
+        # elif self.controller == "m":
+        #     mouse.move(x, y)
+        test.update()
+
     def run(self):
         timestamp = datetime.now()
         config = Config()
         self.interaction = config.interaction()
         self.primary_mouse = config.primary_mouse()
+        # self.mouse = Controller()
+        # self.controller = "pag"
 
         runtime = Runtime()
         profile_id, bundled = runtime.profile()
@@ -219,6 +273,8 @@ class StateProcess(Process):
 
             pyautogui.FAILSAFE = False
             pyautogui.PAUSE = 0.05
+            # pydirectinput.FAILSAFE = False
+            # pydirectinput.PAUSE = 0.05
 
             node_detector = NodeDetection()
 
@@ -235,7 +291,7 @@ class StateProcess(Process):
             print(f"using {num_custom} custom icons and {len(unlockables) - num_custom} vanilla icons")
             print(f"using profile: {profile_id} (bundled: {bundled}) for character {character}")
             merged_base = MergedBase(character)
-            pyautogui.moveTo(0, 0, _pause=False)
+            self.move_to(1, 1)
 
             debugger = Debugger(timestamp, write_to_output)
             debugger.set_merged_base(merged_base)
@@ -278,7 +334,7 @@ class StateProcess(Process):
                         if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
-                        pyautogui.click(button=self.primary_mouse)
+                        self.click()
                         continue
 
                     # current_bp_balance = node_detector.calculate_bloodpoints(bp_node, image_gray)
@@ -326,11 +382,9 @@ class StateProcess(Process):
                         self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
                         centre = prestige[0].box.centre()
-                        pyautogui.moveTo(*centre.xy(), _pause=False)
+                        self.move_to(*centre.xy())
                         self.click_prestige()
 
-                        # move mouse again in case it didn't the first time
-                        pyautogui.moveTo(0, 0, _pause=False)
                         bloodweb_iteration += 1
                         continue
 
@@ -347,11 +401,9 @@ class StateProcess(Process):
                             self.bp_total += total_bloodweb_cost
                             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
-                            pyautogui.moveTo(*centre.xy(), _pause=False)
+                            self.move_to(*centre.xy())
                             self.click_origin(len(matched_claimable_nodes))
 
-                            # move mouse again in case it didn't the first time
-                            pyautogui.moveTo(0, 0, _pause=False)
                             bloodweb_iteration += 1
                             continue
 
@@ -408,15 +460,15 @@ class StateProcess(Process):
                         self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
                         # select perk
-                        pyautogui.moveTo(random_node.x, random_node.y, _pause=False)
-                        self.click_node()
                         grab_time = time.time()
+                        self.move_to(random_node.x, random_node.y)
+                        self.click_node()
 
                         # mystery box: click TODO may have to move outside of this branch?
                         # if "mysteryBox" in random_node.name:
                         #     print("mystery box selected")
                         #     time.sleep(0.9)
-                        #     pyautogui.click(button=self.primary_mouse)
+                        #     self.click()
                         #     time.sleep(0.2)
 
                         # wait: will claim 1 if accessible, 2 or 3 if inaccessible, so wait for 3 to be safe
@@ -445,8 +497,6 @@ class StateProcess(Process):
 
                         update_iteration += 1
 
-                # move mouse again in case it didn't the first time
-                pyautogui.moveTo(0, 0, _pause=False)
                 bloodweb_iteration += 1
             else:
                 edge_detector = EdgeDetection()
@@ -477,7 +527,7 @@ class StateProcess(Process):
                         if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
                         time.sleep(0.5) # try again
-                        pyautogui.click(button=self.primary_mouse)
+                        self.click()
                         continue
 
                     # current_bp_balance = node_detector.calculate_bloodpoints(bp_node, image_gray)
@@ -516,7 +566,7 @@ class StateProcess(Process):
                         self.emit("prestige", (self.prestige_total, self.prestige_limit))
                         self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                         centre = matched_nodes[0].box.centre()
-                        pyautogui.moveTo(*centre.xy(), _pause=False)
+                        self.move_to(*centre.xy())
                         self.click_prestige()
                         bloodweb_iteration += 1
                         continue
@@ -538,7 +588,7 @@ class StateProcess(Process):
                             self.bp_total += total_bloodweb_cost
                             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
-                            pyautogui.moveTo(*centre.xy(), _pause=False)
+                            self.move_to(*centre.xy())
                             self.click_origin(len(matched_nodes))
                             bloodweb_iteration += 1
                             continue
@@ -619,7 +669,7 @@ class StateProcess(Process):
                             self.bp_total += remaining_bloodweb_cost
                             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
-                            pyautogui.moveTo(*centre.xy(), _pause=False)
+                            self.move_to(*centre.xy())
                             self.click_origin(num_remaining_nodes)
                             print("level cleared")
                             break
@@ -657,18 +707,15 @@ class StateProcess(Process):
 
                         # select perk: press OR hold on the perk for 0.3s
                         grab_time = time.time()
-                        pyautogui.moveTo(best_node.x, best_node.y, _pause=False)
+                        self.move_to(best_node.x, best_node.y)
                         self.click_node()
 
                         # mystery box: click
                         # if "mysteryBox" in best_node.name:
                         #     print("mystery box selected")
                         #     time.sleep(0.9)
-                        #     pyautogui.click(button=self.primary_mouse)
+                        #     self.click()
                         #     time.sleep(0.2)
-
-                        # move mouse again in case it didn't the first time
-                        pyautogui.moveTo(0, 0, _pause=False)
 
                         # wait
                         if speed == "slow" and not ignore_slow:
@@ -679,6 +726,7 @@ class StateProcess(Process):
                         updated_img = CVImage.screen_capture()
                         debugger.add_updated_image(bloodweb_iteration, update_iteration, updated_img)
 
+                        # TODO potential timewasting here
                         print("yolov8: detect all nodes")
                         updated_results = node_detector.predict(updated_img.get_bgr())
                         updated_nodes, updated_bp_node = node_detector.get_validate_all_nodes(updated_results)
@@ -719,6 +767,8 @@ class State:
     version = "v1.2.15"
     pyautogui.FAILSAFE = False
     pyautogui.PAUSE = 0.05
+    # pydirectinput.FAILSAFE = False
+    # pydirectinput.PAUSE = 0.05
 
     def __init__(self, pipe):
         self.process = None

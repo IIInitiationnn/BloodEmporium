@@ -75,7 +75,7 @@ class Debugger:
         return self
 
     def construct_and_show_images(self, bloodweb_iteration):
-        img = self.cv_images[bloodweb_iteration].get_bgr()
+        img = self.cv_images[bloodweb_iteration].get_bgr(True)
         for node in self.nodes[bloodweb_iteration]:
             cv2.rectangle(img, node.box.nw.xy(), node.box.se.xy(),
                           ColorUtil.bgr_from_cls_name(node.cls_name), 4)

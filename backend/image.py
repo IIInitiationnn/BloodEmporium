@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 import pyautogui
 
+from backend.util.timer import Timer
+
+
 class CVImage:
     """
     A wrapper around the cropped image.
@@ -13,16 +16,21 @@ class CVImage:
 
     @staticmethod
     def screen_capture():
+        timer = Timer("screen_capture")
         screenshot = pyautogui.screenshot()
-        screenshot = np.array(screenshot)[:, :, :: -1]
-        return CVImage(screenshot)
+        screenshot = np.array(screenshot)[:, :, ::-1]
+        cv = CVImage(screenshot)
+        timer.update()
+        return cv
 
     @staticmethod
     def from_path_bgr(path):
         return CVImage(cv2.imread(path, cv2.IMREAD_COLOR))
 
-    def get_bgr(self):
-        return self.bgr.copy()
+    def get_bgr(self, copy=False):
+        if copy:
+            return self.bgr.copy()
+        return self.bgr
 
     def get_gray(self):
         return self.gray.copy()
