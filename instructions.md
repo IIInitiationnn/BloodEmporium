@@ -44,13 +44,27 @@ remove torch/lib/dnnl.lib
 6. follow the below
 
 ## YOLOv8 Node Detection
-- TODO
-- create new cfg file with path to new data
-- `yolo cfg="<file>.yaml"`
-  - eg `yolo cfg="hyperparameters nodes v4.yaml"`
+- download from roboflow in yolov8 format to `Blood Emporium Node Detection/datasets`
+  - there is a `main.py` file that could be used, update this note if i use it in future
+- create new hyperparameter yaml file `hyperparameters nodes v<version>.yaml` with path to new data with the version corresponding to the model number
+- modify the `data.yaml` file for absolute paths instead of relative paths to train/valid
+- in `Blood Emporium Node Detection`, `yolo cfg="hyperparameters nodes v<version>.yaml"`
+  - to resume, set `resume` to `True` in hyperparameters config and use `yolo cfg="hyperparameters nodes v<version>.yaml"`
+
+- copy model from `runs/train` to update model from `Blood Emporium/assets/models`, as well as the prediction model in `node-detector`: `nodes v<version> (train<run>)`
+  - run `python main_node.py` in `node-detector` to verify validity (need to change model name in `nodedetect.py`)
 
 ## YOLOv5-OBB Edge Detection
 - download from roboflow in yolov5-obb format to `Blood Emporium Edge Detection/datasets`, naming folder `roboflow/`
+-   there is a `main.py` file that could be used, update this note if i use it in future
+- navigate to `node-detector`
+- `.\venv\Scripts\activate`
 - `cd yolov5_obb`
-- `python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 16 --img 1024 --device 0 --patience 300 --adam`
+- `$env:PYTORCH_CUDA_ALLOC_CONF="max_split_size_mb:1024"`
+- `echo $env:PYTORCH_CUDA_ALLOC_CONF`
+- `python train.py --hyp "../hyperparameters edges v2.yaml" --data ../datasets/roboflow/data.yaml --epochs 2000 --batch-size 8 --img 1024 --device 0 --patience 300 --adam`
   - this hyperparameter config file doesnt contain the data so we dont need to update it
+  - i used to use batch size 16 but for some reason i cant on my better gpu??? idk youd think i could use an even bigger batch size now but i guess not
+  - to resume, add `--resume`
+- copy model from `runs/train` to update model from `Blood Emporium/assets/models`, as well as the prediction model in `node-detector`: `edges v<version> (exp<run>)`
+  - run `python main_edge.py` in `node-detector` to verify validity (need to change model name in `edgedetect.py`)

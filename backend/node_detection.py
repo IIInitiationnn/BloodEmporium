@@ -27,7 +27,7 @@ class NodeDetection:
 
     def __init__(self):
         # loads model on init
-        self.model = YOLO("assets/models/nodes v4.pt")
+        self.model = YOLO("assets/models/nodes v5.pt")
         self.model.fuse()
 
         # gets custom names from custom model
