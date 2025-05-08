@@ -23,7 +23,7 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
   occurs outside game matches. There have been no verified reported bans as of yet.
 
 ## Installation
-1. Download the latest release [here](nohttps://github.com/IIInitiationnn/BloodEmporium/releases/latest) - make sure you
+1. Download the latest release [here](https://github.com/IIInitiationnn/BloodEmporium/releases/latest) - make sure you
    download `BloodEmporiumInstaller-version.exe` and not the source code. Install.
 2. Run `Blood Emporium.exe` and check the `Settings` section to make sure the app is ready to run. For more information,
    see below; there is also a `Help` section in the app.

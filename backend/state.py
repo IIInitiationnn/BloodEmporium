@@ -138,6 +138,9 @@ class StateProcess(Process):
             time.sleep(0.15)
             self.mouse_up()
 
+        # move mouse again in case it didn't the first time
+        self.move_to(1, 1, False)
+
     def click_prestige(self):
         if self.interaction == "press":
             self.click()
@@ -152,6 +155,9 @@ class StateProcess(Process):
         time.sleep(0.5) # 1 sec to generate
         self.move_to(1, 1)
         time.sleep(0.5) # 1 sec to generate
+
+        # move mouse again in case it didn't the first time
+        self.move_to(1, 1, False)
 
     def click_origin(self, num_nodes):
         if self.interaction == "press":
@@ -174,13 +180,18 @@ class StateProcess(Process):
         self.move_to(1, 1)
         time.sleep(2) # 2 secs to generate
 
+        # move mouse again in case it didn't the first time
+        self.move_to(1, 1, False)
+
     # send data to main process via pipe
     def emit(self, signal_name, payload=()):
         self.pipe.send((signal_name, payload))
 
     def click(self):
         test = Timer("click")
-        pyautogui.click(button=self.primary_mouse)
+        # pyautogui.click(button=self.primary_mouse)
+        pyautogui.mouseDown(button=self.primary_mouse)
+        pyautogui.mouseUp(button=self.primary_mouse, _pause=False)
         # if self.controller == "pag":
         #     pyautogui.click(button=self.primary_mouse)
         # elif self.controller == "pp":
@@ -217,9 +228,9 @@ class StateProcess(Process):
         #     mouse.release(button=self.primary_mouse)
         test.update()
 
-    def move_to(self, x, y):
+    def move_to(self, x, y, pause=True):
         test = Timer("move_to")
-        pyautogui.moveTo(x, y)
+        pyautogui.moveTo(x, y, _pause=pause)
         # if self.controller == "pag":
         #     pyautogui.moveTo(x, y)
         # elif self.controller == "pp":
@@ -677,7 +688,7 @@ class StateProcess(Process):
                         if run_mode == "aware_single":
                             best_node = optimiser.select_best_single()
                             best_nodes = [best_node]
-                            if len(best_nodes) == 0:
+                            if best_node is None:
                                 self.wait_level_cleared(num_actual_nodes)
                                 break
                             u = [u for u in unlockables if u.unique_id == best_node.name][0]

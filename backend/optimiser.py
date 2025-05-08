@@ -132,7 +132,13 @@ class Optimiser:
             elif data["value"] == min_val:
                 min_node_ids.append(node_id)
         timer.update()
-        return GraphNode.from_dict(self.base_graph.nodes[random.choice(min_node_ids)])
+
+        # if the edges are connected incorrectly and we are in fast mode, then the neighbour update in update_guess
+        # may not actually update the correct neighbours to become accessible, leaving everything inaccessible
+        # causing the choice to be None; this will cause a runtime error, so instead we return None so we can
+        # continue runtime by forcing a new level instead
+        choice = random.choice(min_node_ids)
+        return None if choice is None else GraphNode.from_dict(self.base_graph.nodes[choice])
 
     def select_best_multi(self, unlockables: List[Unlockable]) -> List[GraphNode]:
         timer = Timer("select_best_multi")
