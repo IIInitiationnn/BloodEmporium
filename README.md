@@ -28,33 +28,35 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 2. Run `Blood Emporium.exe` and check the `Settings` section to make sure the app is ready to run. For more information,
    see below; there is also a `Help` section in the app.
 
-## Configuration
-- You will be able to set your preferences and dislikes for certain addons, items, offerings and perks.
-    - Each unlockable you configure will have a tier and subtier:
-        - The higher the tier (or subtier), the higher your preference for that unlockable.
-        - The lower the tier (or subtier), the lower your preference for that unlockable.
-        - You do not need to configure unlockables for which you have a neutral preference.
-          (tier and subtier are both automatically 0 in this case)
-            - Any unlockables not in the profile will be assumed to be neutral (tier and subtier 0).
-        - Tiers and subtiers can range from -999 to 999.
-        - Tier (A + B) unlockable is equivalent in preference to a tier A unlockable + tier B unlockable.
-            - For instance, a single tier 2 unlockable is equivalent to two tier 1 unlockables.
-            - You can use these numbers to fine tune exactly how much you want each unlockable.
-        - Similar mechanics apply with negative tiers to specify how much you dislike an unlockable.
-        - Subtier allows for preference within a tier e.g. tier 3 subtier 3 is higher priority than tier 3 subtier 2.
-- Each profile can store a different set of preferences, for easy switching when required.
-- You can import and export profiles as `.emp` files to share with others.
-
 ## Features
 - Allows user to configure which unlockables are preferred or undesirable.
-- Three modes: naive (select randomly), aware (select items according to preference, either one at a time or along a 
-  path).
+- Three modes:
+    - naive: select randomly
+    - aware: select items according to preference
+        - single-claim: select one unlockable at a time
+        - multi-claim: can select multiple unlockables along a path at once to save time
 - Two speeds: slow (accurate) and fast.
 - Bloodpoint spend limit / prestige level limit.
-- Automatic termination upon bloodpoint depletion (only for prestige 1 and higher).
+- Automatic termination upon bloodpoint depletion.
 - Hotkey to run / stop the program (default: Ctrl + Alt + 9).
 - Auto-purchase when all unlockables in a bloodweb are below a certain desirability threshold.
 - Completely automatic and hands-free - and now, fast!
+
+## Configuration
+- You will be able to set your preferences and dislikes for certain addons, items, offerings and perks. Each unlockable you configure will have a tier and subtier:
+    - The higher the tier (or subtier), the higher your preference for that unlockable.
+    - The lower the tier (or subtier), the lower your preference for that unlockable.
+    - You do not need to configure unlockables for which you have a neutral preference.
+      (tier and subtier are both automatically 0 in this case)
+        - Any unlockables not in the profile will be assumed to be neutral (tier and subtier 0).
+    - Tiers and subtiers can range from -999 to 999.
+    - Tier (A + B) unlockable is equivalent in preference to a tier A unlockable + tier B unlockable.
+        - For instance, a single tier 2 unlockable is equivalent to two tier 1 unlockables.
+        - You can use these numbers to fine tune exactly how much you want each unlockable.
+    - Similar mechanics apply with negative tiers to specify how much you dislike an unlockable.
+    - Subtier allows for preference within a tier e.g. tier 3 subtier 3 is higher priority than tier 3 subtier 2.
+- Each profile can store a different set of preferences, for easy switching when required.
+- You can import and export profiles as `.emp` files to share with others.
 
 ## Notes
 - Shaders, game filters, and colourblind modes must be disabled while using this program,
