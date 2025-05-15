@@ -451,7 +451,7 @@ class StateProcess(Process):
                         optimiser.dijkstra_graph = base_bloodweb
                         debugger.set_dijkstra(bloodweb_iteration, update_iteration, optimiser.dijkstra_graph)
 
-                        # prioritise inaccessible (select more than one node)
+                        # prioritise inaccessible (select more than one node) # TODO prioritise 3 nodes at once, then 2, then 1 (also factoring in BP limit)
                         random_node = optimiser.select_random_prioritise_inaccessible()
                         random_unlockable = [u for u in unlockables if u.unique_id == random_node.name][0]
                         cost = Data.get_cost(random_unlockable.rarity, random_unlockable.type) # TODO need to do for entire path
@@ -470,7 +470,7 @@ class StateProcess(Process):
                         self.bp_total += cost
                         self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
-                        # select perk
+                        # select node
                         grab_time = time.time()
                         self.move_to(random_node.x, random_node.y)
                         self.click_node()
@@ -482,7 +482,7 @@ class StateProcess(Process):
                         #     self.click()
                         #     time.sleep(0.2)
 
-                        # wait: will claim 1 if accessible, 2 or 3 if inaccessible, so wait for 3 to be safe
+                        # wait: will claim 1 if accessible, 2 or 3 if inaccessible, so wait for 3 to be safe TODO just get the number of nodes selected
                         self.wait(grab_time, 3 if random_node.cls_name == NodeType.INACCESSIBLE else 1, speed == "slow")
 
                         # take new picture and update colours
@@ -506,8 +506,13 @@ class StateProcess(Process):
                             self.wait_level_cleared(num_actual_nodes)
                             break
 
-                        update_iteration += 1
+                        # TODO urgent, waiting, update_guess etc should follow similar pattern to aware
+                        #  cos rn naive fast on low bloodpoints when selecting one by one (ie on low bp) will be
+                        #  waiting for way too long before taking a screenshot causing unnecessary delay when it should
+                        #  instead be taking a screenshot instantly, doing update guess, then doing the wait at the end
+                        #  so just follow what aware is doing
 
+                        update_iteration += 1
                 bloodweb_iteration += 1
             else:
                 edge_detector = EdgeDetection()
@@ -716,7 +721,7 @@ class StateProcess(Process):
                         self.bp_total += cost
                         self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
-                        # select perk: press OR hold on the perk for 0.3s
+                        # select node: press OR hold on the node for 0.3s
                         grab_time = time.time()
                         self.move_to(best_node.x, best_node.y)
                         self.click_node()
@@ -757,13 +762,19 @@ class StateProcess(Process):
                         if new_level:
                             print("level cleared")
                             self.wait_level_cleared(num_actual_nodes)
+                            # TODO this skips the "updated nodes" print (this and 5 lines above are the only places after clicking / updating bloodweb where theres an early break)
                             break
 
                         # wait when aware fast: we do it after the screenshot+update because we wont have to wait as long
-                        if not (speed == "slow" and not ignore_slow):
-                            self.wait(grab_time, len(best_nodes), False)
+                        if speed == "fast" or ignore_slow:
                             # assume all the ones that were attempted to be taken WERE taken, so we dont try click the same one again
                             Grapher.update_guess(base_bloodweb, best_nodes)
+                            # bug (https://discord.com/channels/1016471051187802333/1372651576031707308)
+                            # presumably caused by new_level being False bc it thinks theres something accessible
+                            # then update_guess turned it into claimed, which means the only way this could be possible
+                            # is if Grapher.update turned the previously selected node into inaccessible then update_guess turned it into claimed
+                            # i've disabled the lines in update that set status to inaccessible but havent tested if it works yet TODO urgent
+                            self.wait(grab_time, len(best_nodes), False)
 
                         update_iteration += 1
                     bloodweb_iteration += 1

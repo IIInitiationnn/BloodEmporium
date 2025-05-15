@@ -55,12 +55,14 @@ class Grapher:
                         continue
 
                     updated_cls_name = updated_node.cls_name
-                    if updated_node.box.close_to_xy(previously_selected_node.x, previously_selected_node.y):
-                        # error check: if this is the previous selection, it should be
-                        # - claimed: if not, it was inaccessible (thought was accessible but wasn't), OR
-                        # - stolen: appeared accessible (not enough delay after last selection)
-                        if updated_node.cls_name not in [NodeType.CLAIMED, NodeType.STOLEN]:
-                            updated_cls_name = NodeType.INACCESSIBLE
+                    # for slow this isnt relevant since we presume what we see is correct
+                    # for fast this isnt relevant since we'll be using update_guess to correct
+                    # if updated_node.box.close_to_xy(previously_selected_node.x, previously_selected_node.y):
+                    #     # error check: if this is the previous selection, it should be
+                    #     # - claimed: if not, it was inaccessible (thought was accessible but wasn't), OR
+                    #     # - stolen: appeared accessible (not enough delay after last selection)
+                    #     if updated_node.cls_name not in [NodeType.CLAIMED, NodeType.STOLEN]:
+                    #         updated_cls_name = NodeType.INACCESSIBLE
 
                     x1, y1, x2, y2 = updated_node.xyxy()
                     nx.set_node_attributes(base_bloodweb, GraphNode.from_dict(data, cls_name=updated_cls_name,
@@ -75,7 +77,7 @@ class Grapher:
             return True # unlikely to be more than 1 mismatch
 
         # no accessible nodes
-        return not any([data["cls_name"] in NodeType.MULTI_UNCLAIMED for data in base_bloodweb.nodes.values()])
+        return all([data["cls_name"] not in NodeType.MULTI_UNCLAIMED for data in base_bloodweb.nodes.values()])
 
     @staticmethod
     def update_guess(base_bloodweb, nodes: List[GraphNode]) -> None:
