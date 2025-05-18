@@ -239,7 +239,7 @@ class NodeDetection:
                 matched.append(MatchedNode.from_unmatched_node(unmatched_node, match_unique_id))
             else:
                 matched.append(MatchedNode.from_unmatched_node(unmatched_node))
-        return matched, np.median(accuracies)
+        return matched, (np.median(accuracies) if len(accuracies) > 0 else None)
 
     def match_nodes(self, all_nodes: List[UnmatchedNode], screenshot, merged_base) -> List[MatchedNode]:
         timer = Timer("match_nodes")
@@ -248,7 +248,7 @@ class NodeDetection:
         matched, accuracy = self.__match_nodes(all_nodes, screenshot, merged_base)
         print(f"accuracy: {accuracy}")
         # need to recalibrate: highly unlikely will ever be necessary but just in case
-        if not is_initialisation_run and accuracy < 0.7:
+        if not is_initialisation_run and accuracy is not None and accuracy < 0.7:
             self.ratios.clear()
             matched, accuracy = self.__match_nodes(all_nodes, screenshot, merged_base)
             print(f"recalibration accuracy: {accuracy}")

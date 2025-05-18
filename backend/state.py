@@ -102,6 +102,13 @@ TODO
 '''
 
 class StateProcess(Process):
+    # verified => timing verified through footage
+    VISUAL_UPDATE_TIME = 0.5 # verified, time for visual updates in bloodweb to come through
+    NODE_CLAIM_TIME = 0.5 # verified
+    LEVEL_GEN_TIME = 2 # verified - closer to 1.5 at worst case (bloodweb level 50) tbh but extra wait is good in case new level screen is randomly slow
+    AUTO_PURCHASE_NODE_TIME = 0.25 # verified
+    RETRY_TIME = 1
+
     def __init__(self, pipe: Pipe, args):
         Process.__init__(self)
         self.pipe = pipe
@@ -109,7 +116,7 @@ class StateProcess(Process):
 
     def wait(self, grab_time: float, num_nodes_claimed: int, slow: bool):
         time_since_grab = time.time() - grab_time
-        wait_time = (0.5 if slow else 0) + 0.5 * num_nodes_claimed
+        wait_time = (StateProcess.VISUAL_UPDATE_TIME if slow else 0) + StateProcess.NODE_CLAIM_TIME * num_nodes_claimed
         if time_since_grab < wait_time:
             time.sleep(wait_time - time_since_grab)
 
@@ -125,7 +132,7 @@ class StateProcess(Process):
         #     if num_nodes == 9:
         #         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
         #         self.click()
-        time.sleep(2) # 2 secs to generate
+        time.sleep(StateProcess.LEVEL_GEN_TIME)
 
     def click_node(self):
         if self.interaction == "press":
@@ -152,9 +159,9 @@ class StateProcess(Process):
         self.click()
         time.sleep(0.5) # prestige 1-3 => teachables, 4-6 => cosmetics, 7-9 => charms
         self.click()
-        time.sleep(0.5) # 1 sec to generate
+        time.sleep(0.5) # 1 sec to generate (since way fewer nodes)
         self.move_to(1, 1)
-        time.sleep(0.5) # 1 sec to generate
+        time.sleep(0.5) # 1 sec to generate (since way fewer nodes)
 
         # move mouse again in case it didn't the first time
         self.move_to(1, 1, False)
@@ -166,11 +173,18 @@ class StateProcess(Process):
             self.mouse_down()
             time.sleep(0.5)
             self.mouse_up()
-        time.sleep(2 + num_nodes / 13)
+        # 2.5 secs to clear out until new level screen + time per node (250ms) as specified below:
+        # when entity is also claiming nodes it can be twice as fast (if not more) but worst case twice as fast since 2 nodes removed at once
+        # 6 nodes (levels 1-11 bar 10) we'll assume worst case speed
+        # anything more than 6 nodes can be assumed to be double speed, so itll be
+        # num nodes    1 2 3 4 5 6 7   8 9   10
+        # timing nodes 1 2 3 4 5 6 6.5 7 7.5 8
+        timing_nodes = min(num_nodes, 6) + max(num_nodes - 6, 0) * 0.5
+        time.sleep(2.5 + timing_nodes * StateProcess.AUTO_PURCHASE_NODE_TIME)
 
         self.click()
         # dont think this is necessary, all this just for one check at p0 seems like a waste of time in the long run
-        # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes
+        # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes - see fast.txt
         # if num_nodes == 4 or 5 or 9:
         #     time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
         #     self.click()
@@ -178,7 +192,7 @@ class StateProcess(Process):
         #         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
         #         self.click()
         self.move_to(1, 1)
-        time.sleep(2) # 2 secs to generate
+        time.sleep(StateProcess.LEVEL_GEN_TIME)
 
         # move mouse again in case it didn't the first time
         self.move_to(1, 1, False)
@@ -300,7 +314,16 @@ class StateProcess(Process):
             unlockables = Data.get_unlockables()
             num_custom = len([u for u in unlockables if u.is_custom_icon])
             print(f"using {num_custom} custom icons and {len(unlockables) - num_custom} vanilla icons")
-            print(f"using profile: {profile_id} (bundled: {bundled}) for character {character}")
+            print(f"----------RUNTIME INFO----------")
+            print(f"profile        | {profile_id}")
+            print(f"    bundled    | {bundled}")
+            print(f"character      | {character}")
+            print(f"run mode       | {run_mode}")
+            print(f"speed          | {speed}")
+            print(f"auto-purchase  | {(self.threshold_tier, self.threshold_subtier)}")
+            print(f"prestige limit | {self.prestige_limit}")
+            print(f"bp limit       | {self.bp_limit}")
+            print(f"--------------------------------")
             merged_base = MergedBase(character)
             self.move_to(1, 1)
 
@@ -309,8 +332,6 @@ class StateProcess(Process):
 
             bloodweb_iteration = 0
             # initial_bp_balance = 0
-            print(f"run mode: {run_mode}")
-            print(f"speed: {speed}")
             if run_mode == "naive":
                 while True:
                     if self.prestige_limit is not None and self.prestige_total == self.prestige_limit:
@@ -344,7 +365,7 @@ class StateProcess(Process):
                         print("nothing detected, trying again...")
                         if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
-                        time.sleep(0.5) # try again
+                        time.sleep(StateProcess.RETRY_TIME) # try again
                         self.click()
                         continue
 
@@ -355,10 +376,12 @@ class StateProcess(Process):
                     # self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
                     total_bloodweb_cost = 0
+                    num_unclaimed = 0
                     for node in matched_claimable_nodes:
                         if node.cls_name in NodeType.MULTI_UNCLAIMED:
                             unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
                             total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
+                            num_unclaimed += 1
 
                     prestige = [node for node in matched_nodes if node.cls_name == NodeType.PRESTIGE]
                     origin_auto_enabled = [node for node in matched_nodes
@@ -413,7 +436,7 @@ class StateProcess(Process):
                             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
                             self.move_to(*centre.xy())
-                            self.click_origin(len(matched_claimable_nodes))
+                            self.click_origin(num_unclaimed)
 
                             bloodweb_iteration += 1
                             continue
@@ -542,7 +565,7 @@ class StateProcess(Process):
                         print("nothing detected, trying again...")
                         if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
-                        time.sleep(0.5) # try again
+                        time.sleep(StateProcess.RETRY_TIME) # try again
                         self.click()
                         continue
 
@@ -552,6 +575,7 @@ class StateProcess(Process):
                     # self.bp_total = initial_bp_balance - current_bp_balance
                     # self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
+                    # TODO urgent most prestiges are not being registered - my guess is extra clicks or something?
                     prestige = [node for node in matched_nodes if node.cls_name == NodeType.PRESTIGE]
                     origin_auto_enabled = [node for node in matched_nodes
                                            if node.cls_name == NodeType.ORIGIN_AUTO_ENABLED]
@@ -589,10 +613,12 @@ class StateProcess(Process):
                     elif fast_forward and len(origin_auto_enabled) > 0:
                         # enabled auto origin found
                         total_bloodweb_cost = 0
+                        num_unclaimed = 0
                         for node in matched_nodes:
                             if node.cls_name in NodeType.MULTI_UNCLAIMED:
                                 unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
                                 total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
+                                num_unclaimed += 1
                         if debug_mode:
                             debugger.construct_and_show_images(bloodweb_iteration)
 
@@ -605,7 +631,7 @@ class StateProcess(Process):
                             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
                             self.move_to(*centre.xy())
-                            self.click_origin(len(matched_nodes))
+                            self.click_origin(num_unclaimed)
                             bloodweb_iteration += 1
                             continue
                     elif any([node.cls_name == NodeType.ORIGIN_AUTO_DISABLED for node in matched_nodes]):
@@ -671,12 +697,12 @@ class StateProcess(Process):
 
                         # auto-purchase from all unlockables same sub/tier OR below threshold (if applicable)
                         remaining_bloodweb_cost = 0
-                        num_remaining_nodes = 0
+                        num_unclaimed = 0
                         for data in base_bloodweb.nodes.values():
                             if data["cls_name"] in NodeType.MULTI_UNCLAIMED:
                                 unlockable = [u for u in unlockables if u.unique_id == data["name"]][0]
                                 remaining_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
-                                num_remaining_nodes += 1
+                                num_unclaimed += 1
                         if len(origin_auto_enabled) > 0 and \
                                 optimiser.can_auto_purchase(profile_id, bundled, self.threshold_tier,
                                                             self.threshold_subtier) and \
@@ -686,16 +712,16 @@ class StateProcess(Process):
                             self.emit("bloodpoint", (self.bp_total, self.bp_limit))
                             centre = origin_auto_enabled[0].box.centre()
                             self.move_to(*centre.xy())
-                            self.click_origin(num_remaining_nodes)
+                            self.click_origin(num_unclaimed)
                             print("level cleared")
                             break
 
                         if run_mode == "aware_single":
                             best_node = optimiser.select_best_single()
-                            best_nodes = [best_node]
                             if best_node is None:
                                 self.wait_level_cleared(num_actual_nodes)
                                 break
+                            best_nodes = [best_node]
                             u = [u for u in unlockables if u.unique_id == best_node.name][0]
                             cost = Data.get_cost(u.rarity, u.type)
                         else:
@@ -773,7 +799,10 @@ class StateProcess(Process):
                             # presumably caused by new_level being False bc it thinks theres something accessible
                             # then update_guess turned it into claimed, which means the only way this could be possible
                             # is if Grapher.update turned the previously selected node into inaccessible then update_guess turned it into claimed
-                            # i've disabled the lines in update that set status to inaccessible but havent tested if it works yet TODO urgent
+                            # i've disabled the lines in update that set status to inaccessible
+                            # the other case is update_guess saying everything is claimed when theres still stuff available, but new_level returned False
+                            # eg 1 2 3, i go for 3, get 1, 3 gets entity stolen, still 2 left at time of screenshot, update_guess thinks ive done 1-3, no unclaimed nodes at time of can_auto_purchase
+                            # which ive patched by just going through to can_auto_purchase returning true if there is nothing on the bloodweb
                             self.wait(grab_time, len(best_nodes), False)
 
                         update_iteration += 1
@@ -786,7 +815,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.15"
+    version = "v1.2.16-alpha.2"
     pyautogui.FAILSAFE = False
     pyautogui.PAUSE = 0.05
     # pydirectinput.FAILSAFE = False

@@ -259,4 +259,6 @@ class Optimiser:
         # B
         # return max(tiers) < threshold_tier and max(subtiers) < threshold_subtier
         # ^this doesnt work: tier 2 subtier -999 is higher than tier 1 subtier 999 so we record highest overall instead of highest of both
-        return highest[0] < threshold_tier or (highest[0] == threshold_tier and highest[1] < threshold_subtier)
+        return (highest is None or # in case model thinks there are 0 unclaimed nodes when there actually are
+                highest[0] < threshold_tier or
+                (highest[0] == threshold_tier and highest[1] < threshold_subtier))

@@ -339,10 +339,16 @@ class PreferencesPage(QWidget):
             if self.has_unsaved_changes():
                 save_profile_dialog = ConfirmDialog("You have unsaved changes to the current profile. "
                                                     "Do you wish to save or discard these changes?",
-                                                    "Save", "Discard")
-                confirmation = save_profile_dialog.exec()
-                if confirmation == QMessageBox.AcceptRole:
+                                                    "Save", "Cancel", "Discard")
+                # shown order is save (index 0), discard (1), cancel (2) since it turns out the exec return is the button index (in order of addition) not the role
+                confirmation_index = save_profile_dialog.exec()
+                print(confirmation_index)
+                if confirmation_index == 0: # save
                     self.save_profile()
+                elif confirmation_index == 2: # cancel
+                    self.ignore_profile_signals = False
+                    return
+                # save and discard fall through
 
             config = Config()
             profile_id = config.get_next_free_profile_name()
@@ -387,20 +393,20 @@ class PreferencesPage(QWidget):
         self.show_preferences_page_save_success(f"Changes saved to profile: {profile_id}")
         QTimer.singleShot(10000, self.hide_preferences_page_save_text)
 
-    def save_to_profile(self, title, label_text, ok_button_text, index=None):
+    def save_to_profile(self, title, label_text, ok_button_text, index=None) -> str or None:
         # check for invalid tiers
         non_integer = Config.verify_tiers(self.unlockableWidgets)
         if len(non_integer) > 0:
             self.show_preferences_page_save_error(f"There are {len(non_integer)} unlockables with "
                                                   "invalid inputs. Inputs must be a number from -999 to "
                                                   "999. Changes not saved.")
-            return
+            return None
 
         # save or cancel
         new_profile_dialog = InputDialog(title, label_text, QInputDialog.TextInput, ok_button_text)
         selection = new_profile_dialog.exec()
         if selection != QInputDialog.Accepted:
-            return
+            return None
 
         # check if user wants to overwrite profile
         profile_id = new_profile_dialog.textValue()
@@ -409,7 +415,7 @@ class PreferencesPage(QWidget):
                                                      "sure you want to save?")
             confirmation = overwrite_profile_dialog.exec()
             if confirmation != QMessageBox.AcceptRole:
-                return
+                return None
 
         # user either wants to overwrite, or is saving new profile
         new_profile = {"id": profile_id, "notes": self.profileNotes.toPlainText()}
@@ -434,8 +440,10 @@ class PreferencesPage(QWidget):
     def save_as_profile(self):
         if not self.ignore_profile_signals:
             self.ignore_profile_signals = True # saving as new profile; don't trigger
-            self.save_to_profile("Save As", "Enter your new profile name:", "Save")
+            new_profile_id = self.save_to_profile("Save As", "Enter your new profile name:", "Save")
             self.ignore_profile_signals = False
+            if new_profile_id is None:
+                return
             self.switch_edit_profile()
 
     def rename_profile(self):

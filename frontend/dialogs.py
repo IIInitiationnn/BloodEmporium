@@ -50,11 +50,14 @@ class UpdatingDialog(QMessageBox, Dialog):
         self.progressBar.setValue(progress)
 
 class ConfirmDialog(QMessageBox, Dialog):
-    def __init__(self, text, accept_text="Confirm", reject_text="Cancel"):
+    def __init__(self, text, accept_text="Confirm", reject_text="Cancel", no_text=None):
         super().__init__("Confirm", "confirmDialog")
         self.setText(text)
         self.addButton(QPushButton(accept_text), QMessageBox.AcceptRole)
+        if no_text is not None:
+            self.addButton(QPushButton(no_text), QMessageBox.NoRole)
         self.addButton(QPushButton(reject_text), QMessageBox.RejectRole)
+        # order is determined by the role, not the ordering of addButton function calls but im ordering it this way bc of button index when exec is returned
 
 class InputDialog(QInputDialog, Dialog):
     def __init__(self, title, label_text, input_mode, ok_button_text):
