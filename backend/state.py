@@ -182,7 +182,6 @@ class StateProcess(Process):
         timing_nodes = min(num_nodes, 6) + max(num_nodes - 6, 0) * 0.5
         time.sleep(2.5 + timing_nodes * StateProcess.AUTO_PURCHASE_NODE_TIME)
 
-        self.click()
         # dont think this is necessary, all this just for one check at p0 seems like a waste of time in the long run
         # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes - see fast.txt
         # if num_nodes == 4 or 5 or 9:
@@ -575,7 +574,6 @@ class StateProcess(Process):
                     # self.bp_total = initial_bp_balance - current_bp_balance
                     # self.emit("bloodpoint", (self.bp_total, self.bp_limit))
 
-                    # TODO urgent most prestiges are not being registered - my guess is extra clicks or something?
                     prestige = [node for node in matched_nodes if node.cls_name == NodeType.PRESTIGE]
                     origin_auto_enabled = [node for node in matched_nodes
                                            if node.cls_name == NodeType.ORIGIN_AUTO_ENABLED]
@@ -815,7 +813,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.16-alpha.2"
+    version = "v1.2.16"
     pyautogui.FAILSAFE = False
     pyautogui.PAUSE = 0.05
     # pydirectinput.FAILSAFE = False
