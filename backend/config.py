@@ -129,6 +129,7 @@ class Config:
                     "primary_mouse": self.config.get("primary_mouse", default_config["primary_mouse"]),
                     "profiles": self.config.get("profiles", default_config["profiles"]),
                 }, output, indent=4) # to preserve order
+        copyfile("config.json", "config_backup.json")
 
     @staticmethod
     def verify_tiers(widgets):
