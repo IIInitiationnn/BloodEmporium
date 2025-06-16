@@ -67,7 +67,7 @@ class Debugger:
             cv2.imwrite(f"output/{self.time}/{bloodweb_iteration}/updated_{update_iteration}.png",
                         updated_image.get_bgr())
 
-    # optimiser - direct output (this is technically not dijkstra optimised when running naive mode)
+    # optimiser - direct output
     def set_dijkstra(self, bloodweb_iteration, update_iteration, dijkstra_graph):
         if self.write_to_output:
             NetworkUtil.write_to_html(dijkstra_graph,

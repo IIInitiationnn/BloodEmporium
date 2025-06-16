@@ -30,11 +30,9 @@ A [video guide](https://www.youtube.com/watch?v=3GFwQaB06Ug) is available for a 
 
 ## Features
 - Allows user to configure which unlockables are preferred or undesirable.
-- Three modes:
-    - naive: select randomly
-    - aware: select according to preference
-        - single-claim: select one at a time
-        - multi-claim: can select multiple along a path at once to save time
+- Two modes:
+    - single-claim: select one at a time
+    - multi-claim: can select multiple along a path at once to save time
 - Two speeds: slow (accurate) and fast.
 - Bloodpoint spend limit / prestige level limit.
 - Automatic termination upon bloodpoint depletion.
