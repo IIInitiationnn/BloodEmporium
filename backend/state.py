@@ -120,18 +120,10 @@ class StateProcess(Process):
         if time_since_grab < wait_time:
             time.sleep(wait_time - time_since_grab)
 
-    def wait_level_cleared(self, num_nodes):
+    def wait_level_cleared(self):
         time.sleep(1) # 1 sec to clear out until new level screen
         self.click()
 
-        # dont think this is necessary, all this just for one check at p0 seems like a waste of time in the long run
-        # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes
-        # if num_nodes == 4 or 5 or 9:
-        #     time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-        #     self.click()
-        #     if num_nodes == 9:
-        #         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-        #         self.click()
         time.sleep(StateProcess.LEVEL_GEN_TIME)
 
     def click_node(self):
@@ -182,14 +174,6 @@ class StateProcess(Process):
         timing_nodes = min(num_nodes, 6) + max(num_nodes - 6, 0) * 0.5
         time.sleep(2.5 + timing_nodes * StateProcess.AUTO_PURCHASE_NODE_TIME)
 
-        # dont think this is necessary, all this just for one check at p0 seems like a waste of time in the long run
-        # lvl 2 has 4 nodes, lvl 5 has 5 nodes, lvl 10 has 9 nodes - see fast.txt
-        # if num_nodes == 4 or 5 or 9:
-        #     time.sleep(0.5) # in case of extra information on early level (e.g. lvl 2, 5, 10)
-        #     self.click()
-        #     if num_nodes == 9:
-        #         time.sleep(0.5) # in case of yet more extra information on early level (e.g. lvl 10)
-        #         self.click()
         self.move_to(1, 1)
         time.sleep(StateProcess.LEVEL_GEN_TIME)
 
@@ -511,7 +495,7 @@ class StateProcess(Process):
                     if run_mode == "aware_single":
                         best_node = optimiser.select_best_single()
                         if best_node is None:
-                            self.wait_level_cleared(num_actual_nodes)
+                            self.wait_level_cleared()
                             break
                         best_nodes = [best_node]
                         u = [u for u in unlockables if u.unique_id == best_node.name][0]
@@ -519,7 +503,7 @@ class StateProcess(Process):
                     else:
                         best_nodes = optimiser.select_best_multi(unlockables) # TODO incorporate into debugging
                         if len(best_nodes) == 0:
-                            self.wait_level_cleared(num_actual_nodes)
+                            self.wait_level_cleared()
                             break
                         best_node = best_nodes[-1]
                         us = [[u for u in unlockables if u.unique_id == node.name][0] for node in best_nodes]
@@ -579,7 +563,7 @@ class StateProcess(Process):
                     # new level
                     if new_level:
                         print("level cleared")
-                        self.wait_level_cleared(num_actual_nodes)
+                        self.wait_level_cleared()
                         # TODO this skips the "updated nodes" print (this and 5 lines above are the only places after clicking / updating bloodweb where theres an early break)
                         break
 
