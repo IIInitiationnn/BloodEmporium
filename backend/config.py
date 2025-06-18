@@ -29,6 +29,10 @@ migrations = [
     # 8.1.0 knight changes
     ("iconAddon_ChainmailFragment_knight",      "iconAddon_SharpenedMount_knight"),
     ("iconAddon_LightweightGreaves_knight",     "iconAddon_JailersChimes_knight"),
+
+    # 9.0.0 shroud changes
+    ("iconFavors_shroudOfSeparation_killer",    "T_UI_iconsFavors_shroudOfVanishing_killer"),
+    ("iconFavors_shroudOfBinding_survivor",     "iconFavors_shroudOfSeparation_survivor"),
 ]
 
 class Config:
