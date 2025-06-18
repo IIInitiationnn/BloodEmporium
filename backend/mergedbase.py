@@ -51,40 +51,40 @@ class MergedBase:
         }
 
         for unlockable in unlockables:
-            image_path = unlockable.image_path
-            image_name = image_path.split("\\")[-1]
+            for image_path in unlockable.image_paths:
+                image_name = image_path.split("\\")[-1]
 
-            if "mysteryBox" in image_name:
-                dim = round(Resolution.mystery_box * self.size)
-            elif "Favors" in image_name:
-                dim = round(Resolution.offerings * self.size)
-            elif "Perks" in image_name:
-                dim = round(Resolution.perks * self.size)
-            elif "Addon" in image_name or "Items" in image_name:
-                dim = round(Resolution.items_addons * self.size)
-            else:
-                print(f"error merging base with {image_path}")
-                continue
+                if "mysteryBox" in image_name:
+                    dim = round(Resolution.mystery_box * self.size)
+                elif "Favors" in image_name:
+                    dim = round(Resolution.offerings * self.size)
+                elif "Perks" in image_name:
+                    dim = round(Resolution.perks * self.size)
+                elif "Addon" in image_name or "Items" in image_name:
+                    dim = round(Resolution.items_addons * self.size)
+                else:
+                    print(f"error merging base with {image_path}")
+                    continue
 
-            margin = (dim - self.size) // 2
+                margin = (dim - self.size) // 2
 
-            template = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
-            template = cv2.resize(template, (dim, dim), interpolation=Image.interpolation)
-            template = template[margin:(margin + self.size), margin:(margin + self.size)]
+                template = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+                template = cv2.resize(template, (dim, dim), interpolation=Image.interpolation)
+                template = template[margin:(margin + self.size), margin:(margin + self.size)]
 
-            # no alpha channel (rgb instead of rgba) - note: alpha=0 denotes full transparency
-            template_alpha = template[:, :, 3] / 255.0 if template.shape[2] == 4 else 1 - template[:, :, 0] * 0
-            bg_alpha = 1 - template_alpha
+                # no alpha channel (rgb instead of rgba) - note: alpha=0 denotes full transparency
+                template_alpha = template[:, :, 3] / 255.0 if template.shape[2] == 4 else 1 - template[:, :, 0] * 0
+                bg_alpha = 1 - template_alpha
 
-            gray_bg = np.zeros((self.size, self.size, 3), np.uint8)
-            color = colors[unlockable.rarity]
-            gray_bg[:] = color
+                gray_bg = np.zeros((self.size, self.size, 3), np.uint8)
+                color = colors[unlockable.rarity]
+                gray_bg[:] = color
 
-            for layer in range(3):
-                gray_bg[:, :, layer] = template_alpha * template[:, :, layer] + bg_alpha * gray_bg[:, :, layer]
+                for layer in range(3):
+                    gray_bg[:, :, layer] = template_alpha * template[:, :, layer] + bg_alpha * gray_bg[:, :, layer]
 
-            template = cv2.cvtColor(gray_bg, cv2.COLOR_BGR2GRAY)
+                template = cv2.cvtColor(gray_bg, cv2.COLOR_BGR2GRAY)
 
-            ret_names.append(unlockable.unique_id)
-            ret_images.append(template)
+                ret_names.append(unlockable.unique_id)
+                ret_images.append(template)
         return ret_names, ret_images

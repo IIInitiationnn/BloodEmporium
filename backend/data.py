@@ -9,7 +9,7 @@ class Unlockable:
     def generate_unique_id(unlockable_id, category):
         return f"{unlockable_id}_{category}"
 
-    def __init__(self, unlockable_id, name, category, rarity, notes, unlockable_type, order, image_path, is_custom_icon):
+    def __init__(self, unlockable_id, name, category, rarity, notes, unlockable_type, order, image_paths, are_custom_icons):
         self.unique_id = Unlockable.generate_unique_id(unlockable_id, category)
         self.id = unlockable_id
         self.name = name
@@ -18,14 +18,14 @@ class Unlockable:
         self.notes = notes
         self.type = unlockable_type
         self.order = order
-        self.image_path = image_path
-        self.is_custom_icon = is_custom_icon
+        self.image_paths = image_paths
+        self.are_custom_icons = are_custom_icons
 
-    def set_image_path(self, image_path):
-        self.image_path = image_path
+    def set_image_path(self, image_paths):
+        self.image_paths = image_paths
 
-    def set_is_custom_icon(self, is_custom_icon):
-        self.is_custom_icon = is_custom_icon
+    def set_are_custom_icons(self, are_custom_icons):
+        self.are_custom_icons = are_custom_icons
 
 class Data:
     __connection = None
@@ -36,7 +36,7 @@ class Data:
         print(f"error")
 
     __cursor = __connection.cursor()
-    __cursor.execute("SELECT id, name, category, rarity, notes, type, \"order\" FROM unlockables ORDER BY \"order\"")
+    __cursor.execute("SELECT id, alternate_path, name, category, rarity, notes, type, \"order\" FROM unlockables ORDER BY \"order\"")
     __unlockables_rows = __cursor.fetchall()
 
     __cursor.execute("SELECT id, alias, name FROM killers")
@@ -46,88 +46,69 @@ class Data:
     print("disconnected from database")
 
     @staticmethod
-    def get_icons():
+    def __get_unlockable_data():
         all_files = [(subdir, file) for subdir, dirs, files in os.walk(Config().path()) for file in files]
-        icons = {}
+        rows = []
         for row in Data.__unlockables_rows:
-            u_id, _, u_category, _, _, _, _ = row
+            u_id, u_alternate_path, u_name, u_category, u_rarity, u_notes, u_type, u_order = row
 
             # search in user's folder
-            u_image_path = None
-            u_is_custom_icon = None
-            for subdir, file in all_files:
-                if u_id.lower() in file.lower(): # in case pack has recapitalised files
-                    # bubba and hillbilly share an addon with the same name TODO what is location of iconAddon_chainsBloody for hillbilly? does it use bubba asset
-                    # if u_category == "bubba" and u_id == "iconAddon_chainsBloody" and "Xipre" in subdir:
-                    #     continue
-                    # elif u_category == "hillbilly" and u_id == "iconAddon_chainsBloody" and "Xipre" not in subdir:
-                    #     continue
+            u_image_paths = []
+            u_are_custom_icons = []
 
-                    u_image_path = os.path.normpath(os.path.join(subdir, file))
-                    u_is_custom_icon = True
-                    break
+            possible_paths = [u_id] if u_alternate_path is None else [u_id, u_alternate_path]
+            found_paths = []
+            for possible_path in possible_paths:
+                for subdir, file in all_files:
+                    # lower() in case pack has recapitalised files
+                    if possible_path.lower() in file.lower():
+                        # nurse and dracula share an addon with the same name
+                        if possible_path.lower() == "iconAddon_PocketWatch".lower():
+                            if u_category == "dark lord" and "Eclair" not in subdir:
+                                continue # this is nurse's addon, ignore it for dracula
+                            if u_category == "nurse" and "Eclair" in subdir:
+                                continue # this is dracula's addon, ignore it for nurse
+
+                        u_image_paths.append(os.path.normpath(os.path.join(subdir, file)))
+                        u_are_custom_icons.append(True)
+                        found_paths.append(possible_path)
+                        break
+
+            for found_path in found_paths:
+                possible_paths.remove(found_path)
 
             # search in asset folder
-            if u_image_path is None:
-                asset_path = Path.assets_file(u_category, u_id)
+            for possible_path in possible_paths:
+                asset_path = Path.assets_file(u_category, possible_path)
                 if os.path.isfile(asset_path):
-                    u_image_path = os.path.normpath(os.path.abspath(asset_path))
-                    u_is_custom_icon = False
-                else:
-                    print(f"no source found for desired unlockable: {u_id} under category: {u_category}")
-                    continue
+                    u_image_paths.append(os.path.normpath(os.path.abspath(asset_path)))
+                    u_are_custom_icons.append(False)
 
-            if u_image_path is not None:
-                icons[Unlockable.generate_unique_id(u_id, u_category)] = {
-                    "image_path": u_image_path,
-                    "is_custom_icon": u_is_custom_icon,
-                }
+            if len(u_image_paths) == 0:
+                print(f"no source found for desired unlockable: {u_id} under category: {u_category}")
+                continue
+
+            rows.append(row + (u_image_paths, u_are_custom_icons))
+        return rows
+
+    @staticmethod
+    def get_icons():
+        icons = {}
+        for row in Data.__get_unlockable_data():
+            u_id, u_alternate_path, u_name, u_category, u_rarity, u_notes, u_type, u_order, u_image_paths, u_are_custom_icons = row
+            icons[Unlockable.generate_unique_id(u_id, u_category)] = {
+                "image_paths": u_image_paths,
+                "are_custom_icons": u_are_custom_icons,
+            }
 
         return icons
 
     @staticmethod
     def get_unlockables():
-        all_files = [(subdir, file) for subdir, dirs, files in os.walk(Config().path()) for file in files]
         unlockables = []
-        for row in Data.__unlockables_rows:
-            u_id, u_name, u_category, u_rarity, u_notes, u_type, u_order = row
-
-            # search in user's folder
-            u_image_path = None
-            u_is_custom_icon = None
-            for subdir, file in all_files:
-                if u_id.lower() in file.lower(): # in case pack has recapitalised files
-                    # bubba and hillbilly share an addon with the same name
-                    # if u_category == "bubba" and u_id == "iconAddon_chainsBloody" and "Xipre" in subdir:
-                    #     continue
-                    # elif u_category == "hillbilly" and u_id == "iconAddon_chainsBloody" and "Xipre" not in subdir:
-                    #     continue
-
-                    # nurse and dracula share an addon with the same name
-                    if u_id.lower() == "iconAddon_PocketWatch".lower():
-                        if u_category == "dark lord" and "Eclair" not in subdir:
-                            continue # this is nurse's addon, ignore it for dracula
-                        if u_category == "nurse" and "Eclair" in subdir:
-                            continue # this is dracula's addon, ignore it for nurse
-
-                    u_image_path = os.path.normpath(os.path.join(subdir, file))
-                    u_is_custom_icon = True
-                    break
-
-            # search in asset folder
-            if u_image_path is None:
-                asset_path = Path.assets_file(u_category, u_id)
-                if os.path.isfile(asset_path):
-                    u_image_path = os.path.normpath(os.path.abspath(asset_path))
-                    u_is_custom_icon = False
-                else:
-                    print(f"no source found for desired unlockable: {u_id} under category: {u_category}")
-                    continue
-
-            if u_image_path is not None:
-                unlockables.append(Unlockable(u_id, u_name, u_category, u_rarity, u_notes, u_type, u_order, u_image_path,
-                                              u_is_custom_icon))
-
+        for row in Data.__get_unlockable_data():
+            u_id, u_alternate_path, u_name, u_category, u_rarity, u_notes, u_type, u_order, u_image_paths, u_are_custom_icons = row
+            unlockables.append(Unlockable(u_id, u_name, u_category, u_rarity, u_notes, u_type, u_order, u_image_paths, u_are_custom_icons))
         return unlockables
 
     @staticmethod
@@ -153,7 +134,7 @@ class Data:
 
     @staticmethod
     def get_types():
-        return ["add-on", "item", "offering", "perk", "universal"] # universal = mystery box
+        return ["add-on", "item", "offering", "perk", "mystery_box"]
 
     @staticmethod
     def get_rarities():

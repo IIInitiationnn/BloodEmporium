@@ -181,7 +181,7 @@ Type: {TextUtil.title_case(unlockable.type)}""")
         self.label.setText(unlockable.name)
         self.layout.addWidget(self.label)
 
-        self.layout.addSpacing(250 - self.label.fontMetrics().boundingRect(self.label.text()).width())
+        self.layout.addSpacing(375 - self.label.fontMetrics().boundingRect(self.label.text()).width())
 
         self.tierLabel = QLabel(self)
         self.tierLabel.setObjectName(f"{name}TierLabel")
@@ -227,17 +227,17 @@ Type: {TextUtil.title_case(unlockable.type)}""")
         return int(self.tierInput.text()), int(self.subtierInput.text())
 
     def refresh_icon(self):
-        if self.unlockable.is_custom_icon:
-            self.image.setPixmap(QPixmap(self.unlockable.image_path))
+        if self.unlockable.are_custom_icons[0]:
+            self.image.setPixmap(QPixmap(self.unlockable.image_paths[0]))
         else:
             try:
                 bg = Image.open(f"{Path.assets_backgrounds}/{self.unlockable.rarity}.png")
-                icon = Image.open(self.unlockable.image_path)
+                icon = Image.open(self.unlockable.image_paths[0])
                 combined = Image.alpha_composite(bg, icon)
                 self.image.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(combined)))
             except:
                 print(f"error adding background to {self.unlockable.unique_id}")
-                self.image.setPixmap(QPixmap(self.unlockable.image_path))
+                self.image.setPixmap(QPixmap(self.unlockable.image_paths[0]))
 
 class PreferencesPage(QWidget):
     def get_edit_profile(self):
@@ -686,8 +686,8 @@ class PreferencesPage(QWidget):
         icons = Data.get_icons()
         for unlockableWidget in self.unlockableWidgets:
             info = icons[unlockableWidget.unlockable.unique_id]
-            unlockableWidget.unlockable.set_image_path(info["image_path"])
-            unlockableWidget.unlockable.set_is_custom_icon(info["is_custom_icon"])
+            unlockableWidget.unlockable.set_image_path(info["image_paths"])
+            unlockableWidget.unlockable.set_are_custom_icons(info["are_custom_icons"])
             unlockableWidget.refresh_icon()
 
     def __init__(self, bloodweb_page):

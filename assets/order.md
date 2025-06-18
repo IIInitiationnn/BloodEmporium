@@ -28,4 +28,4 @@
 ## Killer Perks: 500,000 - 599,999
 ## Survivor Perks: 600,000 - 699,999
 
-TODO split perks between generic & character
+TODO split perks between generic & character, also put perks 10 apart for each character

@@ -295,8 +295,9 @@ class StateProcess(Process):
             print(f"initialising ({State.version})")
             print(f"merging")
             unlockables = Data.get_unlockables()
-            num_custom = len([u for u in unlockables if u.is_custom_icon])
-            print(f"using {num_custom} custom icons and {len(unlockables) - num_custom} vanilla icons")
+            are_custom_icons = [is_custom_icon for u in unlockables for is_custom_icon in u.are_custom_icons]
+            num_custom = len([is_custom_icon for is_custom_icon in are_custom_icons if is_custom_icon])
+            print(f"using {num_custom} custom icons and {len(are_custom_icons) - num_custom} vanilla icons")
             print(f"----------RUNTIME INFO----------")
             print(f"profile        | {profile_id}")
             print(f"    bundled    | {bundled}")
