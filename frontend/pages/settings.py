@@ -1,7 +1,7 @@
 import os
 import sys
 
-from PyQt5.QtCore import QSize, QTimer
+from PyQt5.QtCore import QSize, QTimer, Qt
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QGridLayout
 from pynput import keyboard
 
@@ -120,9 +120,11 @@ class SettingsPage(QWidget):
                                                "<p style=line-height:125%>"
                                                "You only need to modify this if you are using custom icons.<br>"
                                                "Default path on Steam is C:/Program Files (x86)/Steam/steamapps/common/"
-                                               "Dead by Daylight/DeadByDaylight/Content/UI/Icons.<br>"
+                                               "Dead by Daylight/DeadByDaylight/Content/UI/Icons<br>"
                                                "Default path on Epic Games is C:/Program Files/Epic Games/"
-                                               "DeadByDaylight/Content/UI/Icons.</p>", Font(10))
+                                               "DeadByDaylight/Content/UI/Icons</p>", Font(10))
+        self.pathLabelDefaultLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.pathLabelDefaultLabel.setCursor(Qt.IBeamCursor)
 
         self.pathRow = QWidget(self)
         self.pathRow.setObjectName("settingsPagePathRow")

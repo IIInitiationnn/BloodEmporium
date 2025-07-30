@@ -75,7 +75,7 @@ class HelpPage(QWidget):
         self.contactDiscordIcon.setPixmap(QPixmap(os.getcwd() + "/" + Icons.discord))
         self.contactDiscordIcon.setScaledContents(True)
         self.contactDiscordLabel = HyperlinkTextLabel(self.contactDiscordRow, "helpPageContactDiscordLabel",
-                                                      "Discord", "https://discord.gg/J4KCqJJuaM", Font(10))
+                                                      "Community Discord", "https://discord.gg/J4KCqJJuaM", Font(10))
 
         self.contactTwitterRow = QWidget(self)
         self.contactTwitterRow.setObjectName("helpPageContactTwitterRow")
