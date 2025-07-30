@@ -12,6 +12,7 @@
 - map: 200,300 - 200,399
 - med-kit: 200,400 - 200,499
 - toolbox: 200,500 - 200,599
+- fog vial: 200,600 - 200,699
 
 ## Survivor Addons: 300,000 - 399,999
 - same order as items, just add 100,000
