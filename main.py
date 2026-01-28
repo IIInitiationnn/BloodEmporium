@@ -243,6 +243,9 @@ class SideGrip(QWidget):
         self.mousePos = None
 
 class MainWindow(QMainWindow):
+    def closeEvent(self, a0):
+        Config().set_size(self.window().width(), self.window().height())
+
     def minimize(self):
         self.showMinimized()
 
@@ -417,7 +420,8 @@ class MainWindow(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         self.setMinimumSize(1100, 600)
-        self.resize(1570, 870)
+        config = Config()
+        self.resize(*config.size())
         self.setWindowTitle("Blood Emporium")
         self.setWindowIcon(QIcon(Icons.icon))
 

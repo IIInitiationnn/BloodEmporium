@@ -3,5 +3,7 @@
     "hotkey": "ctrl alt 9",
     "interaction": "press",
     "primary_mouse": "left",
+    "width": 1570,
+    "height": 870,
     "profiles": []
 }
