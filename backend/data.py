@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from typing import List
 
 from config import Config
 from paths import Path
@@ -104,7 +105,7 @@ class Data:
         return icons
 
     @staticmethod
-    def get_unlockables():
+    def get_unlockables() -> List[Unlockable]:
         unlockables = []
         for row in Data.__get_unlockable_data():
             u_id, u_alternate_path, u_name, u_category, u_rarity, u_notes, u_type, u_order, u_image_paths, u_are_custom_icons = row

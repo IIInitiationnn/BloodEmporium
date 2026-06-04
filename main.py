@@ -345,6 +345,7 @@ class MainWindow(QMainWindow):
                     return self.bloodwebPage.show_run_error("Bloodpoint limit must be a positive integer.", True)
 
             # may as well use the validated thresholds & limits
+            self.bloodwebPage.summaryBox.reset()
             self.state.run((debug, write_to_output, tier, subtier, prestige_limit, bp_limit))
             self.toggle_run_terminate_text("Running...", False, True)
             self.bloodwebPage.start_time()
@@ -766,6 +767,8 @@ class MainWindow(QMainWindow):
         self.homePageLayout.addWidget(self.homePageRow4)
         self.homePageLayout.addStretch(1)
 
+        self.emitter.summary_seen.connect(self.bloodwebPage.on_summary_seen_signal)
+        self.emitter.summary_bought.connect(self.bloodwebPage.on_summary_bought_signal)
         self.emitter.prestige.connect(self.bloodwebPage.on_prestige_signal)
         self.emitter.bloodpoint.connect(self.bloodwebPage.on_bloodpoint_signal)
         self.emitter.terminate.connect(self.terminate)
@@ -787,6 +790,8 @@ class MainWindow(QMainWindow):
 # https://stackoverflow.com/questions/34525750/mainwindow-object-has-no-attribute-connect
 # receives data from state process via pipe, then emits to main window in this process
 class Emitter(QObject, Thread):
+    summary_seen = pyqtSignal(str) # unlockable id
+    summary_bought = pyqtSignal(str, bool) # unlockable id, is certain
     prestige = pyqtSignal(int, object) # total, limit
     bloodpoint = pyqtSignal(int, object) # total, limit
     terminate = pyqtSignal()
@@ -800,6 +805,8 @@ class Emitter(QObject, Thread):
 
     def emit(self, signature, args):
         {
+            "summary_seen": lambda: self.summary_seen.emit(*args),
+            "summary_bought": lambda: self.summary_bought.emit(*args),
             "prestige": lambda: self.prestige.emit(*args),
             "bloodpoint": lambda: self.bloodpoint.emit(*args),
             "terminate": lambda: self.terminate.emit(*args),

@@ -289,6 +289,39 @@ class StyleSheets:
             border: 2px solid {purple};
         }}"""
 
+    table = f"""
+        QTableWidget {{
+            color: rgb(255, 255, 255);
+            background-color: transparent;
+            gridline-color: {selection};
+            border: none;
+        }}
+
+        QTableView::item {{
+            color: rgb(255, 255, 255);
+            padding: 0 10px 0 10px;
+        }}
+
+        QTableCornerButton::section {{
+            border: none;
+            background-color: transparent;
+            padding: 0;
+        }}
+
+        QHeaderView {{
+            background-color: transparent;
+            border: none;
+        }}
+
+        QHeaderView::section {{
+            color: rgb(255, 255, 255);
+            background-color: transparent;
+            padding: 0 10px 0 10px;
+            border: none;
+            border-bottom: 2px solid {selection};
+        }}
+"""
+
     @staticmethod
     def threshold_input(threshold):
         try:

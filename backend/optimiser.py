@@ -3,7 +3,7 @@ import math
 import random
 from collections import defaultdict
 from statistics import mean
-from typing import List
+from typing import List, Dict
 
 import networkx as nx
 
@@ -140,7 +140,7 @@ class Optimiser:
         choice = random.choice(min_node_ids)
         return None if choice is None else GraphNode.from_dict(self.base_graph.nodes[choice])
 
-    def select_best_multi(self, unlockables: List[Unlockable]) -> List[GraphNode]:
+    def select_best_multi(self, unlockables: Dict[str, Unlockable]) -> List[GraphNode]:
         timer = Timer("select_best_multi")
         # find all relevant path (multi-claim) selections
         paths, bp_vals, opt_vals = [], [], []
@@ -164,7 +164,7 @@ class Optimiser:
                 # more weight should be given to further nodes because the value they provide propagates down the path
                 path_opt_val = mean([self.dijkstra_graph.nodes[intermediate_node]["value"]
                                      for intermediate_node in path])
-                path_unlockables = [[u for u in unlockables
+                path_unlockables = [[u for u in unlockables.values()
                                     if u.unique_id == self.dijkstra_graph.nodes[intermediate_node]["name"]][0]
                                     for intermediate_node in path]
                 path_bp_val = sum([Data.get_cost(u.rarity, u.type) for u in path_unlockables])

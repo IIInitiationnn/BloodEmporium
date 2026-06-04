@@ -5,6 +5,7 @@ import time
 import traceback
 from datetime import datetime
 from multiprocessing import Process, Pipe
+from typing import List
 
 # import mouse
 import pyautogui
@@ -13,7 +14,7 @@ from numpy import mean
 # from pynput.mouse import Controller, Button
 
 from backend.config import Config
-from backend.data import Data
+from backend.data import Data, Unlockable
 from backend.edge_detection import EdgeDetection
 from backend.image import CVImage
 from backend.node_detection import NodeDetection
@@ -294,8 +295,8 @@ class StateProcess(Process):
             # initialisation: merged base for template matching
             print(f"initialising ({State.version})")
             print(f"merging")
-            unlockables = Data.get_unlockables()
-            are_custom_icons = [is_custom_icon for u in unlockables for is_custom_icon in u.are_custom_icons]
+            unlockables = {u.unique_id: u for u in Data.get_unlockables()}
+            are_custom_icons = [is_custom_icon for u in unlockables.values() for is_custom_icon in u.are_custom_icons]
             num_custom = len([is_custom_icon for is_custom_icon in are_custom_icons if is_custom_icon])
             print(f"using {num_custom} custom icons and {len(are_custom_icons) - num_custom} vanilla icons")
             print(f"----------RUNTIME INFO----------")
@@ -336,6 +337,9 @@ class StateProcess(Process):
                 all_nodes, bp_node = node_detector.get_validate_all_nodes(node_results)
                 matched_nodes = node_detector.match_nodes(all_nodes, image_gray, merged_base)
                 debugger.set_nodes(bloodweb_iteration, matched_nodes)
+                for node in matched_nodes:
+                    if node.cls_name in NodeType.MULTI_UNCLAIMED:
+                        self.emit("summary_seen", (node.unique_id,))
 
                 # nothing detected
                 if len(matched_nodes) == 0 or \
@@ -393,7 +397,7 @@ class StateProcess(Process):
                     num_unclaimed = 0
                     for node in matched_nodes:
                         if node.cls_name in NodeType.MULTI_UNCLAIMED:
-                            unlockable = [u for u in unlockables if u.unique_id == node.unique_id][0]
+                            unlockable = unlockables[node.unique_id]
                             total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
                             num_unclaimed += 1
                     if debug_mode:
@@ -406,6 +410,9 @@ class StateProcess(Process):
                         print("auto origin (enabled) from fast forward: selecting")
                         self.bp_total += total_bloodweb_cost
                         self.emit("bloodpoint", (self.bp_total, self.bp_limit))
+                        for node in matched_nodes:
+                            if node.cls_name in NodeType.MULTI_UNCLAIMED:
+                                self.emit("summary_bought", (node.unique_id, True))
                         centre = origin_auto_enabled[0].box.centre()
                         self.move_to(*centre.xy())
                         self.click_origin(num_unclaimed)
@@ -477,7 +484,7 @@ class StateProcess(Process):
                     num_unclaimed = 0
                     for data in base_bloodweb.nodes.values():
                         if data["cls_name"] in NodeType.MULTI_UNCLAIMED:
-                            unlockable = [u for u in unlockables if u.unique_id == data["name"]][0]
+                            unlockable = unlockables[data["name"]]
                             remaining_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
                             num_unclaimed += 1
                     if len(origin_auto_enabled) > 0 and \
@@ -487,28 +494,31 @@ class StateProcess(Process):
                         print("auto origin (enabled) from auto purchase: selecting")
                         self.bp_total += remaining_bloodweb_cost
                         self.emit("bloodpoint", (self.bp_total, self.bp_limit))
+                        for node in matched_nodes:
+                            if node.cls_name in NodeType.MULTI_UNCLAIMED:
+                                self.emit("summary_bought", (node.unique_id, False))
                         centre = origin_auto_enabled[0].box.centre()
                         self.move_to(*centre.xy())
                         self.click_origin(num_unclaimed)
                         print("level cleared")
                         break
 
+                    selected: List[Unlockable] = []
                     if run_mode == "aware_single":
                         best_node = optimiser.select_best_single()
                         if best_node is None:
                             self.wait_level_cleared()
                             break
                         best_nodes = [best_node]
-                        u = [u for u in unlockables if u.unique_id == best_node.name][0]
-                        cost = Data.get_cost(u.rarity, u.type)
+                        selected.append(unlockables[best_node.name])
                     else:
                         best_nodes = optimiser.select_best_multi(unlockables) # TODO incorporate into debugging
                         if len(best_nodes) == 0:
                             self.wait_level_cleared()
                             break
                         best_node = best_nodes[-1]
-                        us = [[u for u in unlockables if u.unique_id == node.name][0] for node in best_nodes]
-                        cost = sum([Data.get_cost(u.rarity, u.type) for u in us])
+                        selected.extend([unlockables[node.name] for node in best_nodes])
+                    cost = sum([Data.get_cost(s.rarity, s.type) for s in selected])
                     if self.bp_limit is not None and self.bp_total + cost > self.bp_limit:
                         print(f"{best_node.node_id} ({best_node.name}): reached bloodpoint limit. terminating")
                         self.emit("terminate")
@@ -523,6 +533,8 @@ class StateProcess(Process):
                     print(f"{best_node.node_id} ({best_node.name})")
                     self.bp_total += cost
                     self.emit("bloodpoint", (self.bp_total, self.bp_limit))
+                    for node in selected:
+                        self.emit("summary_bought", (node.unique_id, True))
 
                     # select node: press OR hold on the node for 0.3s
                     grab_time = time.time()

@@ -2,10 +2,12 @@ import os
 import sys
 import time
 
-from PyQt5.QtCore import QSize, QTimer
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGridLayout
+from PyQt5.QtCore import QSize, QTimer, Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QTableWidget, QHeaderView, QTableWidgetItem, \
+    QAbstractItemView
 from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button, CheckBox, ScrollBar, \
-    ScrollArea, ScrollAreaContent
+    ScrollArea, ScrollAreaContent, CollapsibleBox, Icons
 from frontend.layouts import RowLayout
 from frontend.stylesheets import StyleSheets
 
@@ -15,6 +17,104 @@ from backend.config import Config
 from backend.data import Data
 from backend.runtime import Runtime
 from backend.util.text_util import TextUtil
+
+class SummaryCollapsibleBox(CollapsibleBox):
+    # TODO button to copy to csv table
+    bought = dict()
+    bought_uncertain = dict() # eg from autopurchase but not fast forward
+    seen = dict()
+    indices = dict()
+    latest_index = -1
+
+    def __init__(self, parent, object_name):
+        super().__init__(parent, object_name, "Purchase Summary (Click to Expand)")
+
+        self.unlockables = {u.unique_id: u for u in Data.get_unlockables()}
+
+        self.table = QTableWidget(self)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.setFont(Font(10))
+        self.table.horizontalHeader().setFont(Font(10))
+        self.table.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.table.verticalHeader().setFont(Font(10))
+        self.table.setRowCount(0) # headers
+        self.table.setColumnCount(3) # icon + name, num purchased, num seen
+        self.table.setHorizontalHeaderLabels(["Unlockable", "# Purchased", "# Seen"])
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.table.setStyleSheet(StyleSheets.table)
+        self.table.setMinimumHeight(0)
+        self.table.setMaximumHeight(0)
+
+        self.layout.addWidget(self.table, alignment=Qt.AlignTop)
+
+    def on_pressed(self):
+        if self.toggleButton.isChecked():
+            self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_active)
+            self.toggleButton.setIcon(QIcon(Icons.right_arrow))
+            self.toggleButton.setText("Purchase Summary (Click to Expand)")
+            self.table.setMinimumHeight(0)
+            self.table.setMaximumHeight(0)
+        else:
+            self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
+            self.toggleButton.setIcon(QIcon(Icons.down_arrow))
+            self.toggleButton.setText("Purchase Summary (Click to Collapse)")
+
+            self.update_table_height()
+
+    def add_summary_seen(self, unlockable_id: str):
+        self.seen[unlockable_id] = self.seen.get(unlockable_id, 0) + 1
+        if unlockable_id not in self.indices:
+            self.latest_index += 1
+            self.indices[unlockable_id] = self.latest_index
+            self.table.setRowCount(self.latest_index + 1)
+            name = QTableWidgetItem(self.unlockables[unlockable_id].name)
+            name.setFont(Font(10))
+            num_bought = QTableWidgetItem(f"{0}")
+            num_bought.setFont(Font(10))
+            self.table.setItem(self.indices[unlockable_id], 0, name)
+            self.table.setItem(self.indices[unlockable_id], 1, num_bought)
+
+            # update table min and max height if currently shown
+            if self.table.minimumHeight() != 0:
+                self.update_table_height()
+
+        num_seen = QTableWidgetItem(f"{self.seen[unlockable_id]}")
+        num_seen.setFont(Font(10))
+        self.table.setItem(self.indices[unlockable_id], 2, num_seen)
+
+    def add_summary_bought(self, unlockable_id: str, is_certain: bool):
+        if is_certain:
+            self.bought[unlockable_id] = self.bought.get(unlockable_id, 0) + 1
+        else:
+            self.bought_uncertain[unlockable_id] = self.bought_uncertain.get(unlockable_id, 0) + 1
+        num_bought = QTableWidgetItem(self.bought_details(unlockable_id))
+        num_bought.setFont(Font(10))
+        self.table.setItem(self.indices[unlockable_id], 1, num_bought)
+
+    def reset(self):
+        self.bought = dict()
+        self.bought_uncertain = dict()
+        self.seen = dict()
+        self.indices = dict()
+        self.latest_index = -1
+        self.table.setRowCount(0)
+        if self.table.minimumHeight() != 0:
+            self.update_table_height()
+
+    def update_table_height(self):
+        total_height = self.table.horizontalHeader().height()
+        for i in range(self.table.rowCount()):
+            total_height += self.table.rowHeight(i)
+        self.table.setMinimumHeight(total_height)
+        self.table.setMaximumHeight(total_height)
+
+    def bought_details(self, unlockable_id: str) -> str:
+        num_bought = self.bought.get(unlockable_id, 0)
+        num_bought_uncertain = self.bought_uncertain.get(unlockable_id, 0)
+        if num_bought_uncertain == 0:
+            return f"{num_bought}"
+        else:
+            return f"{num_bought}-{num_bought + num_bought_uncertain}"
 
 class BloodwebPage(QWidget):
     def on_select_run_mode(self, mode):
@@ -94,6 +194,12 @@ class BloodwebPage(QWidget):
     def on_bloodpoint_signal(self, bp_total, bp_limit):
         self.runBloodpointProgress.setText(f"Bloodpoints spent: {bp_total:,} / {bp_limit:,}"
                                            if bp_limit is not None else f"Bloodpoints spent: {bp_total:,}")
+
+    def on_summary_seen_signal(self, unlockable_id):
+        self.summaryBox.add_summary_seen(unlockable_id)
+
+    def on_summary_bought_signal(self, unlockable_id, is_certain):
+        self.summaryBox.add_summary_bought(unlockable_id, is_certain)
 
     def start_time(self):
         self.starting_time = time.time()
@@ -334,6 +440,8 @@ class BloodwebPage(QWidget):
         self.on_bloodpoint_signal(0, None)
         self.runTimeProgress.setText(f"Time elapsed: 0s")
 
+        self.summaryBox = SummaryCollapsibleBox(self, "summaryBox")
+
         self.awareSingleRowLayout.addWidget(self.awareSingleCheckBox)
         self.awareSingleRowLayout.addWidget(self.awareSingleDescription)
         self.awareSingleRowLayout.addStretch(1)
@@ -400,6 +508,7 @@ class BloodwebPage(QWidget):
         self.scrollAreaContentLayout.addWidget(self.runPrestigeProgress)
         self.scrollAreaContentLayout.addWidget(self.runBloodpointProgress)
         self.scrollAreaContentLayout.addWidget(self.runTimeProgress)
+        self.scrollAreaContentLayout.addWidget(self.summaryBox)
         self.scrollAreaContentLayout.addStretch(1)
 
         self.layout.addWidget(self.scrollArea)
