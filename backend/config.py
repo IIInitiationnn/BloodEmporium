@@ -96,6 +96,9 @@ class Config:
     def size(self):
         return self.config["width"], self.config["height"]
 
+    def position(self):
+        return self.config["x"], self.config["y"]
+
     def __profiles(self, bundled=False) -> List[Dict[str, Any]]:
         return self.bundled_profiles if bundled else self.config["profiles"]
 
@@ -136,6 +139,8 @@ class Config:
                     "primary_mouse": self.config.get("primary_mouse", default_config["primary_mouse"]),
                     "width": self.config.get("width", default_config["width"]),
                     "height": self.config.get("height", default_config["height"]),
+                    "x": self.config.get("x", default_config["x"]),
+                    "y": self.config.get("y", default_config["y"]),
                     "profiles": self.config.get("profiles", default_config["profiles"]),
                 }, output, indent=4) # to preserve order
         copyfile("config.json", "config_backup.json")
@@ -175,6 +180,11 @@ class Config:
     def set_size(self, width, height):
         self.config["width"] = width
         self.config["height"] = height
+        self.commit_changes()
+
+    def set_position(self, x, y):
+        self.config["x"] = x
+        self.config["y"] = y
         self.commit_changes()
 
     def set_profile(self, updated_profile):

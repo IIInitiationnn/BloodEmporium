@@ -245,6 +245,7 @@ class SideGrip(QWidget):
 class MainWindow(QMainWindow):
     def closeEvent(self, a0):
         Config().set_size(self.window().width(), self.window().height())
+        Config().set_position(self.pos().x(), self.pos().y())
 
     def minimize(self):
         self.showMinimized()
@@ -423,6 +424,9 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(1100, 600)
         config = Config()
         self.resize(*config.size())
+        x, y = config.position()
+        if x != -1 and y != -1:
+            self.move(x, y)
         self.setWindowTitle("Blood Emporium")
         self.setWindowIcon(QIcon(Icons.icon))
 
