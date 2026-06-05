@@ -1,11 +1,15 @@
 import os
 import sys
 import time
+import traceback
 
+from PIL import ImageQt, Image
 from PyQt5.QtCore import QSize, QTimer, Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QTableWidget, QHeaderView, QTableWidgetItem, \
     QAbstractItemView
+
+from backend.paths import Path
 from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button, CheckBox, ScrollBar, \
     ScrollArea, ScrollAreaContent, CollapsibleBox, Icons
 from frontend.layouts import RowLayout
@@ -30,6 +34,7 @@ class SummaryCollapsibleBox(CollapsibleBox):
         super().__init__(parent, object_name, "Purchase Summary (Click to Expand)")
 
         self.unlockables = {u.unique_id: u for u in Data.get_unlockables()}
+        self.killer_names = Data.get_killer_full_name(True)
 
         self.table = QTableWidget(self)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -44,6 +49,7 @@ class SummaryCollapsibleBox(CollapsibleBox):
         self.table.setStyleSheet(StyleSheets.table)
         self.table.setMinimumHeight(0)
         self.table.setMaximumHeight(0)
+        self.table.setIconSize(QSize(45, 45))
 
         self.layout.addWidget(self.table, alignment=Qt.AlignTop)
 
@@ -67,12 +73,35 @@ class SummaryCollapsibleBox(CollapsibleBox):
             self.latest_index += 1
             self.indices[unlockable_id] = self.latest_index
             self.table.setRowCount(self.latest_index + 1)
-            name = QTableWidgetItem(self.unlockables[unlockable_id].name)
+
+            unlockable = self.unlockables[unlockable_id]
+            name = QTableWidgetItem(unlockable.name)
+            name.setToolTip(
+                f"""Character: {self.killer_names.get(unlockable.category, TextUtil.title_case(unlockable.category))}
+Rarity: {TextUtil.title_case(unlockable.rarity)}
+Type: {TextUtil.title_case(unlockable.type)}""")
+
+            if unlockable.are_custom_icons[0]:
+                pixmap_icon = QIcon(QPixmap(unlockable.image_paths[0]))
+                name.setIcon(pixmap_icon)
+            else:
+                try:
+                    bg = Image.open(f"{Path.assets_backgrounds}/{unlockable.rarity}.png")
+                    icon = Image.open(unlockable.image_paths[0])
+                    combined = Image.alpha_composite(bg, icon)
+                    pixmap_icon = QIcon(QPixmap.fromImage(ImageQt.ImageQt(combined)))
+                    name.setIcon(pixmap_icon)
+                except:
+                    pixmap_icon = QIcon(QPixmap(unlockable.image_paths[0]))
+                    name.setIcon(pixmap_icon)
+
             name.setFont(Font(10))
             num_bought = QTableWidgetItem(f"{0}")
             num_bought.setFont(Font(10))
+
             self.table.setItem(self.indices[unlockable_id], 0, name)
             self.table.setItem(self.indices[unlockable_id], 1, num_bought)
+            self.table.resizeRowToContents(self.indices[unlockable_id])
 
             # update table min and max height if currently shown
             if self.table.minimumHeight() != 0:

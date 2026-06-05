@@ -319,6 +319,11 @@ class StyleSheets:
             padding: 0 10px 0 10px;
             border: none;
             border-bottom: 2px solid {selection};
+            border-right: 2px solid {selection};
+        }}
+
+        QHeaderView::section:last {{
+            border-right: none;
         }}
 """
 
