@@ -152,8 +152,8 @@ class Data:
     }
 
     @staticmethod
-    def get_cost(rarity, unlockable_type):
-        return 4000 if unlockable_type == "perk" else Data.__costs[rarity]
+    def get_cost(unlockable: Unlockable):
+        return 4000 if unlockable.type == "perk" else Data.__costs[unlockable.rarity]
 
     @staticmethod
     def get_sorts():

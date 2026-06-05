@@ -90,9 +90,9 @@ class SummaryCollapsibleBox(CollapsibleBox):
     def save_data(self):
         path, _ = QFileDialog.getSaveFileName(self, "Save Summary to File", filter="CSV (*.csv)")
         try:
-            data = ["unlockable,# purchased,# seen"]
+            data = ["unlockable,bloodpoint cost,# purchased,# seen"]
             for unlockable_id in self.indices.keys():
-                data.append(f"{unlockable_id},{self.bought_details(unlockable_id)},{self.seen[unlockable_id]}")
+                data.append(f"{unlockable_id},{Data.get_cost(self.unlockables[unlockable_id])},{self.bought_details(unlockable_id)},{self.seen[unlockable_id]}")
             with open(path, "w") as file:
                 file.write("\n".join(data))
             filename = path.split("\\")[-1]

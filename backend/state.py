@@ -397,8 +397,7 @@ class StateProcess(Process):
                     num_unclaimed = 0
                     for node in matched_nodes:
                         if node.cls_name in NodeType.MULTI_UNCLAIMED:
-                            unlockable = unlockables[node.unique_id]
-                            total_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
+                            total_bloodweb_cost += Data.get_cost(unlockables[node.unique_id])
                             num_unclaimed += 1
                     if debug_mode:
                         debugger.construct_and_show_images(bloodweb_iteration)
@@ -484,8 +483,7 @@ class StateProcess(Process):
                     num_unclaimed = 0
                     for data in base_bloodweb.nodes.values():
                         if data["cls_name"] in NodeType.MULTI_UNCLAIMED:
-                            unlockable = unlockables[data["name"]]
-                            remaining_bloodweb_cost += Data.get_cost(unlockable.rarity, unlockable.type)
+                            remaining_bloodweb_cost += Data.get_cost(unlockables[data["name"]])
                             num_unclaimed += 1
                     if len(origin_auto_enabled) > 0 and \
                             optimiser.can_auto_purchase(profile_id, bundled, self.threshold_tier,
@@ -518,7 +516,7 @@ class StateProcess(Process):
                             break
                         best_node = best_nodes[-1]
                         selected.extend([unlockables[node.name] for node in best_nodes])
-                    cost = sum([Data.get_cost(s.rarity, s.type) for s in selected])
+                    cost = sum([Data.get_cost(s) for s in selected])
                     if self.bp_limit is not None and self.bp_total + cost > self.bp_limit:
                         print(f"{best_node.node_id} ({best_node.name}): reached bloodpoint limit. terminating")
                         self.emit("terminate")
