@@ -220,6 +220,7 @@ class Icons:
     app_splash = "assets/images/app_splash.png"
     splash = "assets/images/splash.png"
 
+    # https://thenounproject.com/browse/collection-icon/website-library-79202/
     minimize = __base + "/icon_minimize.png"
     restore = __base + "/icon_restore.png"
     maximize = __base + "/icon_maximize.png"
