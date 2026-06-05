@@ -542,7 +542,7 @@ class PreferencesPage(QWidget):
                     return
 
             path, _ = QFileDialog.getOpenFileName(self, "Select .emp File to Import",
-                                                  filter="Blood Emporium Profile Files (*.emp)")
+                                                  filter="Blood Emporium Profiles (*.emp)")
             if path == "":
                 self.ignore_profile_signals = False
                 return

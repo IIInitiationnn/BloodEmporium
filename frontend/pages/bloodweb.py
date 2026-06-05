@@ -7,7 +7,7 @@ from PIL import ImageQt, Image
 from PyQt5.QtCore import QSize, QTimer, Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QTableWidget, QHeaderView, QTableWidgetItem, \
-    QAbstractItemView
+    QAbstractItemView, QFileDialog
 
 from backend.paths import Path
 from frontend.generic import TextLabel, Font, TextInputBox, Selector, CheckBoxWithFunction, Button, CheckBox, ScrollBar, \
@@ -23,7 +23,6 @@ from backend.runtime import Runtime
 from backend.util.text_util import TextUtil
 
 class SummaryCollapsibleBox(CollapsibleBox):
-    # TODO button to copy to csv table
     bought = dict()
     bought_uncertain = dict() # eg from autopurchase but not fast forward
     seen = dict()
@@ -35,6 +34,18 @@ class SummaryCollapsibleBox(CollapsibleBox):
 
         self.unlockables = {u.unique_id: u for u in Data.get_unlockables()}
         self.killer_names = Data.get_killer_full_name(True)
+
+        self.saveRow = QWidget(self)
+        self.saveRow.setObjectName("bloodwebPageSaveRow")
+        self.saveRowLayout = RowLayout(self.saveRow, "bloodwebPageSaveRowLayout")
+        self.saveRow.setMinimumHeight(0)
+        self.saveRow.setMaximumHeight(0)
+
+        self.saveButton = Button(self.saveRow, "bloodwebPageSaveButton", "Save Summary to .csv", QSize(150, 35))
+        self.saveButton.clicked.connect(self.save_data)
+
+        self.saveSuccessText = TextLabel(self.saveRow, "bloodwebPageSaveSuccessText", "", Font(10))
+        self.saveSuccessText.setVisible(False)
 
         self.table = QTableWidget(self)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -51,21 +62,46 @@ class SummaryCollapsibleBox(CollapsibleBox):
         self.table.setMaximumHeight(0)
         self.table.setIconSize(QSize(45, 45))
 
-        self.layout.addWidget(self.table, alignment=Qt.AlignTop)
+        self.saveRowLayout.addWidget(self.saveButton)
+        self.saveRowLayout.addWidget(self.saveSuccessText)
+        self.saveRowLayout.addStretch(1)
+
+        self.layout.addWidget(self.saveRow)
+        self.layout.addWidget(self.table)
 
     def on_pressed(self):
         if self.toggleButton.isChecked():
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_active)
             self.toggleButton.setIcon(QIcon(Icons.right_arrow))
             self.toggleButton.setText("Purchase Summary (Click to Expand)")
+            self.saveRow.setMinimumHeight(0)
+            self.saveRow.setMaximumHeight(0)
             self.table.setMinimumHeight(0)
             self.table.setMaximumHeight(0)
         else:
+            self.saveRow.setMinimumHeight(35)
+            self.saveRow.setMaximumHeight(35)
             self.toggleButton.setStyleSheet(StyleSheets.collapsible_box_inactive)
             self.toggleButton.setIcon(QIcon(Icons.down_arrow))
             self.toggleButton.setText("Purchase Summary (Click to Collapse)")
 
             self.update_table_height()
+
+    def save_data(self):
+        path, _ = QFileDialog.getSaveFileName(self, "Save Summary to File", filter="CSV (*.csv)")
+        try:
+            data = ["unlockable,# purchased,# seen"]
+            for unlockable_id in self.indices.keys():
+                data.append(f"{unlockable_id},{self.bought_details(unlockable_id)},{self.seen[unlockable_id]}")
+            with open(path, "w") as file:
+                file.write("\n".join(data))
+            filename = path.split("\\")[-1]
+            self.saveSuccessText.setText(f"Summary saved to {filename}")
+            self.saveSuccessText.setStyleSheet(StyleSheets.pink_text)
+            self.saveSuccessText.setVisible(True)
+            QTimer.singleShot(10000, lambda: self.saveSuccessText.setVisible(False))
+        except:
+            return
 
     def add_summary_seen(self, unlockable_id: str):
         self.seen[unlockable_id] = self.seen.get(unlockable_id, 0) + 1
@@ -76,6 +112,7 @@ class SummaryCollapsibleBox(CollapsibleBox):
 
             unlockable = self.unlockables[unlockable_id]
             name = QTableWidgetItem(unlockable.name)
+            name.setFlags(name.flags() & ~Qt.ItemFlag.ItemIsSelectable)
             name.setToolTip(
                 f"""Character: {self.killer_names.get(unlockable.category, TextUtil.title_case(unlockable.category))}
 Rarity: {TextUtil.title_case(unlockable.rarity)}
@@ -97,6 +134,7 @@ Type: {TextUtil.title_case(unlockable.type)}""")
 
             name.setFont(Font(10))
             num_bought = QTableWidgetItem(f"{0}")
+            num_bought.setFlags(num_bought.flags() & ~Qt.ItemFlag.ItemIsSelectable)
             num_bought.setFont(Font(10))
 
             self.table.setItem(self.indices[unlockable_id], 0, name)
@@ -108,6 +146,7 @@ Type: {TextUtil.title_case(unlockable.type)}""")
                 self.update_table_height()
 
         num_seen = QTableWidgetItem(f"{self.seen[unlockable_id]}")
+        num_seen.setFlags(num_seen.flags() & ~Qt.ItemFlag.ItemIsSelectable)
         num_seen.setFont(Font(10))
         self.table.setItem(self.indices[unlockable_id], 2, num_seen)
 
