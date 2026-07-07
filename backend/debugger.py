@@ -3,7 +3,7 @@ from typing import List
 
 import cv2
 
-from backend.image import CVImage
+from backend.image import CVImage, Image
 from backend.mergedbase import MergedBase
 from backend.shapes import MatchedNode, LinkedEdge
 from backend.util.node_util import ColorUtil
@@ -30,7 +30,7 @@ class Debugger:
     def set_merged_base(self, merged_base: MergedBase):
         self.merged_base = merged_base
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/collage.png", merged_base.images)
+            Image.imwrite(f"output/{self.time}/collage.png", merged_base.images)
         return self
 
     # image - direct output, indirect debug
@@ -43,7 +43,7 @@ class Debugger:
         if self.write_to_output:
             if not os.path.isdir(f"output/{self.time}/{bloodweb_iteration}"):
                 os.mkdir(f"output/{self.time}/{bloodweb_iteration}")
-            cv2.imwrite(f"output/{self.time}/{bloodweb_iteration}/initial.png", cv_image.get_bgr())
+            Image.imwrite(f"output/{self.time}/{bloodweb_iteration}/initial.png", cv_image.get_bgr())
 
     # nodes - indirect output, indirect debug
     def set_nodes(self, bloodweb_iteration, nodes: List[MatchedNode]):
@@ -64,8 +64,8 @@ class Debugger:
     # updated image - direct output
     def add_updated_image(self, bloodweb_iteration, update_iteration, updated_image):
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/{bloodweb_iteration}/updated_{update_iteration}.png",
-                        updated_image.get_bgr())
+            Image.imwrite(f"output/{self.time}/{bloodweb_iteration}/updated_{update_iteration}.png",
+                          updated_image.get_bgr())
 
     # optimiser - direct output
     def set_dijkstra(self, bloodweb_iteration, update_iteration, dijkstra_graph):
@@ -92,7 +92,7 @@ class Debugger:
             cv2.line(img, edge.node_a.box.centre().xy(), edge.node_b.box.centre().xy(), (255, 255, 255), 1)
 
         if self.write_to_output:
-            cv2.imwrite(f"output/{self.time}/{bloodweb_iteration}/processed.png", img)
+            Image.imwrite(f"output/{self.time}/{bloodweb_iteration}/processed.png", img)
 
         cv2.imshow("processed", img)
         cv2.waitKey(0)
