@@ -68,7 +68,7 @@ class MergedBase:
 
                 margin = (dim - self.size) // 2
 
-                template = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+                template = Image.imread(image_path, cv2.IMREAD_UNCHANGED)
                 template = cv2.resize(template, (dim, dim), interpolation=Image.interpolation)
                 template = template[margin:(margin + self.size), margin:(margin + self.size)]
 

@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 import pyautogui
@@ -25,7 +27,7 @@ class CVImage:
 
     @staticmethod
     def from_path_bgr(path):
-        return CVImage(cv2.imread(path, cv2.IMREAD_COLOR))
+        return CVImage(Image.imread(path, cv2.IMREAD_COLOR))
 
     def get_bgr(self, copy=False):
         if copy:
@@ -40,3 +42,17 @@ class CVImage:
 
 class Image:
     interpolation = cv2.INTER_CUBIC
+
+    @staticmethod
+    def imread(path, flags=cv2.IMREAD_COLOR):
+        if not os.path.isfile(path):
+            return None
+        return cv2.imdecode(np.fromfile(path, dtype=np.uint8), flags)
+
+    @staticmethod
+    def imwrite(path, image):
+        extension = os.path.splitext(path)[1]
+        success, buffer = cv2.imencode(extension, image)
+        if success:
+            buffer.tofile(path)
+        return success
