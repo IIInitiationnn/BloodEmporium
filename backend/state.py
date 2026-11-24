@@ -602,7 +602,7 @@ class StateProcess(Process):
                                       True, False))
 
 class State:
-    version = "v1.2.22"
+    version = "v1.2.23"
     pyautogui.FAILSAFE = False
     pyautogui.PAUSE = 0.05
     # pydirectinput.FAILSAFE = False
